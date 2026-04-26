@@ -7,7 +7,7 @@ import com.arkivanov.decompose.router.stack.childStack
 import com.arkivanov.decompose.router.stack.replaceAll
 import com.arkivanov.decompose.value.Value
 import com.frame.zero.di.platformModule
-import com.frame.zero.di.sharedModule
+import com.frame.zero.di.sharedModules
 import com.frame.zero.feature.auth.AuthComponent
 import com.frame.zero.feature.auth.AuthViewModel
 import com.frame.zero.feature.dashboard.DashboardComponent
@@ -56,4 +56,4 @@ class RootComponent(
   }
 }
 
-fun initKoin(): Koin = startKoin { modules(sharedModule, platformModule()) }.koin
+fun initKoin(): Koin = startKoin { modules(sharedModules + platformModule()) }.koin

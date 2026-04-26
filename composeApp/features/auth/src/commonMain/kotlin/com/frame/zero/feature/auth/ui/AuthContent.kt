@@ -1,4 +1,4 @@
-package com.frame.zero.auth
+package com.frame.zero.feature.auth.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
