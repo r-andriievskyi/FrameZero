@@ -1,5 +1,6 @@
 plugins {
   alias(libs.plugins.kotlinJvm)
+  alias(libs.plugins.kotlinSerialization)
   alias(libs.plugins.ktor)
   application
   id("crossplatform.code.quality")
@@ -21,6 +22,19 @@ dependencies {
   implementation(libs.logback)
   implementation(libs.ktor.serverCore)
   implementation(libs.ktor.serverNetty)
+  implementation(libs.ktor.serverAuth)
+  implementation(libs.ktor.serverAuthJwt)
+  implementation(libs.ktor.serverContentNegotiation)
+  implementation(libs.ktor.serverStatusPages)
+  implementation(libs.ktor.serializationKotlinxJson)
+  implementation(libs.koin.ktor)
+  implementation(libs.koin.loggerSlf4j)
+  implementation(libs.exposed.core)
+  implementation(libs.exposed.jdbc)
+  implementation(libs.exposed.javaTime)
+  implementation(libs.hikariCp)
+  implementation(libs.postgresql)
+  implementation(libs.bcrypt)
   testImplementation(libs.ktor.serverTestHost)
   testImplementation(libs.kotlin.testJunit)
 }

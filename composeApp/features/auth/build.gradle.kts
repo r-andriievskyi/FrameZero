@@ -1,5 +1,7 @@
 plugins { id("crossplatform.kmp.library.compose") }
 
+base { archivesName = "ui-feature-auth" }
+
 kotlin {
   sourceSets {
     commonMain.dependencies {

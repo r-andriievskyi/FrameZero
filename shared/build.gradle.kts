@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
   alias(libs.plugins.kotlinMultiplatform)
   alias(libs.plugins.androidLibrary)
+  alias(libs.plugins.kotlinSerialization)
   id("crossplatform.code.quality")
 }
 
@@ -19,6 +20,7 @@ kotlin {
       api(projects.shared.features.auth)
       api(projects.shared.features.dashboard)
       api(projects.shared.repositories.auth)
+      api(libs.kotlinx.serialization.json)
       implementation(libs.koin.core)
       implementation(libs.decompose)
       implementation(libs.kotlinx.coroutines.core)
