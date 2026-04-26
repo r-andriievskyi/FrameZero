@@ -1,10 +1,6 @@
 package com.frame.zero.di
 
-import com.frame.zero.JVMPlatform
-import com.frame.zero.Platform
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
-actual fun platformModule(): Module = module {
-  single<Platform> { JVMPlatform() }
-}
+actual fun platformModule(): Module = module {}
