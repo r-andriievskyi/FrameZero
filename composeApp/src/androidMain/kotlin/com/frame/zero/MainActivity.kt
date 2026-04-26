@@ -4,22 +4,21 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
+import com.arkivanov.decompose.defaultComponentContext
+import com.frame.zero.feature.RootComponent
+import com.frame.zero.feature.auth.AuthViewModel
 
 class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        enableEdgeToEdge()
-        super.onCreate(savedInstanceState)
+  private val root by lazy {
+    RootComponent(
+      componentContext = defaultComponentContext(),
+      authViewModelFactory = { application.get<AuthViewModel>() },
+    )
+  }
 
-        setContent {
-            App()
-        }
-    }
-}
-
-@Preview
-@Composable
-fun AppAndroidPreview() {
-    App()
+  override fun onCreate(savedInstanceState: Bundle?) {
+    enableEdgeToEdge()
+    super.onCreate(savedInstanceState)
+    setContent { App(root) }
+  }
 }

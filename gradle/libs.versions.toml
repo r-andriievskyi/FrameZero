@@ -1,7 +1,9 @@
 [versions]
 agp = "8.11.2"
-detekt = "1.23.7"
-ktfmt = "0.22.0"
+decompose = "3.5.0"
+detekt = "1.23.8"
+koin = "4.2.1"
+ktfmt = "0.26.0"
 android-compileSdk = "36"
 android-minSdk = "29"
 android-targetSdk = "36"
@@ -21,6 +23,12 @@ logback = "1.5.32"
 material3 = "1.10.0-alpha05"
 
 [libraries]
+decompose = { module = "com.arkivanov.decompose:decompose", version.ref = "decompose" }
+decompose-extensionsCompose = { module = "com.arkivanov.decompose:extensions-compose", version.ref = "decompose" }
+koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
+koin-ktor = { module = "io.insert-koin:koin-ktor", version.ref = "koin" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
+
 gradle-plugin-android = { module = "com.android.tools.build:gradle", version.ref = "agp" }
 gradle-plugin-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 gradle-plugin-compose-multiplatform = { module = "org.jetbrains.compose:compose-gradle-plugin", version.ref = "composeMultiplatform" }
