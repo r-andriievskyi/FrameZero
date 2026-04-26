@@ -1,0 +1,59 @@
+# ─── Build outputs ───────────────────────────────────────────────────────────
+**/build/
+.gradle/
+.kotlin/
+
+# ─── IDE – Android Studio / IntelliJ ─────────────────────────────────────────
+.idea/
+*.iml
+
+# ─── Android ─────────────────────────────────────────────────────────────────
+local.properties
+captures/
+.externalNativeBuild/
+.cxx/
+
+# ─── Credentials & secrets (never commit) ────────────────────────────────────
+*.jks
+*.keystore
+key.properties
+google-services.json
+agconnect-services.json
+.env
+.env.*
+
+# ─── iOS / Xcode ─────────────────────────────────────────────────────────────
+xcuserdata/
+**/xcshareddata/WorkspaceSettings.xcsettings
+*.xccheckout
+*.moved-aside
+DerivedData/
+*.pbxuser
+!default.pbxuser
+
+# Keep only the files needed to open and build on any machine.
+*.xcodeproj/*
+!*.xcodeproj/project.pbxproj
+!*.xcodeproj/xcshareddata/
+!*.xcodeproj/project.xcworkspace/
+!*.xcworkspace/contents.xcworkspacedata
+
+# Swift Package Manager (resolved versions live inside xcshareddata)
+.swiftpm/
+
+# CocoaPods — uncomment if you adopt CocoaPods (keep Podfile.lock committed)
+# Pods/
+
+# ─── macOS ───────────────────────────────────────────────────────────────────
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# ─── JVM / Kotlin ────────────────────────────────────────────────────────────
+hs_err_pid*
+replay_pid*
+*.hprof
+
+# ─── Node (unlikely, but in case tooling is added) ───────────────────────────
+node_modules/

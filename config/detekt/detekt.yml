@@ -1,0 +1,47 @@
+build:
+  maxIssues: 0
+
+config:
+  validation: true
+  warningsAsErrors: false
+
+# ktfmt owns all formatting; disable detekt's formatting rule set entirely
+formatting:
+  active: false
+
+complexity:
+  LongMethod:
+    threshold: 60
+  LongParameterList:
+    functionThreshold: 8
+    constructorThreshold: 8
+    ignoreDefaultParameters: true
+  TooManyFunctions:
+    thresholdInFiles: 20
+    thresholdInClasses: 20
+
+style:
+  # Compose uses raw dp/weight numbers everywhere — magic number rule is too noisy
+  MagicNumber:
+    active: false
+  # ktfmt controls line length
+  MaxLineLength:
+    active: false
+  ReturnCount:
+    max: 4
+    excludeGuardClauses: true
+  ForbiddenComment:
+    active: true
+    comments:
+      - value: 'STOPSHIP:'
+        reason: 'Remove before merging.'
+  WildcardImport:
+    active: true
+    excludeImports:
+      - 'androidx.compose.ui.graphics.*'
+      - 'androidx.compose.foundation.layout.*'
+
+potential-bugs:
+  # lateinit is often needed for Android view-model injection
+  LateinitUsage:
+    active: false
