@@ -1,5 +1,7 @@
 plugins { id("crossplatform.kmp.library.compose") }
 
+base { archivesName = "ui-feature-dashboard" }
+
 kotlin {
   sourceSets {
     commonMain.dependencies {

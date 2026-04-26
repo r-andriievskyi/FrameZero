@@ -1,5 +1,7 @@
 plugins { id("crossplatform.kmp.library") }
 
+base { archivesName = "feature-dashboard" }
+
 kotlin {
   sourceSets {
     commonMain.dependencies {
