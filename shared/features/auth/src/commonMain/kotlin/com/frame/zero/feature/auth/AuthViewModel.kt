@@ -1,11 +1,11 @@
 package com.frame.zero.feature.auth
 
 import com.arkivanov.essenty.instancekeeper.InstanceKeeper
+import com.frame.zero.repository.auth.AuthRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class AuthViewModel : InstanceKeeper.Instance {
+class AuthViewModel(private val authRepository: AuthRepository) : InstanceKeeper.Instance {
   private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
   private val _state = MutableStateFlow(AuthState())
@@ -42,9 +42,15 @@ class AuthViewModel : InstanceKeeper.Instance {
     }
     scope.launch {
       _state.update { it.copy(isLoading = true, error = null) }
-      delay(600) // stub network call
-      _state.update { it.copy(isLoading = false) }
-      _events.emit(AuthEvent.Authenticated)
+      authRepository
+        .authenticate(email, password)
+        .onSuccess {
+          _state.update { it.copy(isLoading = false) }
+          _events.emit(AuthEvent.Authenticated)
+        }
+        .onFailure { error ->
+          _state.update { it.copy(isLoading = false, error = error.message ?: "Unknown error") }
+        }
     }
   }
 

@@ -57,3 +57,5 @@ replay_pid*
 
 # ─── Node (unlikely, but in case tooling is added) ───────────────────────────
 node_modules/
+
+.claude

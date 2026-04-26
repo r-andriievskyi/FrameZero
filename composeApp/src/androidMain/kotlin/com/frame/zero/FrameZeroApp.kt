@@ -1,7 +1,6 @@
 package com.frame.zero
 
 import android.app.Application
-import com.frame.zero.feature.auth.AuthViewModel
 import com.frame.zero.feature.initKoin
 import org.koin.core.Koin
 
