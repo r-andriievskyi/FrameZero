@@ -1,7 +1,10 @@
 package com.frame.zero.feature.auth
 
 import com.arkivanov.essenty.instancekeeper.InstanceKeeper
-import com.frame.zero.repository.auth.AuthRepository
+import com.frame.zero.domain.DomainError
+import com.frame.zero.domain.Outcome
+import com.frame.zero.feature.auth.usecase.LoginUseCase
+import com.frame.zero.feature.auth.usecase.RegisterUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -15,7 +18,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class AuthViewModel(private val authRepository: AuthRepository) : InstanceKeeper.Instance {
+class AuthViewModel(
+  private val loginUseCase: LoginUseCase,
+  private val registerUseCase: RegisterUseCase,
+) : InstanceKeeper.Instance {
   private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
   private val _state = MutableStateFlow(AuthState())
@@ -28,12 +34,12 @@ class AuthViewModel(private val authRepository: AuthRepository) : InstanceKeeper
     when (intent) {
       is AuthIntent.EmailChanged -> _state.update { it.copy(email = intent.value) }
       is AuthIntent.PasswordChanged -> _state.update { it.copy(password = intent.value) }
-      AuthIntent.LoginClicked -> authenticate()
-      AuthIntent.RegisterClicked -> authenticate()
+      AuthIntent.LoginClicked -> submit(login = true)
+      AuthIntent.RegisterClicked -> submit(login = false)
     }
   }
 
-  private fun authenticate() {
+  private fun submit(login: Boolean) {
     val email = _state.value.email
     val password = _state.value.password
     if (email.isBlank() || password.isBlank()) {
@@ -42,19 +48,28 @@ class AuthViewModel(private val authRepository: AuthRepository) : InstanceKeeper
     }
     scope.launch {
       _state.update { it.copy(isLoading = true, error = null) }
-      authRepository
-        .authenticate(email, password)
-        .onSuccess {
+      val outcome = if (login) loginUseCase(email, password) else registerUseCase(email, password)
+      when (outcome) {
+        is Outcome.Success -> {
           _state.update { it.copy(isLoading = false) }
           _events.emit(AuthEvent.Authenticated)
         }
-        .onFailure { error ->
-          _state.update { it.copy(isLoading = false, error = error.message ?: "Unknown error") }
+        is Outcome.Failure -> {
+          _state.update { it.copy(isLoading = false, error = outcome.error.toMessage()) }
         }
+      }
     }
   }
 
   override fun onDestroy() {
     scope.cancel()
   }
+
+  private fun DomainError.toMessage(): String =
+    when (this) {
+      DomainError.InvalidCredentials -> "Invalid email or password"
+      DomainError.EmailAlreadyExists -> "An account with this email already exists"
+      is DomainError.Network -> "Network error: $message"
+      is DomainError.Unknown -> message ?: "Something went wrong"
+    }
 }

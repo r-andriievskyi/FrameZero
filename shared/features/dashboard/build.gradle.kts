@@ -5,6 +5,7 @@ base { archivesName = "feature-dashboard" }
 kotlin {
   sourceSets {
     commonMain.dependencies {
+      api(projects.shared)
       api(libs.decompose)
       implementation(libs.koin.core)
     }
