@@ -34,7 +34,12 @@ kotlin {
     }
     iosMain.dependencies { implementation(libs.ktor.clientDarwin) }
     jvmMain.dependencies { implementation(libs.ktor.clientOkHttp) }
-    commonTest.dependencies { implementation(libs.kotlin.test) }
+    commonTest.dependencies {
+      implementation(libs.kotlin.test)
+      implementation(libs.kotlinx.coroutines.test)
+      implementation(libs.ktor.clientMock)
+      implementation(libs.multiplatformSettings.test)
+    }
   }
 }
 
