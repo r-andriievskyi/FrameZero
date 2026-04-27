@@ -5,6 +5,7 @@ import com.frame.zero.domain.DomainError
 import com.frame.zero.domain.Outcome
 import com.frame.zero.feature.auth.usecase.LoginUseCase
 import com.frame.zero.feature.auth.usecase.RegisterUseCase
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -18,8 +19,9 @@ import kotlinx.coroutines.launch
 class AuthViewModel(
   private val loginUseCase: LoginUseCase,
   private val registerUseCase: RegisterUseCase,
+  dispatcher: CoroutineContext = Dispatchers.Main,
 ) : InstanceKeeper.Instance {
-  private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+  private val scope = CoroutineScope(dispatcher + SupervisorJob())
 
   private val _state = MutableStateFlow(AuthState())
   val state: StateFlow<AuthState> = _state.asStateFlow()
