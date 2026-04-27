@@ -1,11 +1,9 @@
 package com.frame.zero.feature.auth
 
 sealed interface AuthIntent {
-  data class EmailChanged(val value: String) : AuthIntent
+  data class Login(val email: String, val password: String) : AuthIntent
 
-  data class PasswordChanged(val value: String) : AuthIntent
+  data class Register(val email: String, val password: String) : AuthIntent
 
-  data object LoginClicked : AuthIntent
-
-  data object RegisterClicked : AuthIntent
+  data object SwitchMode : AuthIntent
 }
