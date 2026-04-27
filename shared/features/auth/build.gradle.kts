@@ -13,7 +13,14 @@ kotlin {
       implementation(libs.ktor.clientContentNegotiation)
       implementation(libs.ktor.clientSerializationJson)
     }
-    commonTest.dependencies { implementation(libs.kotlin.test) }
+    commonTest.dependencies {
+      implementation(libs.kotlin.test)
+      implementation(libs.kotlinx.coroutines.test)
+      implementation(libs.ktor.clientMock)
+      implementation(libs.ktor.clientContentNegotiation)
+      implementation(libs.ktor.clientSerializationJson)
+      implementation(libs.multiplatformSettings.test)
+    }
   }
 }
 
