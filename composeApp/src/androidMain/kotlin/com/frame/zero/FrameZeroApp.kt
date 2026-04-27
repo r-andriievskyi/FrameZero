@@ -1,7 +1,8 @@
 package com.frame.zero
 
 import android.app.Application
-import com.frame.zero.feature.initKoin
+import com.frame.zero.di.androidContextModule
+import com.frame.zero.di.initKoin
 import org.koin.core.Koin
 
 class FrameZeroApp : Application() {
@@ -10,7 +11,7 @@ class FrameZeroApp : Application() {
 
   override fun onCreate() {
     super.onCreate()
-    koin = initKoin()
+    koin = initKoin(extraModules = listOf(androidContextModule(applicationContext)))
   }
 }
 

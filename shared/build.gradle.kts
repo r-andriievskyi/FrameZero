@@ -17,14 +17,23 @@ kotlin {
 
   sourceSets {
     commonMain.dependencies {
-      api(projects.shared.features.auth)
-      api(projects.shared.features.dashboard)
-      api(projects.shared.repositories.auth)
       api(libs.kotlinx.serialization.json)
-      implementation(libs.koin.core)
-      implementation(libs.decompose)
-      implementation(libs.kotlinx.coroutines.core)
+      api(libs.kotlinx.coroutines.core)
+      api(libs.koin.core)
+      api(libs.ktor.clientCore)
+      api(libs.multiplatformSettings)
+      implementation(libs.ktor.clientAuth)
+      implementation(libs.ktor.clientContentNegotiation)
+      implementation(libs.ktor.clientLogging)
+      implementation(libs.ktor.clientSerializationJson)
+      implementation(libs.multiplatformSettings.coroutines)
     }
+    androidMain.dependencies {
+      implementation(libs.ktor.clientOkHttp)
+      implementation(libs.androidx.security.crypto)
+    }
+    iosMain.dependencies { implementation(libs.ktor.clientDarwin) }
+    jvmMain.dependencies { implementation(libs.ktor.clientOkHttp) }
     commonTest.dependencies { implementation(libs.kotlin.test) }
   }
 }

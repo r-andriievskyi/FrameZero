@@ -5,6 +5,7 @@ base { archivesName = "repository-auth" }
 kotlin {
   sourceSets {
     commonMain.dependencies {
+      api(projects.shared)
       implementation(libs.koin.core)
       implementation(libs.kotlinx.coroutines.core)
     }

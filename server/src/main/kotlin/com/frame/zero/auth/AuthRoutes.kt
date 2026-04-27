@@ -44,8 +44,10 @@ fun Route.authRoutes() {
 
     authenticate("auth-jwt") {
       get("/me") {
-        val principal = call.principal<JWTPrincipal>() ?: return@get call.respond(HttpStatusCode.Unauthorized)
-        val userId = principal.subject?.let(UUID::fromString)
+        val principal =
+          call.principal<JWTPrincipal>() ?: return@get call.respond(HttpStatusCode.Unauthorized)
+        val userId =
+          principal.subject?.let(UUID::fromString)
             ?: return@get call.respond(HttpStatusCode.Unauthorized)
         val user = service.me(userId) ?: return@get call.respond(HttpStatusCode.Unauthorized)
         call.respond(user)

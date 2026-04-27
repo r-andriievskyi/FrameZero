@@ -6,13 +6,9 @@ import com.arkivanov.decompose.router.stack.StackNavigation
 import com.arkivanov.decompose.router.stack.childStack
 import com.arkivanov.decompose.router.stack.replaceAll
 import com.arkivanov.decompose.value.Value
-import com.frame.zero.di.platformModule
-import com.frame.zero.di.sharedModules
 import com.frame.zero.feature.auth.AuthComponent
 import com.frame.zero.feature.auth.AuthViewModel
 import com.frame.zero.feature.dashboard.DashboardComponent
-import org.koin.core.Koin
-import org.koin.core.context.startKoin
 
 class RootComponent(
   componentContext: ComponentContext,
@@ -55,5 +51,3 @@ class RootComponent(
     data class Dashboard(val component: DashboardComponent) : Child
   }
 }
-
-fun initKoin(): Koin = startKoin { modules(sharedModules + platformModule()) }.koin
