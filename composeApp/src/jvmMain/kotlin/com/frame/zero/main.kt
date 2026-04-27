@@ -5,9 +5,9 @@ import androidx.compose.ui.window.application
 import com.arkivanov.decompose.DefaultComponentContext
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
 import com.arkivanov.essenty.lifecycle.resume
+import com.frame.zero.di.initKoin
 import com.frame.zero.feature.RootComponent
 import com.frame.zero.feature.auth.AuthViewModel
-import com.frame.zero.feature.initKoin
 
 fun main() {
   val koin = initKoin()
