@@ -9,11 +9,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -27,36 +24,32 @@ class AuthViewModel(
   private val _state = MutableStateFlow(AuthState())
   val state: StateFlow<AuthState> = _state.asStateFlow()
 
-  private val _events = MutableSharedFlow<AuthEvent>(extraBufferCapacity = 1)
-  val events: SharedFlow<AuthEvent> = _events.asSharedFlow()
-
   fun onIntent(intent: AuthIntent) {
     when (intent) {
-      is AuthIntent.EmailChanged -> _state.update { it.copy(email = intent.value) }
-      is AuthIntent.PasswordChanged -> _state.update { it.copy(password = intent.value) }
-      AuthIntent.LoginClicked -> submit(login = true)
-      AuthIntent.RegisterClicked -> submit(login = false)
+      is AuthIntent.Login -> submit(intent.email, intent.password, register = false)
+      is AuthIntent.Register -> submit(intent.email, intent.password, register = true)
+      AuthIntent.SwitchMode ->
+        _state.update {
+          val next = if (it.mode == AuthMode.Login) AuthMode.Register else AuthMode.Login
+          it.copy(mode = next, error = null)
+        }
     }
   }
 
-  private fun submit(login: Boolean) {
-    val email = _state.value.email
-    val password = _state.value.password
+  private fun submit(email: String, password: String, register: Boolean) {
     if (email.isBlank() || password.isBlank()) {
       _state.update { it.copy(error = "Email and password must not be empty") }
       return
     }
+    if (_state.value.isLoading) return
     scope.launch {
       _state.update { it.copy(isLoading = true, error = null) }
-      val outcome = if (login) loginUseCase(email, password) else registerUseCase(email, password)
+      val outcome =
+        if (register) registerUseCase(email, password) else loginUseCase(email, password)
       when (outcome) {
-        is Outcome.Success -> {
-          _state.update { it.copy(isLoading = false) }
-          _events.emit(AuthEvent.Authenticated)
-        }
-        is Outcome.Failure -> {
+        is Outcome.Success -> _state.update { it.copy(isLoading = false) }
+        is Outcome.Failure ->
           _state.update { it.copy(isLoading = false, error = outcome.error.toMessage()) }
-        }
       }
     }
   }
