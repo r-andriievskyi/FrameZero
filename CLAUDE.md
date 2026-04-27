@@ -33,20 +33,26 @@ build; don't invoke it manually unless debugging a framework linking issue.
 ./gradlew test                             # all modules
 ```
 
-Run a single test class: `./gradlew :server:test --tests "com.ruslan.ApplicationTest"`
+Run a single test class: `./gradlew :shared:test --tests "com.frame.zero.SharedCommonTest"`
+(The `:server` module has no tests yet.)
 
 ## Architecture
 
-Four Gradle modules, a composite build, and a native iOS wrapper:
+A composite build, a native iOS wrapper, and a tree of Gradle modules:
 
 | Module | Purpose |
 |--------|---------|
 | `build-logic/` | Composite build with Gradle convention plugins (not a regular module). |
-| `shared/` | Multiplatform business logic; no UI. Contains the `Platform` interface and `Greeting` use-case. |
-| `composeApp/` | Shared Compose Multiplatform UI targeting Android, iOS, and JVM Desktop. Entry points live in platform-specific source sets (`androidMain`, `iosMain`, `jvmMain`). |
+| `shared/` | Multiplatform business logic; no UI. Holds shared `Constants`, domain models (`User`, `DomainError`, `Outcome`, `UseCase`), the Ktor `HttpClient` setup, and `multiplatform-settings`-backed token storage. |
+| `shared/features/<name>/` | Per-feature business logic — Decompose `Component` plus its `ViewModel`/state/intent types. Currently `auth` and `dashboard`. |
+| `shared/repositories/<name>/` | Repository interfaces + implementations consumed by feature modules. Currently `auth`. |
+| `composeApp/` | Shared Compose Multiplatform UI host targeting Android, iOS, and JVM Desktop. Owns `App.kt`, the Decompose `RootComponent`, and platform entry points (`androidMain`, `iosMain`, `jvmMain`). |
+| `composeApp/features/<name>/` | Per-feature Compose UI that renders the matching `shared/features/<name>` component. Currently `auth` and `dashboard`. |
 | `design_system/` | Shared Compose Multiplatform design system library. Applies `crossplatform.kmp.library.compose`. |
-| `server/` | JVM-only Ktor backend. Depends on `shared` for constants (e.g. `SERVER_PORT`). |
+| `server/` | JVM-only Ktor backend (Netty + Exposed/Postgres + JWT auth via Koin). Depends on `shared` for wire types and constants. |
 | `iosApp/` | Swift/SwiftUI wrapper that embeds the Compose UI via `UIViewControllerRepresentable`. |
+
+Navigation is **Decompose**: a `RootComponent` (in `composeApp/commonMain`) owns a `StackNavigation` and constructs feature components from `shared/features/*`. Feature UI in `composeApp/features/*` consumes the matching shared component — keep all stateful logic in `shared/features/*`, never in the Compose layer.
 
 ### Working principle
 
@@ -61,14 +67,20 @@ silently drop code into `androidMain` "for now."
 
 ### Module placement rules
 
-- **Domain models, use-cases, repository interfaces & implementations,
-  ViewModels, networking clients, database code** → `shared`.
-- **Compose UI (screens, components, theming, navigation)** → `composeApp/commonMain`.
+- **Cross-cutting domain models, networking clients, shared storage** → `shared/`.
+- **Repository interfaces & implementations** → `shared/repositories/<name>/`.
+- **Per-feature Decompose `Component`s, `ViewModel`s, state/intent types** → `shared/features/<name>/`.
+- **Per-feature Compose UI (screens, content composables)** → `composeApp/features/<name>/`.
+- **App-level Compose UI (root navigation host, theming hookup)** → `composeApp/commonMain`.
 - **Server-side routes, request/response handling, persistence** → `server`.
 - **DTOs and constants used by both client and server** → `shared/commonMain`.
   Keeping the wire format in one place is the main reason `server` depends on
   `shared` — use it. When adding a new endpoint, define the request/response
   data classes in `shared` and reference them from both sides.
+
+When adding a new feature, create both halves: `shared/features/<name>` (logic)
+and `composeApp/features/<name>` (UI), and register the module in
+`settings.gradle.kts`.
 
 ### Convention plugins (build-logic)
 
@@ -83,14 +95,13 @@ New KMP library modules should apply one of these instead of configuring targets
 
 ### Expect / Actual pattern
 
-`shared/commonMain` declares `expect fun getPlatform(): Platform`. Each platform
-source set (`androidMain`, `iosMain`, `jvmMain`) provides the `actual`
-implementation. When adding new platform-specific behaviour, follow this same
-pattern rather than using `if/when` on a runtime OS check.
+When platform-specific behaviour is needed (HTTP engine selection, secure
+storage, etc.), declare an `expect` in `commonMain` and provide an `actual` in
+each of `androidMain`, `iosMain`, and `jvmMain`. Prefer this over `if/when` on a
+runtime OS check.
 
-When adding an `expect` declaration, generate **all three** actuals
-(`androidMain`, `iosMain`, `jvmMain`) in the same change. Don't leave one as a
-TODO — Desktop and iOS get forgotten most often.
+When adding an `expect` declaration, generate **all three** actuals in the same
+change. Don't leave one as a TODO — Desktop and iOS get forgotten most often.
 
 ### Source set layout (composeApp)
 
@@ -108,24 +119,23 @@ composeApp/src/
 Versions are centralised in `gradle/libs.versions.toml`. Always add new
 dependencies to the version catalog, not directly in a module's build script.
 
-- Kotlin **2.3.20**, Compose Multiplatform **1.10.3**
-- Ktor **3.4.1** (Netty engine on server), Material3 `1.10.0-alpha05`
+- Kotlin **2.3.21**, Compose Multiplatform **1.10.3**
+- Ktor **3.4.3** (Netty on server; OkHttp on Android/JVM, Darwin on iOS for the client)
+- Material3 `1.10.0-alpha05`
+- Decompose **3.5.0** for navigation/components
+- Koin **4.2.1** for DI across `shared`, `composeApp`, and `server`
+- `multiplatform-settings` **1.3.0** for client-side key/value storage (auth tokens)
+- Server-side: Exposed **0.56.0** + HikariCP + PostgreSQL **42.7.4**, JWT via `ktor-server-auth-jwt`, password hashing via `at.favre.lib:bcrypt`
 - Android minSdk **29**, targetSdk **36**, JVM target **11**
 - Compose Hot Reload plugin (`org.jetbrains.compose.hot-reload 1.0.0`) is
   enabled for desktop development — prefer the Desktop target for fast UI
   iteration.
 
-### Planned additions (not yet wired up)
+### Not yet wired up
 
-- **Koin** for DI across `shared` and `composeApp`. Platform bindings via
-  `expect fun platformModule(): Module` with actuals per source set.
-- **Ktor Client** in `shared` for calling the `server` module. Engines:
-  OkHttp (Android), Darwin (iOS), CIO or OkHttp (JVM Desktop).
-- **Room KMP** (2.7+) for local persistence. Requires KSP2
-  (`ksp.useKSP2=true` in `gradle.properties`), the bundled SQLite driver, and
-  a `RoomDatabaseConstructor` expect/actual pair.
-
-When implementing any of the above, confirm the approach before adding it.
+- **Local persistence** (Room KMP / SQLDelight) is not set up. `multiplatform-settings`
+  is currently used for small key/value data (e.g. auth tokens). When a real
+  database is needed, confirm the choice before adding it.
 
 ## Code quality pipeline
 
@@ -206,8 +216,6 @@ All files: LF line endings, UTF-8, final newline, no trailing whitespace.
 
 ## Notes
 
-- No linter or formatter is configured. There is no detekt, ktlint, or
-  spotless setup.
 - Gradle configuration cache and build cache are both enabled
   (`gradle.properties`).
 - The server shares `Constants.kt` (SERVER_PORT) with clients via the `shared`
