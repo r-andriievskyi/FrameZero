@@ -24,20 +24,20 @@ fun CtaButton(
         .clip(CircleShape)
         .background(color = AppTheme.colorSystem.accent, shape = CircleShape)
         .clickableWithRipple(
-          color = AppTheme.colorSystem.primary,
+          color = AppTheme.colorSystem.accentDim,
           bounded = true,
           onClick = onClick,
         )
         .padding(
-          horizontal = AppTheme.spacingSystem.space24,
-          vertical = AppTheme.spacingSystem.space16,
+          horizontal = AppTheme.spacingSystem.x4l,
+          vertical = AppTheme.spacingSystem.xxl,
         ),
     contentAlignment = Alignment.Center,
   ) {
     Text(
       text = text,
       style = AppTheme.typographySystem.button,
-      color = AppTheme.colorSystem.secondary,
+      color = AppTheme.colorSystem.textOnAccent,
     )
   }
 }

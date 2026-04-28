@@ -19,8 +19,7 @@ object AppTheme {
     content: @Composable () -> Unit,
   ) {
     val fontFamily = rememberFontFamilyPrimary()
-    val themeOptions =
-      remember(darkTheme, fontFamily) {
+    val themeOptions = remember(darkTheme, fontFamily) {
         if (darkTheme) ThemeOptions.dark(fontFamily) else ThemeOptions.light(fontFamily)
       }
     ApplySystemUiColors(darkTheme)
