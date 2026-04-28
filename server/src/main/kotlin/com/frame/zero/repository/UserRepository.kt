@@ -4,9 +4,10 @@ import com.frame.zero.config.dbQuery
 import com.frame.zero.database.UsersTable
 import java.time.Instant
 import java.util.UUID
-import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.selectAll
 
 data class UserRecord(
   val id: UUID,

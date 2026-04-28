@@ -1,10 +1,11 @@
 package com.frame.zero.database
 
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.javatime.timestamp
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.core.java.javaUUID
+import org.jetbrains.exposed.v1.javatime.timestamp
 
 object UsersTable : Table("users") {
-  val id = uuid("id")
+  val id = javaUUID("id")
   val email = varchar("email", length = EMAIL_MAX).uniqueIndex()
   val passwordHash = varchar("password_hash", length = HASH_MAX)
   val createdAt = timestamp("created_at")
@@ -16,8 +17,8 @@ object UsersTable : Table("users") {
 }
 
 object RefreshTokensTable : Table("refresh_tokens") {
-  val id = uuid("id")
-  val userId = uuid("user_id").references(UsersTable.id)
+  val id = javaUUID("id")
+  val userId = javaUUID("user_id").references(UsersTable.id)
   val tokenHash = varchar("token_hash", length = HASH_MAX).uniqueIndex()
   val expiresAt = timestamp("expires_at")
   val revoked = bool("revoked").default(false)
