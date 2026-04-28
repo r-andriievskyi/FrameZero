@@ -48,7 +48,7 @@ A composite build, a native iOS wrapper, and a tree of Gradle modules:
 | `shared/repositories/<name>/` | Repository interfaces + implementations consumed by feature modules. Currently `auth`. |
 | `composeApp/` | Shared Compose Multiplatform UI host targeting Android, iOS, and JVM Desktop. Owns `App.kt`, the Decompose `RootComponent`, and platform entry points (`androidMain`, `iosMain`, `jvmMain`). |
 | `composeApp/features/<name>/` | Per-feature Compose UI that renders the matching `shared/features/<name>` component. Currently `auth` and `dashboard`. |
-| `design_system/` | Shared Compose Multiplatform design system library. Applies `crossplatform.kmp.library.compose`. |
+| `composeApp/design_system/` | Shared Compose Multiplatform design system library consumed by all `composeApp` feature modules. Applies `crossplatform.kmp.library.compose`. |
 | `server/` | JVM-only Ktor backend (Netty + Exposed/Postgres + JWT auth via Koin). Depends on `shared` for wire types and constants. |
 | `iosApp/` | Swift/SwiftUI wrapper that embeds the Compose UI via `UIViewControllerRepresentable`. |
 
@@ -155,7 +155,7 @@ Detekt config lives in `config/detekt/detekt.yml`. It builds on detekt defaults 
 
 | Module | How |
 |---------------|----------------------------------------------------------------------|
-| `design_system` | Inherited via `crossplatform.kmp.library` (→ `crossplatform.code.quality`) |
+| `composeApp/design_system` | Inherited via `crossplatform.kmp.library.compose` (→ `crossplatform.code.quality`) |
 | `composeApp` | Explicit `id("crossplatform.code.quality")` |
 | `shared` | Explicit `id("crossplatform.code.quality")` |
 | `server` | Explicit `id("crossplatform.code.quality")` |
