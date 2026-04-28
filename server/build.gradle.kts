@@ -37,4 +37,6 @@ dependencies {
   implementation(libs.bcrypt)
   testImplementation(libs.ktor.serverTestHost)
   testImplementation(libs.kotlin.testJunit)
+  testImplementation(libs.kotlinx.coroutines.test)
+  testImplementation(libs.h2)
 }
