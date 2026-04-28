@@ -174,6 +174,74 @@ Enforced by ktfmt (Kotlin) and `.editorconfig` (everything else):
 
 All files: LF line endings, UTF-8, final newline, no trailing whitespace.
 
+## Design system
+
+All UI in `composeApp` must use the design system. Never use hardcoded colors,
+`MaterialTheme`, or raw `dp`/`sp` literals for visual tokens.
+
+### Setup
+
+Wrap the root composable with `AppTheme`:
+
+```kotlin
+AppTheme {
+  // your content
+}
+```
+
+`AppTheme` handles dark/light mode automatically via `isSystemInDarkTheme()`.
+
+### Accessing tokens
+
+```kotlin
+// Colors
+AppTheme.colorSystem.background
+AppTheme.colorSystem.textPrimary
+AppTheme.colorSystem.accent
+
+// Typography
+AppTheme.typographySystem.titleSection
+AppTheme.typographySystem.bodyStandard
+AppTheme.typographySystem.bodySmall
+AppTheme.typographySystem.label
+AppTheme.typographySystem.button
+
+// Spacing
+AppTheme.spacingSystem.xs   // xxs xs sm md lg xl xxl x3l x4l x5l x6l
+AppTheme.spacingSystem.md
+
+// Corner radius
+AppTheme.radiusSystem.card    // xs sm segItem md lg input button card sheet circle
+AppTheme.radiusSystem.button
+```
+
+### ColorSystem reference
+
+| Token | Semantic meaning |
+|-------|-----------------|
+| `background` | Page / screen background |
+| `surfaceElevated` | Elevated surface (modal, bottom sheet) |
+| `navBackground` | Navigation bar background |
+| `inputBackground` | Text field / input background |
+| `cardBackground` | Card surface |
+| `border` / `cardBorder` | Dividers and card borders |
+| `textPrimary` / `textSecondary` / `textMuted` | Text hierarchy |
+| `textOnAccent` | Text on accent-colored surfaces |
+| `accent` / `accentDim` / `accentSurface` / `accentText` | Primary brand color and variants |
+| `successSurface` / `successText` | Success state |
+| `warningSurface` / `warningText` | Warning state |
+| `errorSurface` / `errorText` | Error state |
+| `priorityHigh/Med/LowSurface` / `…Text` | Priority indicators |
+
+### Rules
+
+- Never use `MaterialTheme.colorScheme` or `MaterialTheme.typography` for
+  custom UI — those are not wired to this design system.
+- Never use hardcoded `Color(0xFF…)` in feature UI. Pick the closest semantic
+  token; if none fits, add one to `ColorSystem` and `ThemeOptions`.
+- Use `AppTheme.spacingSystem.*` for padding/margin; avoid magic `dp` numbers.
+- Use `AppTheme.radiusSystem.*` for `RoundedCornerShape`; avoid magic `dp` radii.
+
 ## Conventions
 
 - **Async:** `suspend fun` for one-shots, `Flow` for observable streams. Don't
