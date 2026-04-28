@@ -6,7 +6,7 @@ kotlin {
   sourceSets {
     commonMain.dependencies {
       api(projects.shared.features.dashboard)
-      implementation(projects.composeApp.designSystem)
+      implementation(projects.composeApp.shared.designSystem)
     }
     commonTest.dependencies { implementation(libs.kotlin.test) }
   }
