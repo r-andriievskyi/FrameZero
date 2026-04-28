@@ -6,10 +6,11 @@ import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import javax.sql.DataSource
 import kotlinx.coroutines.Dispatchers
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
-import org.jetbrains.exposed.sql.transactions.transaction
+import kotlinx.coroutines.withContext
+import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.SchemaUtils
+import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 object DatabaseFactory {
   fun init(config: DatabaseConfig): Database {
@@ -36,4 +37,4 @@ object DatabaseFactory {
 }
 
 suspend fun <T> dbQuery(block: suspend () -> T): T =
-  newSuspendedTransaction(Dispatchers.IO) { block() }
+  withContext(Dispatchers.IO) { suspendTransaction { block() } }
