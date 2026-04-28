@@ -3,10 +3,10 @@ package com.frame.zero.repository
 import com.frame.zero.database.RefreshTokensTable
 import com.frame.zero.database.UsersTable
 import java.util.UUID
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.transactions.TransactionManager
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.SchemaUtils
+import org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 /**
  * Spins up a uniquely-named H2 in-memory database with the production schema for the duration of a
