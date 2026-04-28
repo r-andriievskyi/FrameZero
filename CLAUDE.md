@@ -40,17 +40,17 @@ Run a single test class: `./gradlew :shared:test --tests "com.frame.zero.SharedC
 
 A composite build, a native iOS wrapper, and a tree of Gradle modules:
 
-| Module | Purpose |
-|--------|---------|
-| `build-logic/` | Composite build with Gradle convention plugins (not a regular module). |
-| `shared/` | Multiplatform business logic; no UI. Holds shared `Constants`, domain models (`User`, `DomainError`, `Outcome`, `UseCase`), the Ktor `HttpClient` setup, and `multiplatform-settings`-backed token storage. |
-| `shared/features/<name>/` | Per-feature business logic — Decompose `Component` plus its `ViewModel`/state/intent types. Currently `auth` and `dashboard`. |
-| `shared/repositories/<name>/` | Repository interfaces + implementations consumed by feature modules. Currently `auth`. |
-| `composeApp/` | Shared Compose Multiplatform UI host targeting Android, iOS, and JVM Desktop. Owns `App.kt`, the Decompose `RootComponent`, and platform entry points (`androidMain`, `iosMain`, `jvmMain`). |
-| `composeApp/features/<name>/` | Per-feature Compose UI that renders the matching `shared/features/<name>` component. Currently `auth` and `dashboard`. |
-| `composeApp/design_system/` | Shared Compose Multiplatform design system library consumed by all `composeApp` feature modules. Applies `crossplatform.kmp.library.compose`. |
-| `server/` | JVM-only Ktor backend (Netty + Exposed/Postgres + JWT auth via Koin). Depends on `shared` for wire types and constants. |
-| `iosApp/` | Swift/SwiftUI wrapper that embeds the Compose UI via `UIViewControllerRepresentable`. |
+| Module                             | Purpose |
+|------------------------------------|---------|
+| `build-logic/`                     | Composite build with Gradle convention plugins (not a regular module). |
+| `shared/`                          | Multiplatform business logic; no UI. Holds shared `Constants`, domain models (`User`, `DomainError`, `Outcome`, `UseCase`), the Ktor `HttpClient` setup, and `multiplatform-settings`-backed token storage. |
+| `shared/features/<name>/`          | Per-feature business logic — Decompose `Component` plus its `ViewModel`/state/intent types. Currently `auth` and `dashboard`. |
+| `shared/repositories/<name>/`      | Repository interfaces + implementations consumed by feature modules. Currently `auth`. |
+| `composeApp/`                      | Shared Compose Multiplatform UI host targeting Android, iOS, and JVM Desktop. Owns `App.kt`, the Decompose `RootComponent`, and platform entry points (`androidMain`, `iosMain`, `jvmMain`). |
+| `composeApp/features/<name>/`      | Per-feature Compose UI that renders the matching `shared/features/<name>` component. Currently `auth` and `dashboard`. |
+| `composeApp/shared/design_system/` | Shared Compose Multiplatform design system library consumed by all `composeApp` feature modules. Applies `crossplatform.kmp.library.compose`. |
+| `server/`                          | JVM-only Ktor backend (Netty + Exposed/Postgres + JWT auth via Koin). Depends on `shared` for wire types and constants. |
+| `iosApp/`                          | Swift/SwiftUI wrapper that embeds the Compose UI via `UIViewControllerRepresentable`. |
 
 Navigation is **Decompose**: a `RootComponent` (in `composeApp/commonMain`) owns a `StackNavigation` and constructs feature components from `shared/features/*`. Feature UI in `composeApp/features/*` consumes the matching shared component — keep all stateful logic in `shared/features/*`, never in the Compose layer.
 

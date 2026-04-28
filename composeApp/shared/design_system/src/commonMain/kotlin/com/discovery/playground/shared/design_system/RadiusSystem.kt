@@ -5,8 +5,14 @@ import androidx.compose.ui.unit.Dp
 
 @Immutable
 data class RadiusSystem(
-  val radius4: Dp,
-  val radius8: Dp,
-  val radius16: Dp,
-  val radiusMax: Dp,
+  val xs: Dp,
+  val sm: Dp,
+  val segItem: Dp,
+  val md: Dp,
+  val lg: Dp,
+  val input: Dp,
+  val button: Dp,
+  val card: Dp,
+  val sheet: Dp,
+  val circle: Dp,
 )
