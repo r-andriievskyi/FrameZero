@@ -43,7 +43,7 @@ fun CtaButton(
     Text(
       text = text,
       style = AppTheme.typographySystem.labelLarge,
-      color = AppTheme.colorSystem.textOnAccent,
+      color = AppTheme.colorSystem.textOnAccent
     )
   }
 }

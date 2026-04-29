@@ -67,7 +67,7 @@ private fun AuthContent(
       color = AppTheme.colorSystem.textPrimary,
       style = AppTheme.typographySystem.displayMedium
     )
-    VerticalSpacer(AppTheme.spacingSystem.space8)
+    VerticalSpacer(AppTheme.spacingSystem.space24)
     AnimatedContent(state.mode) { mode ->
       when (mode) {
         AuthMode.Login -> {
@@ -79,20 +79,21 @@ private fun AuthContent(
               style = AppTheme.typographySystem.displayMedium,
               textAlign = TextAlign.Center
             )
+            VerticalSpacer(AppTheme.spacingSystem.space8)
             Text(
               modifier = Modifier.fillMaxWidth(),
               text = "Sign in to your production workspace",
               color = AppTheme.colorSystem.textPrimary,
-              style = AppTheme.typographySystem.labelMedium,
+              style = AppTheme.typographySystem.bodyLarge,
               textAlign = TextAlign.Center
             )
             VerticalSpacer(AppTheme.spacingSystem.space24)
             Text(
               text = "EMAIL",
               color = AppTheme.colorSystem.textPrimary,
-              style = AppTheme.typographySystem.labelMedium
+              style = AppTheme.typographySystem.labelSmall
             )
-            VerticalSpacer(AppTheme.spacingSystem.space4)
+            VerticalSpacer(AppTheme.spacingSystem.space8)
             SingleLineInputField(
               value = email,
               onValueChange = onEmailChange,
@@ -100,13 +101,13 @@ private fun AuthContent(
               enabled = !state.isLoading,
               modifier = Modifier.fillMaxWidth(),
             )
-            VerticalSpacer(AppTheme.spacingSystem.space8)
+            VerticalSpacer(AppTheme.spacingSystem.space16)
             Text(
               text = "PASSWORD",
               color = AppTheme.colorSystem.textPrimary,
-              style = AppTheme.typographySystem.labelMedium
+              style = AppTheme.typographySystem.labelSmall
             )
-            VerticalSpacer(AppTheme.spacingSystem.space4)
+            VerticalSpacer(AppTheme.spacingSystem.space8)
             SingleLineInputField(
               value = password,
               onValueChange = onPasswordChange,
@@ -120,7 +121,7 @@ private fun AuthContent(
               modifier = Modifier.fillMaxWidth(),
               text = "Forgot password?",
               color = AppTheme.colorSystem.textPrimary,
-              style = AppTheme.typographySystem.labelMedium,
+              style = AppTheme.typographySystem.bodySmall,
               textAlign = TextAlign.End
             )
             VerticalSpacer(AppTheme.spacingSystem.space24)
