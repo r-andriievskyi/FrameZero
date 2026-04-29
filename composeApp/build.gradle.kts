@@ -44,6 +44,7 @@ kotlin {
       implementation(libs.koin.core)
       implementation(libs.decompose)
       implementation(libs.decompose.extensionsCompose)
+      implementation(projects.composeApp.shared.designSystem)
     }
     commonTest.dependencies { implementation(libs.kotlin.test) }
     jvmMain.dependencies {

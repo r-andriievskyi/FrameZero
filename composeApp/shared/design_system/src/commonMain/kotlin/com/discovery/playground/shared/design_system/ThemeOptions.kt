@@ -1,7 +1,20 @@
 package com.discovery.playground.shared.design_system
 
 import androidx.compose.runtime.Immutable
-import androidx.compose.ui.text.font.FontFamily
+import com.discovery.playground.shared.design_system.tokens.BodyLarge
+import com.discovery.playground.shared.design_system.tokens.BodyMedium
+import com.discovery.playground.shared.design_system.tokens.BodySmall
+import com.discovery.playground.shared.design_system.tokens.Caption
+import com.discovery.playground.shared.design_system.tokens.DisplayLarge
+import com.discovery.playground.shared.design_system.tokens.DisplayMedium
+import com.discovery.playground.shared.design_system.tokens.LabelLarge
+import com.discovery.playground.shared.design_system.tokens.LabelMedium
+import com.discovery.playground.shared.design_system.tokens.LabelSmall
+import com.discovery.playground.shared.design_system.tokens.MonoMedium
+import com.discovery.playground.shared.design_system.tokens.MonoSmall
+import com.discovery.playground.shared.design_system.tokens.TitleLarge
+import com.discovery.playground.shared.design_system.tokens.TitleMedium
+import com.discovery.playground.shared.design_system.tokens.TitleSmall
 import com.discovery.playground.shared.design_system.tokens.TokenColorAmberSoftD
 import com.discovery.playground.shared.design_system.tokens.TokenColorAmberSoftL
 import com.discovery.playground.shared.design_system.tokens.TokenColorAmberTextD
@@ -36,32 +49,15 @@ import com.discovery.playground.shared.design_system.tokens.TokenColorVioletSoft
 import com.discovery.playground.shared.design_system.tokens.TokenColorVioletSoftL
 import com.discovery.playground.shared.design_system.tokens.TokenColorVioletTextD
 import com.discovery.playground.shared.design_system.tokens.TokenColorWhite
-import com.discovery.playground.shared.design_system.tokens.TokenRadiusButton
-import com.discovery.playground.shared.design_system.tokens.TokenRadiusCard
-import com.discovery.playground.shared.design_system.tokens.TokenRadiusCircle
-import com.discovery.playground.shared.design_system.tokens.TokenRadiusInput
-import com.discovery.playground.shared.design_system.tokens.TokenRadiusLg
-import com.discovery.playground.shared.design_system.tokens.TokenRadiusMd
-import com.discovery.playground.shared.design_system.tokens.TokenRadiusSegItem
-import com.discovery.playground.shared.design_system.tokens.TokenRadiusSheet
-import com.discovery.playground.shared.design_system.tokens.TokenRadiusSm
-import com.discovery.playground.shared.design_system.tokens.TokenRadiusXs
-import com.discovery.playground.shared.design_system.tokens.TokenSpaceLg
-import com.discovery.playground.shared.design_system.tokens.TokenSpaceMd
-import com.discovery.playground.shared.design_system.tokens.TokenSpaceSm
-import com.discovery.playground.shared.design_system.tokens.TokenSpaceX3l
-import com.discovery.playground.shared.design_system.tokens.TokenSpaceX4l
-import com.discovery.playground.shared.design_system.tokens.TokenSpaceX5l
-import com.discovery.playground.shared.design_system.tokens.TokenSpaceX6l
-import com.discovery.playground.shared.design_system.tokens.TokenSpaceXl
-import com.discovery.playground.shared.design_system.tokens.TokenSpaceXs
-import com.discovery.playground.shared.design_system.tokens.TokenSpaceXxl
-import com.discovery.playground.shared.design_system.tokens.TokenSpaceXxs
-import com.discovery.playground.shared.design_system.tokens.fontBodySmall
-import com.discovery.playground.shared.design_system.tokens.fontBodyStandard
-import com.discovery.playground.shared.design_system.tokens.fontButton
-import com.discovery.playground.shared.design_system.tokens.fontLabel
-import com.discovery.playground.shared.design_system.tokens.fontTitleSection
+import com.discovery.playground.shared.design_system.tokens.TokenRadius16
+import com.discovery.playground.shared.design_system.tokens.TokenRadius4
+import com.discovery.playground.shared.design_system.tokens.TokenRadius8
+import com.discovery.playground.shared.design_system.tokens.TokenRadiusMax
+import com.discovery.playground.shared.design_system.tokens.TokenSpace16
+import com.discovery.playground.shared.design_system.tokens.TokenSpace2
+import com.discovery.playground.shared.design_system.tokens.TokenSpace24
+import com.discovery.playground.shared.design_system.tokens.TokenSpace4
+import com.discovery.playground.shared.design_system.tokens.TokenSpace8
 
 @Immutable
 data class ThemeOptions(
@@ -71,7 +67,7 @@ data class ThemeOptions(
   val radiusSystem: RadiusSystem,
 ) {
   companion object {
-    fun light(fontFamily: FontFamily) =
+    fun light() =
       ThemeOptions(
         colorSystem =
           ColorSystem(
@@ -103,12 +99,12 @@ data class ThemeOptions(
             priorityLowSurface = TokenColorTealSoftL,
             priorityLowText = TokenColorTealTextL,
           ),
-        typographySystem = sharedTypography(fontFamily),
+        typographySystem = sharedTypography(),
         spacingSystem = sharedSpacing(),
         radiusSystem = sharedRadius(),
       )
 
-    fun dark(fontFamily: FontFamily) =
+    fun dark() =
       ThemeOptions(
         colorSystem =
           ColorSystem(
@@ -140,47 +136,44 @@ data class ThemeOptions(
             priorityLowSurface = TokenColorTealSoftD,
             priorityLowText = TokenColorTealTextD,
           ),
-        typographySystem = sharedTypography(fontFamily),
+        typographySystem = sharedTypography(),
         spacingSystem = sharedSpacing(),
         radiusSystem = sharedRadius(),
       )
 
-    private fun sharedTypography(fontFamily: FontFamily) =
+    private fun sharedTypography() =
       TypographySystem(
-        titleSection = fontTitleSection(fontFamily),
-        bodyStandard = fontBodyStandard(fontFamily),
-        bodySmall = fontBodySmall(fontFamily),
-        label = fontLabel(fontFamily),
-        button = fontButton(fontFamily),
+        displayLarge = DisplayLarge,
+        displayMedium = DisplayMedium,
+        titleLarge = TitleLarge,
+        titleMedium = TitleMedium,
+        titleSmall = TitleSmall,
+        bodyLarge = BodyLarge,
+        bodyMedium = BodyMedium,
+        bodySmall = BodySmall,
+        labelLarge = LabelLarge,
+        labelMedium = LabelMedium,
+        labelSmall = LabelSmall,
+        caption = Caption,
+        monoMedium = MonoMedium,
+        monoSmall = MonoSmall,
       )
 
     private fun sharedSpacing() =
       SpacingSystem(
-        xxs = TokenSpaceXxs,
-        xs = TokenSpaceXs,
-        sm = TokenSpaceSm,
-        md = TokenSpaceMd,
-        lg = TokenSpaceLg,
-        xl = TokenSpaceXl,
-        xxl = TokenSpaceXxl,
-        x3l = TokenSpaceX3l,
-        x4l = TokenSpaceX4l,
-        x5l = TokenSpaceX5l,
-        x6l = TokenSpaceX6l,
+        space2 = TokenSpace2,
+        space4 = TokenSpace4,
+        space8 = TokenSpace8,
+        space16 = TokenSpace16,
+        space24 = TokenSpace24
       )
 
     private fun sharedRadius() =
       RadiusSystem(
-        xs = TokenRadiusXs,
-        sm = TokenRadiusSm,
-        segItem = TokenRadiusSegItem,
-        md = TokenRadiusMd,
-        lg = TokenRadiusLg,
-        input = TokenRadiusInput,
-        button = TokenRadiusButton,
-        card = TokenRadiusCard,
-        sheet = TokenRadiusSheet,
-        circle = TokenRadiusCircle,
+        radius4 = TokenRadius4,
+        radius8 = TokenRadius8,
+        radius16 = TokenRadius16,
+        radiusMax = TokenRadiusMax
       )
   }
 }
