@@ -1,8 +1,10 @@
 package com.frame.zero.feature.auth.ui
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -18,17 +20,22 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.discovery.playground.shared.design_system.AppTheme
 import com.discovery.playground.shared.design_system.widgets.CtaButton
+import com.discovery.playground.shared.design_system.widgets.HorizontalSpacer
 import com.discovery.playground.shared.design_system.widgets.SingleLineInputField
 import com.discovery.playground.shared.design_system.widgets.VerticalSpacer
 import com.frame.zero.feature.auth.AuthComponent
 import com.frame.zero.feature.auth.AuthIntent
 import com.frame.zero.feature.auth.AuthMode
 import com.frame.zero.feature.auth.AuthState
+import framezero.composeapp.features.auth.generated.resources.Res
+import framezero.composeapp.features.auth.generated.resources.ic_logo
+import org.jetbrains.compose.resources.painterResource
 
 @Composable
 fun AuthContent(component: AuthComponent) {
@@ -62,11 +69,20 @@ private fun AuthContent(
       .systemBarsPadding(),
     horizontalAlignment = Alignment.CenterHorizontally
   ) {
-    Text(
-      text = "FrameZero",
-      color = AppTheme.colorSystem.textPrimary,
-      style = AppTheme.typographySystem.displayMedium
-    )
+    VerticalSpacer(AppTheme.spacingSystem.space24)
+    Row(verticalAlignment = Alignment.CenterVertically) {
+      Image(
+        painter = painterResource(Res.drawable.ic_logo),
+        colorFilter = ColorFilter.tint(AppTheme.colorSystem.accent),
+        contentDescription = null
+      )
+      HorizontalSpacer(AppTheme.spacingSystem.space8)
+      Text(
+        text = "FrameZero",
+        color = AppTheme.colorSystem.textPrimary,
+        style = AppTheme.typographySystem.displayLarge
+      )
+    }
     VerticalSpacer(AppTheme.spacingSystem.space24)
     AnimatedContent(state.mode) { mode ->
       when (mode) {
