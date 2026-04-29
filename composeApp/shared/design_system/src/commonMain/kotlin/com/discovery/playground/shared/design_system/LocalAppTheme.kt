@@ -5,7 +5,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
-import com.discovery.playground.shared.design_system.tokens.rememberFontFamilyPrimary
 
 private val LocalAppTheme =
   compositionLocalOf<ThemeOptions> {
@@ -18,10 +17,9 @@ object AppTheme {
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit,
   ) {
-    val fontFamily = rememberFontFamilyPrimary()
-    val themeOptions = remember(darkTheme, fontFamily) {
-        if (darkTheme) ThemeOptions.dark(fontFamily) else ThemeOptions.light(fontFamily)
-      }
+    val themeOptions = remember(darkTheme) {
+      if (darkTheme) ThemeOptions.dark() else ThemeOptions.light()
+    }
     ApplySystemUiColors(darkTheme)
     CompositionLocalProvider(LocalAppTheme provides themeOptions) { content() }
   }
