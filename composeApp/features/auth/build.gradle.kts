@@ -5,7 +5,8 @@ base { archivesName = "ui-feature-auth" }
 kotlin {
   sourceSets {
     commonMain.dependencies {
-      api(projects.shared.features.auth)
+      implementation(projects.shared.features.auth)
+      implementation(libs.compose.components.resources)
       implementation(projects.composeApp.shared.designSystem)
     }
     commonTest.dependencies { implementation(libs.kotlin.test) }
