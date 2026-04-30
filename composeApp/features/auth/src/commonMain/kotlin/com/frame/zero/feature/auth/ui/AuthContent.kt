@@ -42,13 +42,16 @@ import org.jetbrains.compose.resources.painterResource
 @Composable
 fun AuthContent(component: AuthComponent) {
   val state by component.state.collectAsState()
+  var name by remember { mutableStateOf("") }
   var email by remember { mutableStateOf("") }
   var password by remember { mutableStateOf("") }
 
   AuthContent(
     state = state,
+    name = name,
     email = email,
     password = password,
+    onNameChange = { name = it },
     onEmailChange = { email = it },
     onPasswordChange = { password = it },
     onIntent = component::onIntent,
@@ -58,8 +61,10 @@ fun AuthContent(component: AuthComponent) {
 @Composable
 private fun AuthContent(
   state: AuthState,
+  name: String,
   email: String,
   password: String,
+  onNameChange: (String) -> Unit,
   onEmailChange: (String) -> Unit,
   onPasswordChange: (String) -> Unit,
   onIntent: (AuthIntent) -> Unit,
@@ -174,23 +179,92 @@ private fun AuthContent(
         }
 
         AuthMode.Register -> {
-
+          Column(modifier = Modifier.fillMaxSize()) {
+            Text(
+              modifier = Modifier.fillMaxWidth(),
+              text = "Create account",
+              color = AppTheme.colorSystem.textPrimary,
+              style = AppTheme.typographySystem.displayMedium,
+              textAlign = TextAlign.Center
+            )
+            VerticalSpacer(AppTheme.spacingSystem.space8)
+            Text(
+              modifier = Modifier.fillMaxWidth(),
+              text = "Join your production team",
+              color = AppTheme.colorSystem.textSecondary,
+              style = AppTheme.typographySystem.bodyLarge,
+              textAlign = TextAlign.Center
+            )
+            VerticalSpacer(AppTheme.spacingSystem.space24)
+            Text(
+              text = "FULL NAME",
+              color = AppTheme.colorSystem.textPrimary,
+              style = AppTheme.typographySystem.labelSmall
+            )
+            VerticalSpacer(AppTheme.spacingSystem.space8)
+            SingleLineInputField(
+              value = name,
+              onValueChange = onNameChange,
+              placeholder = "John Doe",
+              enabled = !state.isLoading,
+              modifier = Modifier.fillMaxWidth(),
+            )
+            VerticalSpacer(AppTheme.spacingSystem.space16)
+            Text(
+              text = "EMAIL",
+              color = AppTheme.colorSystem.textPrimary,
+              style = AppTheme.typographySystem.labelSmall
+            )
+            VerticalSpacer(AppTheme.spacingSystem.space8)
+            SingleLineInputField(
+              value = email,
+              onValueChange = onEmailChange,
+              placeholder = "you@studio.com",
+              enabled = !state.isLoading,
+              modifier = Modifier.fillMaxWidth(),
+            )
+            VerticalSpacer(AppTheme.spacingSystem.space16)
+            Text(
+              text = "PASSWORD",
+              color = AppTheme.colorSystem.textPrimary,
+              style = AppTheme.typographySystem.labelSmall
+            )
+            VerticalSpacer(AppTheme.spacingSystem.space8)
+            SingleLineInputField(
+              value = password,
+              onValueChange = onPasswordChange,
+              placeholder = "******",
+              visualTransformation = PasswordVisualTransformation(),
+              enabled = !state.isLoading,
+              modifier = Modifier.fillMaxWidth(),
+            )
+            VerticalSpacer(AppTheme.spacingSystem.space24)
+            CtaButton(
+              text = "Create account",
+              onClick = {
+                onIntent(AuthIntent.Register(email.trim(), password))
+              },
+              modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+              Text(
+                text = "Already have an account?",
+                color = AppTheme.colorSystem.textSecondary,
+                style = AppTheme.typographySystem.bodyMedium
+              )
+              HorizontalSpacer(AppTheme.spacingSystem.space4)
+              Text(
+                text = "Sign in",
+                color = AppTheme.colorSystem.accent,
+                style = AppTheme.typographySystem.bodyMedium
+              )
+            }
+            VerticalSpacer(AppTheme.spacingSystem.space24)
+          }
         }
       }
     }
-    /*val tabIndex = if (state.mode == AuthMode.Login) 0 else 1
-    PrimaryTabRow(selectedTabIndex = tabIndex, modifier = Modifier.fillMaxWidth()) {
-      Tab(
-        selected = tabIndex == 0,
-        onClick = { if (state.mode != AuthMode.Login) onIntent(AuthIntent.SwitchMode) },
-        text = { Text("Log in") },
-      )
-      Tab(
-        selected = tabIndex == 1,
-        onClick = { if (state.mode != AuthMode.Register) onIntent(AuthIntent.SwitchMode) },
-        text = { Text("Register") },
-      )
-    }*/
 
     OutlinedTextField(
       value = email,
@@ -227,8 +301,10 @@ private fun AuthContentLoginPreview() {
   AppTheme(darkTheme = true) {
     AuthContent(
       state = AuthState(mode = AuthMode.Login),
+      name = "",
       email = "user@example.com",
       password = "secret",
+      onNameChange = {},
       onEmailChange = {},
       onPasswordChange = {},
       onIntent = {},
@@ -241,9 +317,11 @@ private fun AuthContentLoginPreview() {
 private fun AuthContentRegisterPreview() {
   AppTheme {
     AuthContent(
-      state = AuthState(mode = AuthMode.Login),
+      state = AuthState(mode = AuthMode.Register),
+      name = "",
       email = "",
       password = "",
+      onNameChange = {},
       onEmailChange = {},
       onPasswordChange = {},
       onIntent = {},
