@@ -17,11 +17,7 @@ import com.discovery.playground.shared.design_system.modifier.clickableWithRippl
 private val MinHeight = 48.dp
 
 @Composable
-fun CtaButton(
-  text: String,
-  modifier: Modifier = Modifier,
-  onClick: () -> Unit,
-) {
+fun CtaButton(text: String, modifier: Modifier = Modifier, onClick: () -> Unit) {
   val shape = RoundedCornerShape(AppTheme.radiusSystem.radius16)
   Box(
     modifier =
@@ -38,12 +34,12 @@ fun CtaButton(
           horizontal = AppTheme.spacingSystem.space8,
           vertical = AppTheme.spacingSystem.space8,
         ),
-    contentAlignment = Alignment.Center
+    contentAlignment = Alignment.Center,
   ) {
     Text(
       text = text,
       style = AppTheme.typographySystem.labelLarge,
-      color = AppTheme.colorSystem.textOnAccent
+      color = AppTheme.colorSystem.textOnAccent,
     )
   }
 }

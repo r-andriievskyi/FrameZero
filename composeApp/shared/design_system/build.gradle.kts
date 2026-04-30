@@ -10,11 +10,7 @@ compose.resources {
 
 kotlin {
   sourceSets {
-    commonMain.dependencies {
-      implementation(libs.compose.components.resources)
-    }
-    androidMain.dependencies {
-      implementation(libs.androidx.core.ktx)
-    }
+    commonMain.dependencies { implementation(libs.compose.components.resources) }
+    androidMain.dependencies { implementation(libs.androidx.core.ktx) }
   }
 }
