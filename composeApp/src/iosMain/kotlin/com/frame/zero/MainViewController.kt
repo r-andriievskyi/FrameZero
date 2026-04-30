@@ -8,7 +8,8 @@ import com.frame.zero.core.session.SessionManager
 import com.frame.zero.di.initKoin
 import com.frame.zero.feature.RootComponent
 import com.frame.zero.feature.auth.AuthComponent
-import com.frame.zero.feature.auth.AuthViewModel
+import com.frame.zero.feature.auth.register.RegisterViewModel
+import com.frame.zero.feature.auth.signin.SignInViewModel
 import com.frame.zero.feature.dashboard.DashboardComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -26,7 +27,13 @@ private val iosRoot: RootComponent by lazy {
   RootComponent(
     componentContext = DefaultComponentContext(lifecycle = lifecycle),
     sessionManager = sessionManager,
-    authComponentFactory = { ctx -> AuthComponent(ctx) { koin.get<AuthViewModel>() } },
+    authComponentFactory = { ctx ->
+      AuthComponent(
+        componentContext = ctx,
+        signInViewModelFactory = { koin.get<SignInViewModel>() },
+        registerViewModelFactory = { koin.get<RegisterViewModel>() },
+      )
+    },
     dashboardComponentFactory = { ctx -> DashboardComponent(ctx) },
   )
 }
