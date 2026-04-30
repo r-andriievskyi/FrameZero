@@ -2,6 +2,8 @@ package com.frame.zero.feature.auth
 
 import com.frame.zero.core.session.SessionAuthOperations
 import com.frame.zero.feature.auth.data.AuthRepositoryImpl
+import com.frame.zero.feature.auth.register.RegisterViewModel
+import com.frame.zero.feature.auth.signin.SignInViewModel
 import com.frame.zero.feature.auth.usecase.LoginUseCase
 import com.frame.zero.feature.auth.usecase.RegisterUseCase
 import com.frame.zero.repository.auth.AuthRepository
@@ -14,5 +16,6 @@ val authModule: Module = module {
   single<SessionAuthOperations> { get<AuthRepositoryImpl>() }
   factory { LoginUseCase(get(), get()) }
   factory { RegisterUseCase(get(), get()) }
-  factory { AuthViewModel(get(), get()) }
+  factory { SignInViewModel(get()) }
+  factory { RegisterViewModel(get()) }
 }

@@ -7,6 +7,7 @@ kotlin {
     commonMain.dependencies {
       implementation(projects.shared.features.auth)
       implementation(libs.compose.components.resources)
+      implementation(libs.decompose.extensionsCompose)
       implementation(projects.composeApp.shared.designSystem)
     }
     commonTest.dependencies { implementation(libs.kotlin.test) }
