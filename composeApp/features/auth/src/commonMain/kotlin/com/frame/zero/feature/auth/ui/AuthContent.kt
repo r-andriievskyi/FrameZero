@@ -3,8 +3,10 @@ package com.frame.zero.feature.auth.ui
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -99,7 +101,7 @@ private fun AuthContent(
             Text(
               modifier = Modifier.fillMaxWidth(),
               text = "Sign in to your production workspace",
-              color = AppTheme.colorSystem.textPrimary,
+              color = AppTheme.colorSystem.textSecondary,
               style = AppTheme.typographySystem.bodyLarge,
               textAlign = TextAlign.Center
             )
@@ -136,8 +138,8 @@ private fun AuthContent(
             Text(
               modifier = Modifier.fillMaxWidth(),
               text = "Forgot password?",
-              color = AppTheme.colorSystem.textPrimary,
-              style = AppTheme.typographySystem.bodySmall,
+              color = AppTheme.colorSystem.accent,
+              style = AppTheme.typographySystem.bodyMedium,
               textAlign = TextAlign.End
             )
             VerticalSpacer(AppTheme.spacingSystem.space24)
@@ -153,6 +155,21 @@ private fun AuthContent(
               },
               modifier = Modifier.fillMaxWidth()
             )
+            Spacer(modifier = Modifier.weight(1f))
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+              Text(
+                text = "New to FrameZero?",
+                color = AppTheme.colorSystem.textSecondary,
+                style = AppTheme.typographySystem.bodyMedium
+              )
+              HorizontalSpacer(AppTheme.spacingSystem.space4)
+              Text(
+                text = "Create account",
+                color = AppTheme.colorSystem.accent,
+                style = AppTheme.typographySystem.bodyMedium
+              )
+            }
+            VerticalSpacer(AppTheme.spacingSystem.space24)
           }
         }
 
