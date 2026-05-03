@@ -2,8 +2,10 @@ package com.frame.zero.feature.home.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -27,16 +29,23 @@ fun HomeContent(component: HomeComponent) {
   val activeTab = tabs[pagerState.currentPage]
 
   Box(modifier = Modifier.fillMaxSize().background(AppTheme.colorSystem.background)) {
-    HorizontalPager(
-      state = pagerState,
-      beyondViewportPageCount = 1,
-      modifier = Modifier.fillMaxSize(),
-      key = { tabs[it] },
-    ) { page ->
-      when (tabs[page]) {
-        HomeTab.DASHBOARD -> DashboardTabContent(component.dashboardTab)
-        HomeTab.PROJECTS -> ProjectsTabContent(component.projectsTab)
-        HomeTab.SCHEDULE -> ScheduleTabContent(component.scheduleTab)
+    Column(modifier = Modifier.fillMaxSize()) {
+      HomeToolbar(
+        onNotificationsClick = component.onNotificationsClick,
+        onSettingsClick = component.onSettingsClick,
+        modifier = Modifier.statusBarsPadding(),
+      )
+      HorizontalPager(
+        state = pagerState,
+        beyondViewportPageCount = 1,
+        modifier = Modifier.weight(1f),
+        key = { tabs[it] },
+      ) { page ->
+        when (tabs[page]) {
+          HomeTab.DASHBOARD -> DashboardTabContent(component.dashboardTab)
+          HomeTab.PROJECTS -> ProjectsTabContent(component.projectsTab)
+          HomeTab.SCHEDULE -> ScheduleTabContent(component.scheduleTab)
+        }
       }
     }
 
