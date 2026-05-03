@@ -10,7 +10,7 @@ import com.arkivanov.essenty.lifecycle.doOnDestroy
 import com.frame.zero.core.session.SessionManager
 import com.frame.zero.core.session.SessionState
 import com.frame.zero.feature.auth.AuthComponent
-import com.frame.zero.feature.dashboard.DashboardComponent
+import com.frame.zero.feature.home.HomeComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -21,7 +21,7 @@ class RootComponent(
   componentContext: ComponentContext,
   sessionManager: SessionManager,
   private val authComponentFactory: (ComponentContext) -> AuthComponent,
-  private val dashboardComponentFactory: (ComponentContext) -> DashboardComponent,
+  private val homeComponentFactory: (ComponentContext) -> HomeComponent,
 ) : ComponentContext by componentContext {
 
   private val navigation = StackNavigation<Config>()
@@ -44,7 +44,7 @@ class RootComponent(
           when (sessionState) {
             SessionState.Loading -> Config.Splash
             SessionState.LoggedOut -> Config.Auth
-            is SessionState.LoggedIn -> Config.Dashboard
+            is SessionState.LoggedIn -> Config.Home
           }
         if (stack.value.active.configuration != target) navigation.replaceAll(target)
       }
@@ -55,7 +55,7 @@ class RootComponent(
     when (config) {
       Config.Splash -> Child.Splash
       Config.Auth -> Child.Auth(authComponentFactory(context))
-      Config.Dashboard -> Child.Dashboard(dashboardComponentFactory(context))
+      Config.Home -> Child.Home(homeComponentFactory(context))
     }
 
   sealed interface Config {
@@ -63,7 +63,7 @@ class RootComponent(
 
     data object Auth : Config
 
-    data object Dashboard : Config
+    data object Home : Config
   }
 
   sealed interface Child {
@@ -71,6 +71,6 @@ class RootComponent(
 
     data class Auth(val component: AuthComponent) : Child
 
-    data class Dashboard(val component: DashboardComponent) : Child
+    data class Home(val component: HomeComponent) : Child
   }
 }
