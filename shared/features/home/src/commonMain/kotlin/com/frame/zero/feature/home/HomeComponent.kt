@@ -23,7 +23,11 @@ import com.frame.zero.feature.home.tab.schedule.ScheduleTabComponent
  *   when that page first composes. Combined with `beyondViewportPageCount`, this gives the desired
  *   "preload immediate neighbors, lazy-load the rest" behavior.
  */
-class HomeComponent(componentContext: ComponentContext) : ComponentContext by componentContext {
+class HomeComponent(
+  componentContext: ComponentContext,
+  val onNotificationsClick: () -> Unit = {},
+  val onSettingsClick: () -> Unit = {},
+) : ComponentContext by componentContext {
 
   // childContext keys must be unique within this parent — they namespace the instanceKeeper.
   val dashboardTab = DashboardTabComponent(childContext(key = "tab-dashboard"))
