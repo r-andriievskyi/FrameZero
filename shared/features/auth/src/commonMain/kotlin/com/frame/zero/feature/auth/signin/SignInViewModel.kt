@@ -43,7 +43,7 @@ class SignInViewModel(
     }
     scope.launch {
       _state.update { it.copy(isLoading = true, error = null) }
-      when (val outcome = loginUseCase(current.email.trim(), current.password)) {
+      when (val outcome = loginUseCase(LoginUseCase.Params(current.email.trim(), current.password))) {
         is Outcome.Success -> _state.update { it.copy(isLoading = false) }
         is Outcome.Failure ->
           _state.update { it.copy(isLoading = false, error = outcome.error.toUserMessage()) }

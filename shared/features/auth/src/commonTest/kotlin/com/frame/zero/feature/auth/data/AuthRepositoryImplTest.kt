@@ -1,15 +1,14 @@
 package com.frame.zero.feature.auth.data
 
+import com.frame.zero.auth.dto.UserDto
 import com.frame.zero.core.network.NetworkConfig
 import com.frame.zero.core.session.TokenStorage
-import com.frame.zero.domain.DomainError
-import com.frame.zero.domain.Outcome
-import com.frame.zero.domain.User
 import com.russhwolf.settings.MapSettings
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.MockRequestHandleScope
 import io.ktor.client.engine.mock.respond
+import io.ktor.client.plugins.ResponseException
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.request.HttpRequestData
@@ -26,8 +25,7 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
-import kotlin.test.assertIs
-import kotlin.test.assertNull
+import kotlin.test.assertFailsWith
 import kotlinx.coroutines.test.runTest
 import kotlinx.io.IOException
 import kotlinx.serialization.json.Json
@@ -37,19 +35,24 @@ class AuthRepositoryImplTest {
   // -- register --------------------------------------------------------------
 
   @Test
-  fun `register success returns User and persists tokens`() = runTest {
+  fun `register success returns UserDto and persists tokens`() = runTest {
     val env = TestEnv { _ ->
       respondJson(
         body =
-          """{"accessToken":"a-tok","refreshToken":"r-tok","user":{"id":"u1","email":"new@x.com"}}""",
+          """{"accessToken":"a-tok","refreshToken":"r-tok","user":{"id":"u1","email":"new@x.com","firstName":"Jane","lastName":"Doe"}}""",
         status = HttpStatusCode.Created,
       )
     }
 
-    val outcome = env.repository.register(email = "new@x.com", password = "secret")
+    val dto =
+      env.repository.register(
+        email = "new@x.com",
+        password = "secret",
+        firstName = "Jane",
+        lastName = "Doe",
+      )
 
-    val success = assertIs<Outcome.Success<User>>(outcome)
-    assertEquals(User(id = "u1", email = "new@x.com"), success.data)
+    assertEquals(UserDto(id = "u1", email = "new@x.com", firstName = "Jane", lastName = "Doe"), dto)
     assertEquals("a-tok", env.storage.getAccessToken())
     assertEquals("r-tok", env.storage.getRefreshToken())
   }
@@ -58,46 +61,48 @@ class AuthRepositoryImplTest {
   fun `register sends POST with serialized body to register endpoint`() = runTest {
     val env = TestEnv { _ ->
       respondJson(
-        body = """{"accessToken":"a","refreshToken":"r","user":{"id":"u1","email":"new@x.com"}}""",
+        body =
+          """{"accessToken":"a","refreshToken":"r","user":{"id":"u1","email":"new@x.com","firstName":"Jane","lastName":"Doe"}}""",
         status = HttpStatusCode.Created,
       )
     }
 
-    env.repository.register(email = "new@x.com", password = "secret")
+    env.repository.register(email = "new@x.com", password = "secret", firstName = "Jane", lastName = "Doe")
 
     val request = env.requests.single()
     assertEquals(HttpMethod.Post, request.method)
     assertEquals("http://test/auth/register", request.url.toString())
-    assertEquals("""{"email":"new@x.com","password":"secret"}""", request.body.bodyText())
+    assertEquals(
+      """{"email":"new@x.com","password":"secret","firstName":"Jane","lastName":"Doe"}""",
+      request.body.bodyText(),
+    )
   }
 
   @Test
-  fun `register 409 returns EmailAlreadyExists and does not persist tokens`() = runTest {
+  fun `register 409 throws ResponseException and does not persist tokens`() = runTest {
     val env = TestEnv { _ -> respond(content = "conflict", status = HttpStatusCode.Conflict) }
 
-    val outcome = env.repository.register(email = "dup@x.com", password = "secret")
-
-    val failure = assertIs<Outcome.Failure>(outcome)
-    assertEquals(DomainError.EmailAlreadyExists, failure.error)
+    assertFailsWith<ResponseException> {
+      env.repository.register(email = "dup@x.com", password = "secret", firstName = "", lastName = "")
+    }
     assertFalse(env.storage.hasTokens())
   }
 
   // -- login -----------------------------------------------------------------
 
   @Test
-  fun `login success returns User and persists tokens`() = runTest {
+  fun `login success returns UserDto and persists tokens`() = runTest {
     val env = TestEnv { _ ->
       respondJson(
         body =
-          """{"accessToken":"a-tok","refreshToken":"r-tok","user":{"id":"u1","email":"u@x.com"}}""",
+          """{"accessToken":"a-tok","refreshToken":"r-tok","user":{"id":"u1","email":"u@x.com","firstName":"","lastName":""}}""",
         status = HttpStatusCode.OK,
       )
     }
 
-    val outcome = env.repository.login(email = "u@x.com", password = "secret")
+    val dto = env.repository.login(email = "u@x.com", password = "secret")
 
-    val success = assertIs<Outcome.Success<User>>(outcome)
-    assertEquals(User(id = "u1", email = "u@x.com"), success.data)
+    assertEquals(UserDto(id = "u1", email = "u@x.com", firstName = "", lastName = ""), dto)
     assertEquals("a-tok", env.storage.getAccessToken())
     assertEquals("r-tok", env.storage.getRefreshToken())
   }
@@ -106,7 +111,8 @@ class AuthRepositoryImplTest {
   fun `login posts to login endpoint with credentials`() = runTest {
     val env = TestEnv { _ ->
       respondJson(
-        body = """{"accessToken":"a","refreshToken":"r","user":{"id":"u1","email":"u@x.com"}}""",
+        body =
+          """{"accessToken":"a","refreshToken":"r","user":{"id":"u1","email":"u@x.com","firstName":"","lastName":""}}""",
         status = HttpStatusCode.OK,
       )
     }
@@ -120,51 +126,46 @@ class AuthRepositoryImplTest {
   }
 
   @Test
-  fun `login 401 returns InvalidCredentials and does not persist tokens`() = runTest {
+  fun `login 401 throws ResponseException and does not persist tokens`() = runTest {
     val env = TestEnv { _ ->
       respond(content = "unauthorized", status = HttpStatusCode.Unauthorized)
     }
 
-    val outcome = env.repository.login(email = "u@x.com", password = "wrong")
-
-    val failure = assertIs<Outcome.Failure>(outcome)
-    assertEquals(DomainError.InvalidCredentials, failure.error)
-    assertNull(env.storage.getAccessToken())
-    assertNull(env.storage.getRefreshToken())
+    assertFailsWith<ResponseException> {
+      env.repository.login(email = "u@x.com", password = "wrong")
+    }
+    assertFalse(env.storage.hasTokens())
   }
 
   @Test
-  fun `login 500 returns Unknown`() = runTest {
+  fun `login 500 throws ResponseException`() = runTest {
     val env = TestEnv { _ ->
       respond(content = "boom", status = HttpStatusCode.InternalServerError)
     }
 
-    val outcome = env.repository.login(email = "u@x.com", password = "p")
-
-    val failure = assertIs<Outcome.Failure>(outcome)
-    assertIs<DomainError.Unknown>(failure.error)
+    assertFailsWith<ResponseException> {
+      env.repository.login(email = "u@x.com", password = "p")
+    }
   }
 
   @Test
-  fun `login network failure returns Network error`() = runTest {
+  fun `login network failure propagates IOException`() = runTest {
     val env = TestEnv { _ -> throw IOException("connection refused") }
 
-    val outcome = env.repository.login(email = "u@x.com", password = "p")
-
-    val failure = assertIs<Outcome.Failure>(outcome)
-    assertEquals(DomainError.Network("connection refused"), failure.error)
+    assertFailsWith<IOException> {
+      env.repository.login(email = "u@x.com", password = "p")
+    }
   }
 
   @Test
-  fun `login malformed JSON returns Unknown`() = runTest {
+  fun `login malformed JSON propagates exception`() = runTest {
     val env = TestEnv { _ ->
       respondJson(body = """{"unexpected":"shape"}""", status = HttpStatusCode.OK)
     }
 
-    val outcome = env.repository.login(email = "u@x.com", password = "p")
-
-    val failure = assertIs<Outcome.Failure>(outcome)
-    assertIs<DomainError.Unknown>(failure.error)
+    assertFailsWith<Exception> {
+      env.repository.login(email = "u@x.com", password = "p")
+    }
   }
 
   // -- logout ----------------------------------------------------------------
@@ -174,9 +175,8 @@ class AuthRepositoryImplTest {
     val env = TestEnv { _ -> respond(content = "", status = HttpStatusCode.OK) }
     env.storage.saveTokens(accessToken = "a", refreshToken = "r-existing")
 
-    val outcome = env.repository.logout()
+    env.repository.logout()
 
-    assertIs<Outcome.Success<Unit>>(outcome)
     val request = env.requests.single()
     assertEquals(HttpMethod.Post, request.method)
     assertEquals("http://test/auth/logout", request.url.toString())
@@ -190,9 +190,8 @@ class AuthRepositoryImplTest {
       error("logout endpoint should not be called when there is no refresh token")
     }
 
-    val outcome = env.repository.logout()
+    env.repository.logout()
 
-    assertIs<Outcome.Success<Unit>>(outcome)
     assertEquals(0, env.requests.size)
     assertFalse(env.storage.hasTokens())
   }
@@ -200,21 +199,26 @@ class AuthRepositoryImplTest {
   // -- getCurrentUser --------------------------------------------------------
 
   @Test
-  fun `getCurrentUser returns User on 200`() = runTest {
+  fun `getCurrentUser returns UserDto on 200`() = runTest {
     val env = TestEnv { _ ->
-      respondJson(body = """{"id":"u1","email":"u@x.com"}""", status = HttpStatusCode.OK)
+      respondJson(
+        body = """{"id":"u1","email":"u@x.com","firstName":"Jane","lastName":"Doe"}""",
+        status = HttpStatusCode.OK,
+      )
     }
 
-    val outcome = env.repository.getCurrentUser()
+    val dto = env.repository.getCurrentUser()
 
-    val success = assertIs<Outcome.Success<User>>(outcome)
-    assertEquals(User(id = "u1", email = "u@x.com"), success.data)
+    assertEquals(UserDto(id = "u1", email = "u@x.com", firstName = "Jane", lastName = "Doe"), dto)
   }
 
   @Test
   fun `getCurrentUser issues GET to auth me`() = runTest {
     val env = TestEnv { _ ->
-      respondJson(body = """{"id":"u1","email":"u@x.com"}""", status = HttpStatusCode.OK)
+      respondJson(
+        body = """{"id":"u1","email":"u@x.com","firstName":"","lastName":""}""",
+        status = HttpStatusCode.OK,
+      )
     }
 
     env.repository.getCurrentUser()
@@ -225,27 +229,28 @@ class AuthRepositoryImplTest {
   }
 
   @Test
-  fun `getCurrentUser 401 returns InvalidCredentials`() = runTest {
+  fun `getCurrentUser 401 throws ResponseException`() = runTest {
     val env = TestEnv { _ ->
       respond(content = "unauthorized", status = HttpStatusCode.Unauthorized)
     }
 
-    val outcome = env.repository.getCurrentUser()
-
-    val failure = assertIs<Outcome.Failure>(outcome)
-    assertEquals(DomainError.InvalidCredentials, failure.error)
+    assertFailsWith<ResponseException> {
+      env.repository.getCurrentUser()
+    }
   }
 
   @Test
   fun `fetchCurrentUser delegates to getCurrentUser endpoint`() = runTest {
     val env = TestEnv { _ ->
-      respondJson(body = """{"id":"u1","email":"u@x.com"}""", status = HttpStatusCode.OK)
+      respondJson(
+        body = """{"id":"u1","email":"u@x.com","firstName":"","lastName":""}""",
+        status = HttpStatusCode.OK,
+      )
     }
 
-    val outcome = env.repository.fetchCurrentUser()
+    val dto = env.repository.fetchCurrentUser()
 
-    val success = assertIs<Outcome.Success<User>>(outcome)
-    assertEquals(User(id = "u1", email = "u@x.com"), success.data)
+    assertEquals(UserDto(id = "u1", email = "u@x.com", firstName = "", lastName = ""), dto)
     assertEquals("http://test/auth/me", env.requests.single().url.toString())
   }
 
@@ -254,9 +259,8 @@ class AuthRepositoryImplTest {
     val env = TestEnv { _ -> respond(content = "", status = HttpStatusCode.OK) }
     env.storage.saveTokens(accessToken = "a", refreshToken = "r")
 
-    val outcome = env.repository.signOutRemote()
+    env.repository.signOutRemote()
 
-    assertIs<Outcome.Success<Unit>>(outcome)
     assertEquals("http://test/auth/logout", env.requests.single().url.toString())
     assertFalse(env.storage.hasTokens())
   }

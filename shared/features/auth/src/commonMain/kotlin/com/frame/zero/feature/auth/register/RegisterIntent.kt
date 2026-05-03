@@ -1,7 +1,9 @@
 package com.frame.zero.feature.auth.register
 
 sealed interface RegisterIntent {
-  data class NameChanged(val name: String) : RegisterIntent
+  data class FirstNameChanged(val firstName: String) : RegisterIntent
+
+  data class LastNameChanged(val lastName: String) : RegisterIntent
 
   data class EmailChanged(val email: String) : RegisterIntent
 

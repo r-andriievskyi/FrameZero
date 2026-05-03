@@ -1,14 +1,13 @@
 package com.frame.zero.core.session
 
-import com.frame.zero.domain.Outcome
-import com.frame.zero.domain.User
+import com.frame.zero.auth.dto.UserDto
 
 /**
  * Subset of auth operations the [SessionManager] needs. Implemented by `AuthRepositoryImpl` so the
  * core session layer can stay decoupled from the repositories module.
  */
 interface SessionAuthOperations {
-  suspend fun fetchCurrentUser(): Outcome<User>
+  suspend fun fetchCurrentUser(): UserDto
 
-  suspend fun signOutRemote(): Outcome<Unit>
+  suspend fun signOutRemote()
 }

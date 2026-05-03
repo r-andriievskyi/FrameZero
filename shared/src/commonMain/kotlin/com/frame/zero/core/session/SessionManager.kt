@@ -1,6 +1,6 @@
 package com.frame.zero.core.session
 
-import com.frame.zero.domain.Outcome
+import com.frame.zero.auth.dto.toDomain
 import com.frame.zero.domain.User
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -29,10 +29,11 @@ class SessionManager(
       _state.value = SessionState.LoggedOut
       return
     }
-    when (val outcome = authOperations.fetchCurrentUser()) {
-      is Outcome.Success -> _state.value = SessionState.LoggedIn(outcome.data)
-      is Outcome.Failure -> forceLogout()
-    }
+    runCatching { authOperations.fetchCurrentUser() }
+      .fold(
+        onSuccess = { _state.value = SessionState.LoggedIn(it.toDomain()) },
+        onFailure = { forceLogout() },
+      )
   }
 
   fun onAuthenticated(user: User) {

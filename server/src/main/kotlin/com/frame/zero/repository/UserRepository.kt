@@ -13,6 +13,8 @@ data class UserRecord(
   val id: UUID,
   val email: String,
   val passwordHash: String,
+  val firstName: String,
+  val lastName: String,
   val createdAt: Instant,
 )
 
@@ -21,7 +23,12 @@ interface UserRepository {
 
   suspend fun findById(id: UUID): UserRecord?
 
-  suspend fun create(email: String, passwordHash: String): UserRecord
+  suspend fun create(
+    email: String,
+    passwordHash: String,
+    firstName: String,
+    lastName: String,
+  ): UserRecord
 }
 
 class UserRepositoryExposed : UserRepository {
@@ -36,16 +43,30 @@ class UserRepositoryExposed : UserRepository {
     UsersTable.selectAll().where { UsersTable.id eq id }.singleOrNull()?.toRecord()
   }
 
-  override suspend fun create(email: String, passwordHash: String): UserRecord = dbQuery {
+  override suspend fun create(
+    email: String,
+    passwordHash: String,
+    firstName: String,
+    lastName: String,
+  ): UserRecord = dbQuery {
     val newId = UUID.randomUUID()
     val now = Instant.now()
     UsersTable.insert {
       it[id] = newId
       it[UsersTable.email] = email.lowercase()
       it[UsersTable.passwordHash] = passwordHash
+      it[UsersTable.firstName] = firstName
+      it[UsersTable.lastName] = lastName
       it[createdAt] = now
     }
-    UserRecord(id = newId, email = email.lowercase(), passwordHash = passwordHash, createdAt = now)
+    UserRecord(
+      id = newId,
+      email = email.lowercase(),
+      passwordHash = passwordHash,
+      firstName = firstName,
+      lastName = lastName,
+      createdAt = now,
+    )
   }
 
   private fun ResultRow.toRecord(): UserRecord =
@@ -53,6 +74,8 @@ class UserRepositoryExposed : UserRepository {
       id = this[UsersTable.id],
       email = this[UsersTable.email],
       passwordHash = this[UsersTable.passwordHash],
+      firstName = this[UsersTable.firstName],
+      lastName = this[UsersTable.lastName],
       createdAt = this[UsersTable.createdAt],
     )
 }

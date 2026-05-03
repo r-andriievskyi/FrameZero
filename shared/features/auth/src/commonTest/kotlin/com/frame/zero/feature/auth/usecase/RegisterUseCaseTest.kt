@@ -1,10 +1,12 @@
 package com.frame.zero.feature.auth.usecase
 
+import com.frame.zero.auth.dto.UserDto
 import com.frame.zero.core.session.LogoutSignal
 import com.frame.zero.core.session.SessionManager
 import com.frame.zero.core.session.SessionState
 import com.frame.zero.core.session.TokenStorage
 import com.frame.zero.domain.DomainError
+import com.frame.zero.domain.DomainException
 import com.frame.zero.domain.Outcome
 import com.frame.zero.domain.User
 import com.frame.zero.feature.auth.testing.FakeAuthRepository
@@ -18,14 +20,18 @@ import kotlinx.coroutines.test.runTest
 
 class RegisterUseCaseTest {
 
+  private val userDto = UserDto(id = "u1", email = "new@x.com", firstName = "", lastName = "")
   private val user = User(id = "u1", email = "new@x.com")
 
   @Test
   fun `success transitions session to LoggedIn`() = runTest {
-    val repo = FakeAuthRepository(registerResult = Outcome.Success(user))
+    val repo = FakeAuthRepository(registerUserDto = userDto)
     val session = makeSessionManager()
 
-    val outcome = RegisterUseCase(repo, session).invoke(email = "new@x.com", password = "p")
+    val outcome =
+      RegisterUseCase(repo, session)(
+        RegisterUseCase.Params(email = "new@x.com", password = "p", firstName = "Jane", lastName = "Doe")
+      )
 
     val success = assertIs<Outcome.Success<User>>(outcome)
     assertEquals(user, success.data)
@@ -34,23 +40,37 @@ class RegisterUseCaseTest {
 
   @Test
   fun `failure leaves session state untouched`() = runTest {
-    val repo = FakeAuthRepository(registerResult = Outcome.Failure(DomainError.EmailAlreadyExists))
+    val repo = FakeAuthRepository(registerThrows = DomainException(DomainError.EmailAlreadyExists))
     val session = makeSessionManager()
     val before = session.state.value
 
-    val outcome = RegisterUseCase(repo, session).invoke(email = "dup@x.com", password = "p")
+    val outcome =
+      RegisterUseCase(repo, session)(
+        RegisterUseCase.Params(email = "dup@x.com", password = "p", firstName = "", lastName = "")
+      )
 
     assertIs<Outcome.Failure>(outcome)
     assertEquals(before, session.state.value)
   }
 
   @Test
-  fun `forwards email and password to repository`() = runTest {
-    val repo = FakeAuthRepository(registerResult = Outcome.Success(user))
+  fun `forwards all fields to repository`() = runTest {
+    val repo = FakeAuthRepository(registerUserDto = userDto)
 
-    RegisterUseCase(repo, makeSessionManager()).invoke(email = "typed@x.com", password = "secret")
+    RegisterUseCase(repo, makeSessionManager())(
+      RegisterUseCase.Params(
+        email = "typed@x.com",
+        password = "secret",
+        firstName = "Jane",
+        lastName = "Doe",
+      )
+    )
 
-    assertEquals(listOf("typed@x.com" to "secret"), repo.registerCalls)
+    val call = repo.registerCalls.single()
+    assertEquals("typed@x.com", call.email)
+    assertEquals("secret", call.password)
+    assertEquals("Jane", call.firstName)
+    assertEquals("Doe", call.lastName)
   }
 
   private fun TestScope.makeSessionManager(): SessionManager =

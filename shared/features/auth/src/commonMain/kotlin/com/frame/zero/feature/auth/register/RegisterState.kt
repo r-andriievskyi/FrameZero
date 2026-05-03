@@ -1,7 +1,8 @@
 package com.frame.zero.feature.auth.register
 
 data class RegisterState(
-  val name: String = "",
+  val firstName: String = "",
+  val lastName: String = "",
   val email: String = "",
   val password: String = "",
   val isLoading: Boolean = false,

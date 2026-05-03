@@ -27,7 +27,10 @@ class RegisterViewModel(
 
   fun onIntent(intent: RegisterIntent) {
     when (intent) {
-      is RegisterIntent.NameChanged -> _state.update { it.copy(name = intent.name, error = null) }
+      is RegisterIntent.FirstNameChanged ->
+        _state.update { it.copy(firstName = intent.firstName, error = null) }
+      is RegisterIntent.LastNameChanged ->
+        _state.update { it.copy(lastName = intent.lastName, error = null) }
       is RegisterIntent.EmailChanged ->
         _state.update { it.copy(email = intent.email, error = null) }
       is RegisterIntent.PasswordChanged ->
@@ -45,7 +48,17 @@ class RegisterViewModel(
     }
     scope.launch {
       _state.update { it.copy(isLoading = true, error = null) }
-      when (val outcome = registerUseCase(current.email.trim(), current.password)) {
+      when (
+        val outcome =
+          registerUseCase(
+            RegisterUseCase.Params(
+              email = current.email.trim(),
+              password = current.password,
+              firstName = current.firstName.trim(),
+              lastName = current.lastName.trim(),
+            )
+          )
+      ) {
         is Outcome.Success -> _state.update { it.copy(isLoading = false) }
         is Outcome.Failure ->
           _state.update { it.copy(isLoading = false, error = outcome.error.toUserMessage()) }

@@ -11,7 +11,13 @@ class AuthDtoSerializationTest {
 
   @Test
   fun `RegisterRequest round-trips`() {
-    val original = RegisterRequest(email = "user@example.com", password = "hunter2")
+    val original =
+      RegisterRequest(
+        email = "user@example.com",
+        password = "hunter2",
+        firstName = "Jane",
+        lastName = "Doe",
+      )
 
     val decoded = json.decodeFromString<RegisterRequest>(json.encodeToString(original))
 
@@ -47,7 +53,7 @@ class AuthDtoSerializationTest {
 
   @Test
   fun `UserDto round-trips`() {
-    val original = UserDto(id = "u1", email = "user@example.com")
+    val original = UserDto(id = "u1", email = "user@example.com", firstName = "Jane", lastName = "Doe")
 
     val decoded = json.decodeFromString<UserDto>(json.encodeToString(original))
 
@@ -60,7 +66,7 @@ class AuthDtoSerializationTest {
       AuthResponse(
         accessToken = "a-token",
         refreshToken = "r-token",
-        user = UserDto(id = "u1", email = "user@example.com"),
+        user = UserDto(id = "u1", email = "user@example.com", firstName = "Jane", lastName = "Doe"),
       )
 
     val decoded = json.decodeFromString<AuthResponse>(json.encodeToString(original))
@@ -79,7 +85,8 @@ class AuthDtoSerializationTest {
 
   @Test
   fun `AuthResponse decodes wire-compatible field names from server`() {
-    val raw = """{"accessToken":"a","refreshToken":"r","user":{"id":"u1","email":"u@x.com"}}"""
+    val raw =
+      """{"accessToken":"a","refreshToken":"r","user":{"id":"u1","email":"u@x.com","firstName":"Jane","lastName":"Doe"}}"""
 
     val decoded = json.decodeFromString<AuthResponse>(raw)
 
@@ -87,7 +94,7 @@ class AuthDtoSerializationTest {
       AuthResponse(
         accessToken = "a",
         refreshToken = "r",
-        user = UserDto(id = "u1", email = "u@x.com"),
+        user = UserDto(id = "u1", email = "u@x.com", firstName = "Jane", lastName = "Doe"),
       ),
       decoded,
     )
@@ -96,7 +103,7 @@ class AuthDtoSerializationTest {
   @Test
   fun `AuthResponse decoder ignores unknown fields`() {
     val raw =
-      """{"accessToken":"a","refreshToken":"r","user":{"id":"u1","email":"u@x.com"},"extra":"ignored"}"""
+      """{"accessToken":"a","refreshToken":"r","user":{"id":"u1","email":"u@x.com","firstName":"","lastName":""},"extra":"ignored"}"""
 
     val decoded = json.decodeFromString<AuthResponse>(raw)
 

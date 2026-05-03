@@ -1,11 +1,11 @@
 package com.frame.zero.feature.auth.register
 
+import com.frame.zero.auth.dto.UserDto
 import com.frame.zero.core.session.LogoutSignal
 import com.frame.zero.core.session.SessionManager
 import com.frame.zero.core.session.TokenStorage
 import com.frame.zero.domain.DomainError
-import com.frame.zero.domain.Outcome
-import com.frame.zero.domain.User
+import com.frame.zero.domain.DomainException
 import com.frame.zero.feature.auth.testing.FakeAuthRepository
 import com.frame.zero.feature.auth.testing.NoopSessionAuthOperations
 import com.frame.zero.feature.auth.usecase.RegisterUseCase
@@ -24,13 +24,14 @@ import kotlinx.coroutines.test.runTest
 @OptIn(ExperimentalCoroutinesApi::class)
 class RegisterViewModelTest {
 
-  private val user = User(id = "u1", email = "u@x.com")
+  private val userDto = UserDto(id = "u1", email = "u@x.com", firstName = "", lastName = "")
 
   @Test
   fun `initial state is empty without loading or error`() = runTest {
     val vm = makeViewModel(this)
 
-    assertEquals("", vm.state.value.name)
+    assertEquals("", vm.state.value.firstName)
+    assertEquals("", vm.state.value.lastName)
     assertEquals("", vm.state.value.email)
     assertEquals("", vm.state.value.password)
     assertFalse(vm.state.value.isLoading)
@@ -38,18 +39,28 @@ class RegisterViewModelTest {
   }
 
   @Test
-  fun `NameChanged updates name only`() = runTest {
+  fun `FirstNameChanged updates firstName only`() = runTest {
     val vm = makeViewModel(this)
 
-    vm.onIntent(RegisterIntent.NameChanged("Jane"))
+    vm.onIntent(RegisterIntent.FirstNameChanged("Jane"))
 
-    assertEquals("Jane", vm.state.value.name)
+    assertEquals("Jane", vm.state.value.firstName)
+    assertEquals("", vm.state.value.email)
+  }
+
+  @Test
+  fun `LastNameChanged updates lastName only`() = runTest {
+    val vm = makeViewModel(this)
+
+    vm.onIntent(RegisterIntent.LastNameChanged("Doe"))
+
+    assertEquals("Doe", vm.state.value.lastName)
     assertEquals("", vm.state.value.email)
   }
 
   @Test
   fun `Submit with blank fields sets validation error and skips repository`() = runTest {
-    val repo = FakeAuthRepository(registerResult = Outcome.Success(user))
+    val repo = FakeAuthRepository(registerUserDto = userDto)
     val vm = makeViewModel(this, repo)
 
     vm.onIntent(RegisterIntent.Submit)
@@ -61,7 +72,7 @@ class RegisterViewModelTest {
 
   @Test
   fun `successful Submit clears loading and error`() = runTest {
-    val repo = FakeAuthRepository(registerResult = Outcome.Success(user))
+    val repo = FakeAuthRepository(registerUserDto = userDto)
     val vm = makeViewModel(this, repo)
 
     vm.onIntent(RegisterIntent.EmailChanged("u@x.com"))
@@ -76,7 +87,7 @@ class RegisterViewModelTest {
 
   @Test
   fun `failed Submit surfaces EmailAlreadyExists message`() = runTest {
-    val repo = FakeAuthRepository(registerResult = Outcome.Failure(DomainError.EmailAlreadyExists))
+    val repo = FakeAuthRepository(registerThrows = DomainException(DomainError.EmailAlreadyExists))
     val vm = makeViewModel(this, repo)
 
     vm.onIntent(RegisterIntent.EmailChanged("dup@x.com"))
@@ -89,11 +100,7 @@ class RegisterViewModelTest {
 
   @Test
   fun `Submit routes to register and not login`() = runTest {
-    val repo =
-      FakeAuthRepository(
-        loginResult = Outcome.Failure(DomainError.Unknown(null)),
-        registerResult = Outcome.Success(user),
-      )
+    val repo = FakeAuthRepository(registerUserDto = userDto)
     val vm = makeViewModel(this, repo)
 
     vm.onIntent(RegisterIntent.EmailChanged("u@x.com"))
