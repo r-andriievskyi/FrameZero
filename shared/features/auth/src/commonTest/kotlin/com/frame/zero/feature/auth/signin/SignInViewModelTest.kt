@@ -1,9 +1,11 @@
 package com.frame.zero.feature.auth.signin
 
+import com.frame.zero.auth.dto.UserDto
 import com.frame.zero.core.session.LogoutSignal
 import com.frame.zero.core.session.SessionManager
 import com.frame.zero.core.session.TokenStorage
 import com.frame.zero.domain.DomainError
+import com.frame.zero.domain.DomainException
 import com.frame.zero.domain.Outcome
 import com.frame.zero.domain.User
 import com.frame.zero.feature.auth.testing.FakeAuthRepository
@@ -26,6 +28,7 @@ import kotlinx.coroutines.test.runTest
 @OptIn(ExperimentalCoroutinesApi::class)
 class SignInViewModelTest {
 
+  private val userDto = UserDto(id = "u1", email = "u@x.com", firstName = "", lastName = "")
   private val user = User(id = "u1", email = "u@x.com")
 
   @Test
@@ -40,7 +43,7 @@ class SignInViewModelTest {
 
   @Test
   fun `EmailChanged updates email and clears error`() = runTest {
-    val repo = FakeAuthRepository(loginResult = Outcome.Failure(DomainError.InvalidCredentials))
+    val repo = FakeAuthRepository(loginThrows = DomainException(DomainError.InvalidCredentials))
     val vm = makeViewModel(this, repo)
     vm.onIntent(SignInIntent.EmailChanged("u@x.com"))
     vm.onIntent(SignInIntent.PasswordChanged("wrong"))
@@ -55,7 +58,7 @@ class SignInViewModelTest {
 
   @Test
   fun `Submit with blank email sets validation error and skips repository`() = runTest {
-    val repo = FakeAuthRepository(loginResult = Outcome.Success(user))
+    val repo = FakeAuthRepository(loginUserDto = userDto)
     val vm = makeViewModel(this, repo)
 
     vm.onIntent(SignInIntent.PasswordChanged("p"))
@@ -68,7 +71,7 @@ class SignInViewModelTest {
 
   @Test
   fun `Submit with blank password sets validation error`() = runTest {
-    val repo = FakeAuthRepository(loginResult = Outcome.Success(user))
+    val repo = FakeAuthRepository(loginUserDto = userDto)
     val vm = makeViewModel(this, repo)
 
     vm.onIntent(SignInIntent.EmailChanged("u@x.com"))
@@ -80,7 +83,7 @@ class SignInViewModelTest {
 
   @Test
   fun `successful Submit clears loading and error`() = runTest {
-    val repo = FakeAuthRepository(loginResult = Outcome.Success(user))
+    val repo = FakeAuthRepository(loginUserDto = userDto)
     val vm = makeViewModel(this, repo)
 
     vm.onIntent(SignInIntent.EmailChanged("u@x.com"))
@@ -94,7 +97,7 @@ class SignInViewModelTest {
 
   @Test
   fun `failed Submit surfaces InvalidCredentials message`() = runTest {
-    val repo = FakeAuthRepository(loginResult = Outcome.Failure(DomainError.InvalidCredentials))
+    val repo = FakeAuthRepository(loginThrows = DomainException(DomainError.InvalidCredentials))
     val vm = makeViewModel(this, repo)
 
     vm.onIntent(SignInIntent.EmailChanged("u@x.com"))
@@ -108,7 +111,7 @@ class SignInViewModelTest {
 
   @Test
   fun `Network error message includes the underlying detail`() = runTest {
-    val repo = FakeAuthRepository(loginResult = Outcome.Failure(DomainError.Network("offline")))
+    val repo = FakeAuthRepository(loginThrows = DomainException(DomainError.Network("offline")))
     val vm = makeViewModel(this, repo)
 
     vm.onIntent(SignInIntent.EmailChanged("u@x.com"))
@@ -121,7 +124,7 @@ class SignInViewModelTest {
 
   @Test
   fun `Unknown error with null message uses fallback text`() = runTest {
-    val repo = FakeAuthRepository(loginResult = Outcome.Failure(DomainError.Unknown(null)))
+    val repo = FakeAuthRepository(loginThrows = DomainException(DomainError.Unknown(null)))
     val vm = makeViewModel(this, repo)
 
     vm.onIntent(SignInIntent.EmailChanged("u@x.com"))
@@ -134,7 +137,7 @@ class SignInViewModelTest {
 
   @Test
   fun `second Submit while the first is in flight is ignored`() = runTest {
-    val gate = CompletableDeferred<Outcome<User>>()
+    val gate = CompletableDeferred<UserDto>()
     val repo = GatedAuthRepository(loginGate = gate)
     val vm = makeViewModel(this, repo)
 
@@ -150,7 +153,7 @@ class SignInViewModelTest {
 
     assertEquals(1, repo.loginInvocations)
 
-    gate.complete(Outcome.Success(user))
+    gate.complete(userDto)
     advanceUntilIdle()
   }
 
@@ -173,22 +176,25 @@ class SignInViewModelTest {
     )
   }
 
-  private class GatedAuthRepository(private val loginGate: CompletableDeferred<Outcome<User>>) :
+  private class GatedAuthRepository(private val loginGate: CompletableDeferred<UserDto>) :
     AuthRepository {
     var loginInvocations: Int = 0
       private set
 
-    override suspend fun login(email: String, password: String): Outcome<User> {
+    override suspend fun login(email: String, password: String): UserDto {
       loginInvocations++
       return loginGate.await()
     }
 
-    override suspend fun register(email: String, password: String): Outcome<User> =
-      Outcome.Failure(DomainError.Unknown(null))
+    override suspend fun register(
+      email: String,
+      password: String,
+      firstName: String,
+      lastName: String,
+    ): UserDto = error("not expected")
 
-    override suspend fun logout(): Outcome<Unit> = Outcome.Success(Unit)
+    override suspend fun logout() = Unit
 
-    override suspend fun getCurrentUser(): Outcome<User> =
-      Outcome.Failure(DomainError.Unknown(null))
+    override suspend fun getCurrentUser(): UserDto = error("not expected")
   }
 }

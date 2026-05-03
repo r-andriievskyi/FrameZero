@@ -1,7 +1,6 @@
 package com.frame.zero.core.session
 
-import com.frame.zero.domain.DomainError
-import com.frame.zero.domain.Outcome
+import com.frame.zero.auth.dto.UserDto
 import com.frame.zero.domain.User
 import com.russhwolf.settings.MapSettings
 import kotlin.test.Test
@@ -15,6 +14,7 @@ import kotlinx.coroutines.test.runTest
 @OptIn(ExperimentalCoroutinesApi::class)
 class SessionManagerTest {
 
+  private val userDto = UserDto(id = "u1", email = "u@x.com", firstName = "", lastName = "")
   private val user = User(id = "u1", email = "u@x.com")
 
   @Test
@@ -29,7 +29,7 @@ class SessionManagerTest {
   @Test
   fun `initialize transitions to LoggedIn when tokens valid and fetch succeeds`() = runTest {
     val storage = TokenStorage(MapSettings()).also { it.saveTokens("a", "r") }
-    val ops = FakeAuthOps(currentUser = Outcome.Success(user))
+    val ops = FakeAuthOps(currentUserDto = userDto)
     val manager = SessionManager(storage, ops, LogoutSignal(), backgroundScope)
 
     manager.initialize()
@@ -39,9 +39,9 @@ class SessionManagerTest {
   }
 
   @Test
-  fun `initialize forces logout when fetch fails`() = runTest {
+  fun `initialize forces logout when fetch throws`() = runTest {
     val storage = TokenStorage(MapSettings()).also { it.saveTokens("a", "r") }
-    val ops = FakeAuthOps(currentUser = Outcome.Failure(DomainError.InvalidCredentials))
+    val ops = FakeAuthOps(fetchThrows = true)
     val manager = SessionManager(storage, ops, LogoutSignal(), backgroundScope)
 
     manager.initialize()
@@ -110,21 +110,22 @@ class SessionManagerTest {
     )
 
   private class FakeAuthOps(
-    private val currentUser: Outcome<User> = Outcome.Failure(DomainError.Unknown(null)),
+    private val currentUserDto: UserDto = UserDto("", "", "", ""),
+    private val fetchThrows: Boolean = false,
     private val signOutThrows: Boolean = false,
   ) : SessionAuthOperations {
     var fetchCalls = 0
     var signOutCalls = 0
 
-    override suspend fun fetchCurrentUser(): Outcome<User> {
+    override suspend fun fetchCurrentUser(): UserDto {
       fetchCalls++
-      return currentUser
+      if (fetchThrows) throw RuntimeException("fetch failed")
+      return currentUserDto
     }
 
-    override suspend fun signOutRemote(): Outcome<Unit> {
+    override suspend fun signOutRemote() {
       signOutCalls++
       if (signOutThrows) throw RuntimeException("network down")
-      return Outcome.Success(Unit)
     }
   }
 }

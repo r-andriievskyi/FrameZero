@@ -8,8 +8,6 @@ import com.frame.zero.auth.dto.UserDto
 import com.frame.zero.core.network.NetworkConfig
 import com.frame.zero.core.session.SessionAuthOperations
 import com.frame.zero.core.session.TokenStorage
-import com.frame.zero.domain.Outcome
-import com.frame.zero.domain.User
 import com.frame.zero.repository.auth.AuthRepository
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -23,18 +21,30 @@ class AuthRepositoryImpl(
   private val networkConfig: NetworkConfig,
 ) : AuthRepository, SessionAuthOperations {
 
-  override suspend fun register(email: String, password: String): Outcome<User> = runOutcome {
+  override suspend fun register(
+    email: String,
+    password: String,
+    firstName: String,
+    lastName: String,
+  ): UserDto {
     val response: AuthResponse =
       httpClient
         .post("${networkConfig.baseUrl}/auth/register") {
-          setBody(RegisterRequest(email = email, password = password))
+          setBody(
+            RegisterRequest(
+              email = email,
+              password = password,
+              firstName = firstName,
+              lastName = lastName,
+            )
+          )
         }
         .body()
     tokenStorage.saveTokens(response.accessToken, response.refreshToken)
-    response.user.toDomain()
+    return response.user
   }
 
-  override suspend fun login(email: String, password: String): Outcome<User> = runOutcome {
+  override suspend fun login(email: String, password: String): UserDto {
     val response: AuthResponse =
       httpClient
         .post("${networkConfig.baseUrl}/auth/login") {
@@ -42,10 +52,10 @@ class AuthRepositoryImpl(
         }
         .body()
     tokenStorage.saveTokens(response.accessToken, response.refreshToken)
-    response.user.toDomain()
+    return response.user
   }
 
-  override suspend fun logout(): Outcome<Unit> = runOutcome {
+  override suspend fun logout() {
     val refresh = tokenStorage.getRefreshToken()
     if (refresh != null) {
       httpClient.post("${networkConfig.baseUrl}/auth/logout") {
@@ -55,21 +65,10 @@ class AuthRepositoryImpl(
     tokenStorage.clearTokens()
   }
 
-  override suspend fun getCurrentUser(): Outcome<User> = runOutcome {
-    val dto: UserDto = httpClient.get("${networkConfig.baseUrl}/auth/me").body()
-    dto.toDomain()
-  }
+  override suspend fun getCurrentUser(): UserDto =
+    httpClient.get("${networkConfig.baseUrl}/auth/me").body()
 
-  override suspend fun fetchCurrentUser(): Outcome<User> = getCurrentUser()
+  override suspend fun fetchCurrentUser(): UserDto = getCurrentUser()
 
-  override suspend fun signOutRemote(): Outcome<Unit> = logout()
-
-  private inline fun <T> runOutcome(block: () -> T): Outcome<T> =
-    runCatching(block)
-      .fold(
-        onSuccess = { Outcome.Success(it) },
-        onFailure = { Outcome.Failure(it.toDomainError()) },
-      )
-
-  private fun UserDto.toDomain(): User = User(id = id, email = email)
+  override suspend fun signOutRemote() = logout()
 }

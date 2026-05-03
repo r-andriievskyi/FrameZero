@@ -88,15 +88,29 @@ private fun RegisterContent(
     )
     VerticalSpacer(AppTheme.spacingSystem.space24)
     Text(
-      text = "FULL NAME",
+      text = "FIRST NAME",
       color = AppTheme.colorSystem.textPrimary,
       style = AppTheme.typographySystem.labelSmall,
     )
     VerticalSpacer(AppTheme.spacingSystem.space8)
     SingleLineInputField(
-      value = state.name,
-      onValueChange = { onIntent(RegisterIntent.NameChanged(it)) },
-      placeholder = "John Doe",
+      value = state.firstName,
+      onValueChange = { onIntent(RegisterIntent.FirstNameChanged(it)) },
+      placeholder = "John",
+      enabled = !state.isLoading,
+      modifier = Modifier.fillMaxWidth(),
+    )
+    VerticalSpacer(AppTheme.spacingSystem.space16)
+    Text(
+      text = "LAST NAME",
+      color = AppTheme.colorSystem.textPrimary,
+      style = AppTheme.typographySystem.labelSmall,
+    )
+    VerticalSpacer(AppTheme.spacingSystem.space8)
+    SingleLineInputField(
+      value = state.lastName,
+      onValueChange = { onIntent(RegisterIntent.LastNameChanged(it)) },
+      placeholder = "Doe",
       enabled = !state.isLoading,
       modifier = Modifier.fillMaxWidth(),
     )

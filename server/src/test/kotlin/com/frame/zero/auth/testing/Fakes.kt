@@ -16,12 +16,19 @@ internal class FakeUserRepository : UserRepository {
 
   override suspend fun findById(id: UUID): UserRecord? = users.firstOrNull { it.id == id }
 
-  override suspend fun create(email: String, passwordHash: String): UserRecord {
+  override suspend fun create(
+    email: String,
+    passwordHash: String,
+    firstName: String,
+    lastName: String,
+  ): UserRecord {
     val record =
       UserRecord(
         id = UUID.randomUUID(),
         email = email.lowercase(),
         passwordHash = passwordHash,
+        firstName = firstName,
+        lastName = lastName,
         createdAt = Instant.now(),
       )
     users += record

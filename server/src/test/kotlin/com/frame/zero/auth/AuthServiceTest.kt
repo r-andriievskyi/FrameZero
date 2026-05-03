@@ -37,7 +37,7 @@ class AuthServiceTest {
   fun `register rejects empty email with InvalidInput`() = runTest {
     val service = makeService()
 
-    val ex = assertFailsWith<AuthException> { service.register("", "password123") }
+    val ex = assertFailsWith<AuthException> { service.register("", "password123", "", "") }
 
     assertEquals(AuthError.InvalidInput("Invalid email format"), ex.error)
   }
@@ -46,7 +46,7 @@ class AuthServiceTest {
   fun `register rejects malformed email`() = runTest {
     val service = makeService()
 
-    val ex = assertFailsWith<AuthException> { service.register("not-an-email", "password123") }
+    val ex = assertFailsWith<AuthException> { service.register("not-an-email", "password123", "", "") }
 
     assertEquals(AuthError.InvalidInput("Invalid email format"), ex.error)
   }
@@ -55,7 +55,7 @@ class AuthServiceTest {
   fun `register rejects password shorter than the minimum length`() = runTest {
     val service = makeService()
 
-    val ex = assertFailsWith<AuthException> { service.register("u@x.com", "short") }
+    val ex = assertFailsWith<AuthException> { service.register("u@x.com", "short", "", "") }
 
     val invalid = assertIs<AuthError.InvalidInput>(ex.error)
     assertEquals("Password must be at least 8 characters", invalid.reason)
@@ -66,7 +66,7 @@ class AuthServiceTest {
     val users = FakeUserRepository()
     val service = makeService(users = users)
 
-    service.register("  Foo@EXAMPLE.com  ", "password123")
+    service.register("  Foo@EXAMPLE.com  ", "password123", "", "")
 
     assertNotNull(users.findByEmail("foo@example.com"))
   }
@@ -75,9 +75,9 @@ class AuthServiceTest {
   fun `register rejects duplicate email regardless of casing`() = runTest {
     val users = FakeUserRepository()
     val service = makeService(users = users)
-    service.register("u@x.com", "password123")
+    service.register("u@x.com", "password123", "", "")
 
-    val ex = assertFailsWith<AuthException> { service.register("U@X.com", "password456") }
+    val ex = assertFailsWith<AuthException> { service.register("U@X.com", "password456", "", "") }
 
     assertEquals(AuthError.EmailAlreadyExists, ex.error)
   }
@@ -89,7 +89,7 @@ class AuthServiceTest {
     val passwordHasher = PasswordHasher()
     val service = makeService(users = users, tokens = tokens, passwordHasher = passwordHasher)
 
-    val response = service.register("u@x.com", "password123")
+    val response = service.register("u@x.com", "password123", "", "")
 
     val record = users.findByEmail("u@x.com")
     assertNotNull(record)
@@ -106,7 +106,7 @@ class AuthServiceTest {
     val tokenHasher = TokenHasher()
     val service = makeService(tokens = tokens, tokenHasher = tokenHasher)
 
-    val response = service.register("u@x.com", "password123")
+    val response = service.register("u@x.com", "password123", "", "")
 
     val stored = tokens.records.single()
     assertEquals(tokenHasher.sha256(response.refreshToken), stored.tokenHash)
@@ -127,7 +127,7 @@ class AuthServiceTest {
   @Test
   fun `login with wrong password returns InvalidCredentials`() = runTest {
     val service = makeService()
-    service.register("u@x.com", "correct-password")
+    service.register("u@x.com", "correct-password", "", "")
 
     val ex = assertFailsWith<AuthException> { service.login("u@x.com", "wrong-password") }
 
@@ -138,7 +138,7 @@ class AuthServiceTest {
   fun `login with correct credentials returns auth response and creates a refresh row`() = runTest {
     val tokens = FakeRefreshTokenRepository()
     val service = makeService(tokens = tokens)
-    service.register("u@x.com", "password123")
+    service.register("u@x.com", "password123", "", "")
     val tokenCountAfterRegister = tokens.records.size
 
     val response = service.login("u@x.com", "password123")
@@ -150,7 +150,7 @@ class AuthServiceTest {
   @Test
   fun `login normalizes email casing and whitespace`() = runTest {
     val service = makeService()
-    service.register("u@x.com", "password123")
+    service.register("u@x.com", "password123", "", "")
 
     val response = service.login("  U@X.com  ", "password123")
 
@@ -171,7 +171,7 @@ class AuthServiceTest {
   @Test
   fun `refresh with revoked token returns InvalidRefreshToken`() = runTest {
     val service = makeService()
-    val auth = service.register("u@x.com", "password123")
+    val auth = service.register("u@x.com", "password123", "", "")
     service.logout(auth.refreshToken)
 
     val ex = assertFailsWith<AuthException> { service.refresh(auth.refreshToken) }
@@ -182,7 +182,7 @@ class AuthServiceTest {
   @Test
   fun `refresh with expired token returns InvalidRefreshToken`() = runTest {
     val service = makeService(jwtConfig = baseJwtConfig.copy(refreshTokenTtl = (-1).milliseconds))
-    val auth = service.register("u@x.com", "password123")
+    val auth = service.register("u@x.com", "password123", "", "")
 
     val ex = assertFailsWith<AuthException> { service.refresh(auth.refreshToken) }
 
@@ -194,7 +194,7 @@ class AuthServiceTest {
     val tokens = FakeRefreshTokenRepository()
     val tokenHasher = TokenHasher()
     val service = makeService(tokens = tokens, tokenHasher = tokenHasher)
-    val auth = service.register("u@x.com", "password123")
+    val auth = service.register("u@x.com", "password123", "", "")
     val originalHash = tokenHasher.sha256(auth.refreshToken)
 
     val response = service.refresh(auth.refreshToken)
@@ -209,7 +209,7 @@ class AuthServiceTest {
   fun `refresh fails when the user no longer exists`() = runTest {
     val users = FakeUserRepository()
     val service = makeService(users = users)
-    val auth = service.register("u@x.com", "password123")
+    val auth = service.register("u@x.com", "password123", "", "")
     users.deleteAll()
 
     val ex = assertFailsWith<AuthException> { service.refresh(auth.refreshToken) }
@@ -224,7 +224,7 @@ class AuthServiceTest {
     val tokens = FakeRefreshTokenRepository()
     val tokenHasher = TokenHasher()
     val service = makeService(tokens = tokens, tokenHasher = tokenHasher)
-    val auth = service.register("u@x.com", "password123")
+    val auth = service.register("u@x.com", "password123", "", "")
 
     service.logout(auth.refreshToken)
 
@@ -245,7 +245,7 @@ class AuthServiceTest {
   @Test
   fun `me returns UserDto for a known user id`() = runTest {
     val service = makeService()
-    val auth = service.register("u@x.com", "password123")
+    val auth = service.register("u@x.com", "password123", "", "")
 
     val dto = service.me(UUID.fromString(auth.user.id))
 

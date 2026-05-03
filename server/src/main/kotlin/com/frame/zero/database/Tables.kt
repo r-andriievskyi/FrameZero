@@ -8,12 +8,15 @@ object UsersTable : Table("users") {
   val id = javaUUID("id")
   val email = varchar("email", length = EMAIL_MAX).uniqueIndex()
   val passwordHash = varchar("password_hash", length = HASH_MAX)
+  val firstName = varchar("first_name", length = NAME_MAX)
+  val lastName = varchar("last_name", length = NAME_MAX)
   val createdAt = timestamp("created_at")
 
   override val primaryKey = PrimaryKey(id)
 
   private const val EMAIL_MAX = 320
   private const val HASH_MAX = 100
+  private const val NAME_MAX = 100
 }
 
 object RefreshTokensTable : Table("refresh_tokens") {

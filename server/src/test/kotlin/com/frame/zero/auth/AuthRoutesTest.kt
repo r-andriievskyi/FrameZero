@@ -74,7 +74,16 @@ class AuthRoutesTest {
     val response =
       client.post("/auth/register") {
         contentType(ContentType.Application.Json)
-        setBody(json.encodeToString(RegisterRequest(email = "u@x.com", password = "password123")))
+        setBody(
+          json.encodeToString(
+            RegisterRequest(
+              email = "u@x.com",
+              password = "password123",
+              firstName = "Jane",
+              lastName = "Doe",
+            )
+          )
+        )
       }
 
     assertEquals(HttpStatusCode.Created, response.status)
@@ -106,7 +115,11 @@ class AuthRoutesTest {
     val response =
       client.post("/auth/register") {
         contentType(ContentType.Application.Json)
-        setBody(json.encodeToString(RegisterRequest("not-an-email", "password123")))
+        setBody(
+          json.encodeToString(
+            RegisterRequest("not-an-email", "password123", "", "")
+          )
+        )
       }
 
     assertEquals(HttpStatusCode.BadRequest, response.status)
@@ -116,12 +129,14 @@ class AuthRoutesTest {
   fun `POST auth register with duplicate email returns 409`() = testApplication {
     val env = TestEnv()
     application { env.configure(this) }
-    env.service.register("u@x.com", "password123")
+    env.service.register("u@x.com", "password123", "", "")
 
     val response =
       client.post("/auth/register") {
         contentType(ContentType.Application.Json)
-        setBody(json.encodeToString(RegisterRequest("u@x.com", "password456")))
+        setBody(
+          json.encodeToString(RegisterRequest("u@x.com", "password456", "", ""))
+        )
       }
 
     assertEquals(HttpStatusCode.Conflict, response.status)
@@ -133,7 +148,7 @@ class AuthRoutesTest {
   fun `POST auth login with correct credentials returns 200`() = testApplication {
     val env = TestEnv()
     application { env.configure(this) }
-    env.service.register("u@x.com", "password123")
+    env.service.register("u@x.com", "password123", "", "")
 
     val response =
       client.post("/auth/login") {
@@ -150,7 +165,7 @@ class AuthRoutesTest {
   fun `POST auth login with wrong password returns 401`() = testApplication {
     val env = TestEnv()
     application { env.configure(this) }
-    env.service.register("u@x.com", "password123")
+    env.service.register("u@x.com", "password123", "", "")
 
     val response =
       client.post("/auth/login") {
@@ -167,7 +182,7 @@ class AuthRoutesTest {
   fun `POST auth refresh with valid token returns a new pair`() = testApplication {
     val env = TestEnv()
     application { env.configure(this) }
-    val auth = env.service.register("u@x.com", "password123")
+    val auth = env.service.register("u@x.com", "password123", "", "")
 
     val response =
       client.post("/auth/refresh") {
@@ -201,7 +216,7 @@ class AuthRoutesTest {
   fun `POST auth logout returns 204`() = testApplication {
     val env = TestEnv()
     application { env.configure(this) }
-    val auth = env.service.register("u@x.com", "password123")
+    val auth = env.service.register("u@x.com", "password123", "", "")
 
     val response =
       client.post("/auth/logout") {
@@ -228,7 +243,7 @@ class AuthRoutesTest {
   fun `GET auth me with valid bearer token returns the user`() = testApplication {
     val env = TestEnv()
     application { env.configure(this) }
-    val auth = env.service.register("u@x.com", "password123")
+    val auth = env.service.register("u@x.com", "password123", "", "")
 
     val response =
       client.get("/auth/me") { header(HttpHeaders.Authorization, "Bearer ${auth.accessToken}") }
