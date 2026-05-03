@@ -23,7 +23,10 @@ fun Route.authRoutes() {
   route("/auth") {
     post("/register") {
       val body = call.receive<RegisterRequest>()
-      call.respond(HttpStatusCode.Created, service.register(body.email, body.password))
+      call.respond(
+        HttpStatusCode.Created,
+        service.register(body.email, body.password, body.firstName, body.lastName),
+      )
     }
 
     post("/login") {

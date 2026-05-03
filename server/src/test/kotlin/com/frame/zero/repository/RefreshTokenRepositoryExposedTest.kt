@@ -29,7 +29,7 @@ class RefreshTokenRepositoryExposedTest {
 
   @Test
   fun `create persists a refresh token row`() = runBlocking {
-    val userId = users.create("u@x.com", "hash").id
+    val userId = users.create("u@x.com", "hash", "", "").id
     val expiresAt = Instant.now().plusSeconds(3600)
 
     val record = refreshTokens.create(userId, "hash-1", expiresAt)
@@ -42,7 +42,7 @@ class RefreshTokenRepositoryExposedTest {
 
   @Test
   fun `findActiveByHash returns the row when token is active`() = runBlocking {
-    val userId = users.create("u@x.com", "hash").id
+    val userId = users.create("u@x.com", "hash", "", "").id
     refreshTokens.create(userId, "hash-active", Instant.now().plusSeconds(3600))
 
     val found = refreshTokens.findActiveByHash("hash-active", Instant.now())
@@ -53,7 +53,7 @@ class RefreshTokenRepositoryExposedTest {
 
   @Test
   fun `findActiveByHash returns null when token has been revoked`() = runBlocking {
-    val userId = users.create("u@x.com", "hash").id
+    val userId = users.create("u@x.com", "hash", "", "").id
     refreshTokens.create(userId, "hash-revoked", Instant.now().plusSeconds(3600))
     refreshTokens.revoke("hash-revoked")
 
@@ -64,7 +64,7 @@ class RefreshTokenRepositoryExposedTest {
 
   @Test
   fun `findActiveByHash returns null when token has expired`() = runBlocking {
-    val userId = users.create("u@x.com", "hash").id
+    val userId = users.create("u@x.com", "hash", "", "").id
     refreshTokens.create(userId, "hash-expired", Instant.now().minusSeconds(60))
 
     val found = refreshTokens.findActiveByHash("hash-expired", Instant.now())
@@ -79,7 +79,7 @@ class RefreshTokenRepositoryExposedTest {
 
   @Test
   fun `revoke flips the flag and returns true`() = runBlocking {
-    val userId = users.create("u@x.com", "hash").id
+    val userId = users.create("u@x.com", "hash", "", "").id
     refreshTokens.create(userId, "hash-1", Instant.now().plusSeconds(3600))
 
     val revoked = refreshTokens.revoke("hash-1")

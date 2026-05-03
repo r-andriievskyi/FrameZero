@@ -7,6 +7,7 @@ kotlin {
     commonMain.dependencies {
       api(projects.shared)
       api(projects.shared.repositories.auth)
+      api(projects.shared.repositories.user)
       api(libs.decompose)
       implementation(libs.koin.core)
       implementation(libs.kotlinx.coroutines.core)

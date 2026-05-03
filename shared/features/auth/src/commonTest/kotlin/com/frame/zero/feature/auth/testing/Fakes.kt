@@ -1,43 +1,60 @@
 package com.frame.zero.feature.auth.testing
 
+import com.frame.zero.auth.dto.UserDto
 import com.frame.zero.core.session.SessionAuthOperations
-import com.frame.zero.domain.DomainError
-import com.frame.zero.domain.Outcome
-import com.frame.zero.domain.User
 import com.frame.zero.repository.auth.AuthRepository
 
+internal data class RegisterCall(
+  val email: String,
+  val password: String,
+  val firstName: String,
+  val lastName: String,
+)
+
 internal class FakeAuthRepository(
-  private val loginResult: Outcome<User> = Outcome.Failure(DomainError.Unknown(null)),
-  private val registerResult: Outcome<User> = Outcome.Failure(DomainError.Unknown(null)),
-  private val logoutResult: Outcome<Unit> = Outcome.Success(Unit),
-  private val currentUserResult: Outcome<User> = Outcome.Failure(DomainError.Unknown(null)),
+  private val loginUserDto: UserDto = UserDto("", "", "", ""),
+  private val loginThrows: Throwable? = null,
+  private val registerUserDto: UserDto = UserDto("", "", "", ""),
+  private val registerThrows: Throwable? = null,
+  private val logoutThrows: Throwable? = null,
+  private val currentUserDto: UserDto = UserDto("", "", "", ""),
+  private val currentUserThrows: Throwable? = null,
 ) : AuthRepository {
   val loginCalls: MutableList<Pair<String, String>> = mutableListOf()
-  val registerCalls: MutableList<Pair<String, String>> = mutableListOf()
+  val registerCalls: MutableList<RegisterCall> = mutableListOf()
   var logoutCalls: Int = 0
     private set
 
-  override suspend fun login(email: String, password: String): Outcome<User> {
+  override suspend fun login(email: String, password: String): UserDto {
     loginCalls += email to password
-    return loginResult
+    loginThrows?.let { throw it }
+    return loginUserDto
   }
 
-  override suspend fun register(email: String, password: String): Outcome<User> {
-    registerCalls += email to password
-    return registerResult
+  override suspend fun register(
+    email: String,
+    password: String,
+    firstName: String,
+    lastName: String,
+  ): UserDto {
+    registerCalls += RegisterCall(email, password, firstName, lastName)
+    registerThrows?.let { throw it }
+    return registerUserDto
   }
 
-  override suspend fun logout(): Outcome<Unit> {
+  override suspend fun logout() {
     logoutCalls++
-    return logoutResult
+    logoutThrows?.let { throw it }
   }
 
-  override suspend fun getCurrentUser(): Outcome<User> = currentUserResult
+  override suspend fun getCurrentUser(): UserDto {
+    currentUserThrows?.let { throw it }
+    return currentUserDto
+  }
 }
 
 internal object NoopSessionAuthOperations : SessionAuthOperations {
-  override suspend fun fetchCurrentUser(): Outcome<User> =
-    Outcome.Failure(DomainError.Unknown(null))
+  override suspend fun fetchCurrentUser(): UserDto = UserDto(id = "", email = "", firstName = "", lastName = "")
 
-  override suspend fun signOutRemote(): Outcome<Unit> = Outcome.Success(Unit)
+  override suspend fun signOutRemote() = Unit
 }

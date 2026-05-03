@@ -28,15 +28,23 @@ class UserRepositoryExposedTest {
 
   @Test
   fun `create returns the persisted record with normalized email`() = runBlocking {
-    val record = repository.create(email = "User@Example.COM", passwordHash = "hash-1")
+    val record =
+      repository.create(
+        email = "User@Example.COM",
+        passwordHash = "hash-1",
+        firstName = "Jane",
+        lastName = "Doe",
+      )
 
     assertEquals("user@example.com", record.email)
     assertEquals("hash-1", record.passwordHash)
+    assertEquals("Jane", record.firstName)
+    assertEquals("Doe", record.lastName)
   }
 
   @Test
   fun `findByEmail returns the user when stored`() = runBlocking {
-    val created = repository.create("u@x.com", "hash-1")
+    val created = repository.create("u@x.com", "hash-1", "", "")
 
     val found = repository.findByEmail("u@x.com")
 
@@ -46,7 +54,7 @@ class UserRepositoryExposedTest {
 
   @Test
   fun `findByEmail is case-insensitive`() = runBlocking {
-    repository.create("u@x.com", "hash-1")
+    repository.create("u@x.com", "hash-1", "", "")
 
     val found = repository.findByEmail("U@X.COM")
 
@@ -61,7 +69,7 @@ class UserRepositoryExposedTest {
 
   @Test
   fun `findById returns the user`() = runBlocking {
-    val created = repository.create("u@x.com", "hash-1")
+    val created = repository.create("u@x.com", "hash-1", "", "")
 
     val found = repository.findById(created.id)
 
@@ -75,8 +83,8 @@ class UserRepositoryExposedTest {
 
   @Test
   fun `inserting a duplicate email throws a SQL exception`() {
-    runBlocking { repository.create("u@x.com", "hash-1") }
+    runBlocking { repository.create("u@x.com", "hash-1", "", "") }
 
-    assertFailsWith<ExposedSQLException> { runBlocking { repository.create("u@x.com", "hash-2") } }
+    assertFailsWith<ExposedSQLException> { runBlocking { repository.create("u@x.com", "hash-2", "", "") } }
   }
 }

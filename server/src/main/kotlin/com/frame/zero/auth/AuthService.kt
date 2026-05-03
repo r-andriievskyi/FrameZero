@@ -22,12 +22,23 @@ class AuthService(
   private val jwtService: JwtService,
   private val jwtConfig: JwtConfig,
 ) {
-  suspend fun register(email: String, password: String): AuthResponse {
+  suspend fun register(
+    email: String,
+    password: String,
+    firstName: String,
+    lastName: String,
+  ): AuthResponse {
     validateEmail(email)
     validatePassword(password)
     val normalized = email.trim().lowercase()
     if (users.findByEmail(normalized) != null) throw AuthException(EmailAlreadyExists)
-    val user = users.create(email = normalized, passwordHash = passwordHasher.hash(password))
+    val user =
+      users.create(
+        email = normalized,
+        passwordHash = passwordHasher.hash(password),
+        firstName = firstName.trim(),
+        lastName = lastName.trim(),
+      )
     return issueTokens(user)
   }
 
@@ -57,7 +68,7 @@ class AuthService(
     refreshTokens.revoke(tokenHasher.sha256(refreshToken))
   }
 
-  suspend fun me(userId: UUID): UserDto? = users.findById(userId)?.let { it.toDto() }
+  suspend fun me(userId: UUID): UserDto? = users.findById(userId)?.toDto()
 
   private suspend fun issueTokens(user: UserRecord): AuthResponse {
     val (refresh, refreshHash, expiresAt) = newRefreshToken()
@@ -76,7 +87,8 @@ class AuthService(
     return Triple(token, hash, expiresAt)
   }
 
-  private fun UserRecord.toDto(): UserDto = UserDto(id = id.toString(), email = email)
+  private fun UserRecord.toDto(): UserDto =
+    UserDto(id = id.toString(), email = email, firstName = firstName, lastName = lastName)
 
   private fun validateEmail(email: String) {
     if (!EMAIL_REGEX.matches(email.trim()))
