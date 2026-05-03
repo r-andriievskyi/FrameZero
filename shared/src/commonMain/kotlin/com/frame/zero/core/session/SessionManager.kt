@@ -1,5 +1,7 @@
 package com.frame.zero.core.session
 
+import com.frame.zero.domain.User
+import com.frame.zero.domain.toDomain
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
