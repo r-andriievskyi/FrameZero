@@ -1,6 +1,6 @@
 package com.frame.zero.feature.home.usecase
 
-import com.frame.zero.auth.dto.toDomain
+import com.frame.zero.domain.toDomain
 import com.frame.zero.domain.DomainError
 import com.frame.zero.domain.NoParamsUseCase
 import com.frame.zero.domain.User
