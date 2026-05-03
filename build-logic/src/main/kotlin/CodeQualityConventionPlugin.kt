@@ -9,6 +9,7 @@ class CodeQualityConventionPlugin : Plugin<Project> {
     with(target) {
       pluginManager.apply("com.ncorti.ktfmt.gradle")
       pluginManager.apply("io.gitlab.arturbosch.detekt")
+      pluginManager.apply("org.jetbrains.kotlinx.kover")
 
       extensions.configure<KtfmtExtension> {
         googleStyle() // 2-space indent, 4-space continuation, max line 100
