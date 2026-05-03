@@ -20,6 +20,7 @@ dependencies {
   compileOnly(libs.gradle.plugin.kotlin)
   compileOnly(libs.gradle.plugin.compose.multiplatform)
   compileOnly(libs.gradle.plugin.detekt)
+  compileOnly(libs.gradle.plugin.kover)
   compileOnly(libs.gradle.plugin.ktfmt)
 }
 

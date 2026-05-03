@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.androidApplication) apply false
     alias(libs.plugins.androidLibrary) apply false
     alias(libs.plugins.detekt) apply false
+    alias(libs.plugins.kover)
     alias(libs.plugins.ktfmt) apply false
     id("crossplatform.kmp.library") apply false
     id("crossplatform.kmp.library.compose") apply false
@@ -14,4 +15,17 @@ plugins {
     alias(libs.plugins.kotlinJvm) apply false
     alias(libs.plugins.kotlinMultiplatform) apply false
     alias(libs.plugins.ktor) apply false
+}
+
+dependencies {
+    kover(project(":shared"))
+    kover(project(":shared:features:auth"))
+    kover(project(":shared:features:home"))
+    kover(project(":shared:repositories:auth"))
+    kover(project(":shared:repositories:user"))
+    kover(project(":server"))
+    kover(project(":composeApp"))
+    kover(project(":composeApp:features:auth"))
+    kover(project(":composeApp:features:home"))
+    kover(project(":composeApp:shared:design_system"))
 }
