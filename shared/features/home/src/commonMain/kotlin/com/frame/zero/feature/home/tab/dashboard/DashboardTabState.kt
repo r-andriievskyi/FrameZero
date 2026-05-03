@@ -1,3 +1,6 @@
 package com.frame.zero.feature.home.tab.dashboard
 
-data class DashboardTabState(val isLoading: Boolean = false)
+data class DashboardTabState(
+  val isLoading: Boolean = false,
+  val userName: String? = null,
+)
