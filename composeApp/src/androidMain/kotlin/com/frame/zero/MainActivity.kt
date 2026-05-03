@@ -11,7 +11,7 @@ import com.frame.zero.feature.RootComponent
 import com.frame.zero.feature.auth.AuthComponent
 import com.frame.zero.feature.auth.register.RegisterViewModel
 import com.frame.zero.feature.auth.signin.SignInViewModel
-import com.frame.zero.feature.dashboard.DashboardComponent
+import com.frame.zero.feature.home.HomeComponent
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -29,7 +29,7 @@ class MainActivity : ComponentActivity() {
           registerViewModelFactory = { koin.get<RegisterViewModel>() },
         )
       },
-      dashboardComponentFactory = { ctx -> DashboardComponent(ctx) },
+      homeComponentFactory = { ctx -> HomeComponent(ctx) },
     )
   }
 
