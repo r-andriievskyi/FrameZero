@@ -1,10 +1,11 @@
 package com.frame.zero.feature.home
 
+import com.frame.zero.feature.home.tab.dashboard.DashboardTabViewModel
+import com.frame.zero.feature.home.usecase.GetMeUseCase
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
-// Empty for now — tab ViewModels have no dependencies yet so they're constructed directly inside
-// their components. When use cases / repositories are wired in, register e.g.
-// `factory { DashboardTabViewModel(get()) }` here and pass factories through HomeComponent's
-// ctor (mirroring AuthComponent).
-val featureHomeModule: Module = module {}
+val featureHomeModule: Module = module {
+  factory { GetMeUseCase(get()) }
+  factory { DashboardTabViewModel(get()) }
+}

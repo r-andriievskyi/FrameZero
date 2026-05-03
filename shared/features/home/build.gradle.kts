@@ -6,6 +6,7 @@ kotlin {
   sourceSets {
     commonMain.dependencies {
       api(projects.shared)
+      api(projects.shared.repositories.user)
       api(libs.decompose)
       implementation(libs.koin.core)
     }
