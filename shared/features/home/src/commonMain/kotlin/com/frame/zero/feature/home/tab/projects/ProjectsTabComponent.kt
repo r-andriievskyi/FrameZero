@@ -1,0 +1,17 @@
+package com.frame.zero.feature.home.tab.projects
+
+import com.arkivanov.decompose.ComponentContext
+import com.arkivanov.essenty.instancekeeper.getOrCreate
+import kotlinx.coroutines.flow.StateFlow
+
+class ProjectsTabComponent(componentContext: ComponentContext) :
+  ComponentContext by componentContext {
+  private val viewModel: ProjectsTabViewModel = instanceKeeper.getOrCreate {
+    ProjectsTabViewModel()
+  }
+
+  val state: StateFlow<ProjectsTabState>
+    get() = viewModel.state
+
+  fun onAppeared() = viewModel.onAppeared()
+}

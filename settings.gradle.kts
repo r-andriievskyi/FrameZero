@@ -35,10 +35,10 @@ plugins {
 
 include(":composeApp")
 include(":composeApp:features:auth")
-include(":composeApp:features:dashboard")
+include(":composeApp:features:home")
 include(":server")
 include(":shared")
 include(":shared:features:auth")
-include(":shared:features:dashboard")
+include(":shared:features:home")
 include(":shared:repositories:auth")
 include(":composeApp:shared:design_system")
