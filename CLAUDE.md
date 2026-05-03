@@ -34,7 +34,6 @@ build; don't invoke it manually unless debugging a framework linking issue.
 ```
 
 Run a single test class: `./gradlew :shared:test --tests "com.frame.zero.SharedCommonTest"`
-(The `:server` module has no tests yet.)
 
 ## Architecture
 
@@ -44,10 +43,10 @@ A composite build, a native iOS wrapper, and a tree of Gradle modules:
 |------------------------------------|---------|
 | `build-logic/`                     | Composite build with Gradle convention plugins (not a regular module). |
 | `shared/`                          | Multiplatform business logic; no UI. Holds shared `Constants`, domain models (`User`, `DomainError`, `Outcome`, `UseCase`), the Ktor `HttpClient` setup, and `multiplatform-settings`-backed token storage. |
-| `shared/features/<name>/`          | Per-feature business logic — Decompose `Component` plus its `ViewModel`/state/intent types. Currently `auth` and `dashboard`. |
-| `shared/repositories/<name>/`      | Repository interfaces + implementations consumed by feature modules. Currently `auth`. |
+| `shared/features/<name>/`          | Per-feature business logic — Decompose `Component` plus its `ViewModel`/state/intent types. Currently `auth` and `home`. |
+| `shared/repositories/<name>/`      | Repository interfaces + implementations consumed by feature modules. Currently `auth` and `user`. |
 | `composeApp/`                      | Shared Compose Multiplatform UI host targeting Android, iOS, and JVM Desktop. Owns `App.kt`, the Decompose `RootComponent`, and platform entry points (`androidMain`, `iosMain`, `jvmMain`). |
-| `composeApp/features/<name>/`      | Per-feature Compose UI that renders the matching `shared/features/<name>` component. Currently `auth` and `dashboard`. |
+| `composeApp/features/<name>/`      | Per-feature Compose UI that renders the matching `shared/features/<name>` component. Currently `auth` and `home`. |
 | `composeApp/shared/design_system/` | Shared Compose Multiplatform design system library consumed by all `composeApp` feature modules. Applies `crossplatform.kmp.library.compose`. |
 | `server/`                          | JVM-only Ktor backend (Netty + Exposed/Postgres + JWT auth via Koin). Depends on `shared` for wire types and constants. |
 | `iosApp/`                          | Swift/SwiftUI wrapper that embeds the Compose UI via `UIViewControllerRepresentable`. |
