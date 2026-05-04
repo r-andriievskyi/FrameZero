@@ -36,8 +36,7 @@ class RegisterUseCaseTest {
           password = "p",
           firstName = "Jane",
           lastName = "Doe",
-        )
-      )
+        ))
 
     val success = assertIs<Outcome.Success<User>>(outcome)
     assertEquals(user, success.data)
@@ -52,8 +51,7 @@ class RegisterUseCaseTest {
 
     val outcome =
       RegisterUseCase(repo, session)(
-        RegisterUseCase.Params(email = "dup@x.com", password = "p", firstName = "", lastName = "")
-      )
+        RegisterUseCase.Params(email = "dup@x.com", password = "p", firstName = "", lastName = ""))
 
     assertIs<Outcome.Failure>(outcome)
     assertEquals(before, session.state.value)
@@ -69,8 +67,7 @@ class RegisterUseCaseTest {
         password = "secret",
         firstName = "Jane",
         lastName = "Doe",
-      )
-    )
+      ))
 
     val call = repo.registerCalls.single()
     assertEquals("typed@x.com", call.email)

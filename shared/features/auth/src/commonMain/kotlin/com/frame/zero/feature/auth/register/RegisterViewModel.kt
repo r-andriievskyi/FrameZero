@@ -48,17 +48,14 @@ class RegisterViewModel(
     }
     scope.launch {
       _state.update { it.copy(isLoading = true, error = null) }
-      when (
-        val outcome =
-          registerUseCase(
-            RegisterUseCase.Params(
-              email = current.email.trim(),
-              password = current.password,
-              firstName = current.firstName.trim(),
-              lastName = current.lastName.trim(),
-            )
-          )
-      ) {
+      when (val outcome =
+        registerUseCase(
+          RegisterUseCase.Params(
+            email = current.email.trim(),
+            password = current.password,
+            firstName = current.firstName.trim(),
+            lastName = current.lastName.trim(),
+          ))) {
         is Outcome.Success -> _state.update { it.copy(isLoading = false) }
         is Outcome.Failure ->
           _state.update { it.copy(isLoading = false, error = outcome.error.toUserMessage()) }

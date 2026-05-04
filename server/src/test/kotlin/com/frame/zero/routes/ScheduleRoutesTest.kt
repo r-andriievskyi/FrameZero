@@ -155,9 +155,7 @@ class ScheduleRoutesTest {
               startsAt = Instant.parse("2026-05-04T10:00:00Z"),
               endsAt = Instant.parse("2026-05-04T18:00:00Z"),
               kind = ScheduleEventKind.SHOOT,
-            )
-          )
-        )
+            )))
       }
 
     assertEquals(HttpStatusCode.Forbidden, response.status)

@@ -74,8 +74,7 @@ internal class FakeProductionRepository : ProductionRepository {
         ProductionSort.DUE_DATE -> filtered.sortedWith(compareBy({ it.wrapDate }, { it.id }))
         ProductionSort.RECENT ->
           filtered.sortedWith(
-            compareByDescending<ProductionRecord> { it.updatedAt }.thenByDescending { it.id }
-          )
+            compareByDescending<ProductionRecord> { it.updatedAt }.thenByDescending { it.id })
       }
     return Pair(sorted.take(limit), null)
   }

@@ -72,8 +72,7 @@ internal class TestAppEnv {
           single { taskService }
           single { scheduleService }
           single { notificationService }
-        }
-      )
+        })
     }
     app.install(ContentNegotiation) { json() }
     app.install(Authentication) {

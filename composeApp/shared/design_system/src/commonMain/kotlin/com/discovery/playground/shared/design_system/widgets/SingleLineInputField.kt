@@ -51,7 +51,8 @@ fun SingleLineInputField(
   val radius = AppTheme.radiusSystem
   val typography = AppTheme.typographySystem
 
-  var textFieldValue by remember(value) { mutableStateOf(TextFieldValue(value, TextRange(value.length))) }
+  var textFieldValue by
+    remember(value) { mutableStateOf(TextFieldValue(value, TextRange(value.length))) }
 
   val shape = RoundedCornerShape(radius.radius8)
 

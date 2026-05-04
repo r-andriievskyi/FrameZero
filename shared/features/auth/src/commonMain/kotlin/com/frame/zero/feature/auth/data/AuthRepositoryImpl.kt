@@ -36,8 +36,7 @@ class AuthRepositoryImpl(
               password = password,
               firstName = firstName,
               lastName = lastName,
-            )
-          )
+            ))
         }
         .body()
     tokenStorage.saveTokens(response.accessToken, response.refreshToken)
