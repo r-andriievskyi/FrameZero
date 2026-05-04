@@ -1,6 +1,7 @@
 package com.frame.zero.repository
 
 import com.frame.zero.config.dbQuery
+import com.frame.zero.database.ProductionMembersTable
 import com.frame.zero.database.ProductionsTable
 import com.frame.zero.database.ScheduleEventsTable
 import com.frame.zero.domain.schedule.ScheduleEventKind
@@ -11,6 +12,7 @@ import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.greaterEq
+import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.core.isNull
 import org.jetbrains.exposed.v1.core.less
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
@@ -30,11 +32,10 @@ data class ScheduleEventRecord(
 )
 
 interface ScheduleEventRepository {
-  suspend fun findInRange(
+  suspend fun findInRangeForUser(
     userId: UUID,
     rangeStart: Instant,
     rangeEnd: Instant,
-    productionId: UUID?,
   ): List<ScheduleEventRecord>
 
   suspend fun findById(id: UUID): ScheduleEventRecord?
@@ -61,23 +62,24 @@ interface ScheduleEventRepository {
 }
 
 class ScheduleEventRepositoryExposed : ScheduleEventRepository {
-  override suspend fun findInRange(
+  override suspend fun findInRangeForUser(
     userId: UUID,
     rangeStart: Instant,
     rangeEnd: Instant,
-    productionId: UUID?,
   ): List<ScheduleEventRecord> = dbQuery {
+    val memberProductionIds =
+      ProductionMembersTable.selectAll()
+        .where { ProductionMembersTable.userId eq userId }
+        .map { it[ProductionMembersTable.productionId] }
+    if (memberProductionIds.isEmpty()) return@dbQuery emptyList()
+
     (ScheduleEventsTable innerJoin ProductionsTable)
       .selectAll()
       .where {
-        var cond =
-          (ScheduleEventsTable.startsAt greaterEq rangeStart) and
-            (ScheduleEventsTable.startsAt less rangeEnd) and
-            ProductionsTable.deletedAt.isNull()
-        if (productionId != null) {
-          cond = cond and (ScheduleEventsTable.productionId eq productionId)
-        }
-        cond
+        (ScheduleEventsTable.startsAt greaterEq rangeStart) and
+          (ScheduleEventsTable.startsAt less rangeEnd) and
+          ProductionsTable.deletedAt.isNull() and
+          (ScheduleEventsTable.productionId inList memberProductionIds)
       }
       .orderBy(ScheduleEventsTable.startsAt to SortOrder.ASC)
       .map { it.toRecord() }

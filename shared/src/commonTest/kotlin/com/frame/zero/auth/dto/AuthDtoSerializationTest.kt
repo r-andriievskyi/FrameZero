@@ -53,7 +53,9 @@ class AuthDtoSerializationTest {
 
   @Test
   fun `UserDto round-trips`() {
-    val original = UserDto(id = "u1", email = "user@example.com", firstName = "Jane", lastName = "Doe")
+    val original = UserDto(
+      id = "u1", email = "user@example.com", firstName = "Jane", lastName = "Doe"
+    )
 
     val decoded = json.decodeFromString<UserDto>(json.encodeToString(original))
 

@@ -29,6 +29,6 @@ fun appModule() = module {
   single { ProductionService(get(), get(), get<UserRepository>(), get()) }
   single { DashboardService(get<UserRepository>(), get(), get()) }
   single { TaskService(get(), get()) }
-  single { ScheduleService(get(), get()) }
+  single { ScheduleService(get(), get(), get()) }
   single { NotificationService(get()) }
 }

@@ -29,7 +29,8 @@ class LoginUseCaseTest {
     val repo = FakeAuthRepository(loginUserDto = userDto)
     val session = makeSessionManager()
 
-    val outcome = LoginUseCase(repo, session)(LoginUseCase.Params(email = "u@x.com", password = "p"))
+    val outcome =
+      LoginUseCase(repo, session)(LoginUseCase.Params(email = "u@x.com", password = "p"))
 
     val success = assertIs<Outcome.Success<User>>(outcome)
     assertEquals(user, success.data)
@@ -42,7 +43,8 @@ class LoginUseCaseTest {
     val session = makeSessionManager()
     val before = session.state.value
 
-    val outcome = LoginUseCase(repo, session)(LoginUseCase.Params(email = "u@x.com", password = "wrong"))
+    val outcome =
+      LoginUseCase(repo, session)(LoginUseCase.Params(email = "u@x.com", password = "wrong"))
 
     assertIs<Outcome.Failure>(outcome)
     assertEquals(before, session.state.value)
@@ -52,7 +54,9 @@ class LoginUseCaseTest {
   fun `forwards email and password to repository`() = runTest {
     val repo = FakeAuthRepository(loginUserDto = userDto)
 
-    LoginUseCase(repo, makeSessionManager())(LoginUseCase.Params(email = "typed@x.com", password = "secret"))
+    LoginUseCase(repo, makeSessionManager())(
+      LoginUseCase.Params(email = "typed@x.com", password = "secret")
+    )
 
     assertEquals(listOf("typed@x.com" to "secret"), repo.loginCalls)
   }

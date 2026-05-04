@@ -4,11 +4,11 @@ import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.essenty.instancekeeper.getOrCreate
 import kotlinx.coroutines.flow.StateFlow
 
-class ProjectsTabComponent(componentContext: ComponentContext) :
-  ComponentContext by componentContext {
-  private val viewModel: ProjectsTabViewModel = instanceKeeper.getOrCreate {
-    ProjectsTabViewModel()
-  }
+class ProjectsTabComponent(
+  componentContext: ComponentContext,
+  viewModelFactory: () -> ProjectsTabViewModel,
+) : ComponentContext by componentContext {
+  private val viewModel: ProjectsTabViewModel = instanceKeeper.getOrCreate { viewModelFactory() }
 
   val state: StateFlow<ProjectsTabState>
     get() = viewModel.state

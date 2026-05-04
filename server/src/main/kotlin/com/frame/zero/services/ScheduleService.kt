@@ -5,10 +5,14 @@ import com.frame.zero.AppException
 import com.frame.zero.dto.schedule.CreateScheduleEventRequest
 import com.frame.zero.dto.schedule.ScheduleDayDto
 import com.frame.zero.dto.schedule.ScheduleEventDto
+import com.frame.zero.dto.schedule.ScheduleItemDto
+import com.frame.zero.dto.schedule.ScheduleItemSource
 import com.frame.zero.dto.schedule.ScheduleResponse
 import com.frame.zero.dto.schedule.UpdateScheduleEventRequest
 import com.frame.zero.repository.ScheduleEventRecord
 import com.frame.zero.repository.ScheduleEventRepository
+import com.frame.zero.repository.TaskRecord
+import com.frame.zero.repository.TaskRepository
 import com.frame.zero.util.toKotlin
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -21,6 +25,7 @@ import kotlin.time.toKotlinInstant
 
 class ScheduleService(
   private val events: ScheduleEventRepository,
+  private val tasks: TaskRepository,
   private val access: ProductionAccessService,
 ) {
 
@@ -28,11 +33,8 @@ class ScheduleService(
     userId: UUID,
     view: String,
     dateParam: String,
-    productionId: UUID?,
     timezone: ZoneId,
   ): ScheduleResponse {
-    if (productionId != null) access.requireAccess(userId, productionId, AccessLevel.READ)
-
     val (rangeStart, rangeEnd) =
       when (view) {
         "day" -> {
@@ -58,15 +60,19 @@ class ScheduleService(
     val rangeStartInstant = rangeStart.atStartOfDay(timezone).toInstant()
     val rangeEndInstant = rangeEnd.plusDays(1).atStartOfDay(timezone).toInstant()
 
-    val records = events.findInRange(userId, rangeStartInstant, rangeEndInstant, productionId)
+    val eventRecords = events.findInRangeForUser(userId, rangeStartInstant, rangeEndInstant)
+    val taskRecords = tasks.findInRangeForUser(userId, rangeStart, rangeEnd)
 
     val days =
       generateDays(rangeStart, rangeEnd).map { date ->
         val dayStart = date.atStartOfDay(timezone).toInstant()
         val dayEnd = date.plusDays(1).atStartOfDay(timezone).toInstant()
-        val dayEvents =
-          records.filter { it.startsAt >= dayStart && it.startsAt < dayEnd }.map { it.toDto() }
-        ScheduleDayDto(date = date.toKotlin(), events = dayEvents)
+        val eventItems =
+          eventRecords
+            .filter { it.startsAt >= dayStart && it.startsAt < dayEnd }
+            .map { it.toScheduleItem() }
+        val taskItems = taskRecords.filter { it.dueDate == date }.map { it.toScheduleItem() }
+        ScheduleDayDto(date = date.toKotlin(), items = eventItems + taskItems)
       }
 
     return ScheduleResponse(
@@ -161,5 +167,29 @@ class ScheduleService(
       kind = kind,
       productionId = productionId.toString(),
       productionTitle = productionTitle,
+    )
+
+  private fun ScheduleEventRecord.toScheduleItem(): ScheduleItemDto =
+    ScheduleItemDto(
+      id = id.toString(),
+      source = ScheduleItemSource.EVENT,
+      title = title,
+      productionId = productionId.toString(),
+      productionTitle = productionTitle,
+      startsAt = startsAt.toKotlinInstant(),
+      endsAt = endsAt.toKotlinInstant(),
+      location = location,
+      eventKind = kind,
+    )
+
+  private fun TaskRecord.toScheduleItem(): ScheduleItemDto =
+    ScheduleItemDto(
+      id = id.toString(),
+      source = ScheduleItemSource.TASK,
+      title = title,
+      productionId = productionId.toString(),
+      productionTitle = productionTitle,
+      dueDate = dueDate?.toKotlin(),
+      taskStatus = status,
     )
 }

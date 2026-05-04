@@ -60,7 +60,7 @@ private fun DashboardContent(state: DashboardTabState) {
         .padding(
           horizontal = AppTheme.spacingSystem.space16,
           vertical = AppTheme.spacingSystem.space24,
-        ),
+        )
   ) {
     if (dashboard != null) {
       GreetingSection(greeting = dashboard.greeting)
@@ -123,18 +123,13 @@ private fun StatsRow(stats: DashboardStats) {
 }
 
 @Composable
-private fun StatCard(
-  modifier: Modifier = Modifier,
-  icon: String,
-  value: String,
-  label: String,
-) {
+private fun StatCard(modifier: Modifier = Modifier, icon: String, value: String, label: String) {
   Column(
     modifier =
       modifier
         .clip(RoundedCornerShape(AppTheme.radiusSystem.radius16))
         .background(AppTheme.colorSystem.cardBackground)
-        .padding(AppTheme.spacingSystem.space16),
+        .padding(AppTheme.spacingSystem.space16)
   ) {
     Text(
       text = icon,
@@ -200,17 +195,11 @@ private fun TaskCard(task: DashboardTask) {
           )
           val dueLabelColor =
             when {
-              dueLabel.equals("Today", ignoreCase = true) ->
-                AppTheme.colorSystem.errorText
-              dueLabel.equals("Tomorrow", ignoreCase = true) ->
-                AppTheme.colorSystem.warningText
+              dueLabel.equals("Today", ignoreCase = true) -> AppTheme.colorSystem.errorText
+              dueLabel.equals("Tomorrow", ignoreCase = true) -> AppTheme.colorSystem.warningText
               else -> AppTheme.colorSystem.textMuted
             }
-          Text(
-            text = dueLabel,
-            style = AppTheme.typographySystem.bodySmall,
-            color = dueLabelColor,
-          )
+          Text(text = dueLabel, style = AppTheme.typographySystem.bodySmall, color = dueLabelColor)
         }
       }
     }
@@ -270,8 +259,7 @@ private fun ProductionCard(production: DashboardProduction) {
     Column(horizontalAlignment = Alignment.End) {
       Text(
         text = "${production.progressPercent}%",
-        style =
-          AppTheme.typographySystem.titleSmall.copy(fontWeight = FontWeight.Bold),
+        style = AppTheme.typographySystem.titleSmall.copy(fontWeight = FontWeight.Bold),
         color = accentColor,
       )
       VerticalSpacer(AppTheme.spacingSystem.space2)
@@ -386,7 +374,7 @@ private fun DashboardContentPreview() {
                   ),
                 ),
             ),
-        ),
+        )
     )
   }
 }

@@ -1,6 +1,7 @@
 package com.frame.zero.dto.schedule
 
 import com.frame.zero.domain.schedule.ScheduleEventKind
+import com.frame.zero.dto.task.TaskStatus
 import kotlin.time.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.Serializable
@@ -12,7 +13,32 @@ data class ScheduleResponse(
   val days: List<ScheduleDayDto>,
 )
 
-@Serializable data class ScheduleDayDto(val date: LocalDate, val events: List<ScheduleEventDto>)
+@Serializable data class ScheduleDayDto(val date: LocalDate, val items: List<ScheduleItemDto>)
+
+@Serializable
+enum class ScheduleItemSource {
+  TASK,
+  EVENT,
+}
+
+/**
+ * Unified item shown on the schedule. Events carry [startsAt]/[endsAt]/[location]/[eventKind];
+ * tasks carry [dueDate]/[taskStatus]. Fields not applicable to the source are null.
+ */
+@Serializable
+data class ScheduleItemDto(
+  val id: String,
+  val source: ScheduleItemSource,
+  val title: String,
+  val productionId: String,
+  val productionTitle: String,
+  val startsAt: Instant? = null,
+  val endsAt: Instant? = null,
+  val dueDate: LocalDate? = null,
+  val location: String? = null,
+  val eventKind: ScheduleEventKind? = null,
+  val taskStatus: TaskStatus? = null,
+)
 
 @Serializable
 data class ScheduleEventDto(

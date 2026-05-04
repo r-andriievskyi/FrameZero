@@ -3,10 +3,10 @@ package com.frame.zero.feature.auth
 import com.frame.zero.core.session.SessionAuthOperations
 import com.frame.zero.feature.auth.data.AuthRepositoryImpl
 import com.frame.zero.feature.auth.data.UserRepositoryImpl
-import com.frame.zero.feature.auth.register.RegisterViewModel
-import com.frame.zero.feature.auth.signin.SignInViewModel
 import com.frame.zero.feature.auth.domain.LoginUseCase
 import com.frame.zero.feature.auth.domain.RegisterUseCase
+import com.frame.zero.feature.auth.register.RegisterViewModel
+import com.frame.zero.feature.auth.signin.SignInViewModel
 import com.frame.zero.repository.auth.AuthRepository
 import com.frame.zero.repository.user.UserRepository
 import org.koin.dsl.module
