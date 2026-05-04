@@ -32,6 +32,8 @@ dependencies {
   implementation(libs.exposed.core)
   implementation(libs.exposed.jdbc)
   implementation(libs.exposed.javaTime)
+  implementation(libs.flyway.core)
+  implementation(libs.flyway.database.postgresql)
   implementation(libs.hikariCp)
   implementation(libs.postgresql)
   implementation(libs.bcrypt)
