@@ -1,4 +1,4 @@
-package com.frame.zero.feature.auth.usecase
+package com.frame.zero.feature.auth.domain
 
 import com.frame.zero.domain.DomainError
 import com.frame.zero.domain.DomainException

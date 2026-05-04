@@ -4,7 +4,7 @@ import com.arkivanov.essenty.instancekeeper.InstanceKeeper
 import com.frame.zero.domain.Outcome
 import com.frame.zero.feature.auth.EMPTY_CREDENTIALS_MESSAGE
 import com.frame.zero.feature.auth.toUserMessage
-import com.frame.zero.feature.auth.usecase.LoginUseCase
+import com.frame.zero.feature.auth.domain.LoginUseCase
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
