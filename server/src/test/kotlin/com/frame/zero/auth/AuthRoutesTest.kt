@@ -115,11 +115,7 @@ class AuthRoutesTest {
     val response =
       client.post("/auth/register") {
         contentType(ContentType.Application.Json)
-        setBody(
-          json.encodeToString(
-            RegisterRequest("not-an-email", "password123", "", "")
-          )
-        )
+        setBody(json.encodeToString(RegisterRequest("not-an-email", "password123", "", "")))
       }
 
     assertEquals(HttpStatusCode.BadRequest, response.status)
@@ -134,9 +130,7 @@ class AuthRoutesTest {
     val response =
       client.post("/auth/register") {
         contentType(ContentType.Application.Json)
-        setBody(
-          json.encodeToString(RegisterRequest("u@x.com", "password456", "", ""))
-        )
+        setBody(json.encodeToString(RegisterRequest("u@x.com", "password456", "", "")))
       }
 
     assertEquals(HttpStatusCode.Conflict, response.status)

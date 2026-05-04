@@ -16,10 +16,7 @@ import java.util.UUID
 import kotlin.time.toKotlinInstant
 import kotlinx.datetime.number
 
-class TaskService(
-  private val tasks: TaskRepository,
-  private val access: ProductionAccessService,
-) {
+class TaskService(private val tasks: TaskRepository, private val access: ProductionAccessService) {
 
   suspend fun list(
     userId: UUID,

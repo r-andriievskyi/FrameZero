@@ -1,12 +1,12 @@
 package com.frame.zero.routes
 
+import com.frame.zero.domain.production.ProductionPhase
 import com.frame.zero.dto.common.PagedResponse
 import com.frame.zero.dto.production.AddMemberRequest
 import com.frame.zero.dto.production.CreateProductionRequest
 import com.frame.zero.dto.production.PhaseTransitionRequest
 import com.frame.zero.dto.production.UpdateMemberRequest
 import com.frame.zero.dto.production.UpdateProductionRequest
-import com.frame.zero.domain.production.ProductionPhase
 import com.frame.zero.services.ProductionService
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.auth.authenticate
@@ -29,12 +29,11 @@ fun Route.productionRoutes() {
       get {
         val userId = call.userId()
         val phases =
-          call.request.queryParameters.getAll("phase")
-            ?.mapNotNull { runCatching { ProductionPhase.valueOf(it) }.getOrNull() }
-            ?: emptyList()
+          call.request.queryParameters.getAll("phase")?.mapNotNull {
+            runCatching { ProductionPhase.valueOf(it) }.getOrNull()
+          } ?: emptyList()
         val query = call.request.queryParameters["q"]
-        val limit =
-          call.request.queryParameters["limit"]?.toIntOrNull()?.coerceIn(1, 100) ?: 20
+        val limit = call.request.queryParameters["limit"]?.toIntOrNull()?.coerceIn(1, 100) ?: 20
         val cursor = call.request.queryParameters["cursor"]
         val (items, nextCursor) = service.list(userId, phases, query, limit, cursor)
         call.respond(PagedResponse(items = items, nextCursor = nextCursor))

@@ -5,8 +5,8 @@ import com.frame.zero.database.ProductionMembersTable
 import com.frame.zero.database.ProductionsTable
 import com.frame.zero.domain.production.Genre
 import com.frame.zero.domain.production.ProductionPhase
-import com.frame.zero.util.encodeCursor
 import com.frame.zero.util.decodeCursor
+import com.frame.zero.util.encodeCursor
 import java.time.Instant
 import java.time.LocalDate
 import java.util.UUID
@@ -169,8 +169,7 @@ class ProductionRepositoryExposed : ProductionRepository {
               cond =
                 cond and
                   ((ProductionsTable.updatedAt less cursorTs) or
-                    ((ProductionsTable.updatedAt eq cursorTs) and
-                      (ProductionsTable.id less pc.id)))
+                    ((ProductionsTable.updatedAt eq cursorTs) and (ProductionsTable.id less pc.id)))
             }
           }
 
@@ -237,11 +236,7 @@ class ProductionRepositoryExposed : ProductionRepository {
         row[updatedAt] = now
       }
     if (updated == 0) null
-    else
-      ProductionsTable.selectAll()
-        .where { ProductionsTable.id eq id }
-        .singleOrNull()
-        ?.toRecord()
+    else ProductionsTable.selectAll().where { ProductionsTable.id eq id }.singleOrNull()?.toRecord()
   }
 
   override suspend fun updatePhase(id: UUID, phase: ProductionPhase): ProductionRecord? = dbQuery {

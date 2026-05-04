@@ -4,13 +4,19 @@ import com.frame.zero.AppException
 import com.frame.zero.ErrorResponse
 import com.frame.zero.auth.JwtService
 import com.frame.zero.auth.testing.FakeUserRepository
-import com.frame.zero.toResponse
+import com.frame.zero.config.JwtConfig
+import com.frame.zero.routes.dashboardRoutes
+import com.frame.zero.routes.notificationRoutes
+import com.frame.zero.routes.productionRoutes
+import com.frame.zero.routes.scheduleRoutes
+import com.frame.zero.routes.taskRoutes
 import com.frame.zero.services.DashboardService
 import com.frame.zero.services.NotificationService
 import com.frame.zero.services.ProductionAccessService
 import com.frame.zero.services.ProductionService
 import com.frame.zero.services.ScheduleService
 import com.frame.zero.services.TaskService
+import com.frame.zero.toResponse
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
@@ -22,12 +28,6 @@ import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.response.respond
 import io.ktor.server.routing.routing
-import com.frame.zero.config.JwtConfig
-import com.frame.zero.routes.dashboardRoutes
-import com.frame.zero.routes.notificationRoutes
-import com.frame.zero.routes.productionRoutes
-import com.frame.zero.routes.scheduleRoutes
-import com.frame.zero.routes.taskRoutes
 import java.util.UUID
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes
@@ -81,8 +81,7 @@ internal class TestAppEnv {
         realm = testJwtConfig.realm
         verifier(jwtService.verifier)
         validate { credential ->
-          if (credential.payload.subject.isNullOrBlank()) null
-          else JWTPrincipal(credential.payload)
+          if (credential.payload.subject.isNullOrBlank()) null else JWTPrincipal(credential.payload)
         }
       }
     }

@@ -38,9 +38,7 @@ class NotificationRoutesTest {
     val token = env.tokenFor(userId)
 
     val response =
-      client.get("/api/v1/notifications") {
-        header(HttpHeaders.Authorization, "Bearer $token")
-      }
+      client.get("/api/v1/notifications") { header(HttpHeaders.Authorization, "Bearer $token") }
 
     assertEquals(HttpStatusCode.OK, response.status)
     val body = json.decodeFromString<NotificationsResponse>(response.bodyAsText())
@@ -68,9 +66,7 @@ class NotificationRoutesTest {
     env.notificationsRepo.create(userId, "Second", null)
 
     val response =
-      client.get("/api/v1/notifications") {
-        header(HttpHeaders.Authorization, "Bearer $token")
-      }
+      client.get("/api/v1/notifications") { header(HttpHeaders.Authorization, "Bearer $token") }
 
     assertEquals(HttpStatusCode.OK, response.status)
     val body = json.decodeFromString<NotificationsResponse>(response.bodyAsText())
