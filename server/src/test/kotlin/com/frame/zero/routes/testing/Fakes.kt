@@ -2,6 +2,7 @@ package com.frame.zero.routes.testing
 
 import com.frame.zero.domain.production.Genre
 import com.frame.zero.domain.production.ProductionPhase
+import com.frame.zero.domain.production.ProductionSort
 import com.frame.zero.domain.schedule.ScheduleEventKind
 import com.frame.zero.dto.task.TaskStatus
 import com.frame.zero.repository.NotificationRecord
@@ -58,19 +59,25 @@ internal class FakeProductionRepository : ProductionRepository {
     userId: UUID,
     phases: List<ProductionPhase>,
     query: String?,
+    sort: ProductionSort,
     limit: Int,
     cursor: String?,
   ): Pair<List<ProductionRecord>, String?> {
-    val items =
-      productions
-        .filter { p ->
-          p.deletedAt == null &&
-            (p.ownerUserId == userId) &&
-            (phases.isEmpty() || p.phase in phases) &&
-            (query.isNullOrBlank() || p.title.contains(query, ignoreCase = true))
-        }
-        .take(limit)
-    return Pair(items, null)
+    val filtered = productions.filter { p ->
+      p.deletedAt == null &&
+        (p.ownerUserId == userId) &&
+        (phases.isEmpty() || p.phase in phases) &&
+        (query.isNullOrBlank() || p.title.contains(query, ignoreCase = true))
+    }
+    val sorted =
+      when (sort) {
+        ProductionSort.DUE_DATE -> filtered.sortedWith(compareBy({ it.wrapDate }, { it.id }))
+        ProductionSort.RECENT ->
+          filtered.sortedWith(
+            compareByDescending<ProductionRecord> { it.updatedAt }.thenByDescending { it.id }
+          )
+      }
+    return Pair(sorted.take(limit), null)
   }
 
   override suspend fun countActiveForUser(userId: UUID): Int = productions.count {

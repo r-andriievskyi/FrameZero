@@ -5,6 +5,7 @@ import com.frame.zero.database.ProductionMembersTable
 import com.frame.zero.database.ProductionsTable
 import com.frame.zero.domain.production.Genre
 import com.frame.zero.domain.production.ProductionPhase
+import com.frame.zero.domain.production.ProductionSort
 import com.frame.zero.util.decodeCursor
 import com.frame.zero.util.encodeCursor
 import java.time.Instant
@@ -14,6 +15,7 @@ import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.greater
 import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.core.isNull
 import org.jetbrains.exposed.v1.core.less
@@ -58,6 +60,7 @@ interface ProductionRepository {
     userId: UUID,
     phases: List<ProductionPhase>,
     query: String?,
+    sort: ProductionSort,
     limit: Int,
     cursor: String?,
   ): Pair<List<ProductionRecord>, String?>
@@ -131,6 +134,7 @@ class ProductionRepositoryExposed : ProductionRepository {
     userId: UUID,
     phases: List<ProductionPhase>,
     query: String?,
+    sort: ProductionSort,
     limit: Int,
     cursor: String?,
   ): Pair<List<ProductionRecord>, String?> = dbQuery {
@@ -139,55 +143,77 @@ class ProductionRepositoryExposed : ProductionRepository {
         .where { ProductionMembersTable.userId eq userId }
         .map { it[ProductionMembersTable.productionId] }
 
-    val rows =
-      ProductionsTable.selectAll()
-        .where {
-          val accessCond =
-            if (memberProductionIds.isEmpty()) {
-              ProductionsTable.ownerUserId eq userId
-            } else {
-              (ProductionsTable.ownerUserId eq userId) or
-                (ProductionsTable.id inList memberProductionIds)
-            }
-
-          var cond = ProductionsTable.deletedAt.isNull() and accessCond
-
-          if (phases.isNotEmpty()) {
-            val phaseNames = phases.map { it.name }
-            cond = cond and (ProductionsTable.phase inList phaseNames)
+    val baseQuery =
+      ProductionsTable.selectAll().where {
+        val accessCond =
+          if (memberProductionIds.isEmpty()) {
+            ProductionsTable.ownerUserId eq userId
+          } else {
+            (ProductionsTable.ownerUserId eq userId) or
+              (ProductionsTable.id inList memberProductionIds)
           }
 
-          if (!query.isNullOrBlank()) {
-            val pattern = "%${query.lowercase()}%"
-            cond = cond and (ProductionsTable.title.lowerCase() like "%${query.lowercase()}%")
-          }
+        var cond = ProductionsTable.deletedAt.isNull() and accessCond
 
-          if (cursor != null) {
-            val pc = decodeCursor(cursor)
-            if (pc != null) {
-              val cursorTs = Instant.ofEpochMilli(pc.epochMillis)
-              cond =
-                cond and
-                  ((ProductionsTable.updatedAt less cursorTs) or
-                    ((ProductionsTable.updatedAt eq cursorTs) and (ProductionsTable.id less pc.id)))
-            }
-          }
-
-          cond
+        if (phases.isNotEmpty()) {
+          val phaseNames = phases.map { it.name }
+          cond = cond and (ProductionsTable.phase inList phaseNames)
         }
-        .orderBy(
-          ProductionsTable.updatedAt to SortOrder.DESC,
-          ProductionsTable.id to SortOrder.DESC,
-        )
-        .limit(limit + 1)
-        .map { it.toRecord() }
+
+        if (!query.isNullOrBlank()) {
+          cond = cond and (ProductionsTable.title.lowerCase() like "%${query.lowercase()}%")
+        }
+
+        if (cursor != null) {
+          val pc = decodeCursor(cursor)
+          if (pc != null) {
+            cond =
+              cond and
+                when (sort) {
+                  ProductionSort.DUE_DATE -> {
+                    val cursorDate = LocalDate.ofEpochDay(pc.epochMillis)
+                    (ProductionsTable.wrapDate greater cursorDate) or
+                      ((ProductionsTable.wrapDate eq cursorDate) and
+                        (ProductionsTable.id greater pc.id))
+                  }
+                  ProductionSort.RECENT -> {
+                    val cursorTs = Instant.ofEpochMilli(pc.epochMillis)
+                    (ProductionsTable.updatedAt less cursorTs) or
+                      ((ProductionsTable.updatedAt eq cursorTs) and
+                        (ProductionsTable.id less pc.id))
+                  }
+                }
+          }
+        }
+
+        cond
+      }
+
+    val ordered =
+      when (sort) {
+        ProductionSort.DUE_DATE ->
+          baseQuery.orderBy(
+            ProductionsTable.wrapDate to SortOrder.ASC,
+            ProductionsTable.id to SortOrder.ASC,
+          )
+        ProductionSort.RECENT ->
+          baseQuery.orderBy(
+            ProductionsTable.updatedAt to SortOrder.DESC,
+            ProductionsTable.id to SortOrder.DESC,
+          )
+      }
+
+    val rows = ordered.limit(limit + 1).map { it.toRecord() }
 
     val hasMore = rows.size > limit
     val items = if (hasMore) rows.dropLast(1) else rows
     val nextCursor =
       if (hasMore) {
         val last = items.last()
-        encodeCursor(last.updatedAt.toEpochMilli(), last.id)
+        when (sort) {
+          ProductionSort.DUE_DATE -> encodeCursor(last.wrapDate.toEpochDay(), last.id)
+          ProductionSort.RECENT -> encodeCursor(last.updatedAt.toEpochMilli(), last.id)
+        }
       } else {
         null
       }

@@ -3,6 +3,7 @@ package com.frame.zero.services
 import com.frame.zero.AppError
 import com.frame.zero.AppException
 import com.frame.zero.domain.production.ProductionPhase
+import com.frame.zero.domain.production.ProductionSort
 import com.frame.zero.dto.production.AccentColorHint
 import com.frame.zero.dto.production.AddMemberRequest
 import com.frame.zero.dto.production.CreateProductionRequest
@@ -72,10 +73,11 @@ class ProductionService(
     userId: UUID,
     phases: List<ProductionPhase>,
     query: String?,
+    sort: ProductionSort,
     limit: Int,
     cursor: String?,
   ): Pair<List<ProductionSummaryDto>, String?> {
-    val (items, nextCursor) = productions.findAccessible(userId, phases, query, limit, cursor)
+    val (items, nextCursor) = productions.findAccessible(userId, phases, query, sort, limit, cursor)
     return Pair(items.map { it.toSummaryDto() }, nextCursor)
   }
 

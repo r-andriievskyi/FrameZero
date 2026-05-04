@@ -19,8 +19,4 @@ data class GreetingDto(
   val openTasksCount: Int,
 )
 
-@Serializable
-data class StatsDto(
-  val activeProjects: Int,
-  val openTasks: Int,
-)
+@Serializable data class StatsDto(val activeProjects: Int, val openTasks: Int)
