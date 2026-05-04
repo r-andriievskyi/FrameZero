@@ -58,7 +58,7 @@ internal class TestAppEnv {
   val productionService = ProductionService(productions, productionMembers, users, access)
   val dashboardService = DashboardService(users, productions, tasks)
   val taskService = TaskService(tasks, access)
-  val scheduleService = ScheduleService(scheduleEvents, access)
+  val scheduleService = ScheduleService(scheduleEvents, tasks, access)
   val notificationService = NotificationService(notificationsRepo)
 
   fun tokenFor(userId: UUID): String = jwtService.createAccessToken(userId, "test@test.com")

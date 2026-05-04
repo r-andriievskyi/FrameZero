@@ -12,6 +12,8 @@ import com.frame.zero.feature.auth.register.RegisterViewModel
 import com.frame.zero.feature.auth.signin.SignInViewModel
 import com.frame.zero.feature.home.HomeComponent
 import com.frame.zero.feature.home.tab.dashboard.DashboardTabViewModel
+import com.frame.zero.feature.home.tab.projects.ProjectsTabViewModel
+import com.frame.zero.feature.home.tab.schedule.ScheduleTabViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -36,7 +38,12 @@ private val iosRoot: RootComponent by lazy {
       )
     },
     homeComponentFactory = { ctx ->
-      HomeComponent(ctx, dashboardViewModelFactory = { koin.get<DashboardTabViewModel>() })
+      HomeComponent(
+        ctx,
+        dashboardViewModelFactory = { koin.get<DashboardTabViewModel>() },
+        projectsViewModelFactory = { koin.get<ProjectsTabViewModel>() },
+        scheduleViewModelFactory = { koin.get<ScheduleTabViewModel>() },
+      )
     },
   )
 }

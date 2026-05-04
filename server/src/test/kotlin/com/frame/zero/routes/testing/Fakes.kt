@@ -229,6 +229,15 @@ internal class FakeTaskRepository : TaskRepository {
   override suspend fun findForUserLimit(userId: UUID, limit: Int): List<TaskRecord> =
     tasks.filter { it.assigneeUserId == userId && it.status == TaskStatus.OPEN }.take(limit)
 
+  override suspend fun findInRangeForUser(
+    userId: UUID,
+    rangeStart: LocalDate,
+    rangeEnd: LocalDate,
+  ): List<TaskRecord> = tasks.filter { t ->
+    val due = t.dueDate ?: return@filter false
+    !due.isBefore(rangeStart) && !due.isAfter(rangeEnd)
+  }
+
   override suspend fun countOpenForUser(userId: UUID): Int = tasks.count {
     it.assigneeUserId == userId && it.status == TaskStatus.OPEN
   }
@@ -266,15 +275,12 @@ internal class FakeTaskRepository : TaskRepository {
 internal class FakeScheduleEventRepository : ScheduleEventRepository {
   val events: MutableList<ScheduleEventRecord> = mutableListOf()
 
-  override suspend fun findInRange(
+  override suspend fun findInRangeForUser(
     userId: UUID,
     rangeStart: Instant,
     rangeEnd: Instant,
-    productionId: UUID?,
   ): List<ScheduleEventRecord> = events.filter { e ->
-    e.startsAt >= rangeStart &&
-      e.startsAt < rangeEnd &&
-      (productionId == null || e.productionId == productionId)
+    e.startsAt >= rangeStart && e.startsAt < rangeEnd
   }
 
   override suspend fun findById(id: UUID): ScheduleEventRecord? = events.firstOrNull { it.id == id }

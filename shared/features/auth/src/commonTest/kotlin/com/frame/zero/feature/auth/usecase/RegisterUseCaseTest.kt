@@ -31,7 +31,12 @@ class RegisterUseCaseTest {
 
     val outcome =
       RegisterUseCase(repo, session)(
-        RegisterUseCase.Params(email = "new@x.com", password = "p", firstName = "Jane", lastName = "Doe")
+        RegisterUseCase.Params(
+          email = "new@x.com",
+          password = "p",
+          firstName = "Jane",
+          lastName = "Doe",
+        )
       )
 
     val success = assertIs<Outcome.Success<User>>(outcome)

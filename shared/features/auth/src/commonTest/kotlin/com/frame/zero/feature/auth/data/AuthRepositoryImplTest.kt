@@ -24,8 +24,8 @@ import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
 import kotlinx.coroutines.test.runTest
 import kotlinx.io.IOException
 import kotlinx.serialization.json.Json
@@ -67,7 +67,12 @@ class AuthRepositoryImplTest {
       )
     }
 
-    env.repository.register(email = "new@x.com", password = "secret", firstName = "Jane", lastName = "Doe")
+    env.repository.register(
+      email = "new@x.com",
+      password = "secret",
+      firstName = "Jane",
+      lastName = "Doe",
+    )
 
     val request = env.requests.single()
     assertEquals(HttpMethod.Post, request.method)
@@ -83,7 +88,12 @@ class AuthRepositoryImplTest {
     val env = TestEnv { _ -> respond(content = "conflict", status = HttpStatusCode.Conflict) }
 
     assertFailsWith<ResponseException> {
-      env.repository.register(email = "dup@x.com", password = "secret", firstName = "", lastName = "")
+      env.repository.register(
+        email = "dup@x.com",
+        password = "secret",
+        firstName = "",
+        lastName = "",
+      )
     }
     assertFalse(env.storage.hasTokens())
   }
@@ -143,18 +153,14 @@ class AuthRepositoryImplTest {
       respond(content = "boom", status = HttpStatusCode.InternalServerError)
     }
 
-    assertFailsWith<ResponseException> {
-      env.repository.login(email = "u@x.com", password = "p")
-    }
+    assertFailsWith<ResponseException> { env.repository.login(email = "u@x.com", password = "p") }
   }
 
   @Test
   fun `login network failure propagates IOException`() = runTest {
     val env = TestEnv { _ -> throw IOException("connection refused") }
 
-    assertFailsWith<IOException> {
-      env.repository.login(email = "u@x.com", password = "p")
-    }
+    assertFailsWith<IOException> { env.repository.login(email = "u@x.com", password = "p") }
   }
 
   @Test
@@ -163,9 +169,7 @@ class AuthRepositoryImplTest {
       respondJson(body = """{"unexpected":"shape"}""", status = HttpStatusCode.OK)
     }
 
-    assertFailsWith<Exception> {
-      env.repository.login(email = "u@x.com", password = "p")
-    }
+    assertFailsWith<Exception> { env.repository.login(email = "u@x.com", password = "p") }
   }
 
   // -- logout ----------------------------------------------------------------
@@ -234,9 +238,7 @@ class AuthRepositoryImplTest {
       respond(content = "unauthorized", status = HttpStatusCode.Unauthorized)
     }
 
-    assertFailsWith<ResponseException> {
-      env.repository.getCurrentUser()
-    }
+    assertFailsWith<ResponseException> { env.repository.getCurrentUser() }
   }
 
   @Test
