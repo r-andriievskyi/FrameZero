@@ -33,15 +33,19 @@ fun Route.taskRoutes() {
         val assigneeMe = call.request.queryParameters["assignee"] == "me"
         val status =
           call.request.queryParameters["status"]?.let {
-            runCatching { TaskStatus.valueOf(it) }.getOrElse {
-              throw AppException(AppError.ValidationError(mapOf("status" to "Invalid value")))
-            }
+            runCatching { TaskStatus.valueOf(it) }
+              .getOrElse {
+                throw AppException(AppError.ValidationError(mapOf("status" to "Invalid value")))
+              }
           }
         val productionId =
           call.request.queryParameters["productionId"]?.let {
-            runCatching { UUID.fromString(it) }.getOrElse {
-              throw AppException(AppError.ValidationError(mapOf("productionId" to "Invalid UUID")))
-            }
+            runCatching { UUID.fromString(it) }
+              .getOrElse {
+                throw AppException(
+                  AppError.ValidationError(mapOf("productionId" to "Invalid UUID"))
+                )
+              }
           }
         val limit = call.request.queryParameters["limit"]?.toIntOrNull()?.coerceIn(1, 100) ?: 20
         val cursor = call.request.queryParameters["cursor"]

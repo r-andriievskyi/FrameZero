@@ -1,5 +1,6 @@
 package com.frame.zero.services
 
+import com.frame.zero.domain.production.ProductionSort
 import com.frame.zero.dto.dashboard.DashboardResponse
 import com.frame.zero.dto.dashboard.GreetingDto
 import com.frame.zero.dto.dashboard.StatsDto
@@ -37,6 +38,7 @@ class DashboardService(
         userId = userId,
         phases = emptyList(),
         query = null,
+        sort = ProductionSort.DUE_DATE,
         limit = DASHBOARD_LIMIT,
         cursor = null,
       )
