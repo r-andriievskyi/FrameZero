@@ -28,7 +28,11 @@ data class NotificationRecord(
 )
 
 interface NotificationRepository {
-  suspend fun findForUser(userId: UUID, limit: Int, cursor: String?): Pair<List<NotificationRecord>, String?>
+  suspend fun findForUser(
+    userId: UUID,
+    limit: Int,
+    cursor: String?,
+  ): Pair<List<NotificationRecord>, String?>
 
   suspend fun countUnread(userId: UUID): Int
 

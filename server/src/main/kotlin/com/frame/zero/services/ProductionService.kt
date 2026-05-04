@@ -2,7 +2,6 @@ package com.frame.zero.services
 
 import com.frame.zero.AppError
 import com.frame.zero.AppException
-import com.frame.zero.domain.production.Genre
 import com.frame.zero.domain.production.ProductionPhase
 import com.frame.zero.dto.production.AccentColorHint
 import com.frame.zero.dto.production.AddMemberRequest
@@ -18,7 +17,6 @@ import com.frame.zero.repository.ProductionMemberRecord
 import com.frame.zero.repository.ProductionMemberRepository
 import com.frame.zero.repository.ProductionRecord
 import com.frame.zero.repository.ProductionRepository
-import com.frame.zero.repository.UserRecord
 import com.frame.zero.repository.UserRepository
 import com.frame.zero.util.toKotlin
 import java.time.LocalDate
@@ -161,7 +159,8 @@ class ProductionService(
     request: UpdateMemberRequest,
   ): ProductionMemberDto {
     access.requireAccess(userId, productionId, AccessLevel.WRITE)
-    if (request.role.isBlank()) throw AppException(AppError.ValidationError(mapOf("role" to "Required")))
+    if (request.role.isBlank())
+      throw AppException(AppError.ValidationError(mapOf("role" to "Required")))
     return members.updateRole(memberId, request.role.trim())?.toDto()
       ?: throw AppException(AppError.NotFound)
   }
@@ -299,7 +298,14 @@ class ProductionService(
     }
 
     val roleOrder =
-      listOf("Director", "Producer", "DP", "Director of Photography", "1st AD", "Production Designer")
+      listOf(
+        "Director",
+        "Producer",
+        "DP",
+        "Director of Photography",
+        "1st AD",
+        "Production Designer",
+      )
 
     val rolePriority: Comparator<ProductionMemberRecord> = compareBy { member ->
       val idx = roleOrder.indexOfFirst { member.role.equals(it, ignoreCase = true) }

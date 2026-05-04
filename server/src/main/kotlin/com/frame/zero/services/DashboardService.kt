@@ -57,11 +57,12 @@ class DashboardService(
     }
 
     return DashboardResponse(
-      greeting = GreetingDto(
-        displayName = displayName,
-        activeProductionsCount = activeCount,
-        openTasksCount = openTaskCount,
-      ),
+      greeting =
+        GreetingDto(
+          displayName = displayName,
+          activeProductionsCount = activeCount,
+          openTasksCount = openTaskCount,
+        ),
       stats = StatsDto(activeProjects = activeCount, openTasks = openTaskCount),
       myTasks = myTasks,
       productionStatus = productionStatus,
@@ -94,7 +95,7 @@ class DashboardService(
     }
 
     fun phaseAccent(
-      phase: com.frame.zero.domain.production.ProductionPhase,
+      phase: com.frame.zero.domain.production.ProductionPhase
     ): com.frame.zero.dto.production.AccentColorHint =
       when (phase) {
         com.frame.zero.domain.production.ProductionPhase.DEVELOPMENT ->

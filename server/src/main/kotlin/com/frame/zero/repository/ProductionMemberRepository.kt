@@ -92,7 +92,9 @@ class ProductionMemberRepositoryExposed : ProductionMemberRepository {
 
     val avatarColor =
       if (userId != null) {
-        UsersTable.selectAll().where { UsersTable.id eq userId }.singleOrNull()
+        UsersTable.selectAll()
+          .where { UsersTable.id eq userId }
+          .singleOrNull()
           ?.get(UsersTable.avatarColorHex)
       } else {
         null
@@ -145,8 +147,7 @@ class ProductionMemberRepositoryExposed : ProductionMemberRepository {
       name = this[ProductionMembersTable.name],
       role = this[ProductionMembersTable.role],
       email = this[ProductionMembersTable.email],
-      avatarColorHex =
-        this.getOrNull(UsersTable.avatarColorHex),
+      avatarColorHex = this.getOrNull(UsersTable.avatarColorHex),
       addedAt = this[ProductionMembersTable.addedAt],
     )
 }

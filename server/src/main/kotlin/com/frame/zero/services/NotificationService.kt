@@ -17,15 +17,16 @@ class NotificationService(private val notifications: NotificationRepository) {
     val (items, nextCursor) = notifications.findForUser(userId, limit, cursor)
     val unread = notifications.countUnread(userId)
     return NotificationsResponse(
-      items = items.map { n ->
-        NotificationDto(
-          id = n.id.toString(),
-          title = n.title,
-          body = n.body,
-          readAt = n.readAt?.toKotlinInstant(),
-          createdAt = n.createdAt.toKotlinInstant(),
-        )
-      },
+      items =
+        items.map { n ->
+          NotificationDto(
+            id = n.id.toString(),
+            title = n.title,
+            body = n.body,
+            readAt = n.readAt?.toKotlinInstant(),
+            createdAt = n.createdAt.toKotlinInstant(),
+          )
+        },
       unreadCount = unread,
       nextCursor = nextCursor,
     )

@@ -46,7 +46,8 @@ class AuthServiceTest {
   fun `register rejects malformed email`() = runTest {
     val service = makeService()
 
-    val ex = assertFailsWith<AuthException> { service.register("not-an-email", "password123", "", "") }
+    val ex =
+      assertFailsWith<AuthException> { service.register("not-an-email", "password123", "", "") }
 
     assertEquals(AuthError.InvalidInput("Invalid email format"), ex.error)
   }
