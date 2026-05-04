@@ -55,8 +55,7 @@ class LoginUseCaseTest {
     val repo = FakeAuthRepository(loginUserDto = userDto)
 
     LoginUseCase(repo, makeSessionManager())(
-      LoginUseCase.Params(email = "typed@x.com", password = "secret")
-    )
+      LoginUseCase.Params(email = "typed@x.com", password = "secret"))
 
     assertEquals(listOf("typed@x.com" to "secret"), repo.loginCalls)
   }

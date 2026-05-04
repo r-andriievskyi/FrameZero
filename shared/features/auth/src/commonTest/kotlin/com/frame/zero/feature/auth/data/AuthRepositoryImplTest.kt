@@ -282,12 +282,11 @@ class AuthRepositoryImplTest {
           MockEngine { request ->
             requests += request
             handler(request)
+          }) {
+            install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
+            defaultRequest { contentType(ContentType.Application.Json) }
+            expectSuccess = true
           }
-        ) {
-          install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
-          defaultRequest { contentType(ContentType.Application.Json) }
-          expectSuccess = true
-        }
       repository =
         AuthRepositoryImpl(
           httpClient = client,

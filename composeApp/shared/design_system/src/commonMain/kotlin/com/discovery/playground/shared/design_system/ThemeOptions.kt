@@ -165,15 +165,13 @@ data class ThemeOptions(
         space4 = TokenSpace4,
         space8 = TokenSpace8,
         space16 = TokenSpace16,
-        space24 = TokenSpace24
-      )
+        space24 = TokenSpace24)
 
     private fun sharedRadius() =
       RadiusSystem(
         radius4 = TokenRadius4,
         radius8 = TokenRadius8,
         radius16 = TokenRadius16,
-        radiusMax = TokenRadiusMax
-      )
+        radiusMax = TokenRadiusMax)
   }
 }
