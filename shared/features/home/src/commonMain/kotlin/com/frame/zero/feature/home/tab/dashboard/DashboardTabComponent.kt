@@ -8,8 +8,7 @@ class DashboardTabComponent(
   componentContext: ComponentContext,
   viewModelFactory: () -> DashboardTabViewModel,
 ) : ComponentContext by componentContext {
-  private val viewModel: DashboardTabViewModel =
-    instanceKeeper.getOrCreate { viewModelFactory() }
+  private val viewModel: DashboardTabViewModel = instanceKeeper.getOrCreate { viewModelFactory() }
 
   val state: StateFlow<DashboardTabState>
     get() = viewModel.state

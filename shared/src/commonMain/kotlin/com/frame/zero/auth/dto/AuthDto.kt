@@ -16,7 +16,8 @@ data class RegisterRequest(
 
 @Serializable data class LogoutRequest(val refreshToken: String)
 
-@Serializable data class UserDto(val id: String, val email: String, val firstName: String, val lastName: String)
+@Serializable
+data class UserDto(val id: String, val email: String, val firstName: String, val lastName: String)
 
 @Serializable
 data class AuthResponse(val accessToken: String, val refreshToken: String, val user: UserDto)
