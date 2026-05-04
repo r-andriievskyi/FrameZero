@@ -40,9 +40,12 @@ fun Route.scheduleRoutes() {
             ?: throw AppException(AppError.ValidationError(mapOf("date" to "Required")))
         val productionId =
           call.request.queryParameters["productionId"]?.let {
-            runCatching { UUID.fromString(it) }.getOrElse {
-              throw AppException(AppError.ValidationError(mapOf("productionId" to "Invalid UUID")))
-            }
+            runCatching { UUID.fromString(it) }
+              .getOrElse {
+                throw AppException(
+                  AppError.ValidationError(mapOf("productionId" to "Invalid UUID"))
+                )
+              }
           }
         call.respond(service.get(userId, view, dateParam, productionId, tz))
       }

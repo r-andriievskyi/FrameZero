@@ -8,12 +8,11 @@ import io.ktor.server.auth.principal
 import java.util.UUID
 
 fun ApplicationCall.userId(): UUID {
-  val subject =
-    principal<JWTPrincipal>()?.subject ?: throw AppException(AppError.Unauthorized)
-  return runCatching { UUID.fromString(subject) }.getOrElse { throw AppException(AppError.Unauthorized) }
+  val subject = principal<JWTPrincipal>()?.subject ?: throw AppException(AppError.Unauthorized)
+  return runCatching { UUID.fromString(subject) }
+    .getOrElse { throw AppException(AppError.Unauthorized) }
 }
 
 fun ApplicationCall.pathUuid(name: String): UUID =
-  runCatching { UUID.fromString(parameters[name]) }.getOrElse {
-    throw AppException(AppError.NotFound)
-  }
+  runCatching { UUID.fromString(parameters[name]) }
+    .getOrElse { throw AppException(AppError.NotFound) }

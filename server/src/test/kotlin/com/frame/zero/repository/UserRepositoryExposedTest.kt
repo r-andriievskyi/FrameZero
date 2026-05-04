@@ -85,6 +85,8 @@ class UserRepositoryExposedTest {
   fun `inserting a duplicate email throws a SQL exception`() {
     runBlocking { repository.create("u@x.com", "hash-1", "", "") }
 
-    assertFailsWith<ExposedSQLException> { runBlocking { repository.create("u@x.com", "hash-2", "", "") } }
+    assertFailsWith<ExposedSQLException> {
+      runBlocking { repository.create("u@x.com", "hash-2", "", "") }
+    }
   }
 }

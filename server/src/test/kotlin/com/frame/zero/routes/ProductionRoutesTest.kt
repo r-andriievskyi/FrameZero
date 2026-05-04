@@ -101,10 +101,7 @@ class ProductionRoutesTest {
     val userId = UUID.randomUUID()
     val token = env.tokenFor(userId)
     val badRequest =
-      validRequest.copy(
-        startDate = LocalDate(2026, 6, 1),
-        wrapDate = LocalDate(2026, 1, 1),
-      )
+      validRequest.copy(startDate = LocalDate(2026, 6, 1), wrapDate = LocalDate(2026, 1, 1))
 
     val response =
       client.post("/api/v1/productions") {

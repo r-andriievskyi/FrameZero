@@ -2,7 +2,6 @@ package com.frame.zero.routes
 
 import com.frame.zero.domain.production.Genre
 import com.frame.zero.domain.production.ProductionPhase
-import com.frame.zero.dto.common.PagedResponse
 import com.frame.zero.dto.production.CreateProductionRequest
 import com.frame.zero.dto.task.CreateTaskRequest
 import com.frame.zero.dto.task.TaskDetailDto
@@ -136,12 +135,14 @@ class TaskRoutesTest {
     val userId = UUID.randomUUID()
     val token = env.tokenFor(userId)
     val prod = env.productionService.create(userId, productionRequest)
-    env.taskService.create(userId, CreateTaskRequest(productionId = prod.id, title = "T1"), java.time.ZoneId.of("UTC"))
+    env.taskService.create(
+      userId,
+      CreateTaskRequest(productionId = prod.id, title = "T1"),
+      java.time.ZoneId.of("UTC"),
+    )
 
     val response =
-      client.get("/api/v1/tasks?assignee=me") {
-        header(HttpHeaders.Authorization, "Bearer $token")
-      }
+      client.get("/api/v1/tasks?assignee=me") { header(HttpHeaders.Authorization, "Bearer $token") }
 
     assertEquals(HttpStatusCode.OK, response.status)
   }
@@ -153,7 +154,12 @@ class TaskRoutesTest {
     val userId = UUID.randomUUID()
     val token = env.tokenFor(userId)
     val prod = env.productionService.create(userId, productionRequest)
-    val task = env.taskService.create(userId, CreateTaskRequest(productionId = prod.id, title = "T"), java.time.ZoneId.of("UTC"))
+    val task =
+      env.taskService.create(
+        userId,
+        CreateTaskRequest(productionId = prod.id, title = "T"),
+        java.time.ZoneId.of("UTC"),
+      )
 
     val response =
       client.delete("/api/v1/tasks/${task.id}") {

@@ -31,9 +31,8 @@ class DashboardRoutesTest {
     val userId = UUID.randomUUID()
     val token = env.tokenFor(userId)
 
-    val response = client.get("/api/v1/dashboard") {
-      header(HttpHeaders.Authorization, "Bearer $token")
-    }
+    val response =
+      client.get("/api/v1/dashboard") { header(HttpHeaders.Authorization, "Bearer $token") }
 
     assertEquals(HttpStatusCode.OK, response.status)
     val body = json.decodeFromString<DashboardResponse>(response.bodyAsText())
@@ -56,9 +55,8 @@ class DashboardRoutesTest {
     val env = TestAppEnv()
     application { env.configure(this) }
 
-    val response = client.get("/api/v1/dashboard") {
-      header(HttpHeaders.Authorization, "Bearer not-a-jwt")
-    }
+    val response =
+      client.get("/api/v1/dashboard") { header(HttpHeaders.Authorization, "Bearer not-a-jwt") }
 
     assertEquals(HttpStatusCode.Unauthorized, response.status)
   }
