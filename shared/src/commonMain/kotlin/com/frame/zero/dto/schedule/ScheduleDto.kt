@@ -1,9 +1,9 @@
 package com.frame.zero.dto.schedule
 
 import com.frame.zero.domain.schedule.ScheduleEventKind
+import kotlin.time.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.Serializable
-import kotlin.time.Instant
 
 @Serializable
 data class ScheduleResponse(
@@ -12,11 +12,7 @@ data class ScheduleResponse(
   val days: List<ScheduleDayDto>,
 )
 
-@Serializable
-data class ScheduleDayDto(
-  val date: LocalDate,
-  val events: List<ScheduleEventDto>,
-)
+@Serializable data class ScheduleDayDto(val date: LocalDate, val events: List<ScheduleEventDto>)
 
 @Serializable
 data class ScheduleEventDto(

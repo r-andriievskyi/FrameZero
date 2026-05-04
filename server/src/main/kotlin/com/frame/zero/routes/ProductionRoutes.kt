@@ -1,6 +1,7 @@
 package com.frame.zero.routes
 
 import com.frame.zero.domain.production.ProductionPhase
+import com.frame.zero.domain.production.ProductionSort
 import com.frame.zero.dto.common.PagedResponse
 import com.frame.zero.dto.production.AddMemberRequest
 import com.frame.zero.dto.production.CreateProductionRequest
@@ -33,9 +34,13 @@ fun Route.productionRoutes() {
             runCatching { ProductionPhase.valueOf(it) }.getOrNull()
           } ?: emptyList()
         val query = call.request.queryParameters["q"]
+        val sort =
+          call.request.queryParameters["sort"]?.let {
+            runCatching { ProductionSort.valueOf(it) }.getOrNull()
+          } ?: ProductionSort.DEFAULT
         val limit = call.request.queryParameters["limit"]?.toIntOrNull()?.coerceIn(1, 100) ?: 20
         val cursor = call.request.queryParameters["cursor"]
-        val (items, nextCursor) = service.list(userId, phases, query, limit, cursor)
+        val (items, nextCursor) = service.list(userId, phases, query, sort, limit, cursor)
         call.respond(PagedResponse(items = items, nextCursor = nextCursor))
       }
 

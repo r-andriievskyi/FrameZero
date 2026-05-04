@@ -2,9 +2,9 @@ package com.frame.zero.dto.production
 
 import com.frame.zero.domain.production.Genre
 import com.frame.zero.domain.production.ProductionPhase
+import kotlin.time.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.Serializable
-import kotlin.time.Instant
 
 @Serializable
 data class ProductionSummaryDto(
@@ -75,11 +75,7 @@ data class CreateProductionRequest(
 )
 
 @Serializable
-data class CreateCrewMemberDto(
-  val name: String,
-  val role: String,
-  val email: String? = null,
-)
+data class CreateCrewMemberDto(val name: String, val role: String, val email: String? = null)
 
 @Serializable
 data class UpdateProductionRequest(
@@ -90,15 +86,9 @@ data class UpdateProductionRequest(
   val budgetCents: Long? = null,
 )
 
-@Serializable
-data class PhaseTransitionRequest(val phase: ProductionPhase)
+@Serializable data class PhaseTransitionRequest(val phase: ProductionPhase)
 
 @Serializable
-data class AddMemberRequest(
-  val name: String,
-  val role: String,
-  val email: String? = null,
-)
+data class AddMemberRequest(val name: String, val role: String, val email: String? = null)
 
-@Serializable
-data class UpdateMemberRequest(val role: String)
+@Serializable data class UpdateMemberRequest(val role: String)

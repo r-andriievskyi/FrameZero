@@ -1,7 +1,7 @@
 package com.frame.zero.dto.notification
 
-import kotlinx.serialization.Serializable
 import kotlin.time.Instant
+import kotlinx.serialization.Serializable
 
 @Serializable
 data class NotificationDto(
@@ -20,7 +20,4 @@ data class NotificationsResponse(
 )
 
 @Serializable
-data class MarkReadRequest(
-  val ids: List<String> = emptyList(),
-  val all: Boolean = false,
-)
+data class MarkReadRequest(val ids: List<String> = emptyList(), val all: Boolean = false)
