@@ -81,9 +81,7 @@ class AuthRoutesTest {
               password = "password123",
               firstName = "Jane",
               lastName = "Doe",
-            )
-          )
-        )
+            )))
       }
 
     assertEquals(HttpStatusCode.Created, response.status)

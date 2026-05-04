@@ -1,4 +1,5 @@
 import com.ncorti.ktfmt.gradle.KtfmtExtension
+import com.ncorti.ktfmt.gradle.TrailingCommaManagementStrategy
 import io.gitlab.arturbosch.detekt.extensions.DetektExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -12,7 +13,9 @@ class CodeQualityConventionPlugin : Plugin<Project> {
       pluginManager.apply("org.jetbrains.kotlinx.kover")
 
       extensions.configure<KtfmtExtension> {
-        googleStyle() // 2-space indent, 4-space continuation, max line 100
+        googleStyle() // 2-space indent, 4-space continuation
+        maxWidth.set(100)
+        trailingCommaManagementStrategy.set(TrailingCommaManagementStrategy.NONE)
       }
 
       extensions.configure<DetektExtension> {

@@ -53,8 +53,7 @@ class ScheduleService(
         }
         else ->
           throw AppException(
-            AppError.ValidationError(mapOf("view" to "Must be day, week, or month"))
-          )
+            AppError.ValidationError(mapOf("view" to "Must be day, week, or month")))
       }
 
     val rangeStartInstant = rangeStart.atStartOfDay(timezone).toInstant()

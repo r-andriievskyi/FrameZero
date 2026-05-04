@@ -60,24 +60,23 @@ private fun DashboardContent(state: DashboardTabState) {
         .padding(
           horizontal = AppTheme.spacingSystem.space16,
           vertical = AppTheme.spacingSystem.space24,
+        )) {
+      if (dashboard != null) {
+        GreetingSection(greeting = dashboard.greeting)
+        VerticalSpacer(AppTheme.spacingSystem.space16)
+        StatsRow(stats = dashboard.stats)
+        VerticalSpacer(AppTheme.spacingSystem.space24)
+        MyTasksSection(tasks = dashboard.myTasks)
+        VerticalSpacer(AppTheme.spacingSystem.space24)
+        ProductionStatusSection(productions = dashboard.productionStatus)
+      } else if (state.userName != null) {
+        Text(
+          text = "Hello, ${state.userName}",
+          style = AppTheme.typographySystem.displayMedium,
+          color = AppTheme.colorSystem.textPrimary,
         )
-  ) {
-    if (dashboard != null) {
-      GreetingSection(greeting = dashboard.greeting)
-      VerticalSpacer(AppTheme.spacingSystem.space16)
-      StatsRow(stats = dashboard.stats)
-      VerticalSpacer(AppTheme.spacingSystem.space24)
-      MyTasksSection(tasks = dashboard.myTasks)
-      VerticalSpacer(AppTheme.spacingSystem.space24)
-      ProductionStatusSection(productions = dashboard.productionStatus)
-    } else if (state.userName != null) {
-      Text(
-        text = "Hello, ${state.userName}",
-        style = AppTheme.typographySystem.displayMedium,
-        color = AppTheme.colorSystem.textPrimary,
-      )
+      }
     }
-  }
 }
 
 // ── Greeting ──────────────────────────────────────────────────────────
@@ -129,26 +128,25 @@ private fun StatCard(modifier: Modifier = Modifier, icon: String, value: String,
       modifier
         .clip(RoundedCornerShape(AppTheme.radiusSystem.radius16))
         .background(AppTheme.colorSystem.cardBackground)
-        .padding(AppTheme.spacingSystem.space16)
-  ) {
-    Text(
-      text = icon,
-      style = AppTheme.typographySystem.titleMedium,
-      modifier = Modifier.size(24.dp),
-    )
-    VerticalSpacer(AppTheme.spacingSystem.space8)
-    Text(
-      text = value,
-      style = AppTheme.typographySystem.displayMedium,
-      color = AppTheme.colorSystem.textPrimary,
-    )
-    VerticalSpacer(AppTheme.spacingSystem.space4)
-    Text(
-      text = label,
-      style = AppTheme.typographySystem.bodySmall,
-      color = AppTheme.colorSystem.textMuted,
-    )
-  }
+        .padding(AppTheme.spacingSystem.space16)) {
+      Text(
+        text = icon,
+        style = AppTheme.typographySystem.titleMedium,
+        modifier = Modifier.size(24.dp),
+      )
+      VerticalSpacer(AppTheme.spacingSystem.space8)
+      Text(
+        text = value,
+        style = AppTheme.typographySystem.displayMedium,
+        color = AppTheme.colorSystem.textPrimary,
+      )
+      VerticalSpacer(AppTheme.spacingSystem.space4)
+      Text(
+        text = label,
+        style = AppTheme.typographySystem.bodySmall,
+        color = AppTheme.colorSystem.textMuted,
+      )
+    }
 }
 
 // ── My Tasks ──────────────────────────────────────────────────────────
@@ -240,8 +238,7 @@ private fun ProductionCard(production: DashboardProduction) {
         Modifier.width(4.dp)
           .height(40.dp)
           .clip(RoundedCornerShape(AppTheme.radiusSystem.radius4))
-          .background(accentColor)
-    )
+          .background(accentColor))
     Spacer(modifier = Modifier.width(AppTheme.spacingSystem.space8))
     Column(modifier = Modifier.weight(1f)) {
       Text(
@@ -374,7 +371,6 @@ private fun DashboardContentPreview() {
                   ),
                 ),
             ),
-        )
-    )
+        ))
   }
 }

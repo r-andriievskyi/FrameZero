@@ -37,8 +37,7 @@ object DatabaseFactory {
         isAutoCommit = false
         transactionIsolation = "TRANSACTION_REPEATABLE_READ"
         validate()
-      }
-    )
+      })
 
   private const val MAX_POOL_SIZE = 10
 }

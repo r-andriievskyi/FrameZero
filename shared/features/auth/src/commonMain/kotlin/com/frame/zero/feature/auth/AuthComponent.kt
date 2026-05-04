@@ -37,16 +37,14 @@ class AuthComponent(
             componentContext = context,
             onNavigateToRegister = { navigation.bringToFront(Config.Register) },
             viewModelFactory = signInViewModelFactory,
-          )
-        )
+          ))
       Config.Register ->
         Child.Register(
           RegisterComponent(
             componentContext = context,
             onNavigateToSignIn = { navigation.pop() },
             viewModelFactory = registerViewModelFactory,
-          )
-        )
+          ))
     }
 
   sealed interface Config {

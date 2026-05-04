@@ -43,8 +43,7 @@ fun Route.taskRoutes() {
             runCatching { UUID.fromString(it) }
               .getOrElse {
                 throw AppException(
-                  AppError.ValidationError(mapOf("productionId" to "Invalid UUID"))
-                )
+                  AppError.ValidationError(mapOf("productionId" to "Invalid UUID")))
               }
           }
         val limit = call.request.queryParameters["limit"]?.toIntOrNull()?.coerceIn(1, 100) ?: 20
