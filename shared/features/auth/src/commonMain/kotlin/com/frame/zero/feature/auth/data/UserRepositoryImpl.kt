@@ -12,6 +12,7 @@ class UserRepositoryImpl(
   private val networkConfig: NetworkConfig,
 ) : UserRepository {
 
-  override suspend fun getMe(): UserDto =
-    httpClient.get("${networkConfig.baseUrl}/auth/me").body()
+  override suspend fun getMe(): UserDto = httpClient.get(
+    "${networkConfig.baseUrl}/auth/me"
+  ).body()
 }

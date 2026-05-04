@@ -7,9 +7,9 @@ import com.frame.zero.core.session.TokenStorage
 import com.frame.zero.domain.DomainError
 import com.frame.zero.domain.DomainException
 import com.frame.zero.domain.User
+import com.frame.zero.feature.auth.domain.LoginUseCase
 import com.frame.zero.feature.auth.testing.FakeAuthRepository
 import com.frame.zero.feature.auth.testing.NoopSessionAuthOperations
-import com.frame.zero.feature.auth.domain.LoginUseCase
 import com.frame.zero.repository.auth.AuthRepository
 import com.russhwolf.settings.MapSettings
 import kotlin.test.Test

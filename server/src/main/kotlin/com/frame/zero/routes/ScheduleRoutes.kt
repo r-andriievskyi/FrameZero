@@ -16,7 +16,6 @@ import io.ktor.server.routing.patch
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import java.time.ZoneId
-import java.util.UUID
 import org.koin.ktor.ext.inject
 
 fun Route.scheduleRoutes() {
@@ -38,16 +37,7 @@ fun Route.scheduleRoutes() {
         val dateParam =
           call.request.queryParameters["date"]
             ?: throw AppException(AppError.ValidationError(mapOf("date" to "Required")))
-        val productionId =
-          call.request.queryParameters["productionId"]?.let {
-            runCatching { UUID.fromString(it) }
-              .getOrElse {
-                throw AppException(
-                  AppError.ValidationError(mapOf("productionId" to "Invalid UUID"))
-                )
-              }
-          }
-        call.respond(service.get(userId, view, dateParam, productionId, tz))
+        call.respond(service.get(userId, view, dateParam, tz))
       }
 
       post {

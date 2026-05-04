@@ -1,6 +1,7 @@
 package com.frame.zero.repository
 
 import com.frame.zero.config.dbQuery
+import com.frame.zero.database.ProductionMembersTable
 import com.frame.zero.database.ProductionsTable
 import com.frame.zero.database.TasksTable
 import com.frame.zero.dto.task.TaskStatus
@@ -13,8 +14,11 @@ import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.greaterEq
+import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.core.isNotNull
 import org.jetbrains.exposed.v1.core.less
+import org.jetbrains.exposed.v1.core.lessEq
 import org.jetbrains.exposed.v1.core.or
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
@@ -54,6 +58,12 @@ interface TaskRepository {
   ): Pair<List<TaskRecord>, String?>
 
   suspend fun findForUserLimit(userId: UUID, limit: Int): List<TaskRecord>
+
+  suspend fun findInRangeForUser(
+    userId: UUID,
+    rangeStart: LocalDate,
+    rangeEnd: LocalDate,
+  ): List<TaskRecord>
 
   suspend fun countOpenForUser(userId: UUID): Int
 
@@ -167,6 +177,29 @@ class TaskRepositoryExposed : TaskRepository {
       }
       .orderBy(TasksTable.dueDate to SortOrder.ASC_NULLS_LAST)
       .limit(limit)
+      .map { it.toRecord() }
+  }
+
+  override suspend fun findInRangeForUser(
+    userId: UUID,
+    rangeStart: LocalDate,
+    rangeEnd: LocalDate,
+  ): List<TaskRecord> = dbQuery {
+    val memberProductionIds =
+      ProductionMembersTable.selectAll()
+        .where { ProductionMembersTable.userId eq userId }
+        .map { it[ProductionMembersTable.productionId] }
+    if (memberProductionIds.isEmpty()) return@dbQuery emptyList()
+
+    (TasksTable innerJoin ProductionsTable)
+      .selectAll()
+      .where {
+        TasksTable.dueDate.isNotNull() and
+          (TasksTable.dueDate greaterEq rangeStart) and
+          (TasksTable.dueDate lessEq rangeEnd) and
+          (TasksTable.productionId inList memberProductionIds)
+      }
+      .orderBy(TasksTable.dueDate to SortOrder.ASC, TasksTable.id to SortOrder.ASC)
       .map { it.toRecord() }
   }
 

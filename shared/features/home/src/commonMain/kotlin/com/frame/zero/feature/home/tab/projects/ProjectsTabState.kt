@@ -1,3 +1,8 @@
 package com.frame.zero.feature.home.tab.projects
 
-data class ProjectsTabState(val isLoading: Boolean = false)
+import com.frame.zero.domain.production.Production
+
+data class ProjectsTabState(
+  val isLoading: Boolean = false,
+  val productions: List<Production> = emptyList(),
+)

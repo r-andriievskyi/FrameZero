@@ -54,7 +54,8 @@ internal class FakeAuthRepository(
 }
 
 internal object NoopSessionAuthOperations : SessionAuthOperations {
-  override suspend fun fetchCurrentUser(): UserDto = UserDto(id = "", email = "", firstName = "", lastName = "")
+  override suspend fun fetchCurrentUser(): UserDto =
+    UserDto(id = "", email = "", firstName = "", lastName = "")
 
   override suspend fun signOutRemote() = Unit
 }
