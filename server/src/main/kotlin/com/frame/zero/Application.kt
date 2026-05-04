@@ -6,6 +6,11 @@ import com.frame.zero.auth.authModule
 import com.frame.zero.auth.authRoutes
 import com.frame.zero.config.AppConfig
 import com.frame.zero.config.DatabaseFactory
+import com.frame.zero.routes.dashboardRoutes
+import com.frame.zero.routes.notificationRoutes
+import com.frame.zero.routes.productionRoutes
+import com.frame.zero.routes.scheduleRoutes
+import com.frame.zero.routes.taskRoutes
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
@@ -32,7 +37,7 @@ fun main() {
 fun Application.module(config: AppConfig) {
   install(Koin) {
     slf4jLogger()
-    modules(authModule(config))
+    modules(authModule(config), appModule())
   }
 
   install(ContentNegotiation) { json() }
@@ -49,19 +54,42 @@ fun Application.module(config: AppConfig) {
   }
 
   install(StatusPages) {
+    exception<AppException> { call, cause ->
+      call.respond(cause.error.status, cause.error.toResponse())
+    }
     exception<AuthException> { call, cause ->
-      call.respond(cause.error.status, mapOf("error" to cause.error.message))
+      call.respond(
+        cause.error.status,
+        ErrorResponse(error = "UNAUTHORIZED", message = cause.error.message),
+      )
     }
     exception<SerializationException> { call, _ ->
-      call.respond(HttpStatusCode.BadRequest, mapOf("error" to "Malformed request body"))
+      call.respond(
+        HttpStatusCode.BadRequest,
+        ErrorResponse(error = "VALIDATION_ERROR", message = "Malformed request body"),
+      )
     }
     exception<IllegalArgumentException> { call, cause ->
       call.respond(
         HttpStatusCode.BadRequest,
-        mapOf("error" to (cause.message ?: "Invalid request")),
+        ErrorResponse(error = "VALIDATION_ERROR", message = cause.message ?: "Invalid request"),
+      )
+    }
+    exception<Throwable> { call, cause ->
+      call.application.environment.log.error("Unhandled exception", cause)
+      call.respond(
+        HttpStatusCode.InternalServerError,
+        ErrorResponse(error = "INTERNAL", message = "Internal server error"),
       )
     }
   }
 
-  routing { authRoutes() }
+  routing {
+    authRoutes()
+    dashboardRoutes()
+    productionRoutes()
+    taskRoutes()
+    scheduleRoutes()
+    notificationRoutes()
+  }
 }

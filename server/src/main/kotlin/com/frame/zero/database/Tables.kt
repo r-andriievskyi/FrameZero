@@ -10,6 +10,7 @@ object UsersTable : Table("users") {
   val passwordHash = varchar("password_hash", length = HASH_MAX)
   val firstName = varchar("first_name", length = NAME_MAX)
   val lastName = varchar("last_name", length = NAME_MAX)
+  val avatarColorHex = varchar("avatar_color_hex", length = 7).nullable()
   val createdAt = timestamp("created_at")
 
   override val primaryKey = PrimaryKey(id)

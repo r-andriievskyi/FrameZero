@@ -1,0 +1,17 @@
+package com.frame.zero.database
+
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.core.java.javaUUID
+import org.jetbrains.exposed.v1.javatime.timestamp
+
+object ScheduleEventsTable : Table("schedule_events") {
+  val id = javaUUID("id")
+  val productionId = javaUUID("production_id").references(ProductionsTable.id)
+  val title = varchar("title", 200)
+  val location = varchar("location", 300).nullable()
+  val startsAt = timestamp("starts_at")
+  val endsAt = timestamp("ends_at")
+  val kind = varchar("kind", 20)
+
+  override val primaryKey = PrimaryKey(id)
+}
