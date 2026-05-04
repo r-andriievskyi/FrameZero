@@ -19,6 +19,7 @@ kotlin {
     commonMain.dependencies {
       api(libs.kotlinx.serialization.json)
       api(libs.kotlinx.coroutines.core)
+      api(libs.kotlinx.datetime)
       api(libs.koin.core)
       api(libs.ktor.clientCore)
       api(libs.multiplatformSettings)

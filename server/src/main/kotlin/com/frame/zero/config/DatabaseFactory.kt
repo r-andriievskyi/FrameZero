@@ -1,22 +1,30 @@
 package com.frame.zero.config
 
-import com.frame.zero.database.RefreshTokensTable
-import com.frame.zero.database.UsersTable
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import javax.sql.DataSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.v1.jdbc.Database
-import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 object DatabaseFactory {
   fun init(config: DatabaseConfig): Database {
-    val database = Database.connect(dataSource(config))
-    transaction(database) { SchemaUtils.create(UsersTable, RefreshTokensTable) }
-    return database
+    val ds = dataSource(config)
+    runFlyway(ds)
+    return Database.connect(ds)
+  }
+
+  private fun runFlyway(ds: DataSource) {
+    Flyway.configure()
+      .dataSource(ds)
+      .locations("classpath:db/migration")
+      .baselineOnMigrate(true)
+      .baselineVersion("0")
+      .load()
+      .migrate()
   }
 
   private fun dataSource(config: DatabaseConfig): DataSource =

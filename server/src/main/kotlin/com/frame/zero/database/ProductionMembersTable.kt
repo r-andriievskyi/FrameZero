@@ -1,0 +1,17 @@
+package com.frame.zero.database
+
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.core.java.javaUUID
+import org.jetbrains.exposed.v1.javatime.timestamp
+
+object ProductionMembersTable : Table("production_members") {
+  val id = javaUUID("id")
+  val productionId = javaUUID("production_id").references(ProductionsTable.id)
+  val userId = javaUUID("user_id").references(UsersTable.id).nullable()
+  val name = varchar("name", 200)
+  val role = varchar("role", 100)
+  val email = varchar("email", 320).nullable()
+  val addedAt = timestamp("added_at")
+
+  override val primaryKey = PrimaryKey(id)
+}
