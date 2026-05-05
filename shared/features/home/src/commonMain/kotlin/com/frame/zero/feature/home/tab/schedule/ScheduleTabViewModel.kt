@@ -4,9 +4,6 @@ import com.arkivanov.essenty.instancekeeper.InstanceKeeper
 import com.frame.zero.domain.Outcome
 import com.frame.zero.domain.schedule.ScheduleView
 import com.frame.zero.feature.home.usecase.GetScheduleUseCase
-import kotlin.coroutines.CoroutineContext
-import kotlin.time.Clock
-import kotlin.time.ExperimentalTime
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -18,6 +15,9 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import kotlin.coroutines.CoroutineContext
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 /**
  * See [com.frame.zero.feature.home.tab.dashboard.DashboardTabViewModel] for the lifecycle contract.
@@ -45,7 +45,10 @@ class ScheduleTabViewModel(
     load(view = view, date = today())
   }
 
-  private fun load(view: ScheduleView, date: LocalDate) {
+  private fun load(
+    view: ScheduleView,
+    date: LocalDate
+  ) {
     scope.launch {
       _state.value = _state.value.copy(isLoading = true)
       when (val outcome = getScheduleUseCase(GetScheduleUseCase.Params(view, date))) {

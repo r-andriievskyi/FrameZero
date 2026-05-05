@@ -51,9 +51,10 @@ internal class FakeProductionRepository : ProductionRepository {
     return record
   }
 
-  override suspend fun findById(id: UUID): ProductionRecord? = productions.firstOrNull {
-    it.id == id && it.deletedAt == null
-  }
+  override suspend fun findById(id: UUID): ProductionRecord? =
+    productions.firstOrNull {
+      it.id == id && it.deletedAt == null
+    }
 
   override suspend fun findAccessible(
     userId: UUID,
@@ -63,25 +64,28 @@ internal class FakeProductionRepository : ProductionRepository {
     limit: Int,
     cursor: String?,
   ): Pair<List<ProductionRecord>, String?> {
-    val filtered = productions.filter { p ->
-      p.deletedAt == null &&
-        (p.ownerUserId == userId) &&
-        (phases.isEmpty() || p.phase in phases) &&
-        (query.isNullOrBlank() || p.title.contains(query, ignoreCase = true))
-    }
+    val filtered =
+      productions.filter { p ->
+        p.deletedAt == null &&
+          (p.ownerUserId == userId) &&
+          (phases.isEmpty() || p.phase in phases) &&
+          (query.isNullOrBlank() || p.title.contains(query, ignoreCase = true))
+      }
     val sorted =
       when (sort) {
         ProductionSort.DUE_DATE -> filtered.sortedWith(compareBy({ it.wrapDate }, { it.id }))
         ProductionSort.RECENT ->
           filtered.sortedWith(
-            compareByDescending<ProductionRecord> { it.updatedAt }.thenByDescending { it.id })
+            compareByDescending<ProductionRecord> { it.updatedAt }.thenByDescending { it.id }
+          )
       }
     return Pair(sorted.take(limit), null)
   }
 
-  override suspend fun countActiveForUser(userId: UUID): Int = productions.count {
-    it.deletedAt == null && it.ownerUserId == userId && it.phase != ProductionPhase.DISTRIBUTION
-  }
+  override suspend fun countActiveForUser(userId: UUID): Int =
+    productions.count {
+      it.deletedAt == null && it.ownerUserId == userId && it.phase != ProductionPhase.DISTRIBUTION
+    }
 
   override suspend fun update(
     id: UUID,
@@ -106,7 +110,10 @@ internal class FakeProductionRepository : ProductionRepository {
     return updated
   }
 
-  override suspend fun updatePhase(id: UUID, phase: ProductionPhase): ProductionRecord? {
+  override suspend fun updatePhase(
+    id: UUID,
+    phase: ProductionPhase
+  ): ProductionRecord? {
     val idx = productions.indexOfFirst { it.id == id }
     if (idx < 0) return null
     val updated = productions[idx].copy(phase = phase, updatedAt = Instant.now())
@@ -128,13 +135,15 @@ internal class FakeProductionMemberRepository : ProductionMemberRepository {
       it.productionId == productionId
     }
 
-  override suspend fun findById(id: UUID): ProductionMemberRecord? = members.firstOrNull {
-    it.id == id
-  }
+  override suspend fun findById(id: UUID): ProductionMemberRecord? =
+    members.firstOrNull {
+      it.id == id
+    }
 
-  override suspend fun countByProduction(productionId: UUID): Int = members.count {
-    it.productionId == productionId
-  }
+  override suspend fun countByProduction(productionId: UUID): Int =
+    members.count {
+      it.productionId == productionId
+    }
 
   override suspend fun add(
     productionId: UUID,
@@ -158,7 +167,10 @@ internal class FakeProductionMemberRepository : ProductionMemberRepository {
     return record
   }
 
-  override suspend fun updateRole(id: UUID, role: String): ProductionMemberRecord? {
+  override suspend fun updateRole(
+    id: UUID,
+    role: String
+  ): ProductionMemberRecord? {
     val idx = members.indexOfFirst { it.id == id }
     if (idx < 0) return null
     val updated = members[idx].copy(role = role)
@@ -173,9 +185,13 @@ internal class FakeProductionMemberRepository : ProductionMemberRepository {
     return true
   }
 
-  override suspend fun isOwner(userId: UUID, productionId: UUID): Boolean = members.none {
-    it.productionId == productionId && it.userId == userId
-  }
+  override suspend fun isOwner(
+    userId: UUID,
+    productionId: UUID
+  ): Boolean =
+    members.none {
+      it.productionId == productionId && it.userId == userId
+    }
 }
 
 internal class FakeTaskRepository : TaskRepository {
@@ -225,21 +241,26 @@ internal class FakeTaskRepository : TaskRepository {
     return Pair(items, null)
   }
 
-  override suspend fun findForUserLimit(userId: UUID, limit: Int): List<TaskRecord> =
+  override suspend fun findForUserLimit(
+    userId: UUID,
+    limit: Int
+  ): List<TaskRecord> =
     tasks.filter { it.assigneeUserId == userId && it.status == TaskStatus.OPEN }.take(limit)
 
   override suspend fun findInRangeForUser(
     userId: UUID,
     rangeStart: LocalDate,
     rangeEnd: LocalDate,
-  ): List<TaskRecord> = tasks.filter { t ->
-    val due = t.dueDate ?: return@filter false
-    !due.isBefore(rangeStart) && !due.isAfter(rangeEnd)
-  }
+  ): List<TaskRecord> =
+    tasks.filter { t ->
+      val due = t.dueDate ?: return@filter false
+      !due.isBefore(rangeStart) && !due.isAfter(rangeEnd)
+    }
 
-  override suspend fun countOpenForUser(userId: UUID): Int = tasks.count {
-    it.assigneeUserId == userId && it.status == TaskStatus.OPEN
-  }
+  override suspend fun countOpenForUser(userId: UUID): Int =
+    tasks.count {
+      it.assigneeUserId == userId && it.status == TaskStatus.OPEN
+    }
 
   override suspend fun update(
     id: UUID,
@@ -278,9 +299,10 @@ internal class FakeScheduleEventRepository : ScheduleEventRepository {
     userId: UUID,
     rangeStart: Instant,
     rangeEnd: Instant,
-  ): List<ScheduleEventRecord> = events.filter { e ->
-    e.startsAt >= rangeStart && e.startsAt < rangeEnd
-  }
+  ): List<ScheduleEventRecord> =
+    events.filter { e ->
+      e.startsAt >= rangeStart && e.startsAt < rangeEnd
+    }
 
   override suspend fun findById(id: UUID): ScheduleEventRecord? = events.firstOrNull { it.id == id }
 
@@ -349,11 +371,15 @@ internal class FakeNotificationRepository : NotificationRepository {
     return Pair(items, null)
   }
 
-  override suspend fun countUnread(userId: UUID): Int = notifications.count {
-    it.userId == userId && it.readAt == null
-  }
+  override suspend fun countUnread(userId: UUID): Int =
+    notifications.count {
+      it.userId == userId && it.readAt == null
+    }
 
-  override suspend fun markRead(userId: UUID, ids: List<UUID>) {
+  override suspend fun markRead(
+    userId: UUID,
+    ids: List<UUID>
+  ) {
     val now = Instant.now()
     ids.forEach { id ->
       val idx = notifications.indexOfFirst { it.id == id && it.userId == userId }
@@ -368,7 +394,11 @@ internal class FakeNotificationRepository : NotificationRepository {
     }
   }
 
-  override suspend fun create(userId: UUID, title: String, body: String?): NotificationRecord {
+  override suspend fun create(
+    userId: UUID,
+    title: String,
+    body: String?
+  ): NotificationRecord {
     val record =
       NotificationRecord(
         id = UUID.randomUUID(),

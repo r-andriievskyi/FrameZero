@@ -3,8 +3,8 @@ package com.frame.zero.domain.dashboard
 import com.frame.zero.domain.production.ProductionPhase
 import com.frame.zero.dto.production.AccentColorHint
 import com.frame.zero.dto.task.TaskStatus
-import kotlin.time.Instant
 import kotlinx.datetime.LocalDate
+import kotlin.time.Instant
 
 data class Dashboard(
   val greeting: DashboardGreeting,

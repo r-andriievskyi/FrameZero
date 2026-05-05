@@ -36,7 +36,8 @@ fun HomeToolbar(
       colorFilter = ColorFilter.tint(AppTheme.colorSystem.accent),
     )
     Spacer(modifier = Modifier.weight(1f))
-    /*Image(
+    /*
+    Image(
       painter = painterResource(Res.drawable.ic_bell),
       contentDescription = "Notifications",
       modifier =
@@ -45,8 +46,8 @@ fun HomeToolbar(
           .padding(AppTheme.spacingSystem.space8)
           .size(AppTheme.spacingSystem.space24),
       colorFilter = ColorFilter.tint(AppTheme.colorSystem.textPrimary),
-    )*/
-    /*Image(
+    )
+    Image(
       painter = painterResource(Res.drawable.ic_person),
       contentDescription = "Settings",
       modifier =
@@ -55,6 +56,7 @@ fun HomeToolbar(
           .padding(AppTheme.spacingSystem.space8)
           .size(AppTheme.spacingSystem.space24),
       colorFilter = ColorFilter.tint(AppTheme.colorSystem.textPrimary),
-    )*/
+    )
+     */
   }
 }

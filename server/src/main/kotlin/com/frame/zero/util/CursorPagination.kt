@@ -5,8 +5,10 @@ import java.util.UUID
 
 data class PageCursor(val epochMillis: Long, val id: UUID)
 
-fun encodeCursor(epochMillis: Long, id: UUID): String =
-  Base64.getUrlEncoder().encodeToString("$epochMillis|$id".toByteArray(Charsets.UTF_8))
+fun encodeCursor(
+  epochMillis: Long,
+  id: UUID
+): String = Base64.getUrlEncoder().encodeToString("$epochMillis|$id".toByteArray(Charsets.UTF_8))
 
 fun decodeCursor(cursor: String): PageCursor? =
   try {

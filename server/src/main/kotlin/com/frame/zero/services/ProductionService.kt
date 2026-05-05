@@ -20,10 +20,10 @@ import com.frame.zero.repository.ProductionRecord
 import com.frame.zero.repository.ProductionRepository
 import com.frame.zero.repository.UserRepository
 import com.frame.zero.util.toKotlin
+import kotlinx.datetime.number
 import java.time.LocalDate
 import java.util.UUID
 import kotlin.time.toKotlinInstant
-import kotlinx.datetime.number
 
 class ProductionService(
   private val productions: ProductionRepository,
@@ -31,8 +31,10 @@ class ProductionService(
   private val users: UserRepository,
   private val access: ProductionAccessService,
 ) {
-
-  suspend fun create(userId: UUID, request: CreateProductionRequest): ProductionDetailDto {
+  suspend fun create(
+    userId: UUID,
+    request: CreateProductionRequest
+  ): ProductionDetailDto {
     validate(request)
     val production =
       productions.create(
@@ -81,7 +83,10 @@ class ProductionService(
     return Pair(items.map { it.toSummaryDto() }, nextCursor)
   }
 
-  suspend fun get(userId: UUID, productionId: UUID): ProductionDetailDto {
+  suspend fun get(
+    userId: UUID,
+    productionId: UUID
+  ): ProductionDetailDto {
     access.requireAccess(userId, productionId, AccessLevel.READ)
     val production = productions.findById(productionId) ?: throw AppException(AppError.NotFound)
     return detailDto(production, userId)
@@ -121,12 +126,18 @@ class ProductionService(
     return detailDto(updated, userId)
   }
 
-  suspend fun delete(userId: UUID, productionId: UUID) {
+  suspend fun delete(
+    userId: UUID,
+    productionId: UUID
+  ) {
     access.requireAccess(userId, productionId, AccessLevel.OWNER)
     productions.softDelete(productionId)
   }
 
-  suspend fun listMembers(userId: UUID, productionId: UUID): List<ProductionMemberDto> {
+  suspend fun listMembers(
+    userId: UUID,
+    productionId: UUID
+  ): List<ProductionMemberDto> {
     access.requireAccess(userId, productionId, AccessLevel.READ)
     return members.findByProduction(productionId).map { it.toDto() }
   }
@@ -161,13 +172,18 @@ class ProductionService(
     request: UpdateMemberRequest,
   ): ProductionMemberDto {
     access.requireAccess(userId, productionId, AccessLevel.WRITE)
-    if (request.role.isBlank())
+    if (request.role.isBlank()) {
       throw AppException(AppError.ValidationError(mapOf("role" to "Required")))
+    }
     return members.updateRole(memberId, request.role.trim())?.toDto()
       ?: throw AppException(AppError.NotFound)
   }
 
-  suspend fun removeMember(userId: UUID, productionId: UUID, memberId: UUID) {
+  suspend fun removeMember(
+    userId: UUID,
+    productionId: UUID,
+    memberId: UUID
+  ) {
     access.requireAccess(userId, productionId, AccessLevel.WRITE)
     val member = members.findById(memberId) ?: throw AppException(AppError.NotFound)
     val production = productions.findById(productionId) ?: throw AppException(AppError.NotFound)
@@ -202,7 +218,10 @@ class ProductionService(
     if (errors.isNotEmpty()) throw AppException(AppError.ValidationError(errors))
   }
 
-  private suspend fun detailDto(production: ProductionRecord, userId: UUID): ProductionDetailDto {
+  private suspend fun detailDto(
+    production: ProductionRecord,
+    userId: UUID
+  ): ProductionDetailDto {
     val allMembers = members.findByProduction(production.id)
     val membersCount = allMembers.size
     val keyCrew = allMembers.sortedWith(rolePriority).take(6).map { it.toDto() }
@@ -262,7 +281,11 @@ class ProductionService(
     )
 
   private companion object {
-    fun computeProgress(start: LocalDate, wrap: LocalDate, today: LocalDate): Int {
+    fun computeProgress(
+      start: LocalDate,
+      wrap: LocalDate,
+      today: LocalDate
+    ): Int {
       if (!today.isAfter(start)) return 0
       if (!today.isBefore(wrap)) return 100
       val total = java.time.temporal.ChronoUnit.DAYS.between(start, wrap).coerceAtLeast(1)
@@ -309,10 +332,11 @@ class ProductionService(
         "Production Designer",
       )
 
-    val rolePriority: Comparator<ProductionMemberRecord> = compareBy { member ->
-      val idx = roleOrder.indexOfFirst { member.role.equals(it, ignoreCase = true) }
-      if (idx >= 0) idx else roleOrder.size
-    }
+    val rolePriority: Comparator<ProductionMemberRecord> =
+      compareBy { member ->
+        val idx = roleOrder.indexOfFirst { member.role.equals(it, ignoreCase = true) }
+        if (idx >= 0) idx else roleOrder.size
+      }
 
     fun kotlinx.datetime.LocalDate.toJava(): LocalDate = LocalDate.of(year, month.number, day)
   }

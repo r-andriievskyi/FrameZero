@@ -1,5 +1,7 @@
 package com.frame.zero.repository
 
+import kotlinx.coroutines.runBlocking
+import org.jetbrains.exposed.v1.exceptions.ExposedSQLException
 import java.util.UUID
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -8,11 +10,8 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
-import kotlinx.coroutines.runBlocking
-import org.jetbrains.exposed.v1.exceptions.ExposedSQLException
 
 class UserRepositoryExposedTest {
-
   private val db = H2TestDatabase()
   private val repository = UserRepositoryExposed()
 
@@ -27,59 +26,65 @@ class UserRepositoryExposedTest {
   }
 
   @Test
-  fun `create returns the persisted record with normalized email`() = runBlocking {
-    val record =
-      repository.create(
-        email = "User@Example.COM",
-        passwordHash = "hash-1",
-        firstName = "Jane",
-        lastName = "Doe",
-      )
+  fun `create returns the persisted record with normalized email`() =
+    runBlocking {
+      val record =
+        repository.create(
+          email = "User@Example.COM",
+          passwordHash = "hash-1",
+          firstName = "Jane",
+          lastName = "Doe",
+        )
 
-    assertEquals("user@example.com", record.email)
-    assertEquals("hash-1", record.passwordHash)
-    assertEquals("Jane", record.firstName)
-    assertEquals("Doe", record.lastName)
-  }
-
-  @Test
-  fun `findByEmail returns the user when stored`() = runBlocking {
-    val created = repository.create("u@x.com", "hash-1", "", "")
-
-    val found = repository.findByEmail("u@x.com")
-
-    assertEquals(created.id, found?.id)
-    assertEquals("u@x.com", found?.email)
-  }
+      assertEquals("user@example.com", record.email)
+      assertEquals("hash-1", record.passwordHash)
+      assertEquals("Jane", record.firstName)
+      assertEquals("Doe", record.lastName)
+    }
 
   @Test
-  fun `findByEmail is case-insensitive`() = runBlocking {
-    repository.create("u@x.com", "hash-1", "", "")
+  fun `findByEmail returns the user when stored`() =
+    runBlocking {
+      val created = repository.create("u@x.com", "hash-1", "", "")
 
-    val found = repository.findByEmail("U@X.COM")
+      val found = repository.findByEmail("u@x.com")
 
-    assertNotNull(found)
-    assertEquals("u@x.com", found.email)
-  }
-
-  @Test
-  fun `findByEmail returns null for an unknown email`() = runBlocking {
-    assertNull(repository.findByEmail("nobody@x.com"))
-  }
+      assertEquals(created.id, found?.id)
+      assertEquals("u@x.com", found?.email)
+    }
 
   @Test
-  fun `findById returns the user`() = runBlocking {
-    val created = repository.create("u@x.com", "hash-1", "", "")
+  fun `findByEmail is case-insensitive`() =
+    runBlocking {
+      repository.create("u@x.com", "hash-1", "", "")
 
-    val found = repository.findById(created.id)
+      val found = repository.findByEmail("U@X.COM")
 
-    assertEquals(created, found)
-  }
+      assertNotNull(found)
+      assertEquals("u@x.com", found.email)
+    }
 
   @Test
-  fun `findById returns null for an unknown id`() = runBlocking {
-    assertNull(repository.findById(UUID.randomUUID()))
-  }
+  fun `findByEmail returns null for an unknown email`() =
+    runBlocking {
+      assertNull(repository.findByEmail("nobody@x.com"))
+    }
+
+  @Test
+  fun `findById returns the user`() =
+    runBlocking {
+      val created = repository.create("u@x.com", "hash-1", "", "")
+
+      val found = repository.findById(created.id)
+
+      assertEquals(created, found)
+    }
+
+  @Test
+  fun `findById returns null for an unknown id`() =
+    runBlocking {
+      assertNull(repository.findById(UUID.randomUUID()))
+    }
 
   @Test
   fun `inserting a duplicate email throws a SQL exception`() {

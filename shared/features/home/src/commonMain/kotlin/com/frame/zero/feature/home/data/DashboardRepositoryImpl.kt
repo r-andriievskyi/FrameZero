@@ -11,7 +11,6 @@ class DashboardRepositoryImpl(
   private val httpClient: HttpClient,
   private val networkConfig: NetworkConfig,
 ) : DashboardRepository {
-
   override suspend fun getDashboard(): DashboardResponse =
     httpClient.get("${networkConfig.baseUrl}/api/v1/dashboard").body()
 }

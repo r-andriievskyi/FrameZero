@@ -1,7 +1,7 @@
 package com.frame.zero.dto.notification
 
-import kotlin.time.Instant
 import kotlinx.serialization.Serializable
+import kotlin.time.Instant
 
 @Serializable
 data class NotificationDto(

@@ -12,10 +12,12 @@ inline fun <T, R> Outcome<T>.map(transform: (T) -> R): Outcome<R> =
     is Outcome.Failure -> this
   }
 
-inline fun <T> Outcome<T>.onSuccess(action: (T) -> Unit): Outcome<T> = also {
-  if (this is Outcome.Success) action(data)
-}
+inline fun <T> Outcome<T>.onSuccess(action: (T) -> Unit): Outcome<T> =
+  also {
+    if (this is Outcome.Success) action(data)
+  }
 
-inline fun <T> Outcome<T>.onFailure(action: (DomainError) -> Unit): Outcome<T> = also {
-  if (this is Outcome.Failure) action(error)
-}
+inline fun <T> Outcome<T>.onFailure(action: (DomainError) -> Unit): Outcome<T> =
+  also {
+    if (this is Outcome.Failure) action(error)
+  }

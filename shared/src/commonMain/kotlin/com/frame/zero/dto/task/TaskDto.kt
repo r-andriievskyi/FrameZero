@@ -1,8 +1,8 @@
 package com.frame.zero.dto.task
 
-import kotlin.time.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.Serializable
+import kotlin.time.Instant
 
 @Serializable
 enum class TaskStatus {

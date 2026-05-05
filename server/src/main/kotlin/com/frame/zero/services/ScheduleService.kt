@@ -28,7 +28,6 @@ class ScheduleService(
   private val tasks: TaskRepository,
   private val access: ProductionAccessService,
 ) {
-
   suspend fun get(
     userId: UUID,
     view: String,
@@ -53,7 +52,8 @@ class ScheduleService(
         }
         else ->
           throw AppException(
-            AppError.ValidationError(mapOf("view" to "Must be day, week, or month")))
+            AppError.ValidationError(mapOf("view" to "Must be day, week, or month"))
+          )
       }
 
     val rangeStartInstant = rangeStart.atStartOfDay(timezone).toInstant()
@@ -81,7 +81,10 @@ class ScheduleService(
     )
   }
 
-  suspend fun create(userId: UUID, request: CreateScheduleEventRequest): ScheduleEventDto {
+  suspend fun create(
+    userId: UUID,
+    request: CreateScheduleEventRequest
+  ): ScheduleEventDto {
     val errors = mutableMapOf<String, String>()
     if (request.title.isBlank()) errors["title"] = "Required"
     val productionId =
@@ -119,8 +122,9 @@ class ScheduleService(
     access.requireAccess(userId, event.productionId, AccessLevel.WRITE)
 
     val requestTitle = request.title
-    if (requestTitle != null && requestTitle.isBlank())
+    if (requestTitle != null && requestTitle.isBlank()) {
       throw AppException(AppError.ValidationError(mapOf("title" to "Cannot be empty")))
+    }
 
     val startsAt = request.startsAt?.toJavaInstant()
     val endsAt = request.endsAt?.toJavaInstant()
@@ -140,13 +144,19 @@ class ScheduleService(
     return updated.toDto()
   }
 
-  suspend fun delete(userId: UUID, eventId: UUID) {
+  suspend fun delete(
+    userId: UUID,
+    eventId: UUID
+  ) {
     val event = events.findById(eventId) ?: throw AppException(AppError.NotFound)
     access.requireAccess(userId, event.productionId, AccessLevel.WRITE)
     events.delete(eventId)
   }
 
-  private fun generateDays(start: LocalDate, end: LocalDate): List<LocalDate> {
+  private fun generateDays(
+    start: LocalDate,
+    end: LocalDate
+  ): List<LocalDate> {
     val days = mutableListOf<LocalDate>()
     var current = start
     while (!current.isAfter(end)) {

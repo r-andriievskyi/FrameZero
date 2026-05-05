@@ -8,7 +8,6 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class TokenStorageTest {
-
   @Test
   fun `getAccessToken returns null when nothing stored`() {
     val storage = TokenStorage(MapSettings())

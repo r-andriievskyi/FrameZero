@@ -26,58 +26,63 @@ import org.koin.dsl.module
 private val UNAUTHENTICATED_PATHS =
   setOf("/auth/login", "/auth/register", "/auth/refresh", "/auth/logout")
 
-val networkModule: Module = module {
-  single { NetworkConfig.localhost() }
-  single { provideHttpClient(get(), get(), get()) }
-}
+val networkModule: Module =
+  module {
+    single { NetworkConfig.localhost() }
+    single { provideHttpClient(get(), get(), get()) }
+  }
 
 private fun provideHttpClient(
   config: NetworkConfig,
   tokenStorage: TokenStorage,
   logoutSignal: LogoutSignal,
-): HttpClient = httpClient {
-  install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
-  install(Logging) { level = LogLevel.INFO }
-  defaultRequest { contentType(ContentType.Application.Json) }
-  install(Auth) {
-    bearer {
-      loadTokens {
-        val access = tokenStorage.getAccessToken() ?: return@loadTokens null
-        val refresh = tokenStorage.getRefreshToken() ?: return@loadTokens null
-        BearerTokens(access, refresh)
-      }
-      refreshTokens {
-        val refresh = tokenStorage.getRefreshToken()
-        if (refresh == null) {
-          handleRefreshFailure(tokenStorage, logoutSignal)
-          return@refreshTokens null
+): HttpClient =
+  httpClient {
+    install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
+    install(Logging) { level = LogLevel.INFO }
+    defaultRequest { contentType(ContentType.Application.Json) }
+    install(Auth) {
+      bearer {
+        loadTokens {
+          val access = tokenStorage.getAccessToken() ?: return@loadTokens null
+          val refresh = tokenStorage.getRefreshToken() ?: return@loadTokens null
+          BearerTokens(access, refresh)
         }
-        val response =
-          runCatching {
+        refreshTokens {
+          val refresh = tokenStorage.getRefreshToken()
+          if (refresh == null) {
+            handleRefreshFailure(tokenStorage, logoutSignal)
+            return@refreshTokens null
+          }
+          val response =
+            runCatching {
               client.post("${config.baseUrl}/auth/refresh") { setBody(RefreshRequest(refresh)) }
             }
-            .getOrNull()
-        if (response == null || !response.status.isSuccess()) {
-          handleRefreshFailure(tokenStorage, logoutSignal)
-          return@refreshTokens null
+              .getOrNull()
+          if (response == null || !response.status.isSuccess()) {
+            handleRefreshFailure(tokenStorage, logoutSignal)
+            return@refreshTokens null
+          }
+          val body = runCatching { response.body<RefreshResponse>() }.getOrNull()
+          if (body == null) {
+            handleRefreshFailure(tokenStorage, logoutSignal)
+            return@refreshTokens null
+          }
+          tokenStorage.saveTokens(body.accessToken, body.refreshToken)
+          BearerTokens(body.accessToken, body.refreshToken)
         }
-        val body = runCatching { response.body<RefreshResponse>() }.getOrNull()
-        if (body == null) {
-          handleRefreshFailure(tokenStorage, logoutSignal)
-          return@refreshTokens null
+        sendWithoutRequest { request ->
+          val path = "/" + request.url.pathSegments.filter { it.isNotEmpty() }.joinToString("/")
+          path !in UNAUTHENTICATED_PATHS
         }
-        tokenStorage.saveTokens(body.accessToken, body.refreshToken)
-        BearerTokens(body.accessToken, body.refreshToken)
-      }
-      sendWithoutRequest { request ->
-        val path = "/" + request.url.pathSegments.filter { it.isNotEmpty() }.joinToString("/")
-        path !in UNAUTHENTICATED_PATHS
       }
     }
   }
-}
 
-private fun handleRefreshFailure(tokenStorage: TokenStorage, logoutSignal: LogoutSignal) {
+private fun handleRefreshFailure(
+  tokenStorage: TokenStorage,
+  logoutSignal: LogoutSignal
+) {
   tokenStorage.clearTokens()
   logoutSignal.emit()
 }

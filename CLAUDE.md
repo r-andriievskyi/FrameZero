@@ -138,17 +138,17 @@ dependencies to the version catalog, not directly in a module's build script.
 
 ## Code quality pipeline
 
-Tools: **ktfmt** (formatter) + **detekt** (static analysis), both applied via the `crossplatform.code.quality` convention plugin.
+Tools: **ktlint** (formatter) + **detekt** (static analysis), both applied via the `crossplatform.code.quality` convention plugin.
 
 ```bash
-./gradlew ktfmtFormat          # auto-format all Kotlin source (run locally before committing)
-./gradlew ktfmtCheck           # verify formatting — fails on unformatted files (used in CI)
+./gradlew ktlintFormat         # auto-format all Kotlin source (run locally before committing)
+./gradlew ktlintCheck          # verify formatting — fails on unformatted files (used in CI)
 ./gradlew detekt               # static analysis across all modules
-./gradlew check                # runs ktfmtCheck + detekt + tests (full CI gate)
+./gradlew check                # runs ktlintCheck + detekt + tests (full CI gate)
 ```
 
-ktfmt uses **Google style**: 2-space indent, 4-space continuation indent, max line length 100.
-Detekt config lives in `config/detekt/detekt.yml`. It builds on detekt defaults with a few project-specific overrides: `MagicNumber` disabled (too noisy in Compose), `formatting` rule set disabled (ktfmt owns that), and `LongMethod` threshold raised to 60.
+ktlint style is configured via `.editorconfig`: 2-space indent, 4-space continuation indent, max line length 100, trailing commas disabled.
+Detekt config lives in `config/detekt/detekt.yml`. It builds on detekt defaults with a few project-specific overrides: `MagicNumber` disabled (too noisy in Compose), `formatting` rule set disabled (ktlint owns that), and `LongMethod` threshold raised to 60.
 
 ### Which modules have code quality applied
 
@@ -163,7 +163,7 @@ New modules using `crossplatform.kmp.library` or `crossplatform.kmp.library.comp
 
 ## Formatting
 
-Enforced by ktfmt (Kotlin) and `.editorconfig` (everything else):
+Enforced by ktlint (Kotlin) and `.editorconfig` (everything else):
 
 | File type | Indent | Continuation indent |
 |-----------|--------|---------------------|

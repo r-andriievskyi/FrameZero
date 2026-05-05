@@ -19,16 +19,17 @@ import com.frame.zero.services.ScheduleService
 import com.frame.zero.services.TaskService
 import org.koin.dsl.module
 
-fun appModule() = module {
-  single<ProductionRepository> { ProductionRepositoryExposed() }
-  single<ProductionMemberRepository> { ProductionMemberRepositoryExposed() }
-  single<TaskRepository> { TaskRepositoryExposed() }
-  single<ScheduleEventRepository> { ScheduleEventRepositoryExposed() }
-  single<NotificationRepository> { NotificationRepositoryExposed() }
-  single { ProductionAccessService(get(), get()) }
-  single { ProductionService(get(), get(), get<UserRepository>(), get()) }
-  single { DashboardService(get<UserRepository>(), get(), get()) }
-  single { TaskService(get(), get()) }
-  single { ScheduleService(get(), get(), get()) }
-  single { NotificationService(get()) }
-}
+fun appModule() =
+  module {
+    single<ProductionRepository> { ProductionRepositoryExposed() }
+    single<ProductionMemberRepository> { ProductionMemberRepositoryExposed() }
+    single<TaskRepository> { TaskRepositoryExposed() }
+    single<ScheduleEventRepository> { ScheduleEventRepositoryExposed() }
+    single<NotificationRepository> { NotificationRepositoryExposed() }
+    single { ProductionAccessService(get(), get()) }
+    single { ProductionService(get(), get(), get<UserRepository>(), get()) }
+    single { DashboardService(get<UserRepository>(), get(), get()) }
+    single { TaskService(get(), get()) }
+    single { ScheduleService(get(), get(), get()) }
+    single { NotificationService(get()) }
+  }

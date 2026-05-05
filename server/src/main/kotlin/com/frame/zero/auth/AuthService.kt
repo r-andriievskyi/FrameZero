@@ -42,7 +42,10 @@ class AuthService(
     return issueTokens(user)
   }
 
-  suspend fun login(email: String, password: String): AuthResponse {
+  suspend fun login(
+    email: String,
+    password: String
+  ): AuthResponse {
     val normalized = email.trim().lowercase()
     val user = users.findByEmail(normalized) ?: throw AuthException(InvalidCredentials)
     if (!passwordHasher.verify(password, user.passwordHash)) throw AuthException(InvalidCredentials)
@@ -91,13 +94,15 @@ class AuthService(
     UserDto(id = id.toString(), email = email, firstName = firstName, lastName = lastName)
 
   private fun validateEmail(email: String) {
-    if (!EMAIL_REGEX.matches(email.trim()))
+    if (!EMAIL_REGEX.matches(email.trim())) {
       throw AuthException(InvalidInput("Invalid email format"))
+    }
   }
 
   private fun validatePassword(password: String) {
-    if (password.length < MIN_PASSWORD_LENGTH)
+    if (password.length < MIN_PASSWORD_LENGTH) {
       throw AuthException(InvalidInput("Password must be at least $MIN_PASSWORD_LENGTH characters"))
+    }
   }
 
   private companion object {

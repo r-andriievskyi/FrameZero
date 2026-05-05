@@ -18,5 +18,7 @@ data class DatabaseConfig(val url: String, val user: String, val password: Strin
   }
 }
 
-private fun env(name: String, default: String): String =
-  System.getenv(name)?.takeIf { it.isNotBlank() } ?: default
+private fun env(
+  name: String,
+  default: String
+): String = System.getenv(name)?.takeIf { it.isNotBlank() } ?: default

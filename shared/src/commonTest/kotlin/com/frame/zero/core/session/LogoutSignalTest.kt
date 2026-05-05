@@ -1,15 +1,14 @@
 package com.frame.zero.core.session
 
-import kotlin.test.Test
-import kotlin.test.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class LogoutSignalTest {
-
   @Test
   fun `emit reaches a subscribed collector`() =
     runTest(UnconfinedTestDispatcher()) {

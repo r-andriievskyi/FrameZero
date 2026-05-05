@@ -6,8 +6,8 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.route
-import java.time.ZoneId
 import org.koin.ktor.ext.inject
+import java.time.ZoneId
 
 fun Route.dashboardRoutes() {
   val service by inject<DashboardService>()

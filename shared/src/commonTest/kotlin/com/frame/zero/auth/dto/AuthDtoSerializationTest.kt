@@ -1,12 +1,11 @@
 package com.frame.zero.auth.dto
 
-import kotlin.test.Test
-import kotlin.test.assertEquals
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class AuthDtoSerializationTest {
-
   private val json = Json { ignoreUnknownKeys = true }
 
   @Test
@@ -87,7 +86,8 @@ class AuthDtoSerializationTest {
   @Test
   fun `AuthResponse decodes wire-compatible field names from server`() {
     val raw =
-      """{"accessToken":"a","refreshToken":"r","user":{"id":"u1","email":"u@x.com","firstName":"Jane","lastName":"Doe"}}"""
+      """{"accessToken":"a","refreshToken":"r",""" +
+        """"user":{"id":"u1","email":"u@x.com","firstName":"Jane","lastName":"Doe"}}"""
 
     val decoded = json.decodeFromString<AuthResponse>(raw)
 
@@ -104,7 +104,8 @@ class AuthDtoSerializationTest {
   @Test
   fun `AuthResponse decoder ignores unknown fields`() {
     val raw =
-      """{"accessToken":"a","refreshToken":"r","user":{"id":"u1","email":"u@x.com","firstName":"","lastName":""},"extra":"ignored"}"""
+      """{"accessToken":"a","refreshToken":"r",""" +
+        """"user":{"id":"u1","email":"u@x.com","firstName":"","lastName":""},"extra":"ignored"}"""
 
     val decoded = json.decodeFromString<AuthResponse>(raw)
 

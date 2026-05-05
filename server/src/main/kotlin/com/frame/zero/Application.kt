@@ -28,11 +28,11 @@ import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.response.respond
 import io.ktor.server.routing.routing
-import java.util.UUID
 import kotlinx.serialization.SerializationException
 import org.koin.ktor.plugin.Koin
 import org.koin.logger.slf4jLogger
 import org.slf4j.event.Level
+import java.util.UUID
 
 private const val MAX_CALL_ID_LENGTH = 128
 

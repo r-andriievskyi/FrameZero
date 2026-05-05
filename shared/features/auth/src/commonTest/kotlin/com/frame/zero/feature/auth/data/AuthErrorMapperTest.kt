@@ -6,42 +6,45 @@ import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.request.get
 import io.ktor.http.HttpStatusCode
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertIs
 import kotlinx.coroutines.test.runTest
 import kotlinx.io.IOException
 import kotlinx.serialization.SerializationException
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertIs
 
 class AuthErrorMapperTest {
+  @Test
+  fun `401 ResponseException maps to InvalidCredentials`() =
+    runTest {
+      val error = exceptionFor(HttpStatusCode.Unauthorized).toDomainError()
+
+      assertEquals(DomainError.InvalidCredentials, error)
+    }
 
   @Test
-  fun `401 ResponseException maps to InvalidCredentials`() = runTest {
-    val error = exceptionFor(HttpStatusCode.Unauthorized).toDomainError()
+  fun `409 ResponseException maps to EmailAlreadyExists`() =
+    runTest {
+      val error = exceptionFor(HttpStatusCode.Conflict).toDomainError()
 
-    assertEquals(DomainError.InvalidCredentials, error)
-  }
-
-  @Test
-  fun `409 ResponseException maps to EmailAlreadyExists`() = runTest {
-    val error = exceptionFor(HttpStatusCode.Conflict).toDomainError()
-
-    assertEquals(DomainError.EmailAlreadyExists, error)
-  }
+      assertEquals(DomainError.EmailAlreadyExists, error)
+    }
 
   @Test
-  fun `500 ResponseException maps to Unknown`() = runTest {
-    val error = exceptionFor(HttpStatusCode.InternalServerError).toDomainError()
+  fun `500 ResponseException maps to Unknown`() =
+    runTest {
+      val error = exceptionFor(HttpStatusCode.InternalServerError).toDomainError()
 
-    assertIs<DomainError.Unknown>(error)
-  }
+      assertIs<DomainError.Unknown>(error)
+    }
 
   @Test
-  fun `400 ResponseException maps to Unknown`() = runTest {
-    val error = exceptionFor(HttpStatusCode.BadRequest).toDomainError()
+  fun `400 ResponseException maps to Unknown`() =
+    runTest {
+      val error = exceptionFor(HttpStatusCode.BadRequest).toDomainError()
 
-    assertIs<DomainError.Unknown>(error)
-  }
+      assertIs<DomainError.Unknown>(error)
+    }
 
   @Test
   fun `IOException maps to Network with the original message`() {
