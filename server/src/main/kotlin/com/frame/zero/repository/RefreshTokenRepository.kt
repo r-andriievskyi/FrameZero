@@ -2,8 +2,6 @@ package com.frame.zero.repository
 
 import com.frame.zero.config.dbQuery
 import com.frame.zero.database.RefreshTokensTable
-import java.time.Instant
-import java.util.UUID
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
@@ -11,6 +9,8 @@ import org.jetbrains.exposed.v1.core.greater
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.update
+import java.time.Instant
+import java.util.UUID
 
 data class RefreshTokenRecord(
   val id: UUID,
@@ -21,9 +21,16 @@ data class RefreshTokenRecord(
 )
 
 interface RefreshTokenRepository {
-  suspend fun create(userId: UUID, tokenHash: String, expiresAt: Instant): RefreshTokenRecord
+  suspend fun create(
+    userId: UUID,
+    tokenHash: String,
+    expiresAt: Instant
+  ): RefreshTokenRecord
 
-  suspend fun findActiveByHash(tokenHash: String, now: Instant): RefreshTokenRecord?
+  suspend fun findActiveByHash(
+    tokenHash: String,
+    now: Instant
+  ): RefreshTokenRecord?
 
   suspend fun revoke(tokenHash: String): Boolean
 }
@@ -33,27 +40,31 @@ class RefreshTokenRepositoryExposed : RefreshTokenRepository {
     userId: UUID,
     tokenHash: String,
     expiresAt: Instant,
-  ): RefreshTokenRecord = dbQuery {
-    val newId = UUID.randomUUID()
-    val now = Instant.now()
-    RefreshTokensTable.insert {
-      it[id] = newId
-      it[RefreshTokensTable.userId] = userId
-      it[RefreshTokensTable.tokenHash] = tokenHash
-      it[RefreshTokensTable.expiresAt] = expiresAt
-      it[revoked] = false
-      it[createdAt] = now
+  ): RefreshTokenRecord =
+    dbQuery {
+      val newId = UUID.randomUUID()
+      val now = Instant.now()
+      RefreshTokensTable.insert {
+        it[id] = newId
+        it[RefreshTokensTable.userId] = userId
+        it[RefreshTokensTable.tokenHash] = tokenHash
+        it[RefreshTokensTable.expiresAt] = expiresAt
+        it[revoked] = false
+        it[createdAt] = now
+      }
+      RefreshTokenRecord(
+        id = newId,
+        userId = userId,
+        tokenHash = tokenHash,
+        expiresAt = expiresAt,
+        revoked = false,
+      )
     }
-    RefreshTokenRecord(
-      id = newId,
-      userId = userId,
-      tokenHash = tokenHash,
-      expiresAt = expiresAt,
-      revoked = false,
-    )
-  }
 
-  override suspend fun findActiveByHash(tokenHash: String, now: Instant): RefreshTokenRecord? =
+  override suspend fun findActiveByHash(
+    tokenHash: String,
+    now: Instant
+  ): RefreshTokenRecord? =
     dbQuery {
       RefreshTokensTable.selectAll()
         .where {
@@ -65,11 +76,12 @@ class RefreshTokenRepositoryExposed : RefreshTokenRepository {
         ?.toRecord()
     }
 
-  override suspend fun revoke(tokenHash: String): Boolean = dbQuery {
-    RefreshTokensTable.update({ RefreshTokensTable.tokenHash eq tokenHash }) {
-      it[revoked] = true
-    } > 0
-  }
+  override suspend fun revoke(tokenHash: String): Boolean =
+    dbQuery {
+      RefreshTokensTable.update({ RefreshTokensTable.tokenHash eq tokenHash }) {
+        it[revoked] = true
+      } > 0
+    }
 
   private fun ResultRow.toRecord(): RefreshTokenRecord =
     RefreshTokenRecord(

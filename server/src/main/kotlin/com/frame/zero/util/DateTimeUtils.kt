@@ -1,12 +1,15 @@
 package com.frame.zero.util
 
-import java.time.LocalDate as JavaLocalDate
 import java.time.ZoneId
+import java.time.LocalDate as JavaLocalDate
 import kotlinx.datetime.LocalDate as KotlinLocalDate
 
 fun JavaLocalDate.toKotlin(): KotlinLocalDate = KotlinLocalDate(year, monthValue, dayOfMonth)
 
-fun dueLabelFor(date: JavaLocalDate, tz: ZoneId): String {
+fun dueLabelFor(
+  date: JavaLocalDate,
+  tz: ZoneId
+): String {
   val today = JavaLocalDate.now(tz)
   return when (date) {
     today -> "Today"

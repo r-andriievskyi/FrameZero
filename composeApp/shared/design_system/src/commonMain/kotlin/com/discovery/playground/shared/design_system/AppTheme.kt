@@ -13,7 +13,10 @@ private val LocalAppTheme =
 
 object AppTheme {
   @Composable
-  operator fun invoke(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
+  operator fun invoke(
+    darkTheme: Boolean = isSystemInDarkTheme(),
+    content: @Composable () -> Unit
+  ) {
     val themeOptions =
       remember(darkTheme) { if (darkTheme) ThemeOptions.dark() else ThemeOptions.light() }
     ApplySystemUiColors(darkTheme)

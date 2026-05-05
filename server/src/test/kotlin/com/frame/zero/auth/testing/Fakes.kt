@@ -10,9 +10,10 @@ import java.util.UUID
 internal class FakeUserRepository : UserRepository {
   val users: MutableList<UserRecord> = mutableListOf()
 
-  override suspend fun findByEmail(email: String): UserRecord? = users.firstOrNull {
-    it.email == email.lowercase()
-  }
+  override suspend fun findByEmail(email: String): UserRecord? =
+    users.firstOrNull {
+      it.email == email.lowercase()
+    }
 
   override suspend fun findById(id: UUID): UserRecord? = users.firstOrNull { it.id == id }
 
@@ -60,7 +61,10 @@ internal class FakeRefreshTokenRepository : RefreshTokenRepository {
     return record
   }
 
-  override suspend fun findActiveByHash(tokenHash: String, now: Instant): RefreshTokenRecord? =
+  override suspend fun findActiveByHash(
+    tokenHash: String,
+    now: Instant
+  ): RefreshTokenRecord? =
     records.firstOrNull {
       it.tokenHash == tokenHash && !it.revoked && it.expiresAt.isAfter(now)
     }

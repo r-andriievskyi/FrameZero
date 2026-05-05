@@ -12,149 +12,157 @@ import com.frame.zero.feature.auth.testing.FakeAuthRepository
 import com.frame.zero.feature.auth.testing.NoopSessionAuthOperations
 import com.frame.zero.repository.auth.AuthRepository
 import com.russhwolf.settings.MapSettings
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertNull
-import kotlin.test.assertTrue
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class SignInViewModelTest {
-
   private val userDto = UserDto(id = "u1", email = "u@x.com", firstName = "", lastName = "")
   private val user = User(id = "u1", email = "u@x.com")
 
   @Test
-  fun `initial state is empty without loading or error`() = runTest {
-    val vm = makeViewModel(this)
+  fun `initial state is empty without loading or error`() =
+    runTest {
+      val vm = makeViewModel(this)
 
-    assertEquals("", vm.state.value.email)
-    assertEquals("", vm.state.value.password)
-    assertFalse(vm.state.value.isLoading)
-    assertNull(vm.state.value.error)
-  }
-
-  @Test
-  fun `EmailChanged updates email and clears error`() = runTest {
-    val repo = FakeAuthRepository(loginThrows = DomainException(DomainError.InvalidCredentials))
-    val vm = makeViewModel(this, repo)
-    vm.onIntent(SignInIntent.EmailChanged("u@x.com"))
-    vm.onIntent(SignInIntent.PasswordChanged("wrong"))
-    vm.onIntent(SignInIntent.Submit)
-    advanceUntilIdle()
-
-    vm.onIntent(SignInIntent.EmailChanged("v@x.com"))
-
-    assertEquals("v@x.com", vm.state.value.email)
-    assertNull(vm.state.value.error)
-  }
+      assertEquals("", vm.state.value.email)
+      assertEquals("", vm.state.value.password)
+      assertFalse(vm.state.value.isLoading)
+      assertNull(vm.state.value.error)
+    }
 
   @Test
-  fun `Submit with blank email sets validation error and skips repository`() = runTest {
-    val repo = FakeAuthRepository(loginUserDto = userDto)
-    val vm = makeViewModel(this, repo)
+  fun `EmailChanged updates email and clears error`() =
+    runTest {
+      val repo = FakeAuthRepository(loginThrows = DomainException(DomainError.InvalidCredentials))
+      val vm = makeViewModel(this, repo)
+      vm.onIntent(SignInIntent.EmailChanged("u@x.com"))
+      vm.onIntent(SignInIntent.PasswordChanged("wrong"))
+      vm.onIntent(SignInIntent.Submit)
+      advanceUntilIdle()
 
-    vm.onIntent(SignInIntent.PasswordChanged("p"))
-    vm.onIntent(SignInIntent.Submit)
-    advanceUntilIdle()
+      vm.onIntent(SignInIntent.EmailChanged("v@x.com"))
 
-    assertEquals("Email and password must not be empty", vm.state.value.error)
-    assertEquals(0, repo.loginCalls.size)
-  }
-
-  @Test
-  fun `Submit with blank password sets validation error`() = runTest {
-    val repo = FakeAuthRepository(loginUserDto = userDto)
-    val vm = makeViewModel(this, repo)
-
-    vm.onIntent(SignInIntent.EmailChanged("u@x.com"))
-    vm.onIntent(SignInIntent.Submit)
-    advanceUntilIdle()
-
-    assertEquals("Email and password must not be empty", vm.state.value.error)
-  }
+      assertEquals("v@x.com", vm.state.value.email)
+      assertNull(vm.state.value.error)
+    }
 
   @Test
-  fun `successful Submit clears loading and error`() = runTest {
-    val repo = FakeAuthRepository(loginUserDto = userDto)
-    val vm = makeViewModel(this, repo)
+  fun `Submit with blank email sets validation error and skips repository`() =
+    runTest {
+      val repo = FakeAuthRepository(loginUserDto = userDto)
+      val vm = makeViewModel(this, repo)
 
-    vm.onIntent(SignInIntent.EmailChanged("u@x.com"))
-    vm.onIntent(SignInIntent.PasswordChanged("p"))
-    vm.onIntent(SignInIntent.Submit)
-    advanceUntilIdle()
+      vm.onIntent(SignInIntent.PasswordChanged("p"))
+      vm.onIntent(SignInIntent.Submit)
+      advanceUntilIdle()
 
-    assertFalse(vm.state.value.isLoading)
-    assertNull(vm.state.value.error)
-  }
-
-  @Test
-  fun `failed Submit surfaces InvalidCredentials message`() = runTest {
-    val repo = FakeAuthRepository(loginThrows = DomainException(DomainError.InvalidCredentials))
-    val vm = makeViewModel(this, repo)
-
-    vm.onIntent(SignInIntent.EmailChanged("u@x.com"))
-    vm.onIntent(SignInIntent.PasswordChanged("wrong"))
-    vm.onIntent(SignInIntent.Submit)
-    advanceUntilIdle()
-
-    assertEquals("Invalid email or password", vm.state.value.error)
-    assertFalse(vm.state.value.isLoading)
-  }
+      assertEquals("Email and password must not be empty", vm.state.value.error)
+      assertEquals(0, repo.loginCalls.size)
+    }
 
   @Test
-  fun `Network error message includes the underlying detail`() = runTest {
-    val repo = FakeAuthRepository(loginThrows = DomainException(DomainError.Network("offline")))
-    val vm = makeViewModel(this, repo)
+  fun `Submit with blank password sets validation error`() =
+    runTest {
+      val repo = FakeAuthRepository(loginUserDto = userDto)
+      val vm = makeViewModel(this, repo)
 
-    vm.onIntent(SignInIntent.EmailChanged("u@x.com"))
-    vm.onIntent(SignInIntent.PasswordChanged("p"))
-    vm.onIntent(SignInIntent.Submit)
-    advanceUntilIdle()
+      vm.onIntent(SignInIntent.EmailChanged("u@x.com"))
+      vm.onIntent(SignInIntent.Submit)
+      advanceUntilIdle()
 
-    assertEquals("Network error: offline", vm.state.value.error)
-  }
-
-  @Test
-  fun `Unknown error with null message uses fallback text`() = runTest {
-    val repo = FakeAuthRepository(loginThrows = DomainException(DomainError.Unknown(null)))
-    val vm = makeViewModel(this, repo)
-
-    vm.onIntent(SignInIntent.EmailChanged("u@x.com"))
-    vm.onIntent(SignInIntent.PasswordChanged("p"))
-    vm.onIntent(SignInIntent.Submit)
-    advanceUntilIdle()
-
-    assertEquals("Something went wrong", vm.state.value.error)
-  }
+      assertEquals("Email and password must not be empty", vm.state.value.error)
+    }
 
   @Test
-  fun `second Submit while the first is in flight is ignored`() = runTest {
-    val gate = CompletableDeferred<UserDto>()
-    val repo = GatedAuthRepository(loginGate = gate)
-    val vm = makeViewModel(this, repo)
+  fun `successful Submit clears loading and error`() =
+    runTest {
+      val repo = FakeAuthRepository(loginUserDto = userDto)
+      val vm = makeViewModel(this, repo)
 
-    vm.onIntent(SignInIntent.EmailChanged("u@x.com"))
-    vm.onIntent(SignInIntent.PasswordChanged("p"))
-    vm.onIntent(SignInIntent.Submit)
-    advanceUntilIdle()
-    assertTrue(vm.state.value.isLoading)
-    assertEquals(1, repo.loginInvocations)
+      vm.onIntent(SignInIntent.EmailChanged("u@x.com"))
+      vm.onIntent(SignInIntent.PasswordChanged("p"))
+      vm.onIntent(SignInIntent.Submit)
+      advanceUntilIdle()
 
-    vm.onIntent(SignInIntent.Submit)
-    advanceUntilIdle()
+      assertFalse(vm.state.value.isLoading)
+      assertNull(vm.state.value.error)
+    }
 
-    assertEquals(1, repo.loginInvocations)
+  @Test
+  fun `failed Submit surfaces InvalidCredentials message`() =
+    runTest {
+      val repo = FakeAuthRepository(loginThrows = DomainException(DomainError.InvalidCredentials))
+      val vm = makeViewModel(this, repo)
 
-    gate.complete(userDto)
-    advanceUntilIdle()
-  }
+      vm.onIntent(SignInIntent.EmailChanged("u@x.com"))
+      vm.onIntent(SignInIntent.PasswordChanged("wrong"))
+      vm.onIntent(SignInIntent.Submit)
+      advanceUntilIdle()
+
+      assertEquals("Invalid email or password", vm.state.value.error)
+      assertFalse(vm.state.value.isLoading)
+    }
+
+  @Test
+  fun `Network error message includes the underlying detail`() =
+    runTest {
+      val repo = FakeAuthRepository(loginThrows = DomainException(DomainError.Network("offline")))
+      val vm = makeViewModel(this, repo)
+
+      vm.onIntent(SignInIntent.EmailChanged("u@x.com"))
+      vm.onIntent(SignInIntent.PasswordChanged("p"))
+      vm.onIntent(SignInIntent.Submit)
+      advanceUntilIdle()
+
+      assertEquals("Network error: offline", vm.state.value.error)
+    }
+
+  @Test
+  fun `Unknown error with null message uses fallback text`() =
+    runTest {
+      val repo = FakeAuthRepository(loginThrows = DomainException(DomainError.Unknown(null)))
+      val vm = makeViewModel(this, repo)
+
+      vm.onIntent(SignInIntent.EmailChanged("u@x.com"))
+      vm.onIntent(SignInIntent.PasswordChanged("p"))
+      vm.onIntent(SignInIntent.Submit)
+      advanceUntilIdle()
+
+      assertEquals("Something went wrong", vm.state.value.error)
+    }
+
+  @Test
+  fun `second Submit while the first is in flight is ignored`() =
+    runTest {
+      val gate = CompletableDeferred<UserDto>()
+      val repo = GatedAuthRepository(loginGate = gate)
+      val vm = makeViewModel(this, repo)
+
+      vm.onIntent(SignInIntent.EmailChanged("u@x.com"))
+      vm.onIntent(SignInIntent.PasswordChanged("p"))
+      vm.onIntent(SignInIntent.Submit)
+      advanceUntilIdle()
+      assertTrue(vm.state.value.isLoading)
+      assertEquals(1, repo.loginInvocations)
+
+      vm.onIntent(SignInIntent.Submit)
+      advanceUntilIdle()
+
+      assertEquals(1, repo.loginInvocations)
+
+      gate.complete(userDto)
+      advanceUntilIdle()
+    }
 
   // -- helpers ---------------------------------------------------------------
 
@@ -180,7 +188,10 @@ class SignInViewModelTest {
     var loginInvocations: Int = 0
       private set
 
-    override suspend fun login(email: String, password: String): UserDto {
+    override suspend fun login(
+      email: String,
+      password: String
+    ): UserDto {
       loginInvocations++
       return loginGate.await()
     }

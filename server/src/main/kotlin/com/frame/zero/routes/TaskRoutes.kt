@@ -18,9 +18,9 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.patch
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
+import org.koin.ktor.ext.inject
 import java.time.ZoneId
 import java.util.UUID
-import org.koin.ktor.ext.inject
 
 fun Route.taskRoutes() {
   val service by inject<TaskService>()
@@ -43,7 +43,8 @@ fun Route.taskRoutes() {
             runCatching { UUID.fromString(it) }
               .getOrElse {
                 throw AppException(
-                  AppError.ValidationError(mapOf("productionId" to "Invalid UUID")))
+                  AppError.ValidationError(mapOf("productionId" to "Invalid UUID"))
+                )
               }
           }
         val limit = call.request.queryParameters["limit"]?.toIntOrNull()?.coerceIn(1, 100) ?: 20

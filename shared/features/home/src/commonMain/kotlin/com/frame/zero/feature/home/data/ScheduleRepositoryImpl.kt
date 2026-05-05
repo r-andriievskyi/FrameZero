@@ -12,8 +12,10 @@ class ScheduleRepositoryImpl(
   private val httpClient: HttpClient,
   private val networkConfig: NetworkConfig,
 ) : ScheduleRepository {
-
-  override suspend fun getSchedule(view: String, date: String): ScheduleResponse =
+  override suspend fun getSchedule(
+    view: String,
+    date: String
+  ): ScheduleResponse =
     httpClient
       .get("${networkConfig.baseUrl}/api/v1/schedule") {
         parameter("view", view)

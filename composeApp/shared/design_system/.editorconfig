@@ -1,0 +1,4 @@
+# The design_system package uses an underscore (com.discovery.playground.shared.design_system).
+# Suppress the package-name rule for this module only.
+[*.{kt,kts}]
+ktlint_standard_package-name = disabled

@@ -23,7 +23,6 @@ class RootComponent(
   private val authComponentFactory: (ComponentContext) -> AuthComponent,
   private val homeComponentFactory: (ComponentContext) -> HomeComponent,
 ) : ComponentContext by componentContext {
-
   private val navigation = StackNavigation<Config>()
 
   val stack: Value<ChildStack<Config, Child>> =
@@ -51,7 +50,10 @@ class RootComponent(
     }
   }
 
-  private fun createChild(config: Config, context: ComponentContext): Child =
+  private fun createChild(
+    config: Config,
+    context: ComponentContext
+  ): Child =
     when (config) {
       Config.Splash -> Child.Splash
       Config.Auth -> Child.Auth(authComponentFactory(context))

@@ -5,7 +5,7 @@ plugins {
     alias(libs.plugins.androidLibrary) apply false
     alias(libs.plugins.detekt) apply false
     alias(libs.plugins.kover)
-    alias(libs.plugins.ktfmt) apply false
+    alias(libs.plugins.ktlint) apply false
     id("crossplatform.kmp.library") apply false
     id("crossplatform.kmp.library.compose") apply false
     id("crossplatform.code.quality") apply false

@@ -15,8 +15,8 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.patch
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
-import java.time.ZoneId
 import org.koin.ktor.ext.inject
+import java.time.ZoneId
 
 fun Route.scheduleRoutes() {
   val service by inject<ScheduleService>()
@@ -32,7 +32,8 @@ fun Route.scheduleRoutes() {
         val view =
           call.request.queryParameters["view"]
             ?: throw AppException(
-              AppError.ValidationError(mapOf("view" to "Required: day, week, or month")))
+              AppError.ValidationError(mapOf("view" to "Required: day, week, or month"))
+            )
         val dateParam =
           call.request.queryParameters["date"]
             ?: throw AppException(AppError.ValidationError(mapOf("date" to "Required")))

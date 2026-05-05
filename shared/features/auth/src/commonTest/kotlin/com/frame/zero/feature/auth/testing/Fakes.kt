@@ -25,7 +25,10 @@ internal class FakeAuthRepository(
   var logoutCalls: Int = 0
     private set
 
-  override suspend fun login(email: String, password: String): UserDto {
+  override suspend fun login(
+    email: String,
+    password: String
+  ): UserDto {
     loginCalls += email to password
     loginThrows?.let { throw it }
     return loginUserDto

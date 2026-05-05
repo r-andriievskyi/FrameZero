@@ -5,7 +5,7 @@ config:
   validation: true
   warningsAsErrors: false
 
-# ktfmt owns all formatting; disable detekt's formatting rule set entirely
+# ktlint owns all formatting; disable detekt's formatting rule set entirely
 formatting:
   active: false
 
@@ -24,7 +24,7 @@ style:
   # Compose uses raw dp/weight numbers everywhere — magic number rule is too noisy
   MagicNumber:
     active: false
-  # ktfmt controls line length
+  # ktlint controls line length
   MaxLineLength:
     active: false
   ReturnCount:

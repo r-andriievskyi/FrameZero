@@ -46,7 +46,11 @@ fun FloatingBottomNav(
 }
 
 @Composable
-private fun NavItem(tab: HomeTab, selected: Boolean, onClick: () -> Unit) {
+private fun NavItem(
+  tab: HomeTab,
+  selected: Boolean,
+  onClick: () -> Unit
+) {
   val colors = AppTheme.colorSystem
   val background = if (selected) colors.accentSurface else Color.Transparent
   val textColor = if (selected) colors.accentText else colors.textSecondary

@@ -20,7 +20,6 @@ class AuthRepositoryImpl(
   private val tokenStorage: TokenStorage,
   private val networkConfig: NetworkConfig,
 ) : AuthRepository, SessionAuthOperations {
-
   override suspend fun register(
     email: String,
     password: String,
@@ -36,14 +35,18 @@ class AuthRepositoryImpl(
               password = password,
               firstName = firstName,
               lastName = lastName,
-            ))
+            )
+          )
         }
         .body()
     tokenStorage.saveTokens(response.accessToken, response.refreshToken)
     return response.user
   }
 
-  override suspend fun login(email: String, password: String): UserDto {
+  override suspend fun login(
+    email: String,
+    password: String
+  ): UserDto {
     val response: AuthResponse =
       httpClient
         .post("${networkConfig.baseUrl}/auth/login") {

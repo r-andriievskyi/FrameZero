@@ -16,7 +16,11 @@ class ProductionAccessService(
   private val productions: ProductionRepository,
   private val members: ProductionMemberRepository,
 ) {
-  suspend fun requireAccess(userId: UUID, productionId: UUID, level: AccessLevel) {
+  suspend fun requireAccess(
+    userId: UUID,
+    productionId: UUID,
+    level: AccessLevel
+  ) {
     val production = productions.findById(productionId) ?: throw AppException(AppError.NotFound)
 
     when (level) {

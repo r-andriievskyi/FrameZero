@@ -5,7 +5,6 @@ import com.frame.zero.domain.Outcome
 import com.frame.zero.feature.auth.EMPTY_CREDENTIALS_MESSAGE
 import com.frame.zero.feature.auth.domain.RegisterUseCase
 import com.frame.zero.feature.auth.toUserMessage
-import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -15,6 +14,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.coroutines.CoroutineContext
 
 class RegisterViewModel(
   private val registerUseCase: RegisterUseCase,
@@ -48,14 +48,17 @@ class RegisterViewModel(
     }
     scope.launch {
       _state.update { it.copy(isLoading = true, error = null) }
-      when (val outcome =
-        registerUseCase(
-          RegisterUseCase.Params(
-            email = current.email.trim(),
-            password = current.password,
-            firstName = current.firstName.trim(),
-            lastName = current.lastName.trim(),
-          ))) {
+      when (
+        val outcome =
+          registerUseCase(
+            RegisterUseCase.Params(
+              email = current.email.trim(),
+              password = current.password,
+              firstName = current.firstName.trim(),
+              lastName = current.lastName.trim(),
+            )
+          )
+      ) {
         is Outcome.Success -> _state.update { it.copy(isLoading = false) }
         is Outcome.Failure ->
           _state.update { it.copy(isLoading = false, error = outcome.error.toUserMessage()) }

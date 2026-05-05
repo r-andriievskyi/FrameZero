@@ -17,7 +17,6 @@ class AuthComponent(
   private val signInViewModelFactory: () -> SignInViewModel,
   private val registerViewModelFactory: () -> RegisterViewModel,
 ) : ComponentContext by componentContext {
-
   private val navigation = StackNavigation<Config>()
 
   val stack: Value<ChildStack<Config, Child>> =
@@ -29,7 +28,10 @@ class AuthComponent(
       childFactory = ::createChild,
     )
 
-  private fun createChild(config: Config, context: ComponentContext): Child =
+  private fun createChild(
+    config: Config,
+    context: ComponentContext
+  ): Child =
     when (config) {
       Config.SignIn ->
         Child.SignIn(
@@ -37,14 +39,16 @@ class AuthComponent(
             componentContext = context,
             onNavigateToRegister = { navigation.bringToFront(Config.Register) },
             viewModelFactory = signInViewModelFactory,
-          ))
+          )
+        )
       Config.Register ->
         Child.Register(
           RegisterComponent(
             componentContext = context,
             onNavigateToSignIn = { navigation.pop() },
             viewModelFactory = registerViewModelFactory,
-          ))
+          )
+        )
     }
 
   sealed interface Config {
