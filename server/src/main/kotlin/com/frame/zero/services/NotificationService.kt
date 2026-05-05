@@ -11,7 +11,9 @@ import kotlin.time.toKotlinInstant
 
 private const val DEFAULT_PAGE_SIZE = 20
 
-class NotificationService(private val notifications: NotificationRepository) {
+class NotificationService(
+  private val notifications: NotificationRepository
+) {
   suspend fun list(
     userId: UUID,
     limit: Int,
@@ -27,11 +29,11 @@ class NotificationService(private val notifications: NotificationRepository) {
             title = n.title,
             body = n.body,
             readAt = n.readAt?.toKotlinInstant(),
-            createdAt = n.createdAt.toKotlinInstant(),
+            createdAt = n.createdAt.toKotlinInstant()
           )
         },
       unreadCount = unread,
-      nextCursor = nextCursor,
+      nextCursor = nextCursor
     )
   }
 

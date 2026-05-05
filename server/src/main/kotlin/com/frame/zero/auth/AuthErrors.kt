@@ -2,7 +2,10 @@ package com.frame.zero.auth
 
 import io.ktor.http.HttpStatusCode
 
-sealed class AuthError(val status: HttpStatusCode, val message: String) {
+sealed class AuthError(
+  val status: HttpStatusCode,
+  val message: String
+) {
   data object EmailAlreadyExists : AuthError(HttpStatusCode.Conflict, "Email already in use")
 
   data object InvalidCredentials :
@@ -11,7 +14,11 @@ sealed class AuthError(val status: HttpStatusCode, val message: String) {
   data object InvalidRefreshToken :
     AuthError(HttpStatusCode.Unauthorized, "Refresh token is invalid or expired")
 
-  data class InvalidInput(val reason: String) : AuthError(HttpStatusCode.BadRequest, reason)
+  data class InvalidInput(
+    val reason: String
+  ) : AuthError(HttpStatusCode.BadRequest, reason)
 }
 
-class AuthException(val error: AuthError) : RuntimeException(error.message)
+class AuthException(
+  val error: AuthError
+) : RuntimeException(error.message)

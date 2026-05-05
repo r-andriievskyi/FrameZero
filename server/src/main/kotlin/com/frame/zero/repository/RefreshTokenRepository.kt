@@ -17,7 +17,7 @@ data class RefreshTokenRecord(
   val userId: UUID,
   val tokenHash: String,
   val expiresAt: Instant,
-  val revoked: Boolean,
+  val revoked: Boolean
 )
 
 interface RefreshTokenRepository {
@@ -39,7 +39,7 @@ class RefreshTokenRepositoryExposed : RefreshTokenRepository {
   override suspend fun create(
     userId: UUID,
     tokenHash: String,
-    expiresAt: Instant,
+    expiresAt: Instant
   ): RefreshTokenRecord =
     dbQuery {
       val newId = UUID.randomUUID()
@@ -57,7 +57,7 @@ class RefreshTokenRepositoryExposed : RefreshTokenRepository {
         userId = userId,
         tokenHash = tokenHash,
         expiresAt = expiresAt,
-        revoked = false,
+        revoked = false
       )
     }
 
@@ -66,13 +66,13 @@ class RefreshTokenRepositoryExposed : RefreshTokenRepository {
     now: Instant
   ): RefreshTokenRecord? =
     dbQuery {
-      RefreshTokensTable.selectAll()
+      RefreshTokensTable
+        .selectAll()
         .where {
           (RefreshTokensTable.tokenHash eq tokenHash) and
             (RefreshTokensTable.revoked eq false) and
             (RefreshTokensTable.expiresAt greater now)
-        }
-        .singleOrNull()
+        }.singleOrNull()
         ?.toRecord()
     }
 
@@ -89,6 +89,6 @@ class RefreshTokenRepositoryExposed : RefreshTokenRepository {
       userId = this[RefreshTokensTable.userId],
       tokenHash = this[RefreshTokensTable.tokenHash],
       expiresAt = this[RefreshTokensTable.expiresAt],
-      revoked = this[RefreshTokensTable.revoked],
+      revoked = this[RefreshTokensTable.revoked]
     )
 }

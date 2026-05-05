@@ -10,7 +10,7 @@ import io.ktor.client.request.parameter
 
 class ScheduleRepositoryImpl(
   private val httpClient: HttpClient,
-  private val networkConfig: NetworkConfig,
+  private val networkConfig: NetworkConfig
 ) : ScheduleRepository {
   override suspend fun getSchedule(
     view: String,
@@ -20,6 +20,5 @@ class ScheduleRepositoryImpl(
       .get("${networkConfig.baseUrl}/api/v1/schedule") {
         parameter("view", view)
         parameter("date", date)
-      }
-      .body()
+      }.body()
 }

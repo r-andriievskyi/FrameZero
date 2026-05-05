@@ -30,7 +30,7 @@ internal class FakeProductionRepository : ProductionRepository {
     startDate: LocalDate,
     wrapDate: LocalDate,
     budgetCents: Long?,
-    ownerUserId: UUID,
+    ownerUserId: UUID
   ): ProductionRecord {
     val record =
       ProductionRecord(
@@ -45,7 +45,7 @@ internal class FakeProductionRepository : ProductionRepository {
         ownerUserId = ownerUserId,
         deletedAt = null,
         createdAt = Instant.now(),
-        updatedAt = Instant.now(),
+        updatedAt = Instant.now()
       )
     productions += record
     return record
@@ -62,7 +62,7 @@ internal class FakeProductionRepository : ProductionRepository {
     query: String?,
     sort: ProductionSort,
     limit: Int,
-    cursor: String?,
+    cursor: String?
   ): Pair<List<ProductionRecord>, String?> {
     val filtered =
       productions.filter { p ->
@@ -93,7 +93,7 @@ internal class FakeProductionRepository : ProductionRepository {
     logline: String?,
     startDate: LocalDate?,
     wrapDate: LocalDate?,
-    budgetCents: Long?,
+    budgetCents: Long?
   ): ProductionRecord? {
     val idx = productions.indexOfFirst { it.id == id }
     if (idx < 0) return null
@@ -104,7 +104,7 @@ internal class FakeProductionRepository : ProductionRepository {
         startDate = startDate ?: productions[idx].startDate,
         wrapDate = wrapDate ?: productions[idx].wrapDate,
         budgetCents = budgetCents ?: productions[idx].budgetCents,
-        updatedAt = Instant.now(),
+        updatedAt = Instant.now()
       )
     productions[idx] = updated
     return updated
@@ -150,7 +150,7 @@ internal class FakeProductionMemberRepository : ProductionMemberRepository {
     userId: UUID?,
     name: String,
     role: String,
-    email: String?,
+    email: String?
   ): ProductionMemberRecord {
     val record =
       ProductionMemberRecord(
@@ -161,7 +161,7 @@ internal class FakeProductionMemberRepository : ProductionMemberRepository {
         role = role,
         email = email,
         avatarColorHex = null,
-        addedAt = Instant.now(),
+        addedAt = Instant.now()
       )
     members += record
     return record
@@ -202,7 +202,7 @@ internal class FakeTaskRepository : TaskRepository {
     title: String,
     description: String?,
     dueDate: LocalDate?,
-    assigneeUserId: UUID?,
+    assigneeUserId: UUID?
   ): TaskRecord {
     val record =
       TaskRecord(
@@ -214,7 +214,7 @@ internal class FakeTaskRepository : TaskRepository {
         dueDate = dueDate,
         status = TaskStatus.OPEN,
         assigneeUserId = assigneeUserId,
-        createdAt = Instant.now(),
+        createdAt = Instant.now()
       )
     tasks += record
     return record
@@ -228,7 +228,7 @@ internal class FakeTaskRepository : TaskRepository {
     status: TaskStatus?,
     productionId: UUID?,
     limit: Int,
-    cursor: String?,
+    cursor: String?
   ): Pair<List<TaskRecord>, String?> {
     val items =
       tasks
@@ -236,21 +236,19 @@ internal class FakeTaskRepository : TaskRepository {
           (!assigneeMe || t.assigneeUserId == userId) &&
             (status == null || t.status == status) &&
             (productionId == null || t.productionId == productionId)
-        }
-        .take(limit)
+        }.take(limit)
     return Pair(items, null)
   }
 
   override suspend fun findForUserLimit(
     userId: UUID,
     limit: Int
-  ): List<TaskRecord> =
-    tasks.filter { it.assigneeUserId == userId && it.status == TaskStatus.OPEN }.take(limit)
+  ): List<TaskRecord> = tasks.filter { it.assigneeUserId == userId && it.status == TaskStatus.OPEN }.take(limit)
 
   override suspend fun findInRangeForUser(
     userId: UUID,
     rangeStart: LocalDate,
-    rangeEnd: LocalDate,
+    rangeEnd: LocalDate
   ): List<TaskRecord> =
     tasks.filter { t ->
       val due = t.dueDate ?: return@filter false
@@ -268,7 +266,7 @@ internal class FakeTaskRepository : TaskRepository {
     description: String?,
     dueDate: LocalDate?,
     status: TaskStatus?,
-    assigneeUserId: UUID?,
+    assigneeUserId: UUID?
   ): TaskRecord? {
     val idx = tasks.indexOfFirst { it.id == id }
     if (idx < 0) return null
@@ -278,7 +276,7 @@ internal class FakeTaskRepository : TaskRepository {
         description = description ?: tasks[idx].description,
         dueDate = dueDate ?: tasks[idx].dueDate,
         status = status ?: tasks[idx].status,
-        assigneeUserId = assigneeUserId ?: tasks[idx].assigneeUserId,
+        assigneeUserId = assigneeUserId ?: tasks[idx].assigneeUserId
       )
     tasks[idx] = updated
     return updated
@@ -298,7 +296,7 @@ internal class FakeScheduleEventRepository : ScheduleEventRepository {
   override suspend fun findInRangeForUser(
     userId: UUID,
     rangeStart: Instant,
-    rangeEnd: Instant,
+    rangeEnd: Instant
   ): List<ScheduleEventRecord> =
     events.filter { e ->
       e.startsAt >= rangeStart && e.startsAt < rangeEnd
@@ -312,7 +310,7 @@ internal class FakeScheduleEventRepository : ScheduleEventRepository {
     location: String?,
     startsAt: Instant,
     endsAt: Instant,
-    kind: ScheduleEventKind,
+    kind: ScheduleEventKind
   ): ScheduleEventRecord {
     val record =
       ScheduleEventRecord(
@@ -323,7 +321,7 @@ internal class FakeScheduleEventRepository : ScheduleEventRepository {
         location = location,
         startsAt = startsAt,
         endsAt = endsAt,
-        kind = kind,
+        kind = kind
       )
     events += record
     return record
@@ -335,7 +333,7 @@ internal class FakeScheduleEventRepository : ScheduleEventRepository {
     location: String?,
     startsAt: Instant?,
     endsAt: Instant?,
-    kind: ScheduleEventKind?,
+    kind: ScheduleEventKind?
   ): ScheduleEventRecord? {
     val idx = events.indexOfFirst { it.id == id }
     if (idx < 0) return null
@@ -345,7 +343,7 @@ internal class FakeScheduleEventRepository : ScheduleEventRepository {
         location = location ?: events[idx].location,
         startsAt = startsAt ?: events[idx].startsAt,
         endsAt = endsAt ?: events[idx].endsAt,
-        kind = kind ?: events[idx].kind,
+        kind = kind ?: events[idx].kind
       )
     events[idx] = updated
     return updated
@@ -365,7 +363,7 @@ internal class FakeNotificationRepository : NotificationRepository {
   override suspend fun findForUser(
     userId: UUID,
     limit: Int,
-    cursor: String?,
+    cursor: String?
   ): Pair<List<NotificationRecord>, String?> {
     val items = notifications.filter { it.userId == userId }.take(limit)
     return Pair(items, null)
@@ -406,7 +404,7 @@ internal class FakeNotificationRepository : NotificationRepository {
         title = title,
         body = body,
         readAt = null,
-        createdAt = Instant.now(),
+        createdAt = Instant.now()
       )
     notifications += record
     return record

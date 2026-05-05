@@ -17,7 +17,8 @@ object DatabaseFactory {
   }
 
   private fun runFlyway(ds: DataSource) {
-    Flyway.configure()
+    Flyway
+      .configure()
       .dataSource(ds)
       .locations("classpath:db/migration")
       .baselineOnMigrate(true)
@@ -43,5 +44,4 @@ object DatabaseFactory {
   private const val MAX_POOL_SIZE = 10
 }
 
-suspend fun <T> dbQuery(block: suspend () -> T): T =
-  withContext(Dispatchers.IO) { suspendTransaction { block() } }
+suspend fun <T> dbQuery(block: suspend () -> T): T = withContext(Dispatchers.IO) { suspendTransaction { block() } }

@@ -11,7 +11,7 @@ data class Production(
   val progressPercent: Int,
   val daysLeft: Int,
   val accentColorHint: AccentColorHint,
-  val updatedAt: Instant,
+  val updatedAt: Instant
 )
 
 fun ProductionSummaryDto.toProduction(): Production =
@@ -22,5 +22,5 @@ fun ProductionSummaryDto.toProduction(): Production =
     progressPercent = progressPercent,
     daysLeft = daysLeft,
     accentColorHint = accentColorHint,
-    updatedAt = updatedAt,
+    updatedAt = updatedAt
   )

@@ -7,5 +7,5 @@ enum class ScheduleEventKind {
   SHOOT,
   MEETING,
   REVIEW,
-  OTHER,
+  OTHER
 }

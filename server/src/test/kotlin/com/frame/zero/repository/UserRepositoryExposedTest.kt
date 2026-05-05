@@ -33,7 +33,7 @@ class UserRepositoryExposedTest {
           email = "User@Example.COM",
           passwordHash = "hash-1",
           firstName = "Jane",
-          lastName = "Doe",
+          lastName = "Doe"
         )
 
       assertEquals("user@example.com", record.email)

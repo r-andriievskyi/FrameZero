@@ -8,8 +8,9 @@ import com.frame.zero.repository.productions.ProductionsRepository
 import io.ktor.client.plugins.ResponseException
 import kotlinx.io.IOException
 
-class GetProductionsUseCase(private val productionsRepository: ProductionsRepository) :
-  NoParamsUseCase<List<Production>>() {
+class GetProductionsUseCase(
+  private val productionsRepository: ProductionsRepository
+) : NoParamsUseCase<List<Production>>() {
   override fun mapError(throwable: Throwable): DomainError =
     when (throwable) {
       is IOException -> DomainError.Network(throwable.message ?: "Network error")
@@ -17,6 +18,5 @@ class GetProductionsUseCase(private val productionsRepository: ProductionsReposi
       else -> DomainError.Unknown(throwable.message)
     }
 
-  override suspend fun execute(): List<Production> =
-    productionsRepository.list().items.map { it.toProduction() }
+  override suspend fun execute(): List<Production> = productionsRepository.list().items.map { it.toProduction() }
 }

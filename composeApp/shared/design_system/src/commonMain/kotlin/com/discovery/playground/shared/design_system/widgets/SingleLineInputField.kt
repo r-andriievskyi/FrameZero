@@ -44,7 +44,7 @@ fun SingleLineInputField(
   enabled: Boolean = true,
   visualTransformation: VisualTransformation = VisualTransformation.None,
   keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-  keyboardActions: KeyboardActions = KeyboardActions.Default,
+  keyboardActions: KeyboardActions = KeyboardActions.Default
 ) {
   val colors = AppTheme.colorSystem
   val spacing = AppTheme.spacingSystem
@@ -73,11 +73,12 @@ fun SingleLineInputField(
     decorationBox = { innerTextField ->
       Row(
         modifier =
-          Modifier.clip(shape)
+          Modifier
+            .clip(shape)
             .background(colors.inputBackground, shape)
             .border(width = 1.dp, color = colors.border, shape = shape)
             .padding(horizontal = spacing.space16, vertical = spacing.space8),
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = Alignment.CenterVertically
       ) {
         if (leadingContent != null) {
           leadingContent()
@@ -89,7 +90,7 @@ fun SingleLineInputField(
             Text(
               text = placeholder,
               style = typography.bodyLarge,
-              color = colors.textMuted,
+              color = colors.textMuted
             )
           }
           innerTextField()
@@ -100,7 +101,7 @@ fun SingleLineInputField(
           trailingContent()
         }
       }
-    },
+    }
   )
 }
 
@@ -112,7 +113,7 @@ private fun SingleLineInputFieldPlaceholderPreview() {
       SingleLineInputField(
         value = "",
         onValueChange = {},
-        placeholder = "Enter your email",
+        placeholder = "Enter your email"
       )
     }
   }

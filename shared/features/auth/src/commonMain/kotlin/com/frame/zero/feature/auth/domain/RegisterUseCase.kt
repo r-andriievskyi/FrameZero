@@ -9,13 +9,13 @@ import com.frame.zero.repository.auth.AuthRepository
 
 class RegisterUseCase(
   private val authRepository: AuthRepository,
-  private val sessionManager: SessionManager,
+  private val sessionManager: SessionManager
 ) : UseCase<RegisterUseCase.Params, User>() {
   data class Params(
     val email: String,
     val password: String,
     val firstName: String,
-    val lastName: String,
+    val lastName: String
   )
 
   override fun mapError(throwable: Throwable): DomainError = throwable.toDomainError()

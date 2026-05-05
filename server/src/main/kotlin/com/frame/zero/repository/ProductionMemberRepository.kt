@@ -21,7 +21,7 @@ data class ProductionMemberRecord(
   val role: String,
   val email: String?,
   val avatarColorHex: String?,
-  val addedAt: Instant,
+  val addedAt: Instant
 )
 
 interface ProductionMemberRepository {
@@ -36,7 +36,7 @@ interface ProductionMemberRepository {
     userId: UUID?,
     name: String,
     role: String,
-    email: String?,
+    email: String?
   ): ProductionMemberRecord
 
   suspend fun updateRole(
@@ -55,7 +55,8 @@ interface ProductionMemberRepository {
 class ProductionMemberRepositoryExposed : ProductionMemberRepository {
   override suspend fun findByProduction(productionId: UUID): List<ProductionMemberRecord> =
     dbQuery {
-      ProductionMembersTable.leftJoin(UsersTable)
+      ProductionMembersTable
+        .leftJoin(UsersTable)
         .selectAll()
         .where { ProductionMembersTable.productionId eq productionId }
         .orderBy(ProductionMembersTable.addedAt)
@@ -64,7 +65,8 @@ class ProductionMemberRepositoryExposed : ProductionMemberRepository {
 
   override suspend fun findById(id: UUID): ProductionMemberRecord? =
     dbQuery {
-      ProductionMembersTable.leftJoin(UsersTable)
+      ProductionMembersTable
+        .leftJoin(UsersTable)
         .selectAll()
         .where { ProductionMembersTable.id eq id }
         .singleOrNull()
@@ -73,7 +75,8 @@ class ProductionMemberRepositoryExposed : ProductionMemberRepository {
 
   override suspend fun countByProduction(productionId: UUID): Int =
     dbQuery {
-      ProductionMembersTable.selectAll()
+      ProductionMembersTable
+        .selectAll()
         .where { ProductionMembersTable.productionId eq productionId }
         .count()
         .toInt()
@@ -84,7 +87,7 @@ class ProductionMemberRepositoryExposed : ProductionMemberRepository {
     userId: UUID?,
     name: String,
     role: String,
-    email: String?,
+    email: String?
   ): ProductionMemberRecord =
     dbQuery {
       val newId = UUID.randomUUID()
@@ -101,7 +104,8 @@ class ProductionMemberRepositoryExposed : ProductionMemberRepository {
 
       val avatarColor =
         if (userId != null) {
-          UsersTable.selectAll()
+          UsersTable
+            .selectAll()
             .where { UsersTable.id eq userId }
             .singleOrNull()
             ?.get(UsersTable.avatarColorHex)
@@ -117,7 +121,7 @@ class ProductionMemberRepositoryExposed : ProductionMemberRepository {
         role = role,
         email = email,
         avatarColorHex = avatarColor,
-        addedAt = now,
+        addedAt = now
       )
     }
 
@@ -133,7 +137,8 @@ class ProductionMemberRepositoryExposed : ProductionMemberRepository {
       if (updated == 0) {
         null
       } else {
-        ProductionMembersTable.leftJoin(UsersTable)
+        ProductionMembersTable
+          .leftJoin(UsersTable)
           .selectAll()
           .where { ProductionMembersTable.id eq id }
           .singleOrNull()
@@ -151,12 +156,12 @@ class ProductionMemberRepositoryExposed : ProductionMemberRepository {
     productionId: UUID
   ): Boolean =
     dbQuery {
-      ProductionMembersTable.selectAll()
+      ProductionMembersTable
+        .selectAll()
         .where {
           (ProductionMembersTable.productionId eq productionId) and
             (ProductionMembersTable.userId eq userId)
-        }
-        .count() == 0L
+        }.count() == 0L
     }
 
   private fun ResultRow.toRecord(): ProductionMemberRecord =
@@ -168,6 +173,6 @@ class ProductionMemberRepositoryExposed : ProductionMemberRepository {
       role = this[ProductionMembersTable.role],
       email = this[ProductionMembersTable.email],
       avatarColorHex = this.getOrNull(UsersTable.avatarColorHex),
-      addedAt = this[ProductionMembersTable.addedAt],
+      addedAt = this[ProductionMembersTable.addedAt]
     )
 }

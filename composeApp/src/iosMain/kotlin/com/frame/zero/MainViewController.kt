@@ -34,7 +34,7 @@ private val iosRoot: RootComponent by lazy {
       AuthComponent(
         componentContext = ctx,
         signInViewModelFactory = { koin.get<SignInViewModel>() },
-        registerViewModelFactory = { koin.get<RegisterViewModel>() },
+        registerViewModelFactory = { koin.get<RegisterViewModel>() }
       )
     },
     homeComponentFactory = { ctx ->
@@ -42,9 +42,9 @@ private val iosRoot: RootComponent by lazy {
         ctx,
         dashboardViewModelFactory = { koin.get<DashboardTabViewModel>() },
         projectsViewModelFactory = { koin.get<ProjectsTabViewModel>() },
-        scheduleViewModelFactory = { koin.get<ScheduleTabViewModel>() },
+        scheduleViewModelFactory = { koin.get<ScheduleTabViewModel>() }
       )
-    },
+    }
   )
 }
 

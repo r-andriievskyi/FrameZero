@@ -123,18 +123,18 @@ class RegisterViewModelTest {
 
   private fun makeViewModel(
     scope: TestScope,
-    repo: AuthRepository = FakeAuthRepository(),
+    repo: AuthRepository = FakeAuthRepository()
   ): RegisterViewModel {
     val sessionManager =
       SessionManager(
         tokenStorage = TokenStorage(MapSettings()),
         authOperations = NoopSessionAuthOperations,
         logoutSignal = LogoutSignal(),
-        scope = scope.backgroundScope,
+        scope = scope.backgroundScope
       )
     return RegisterViewModel(
       registerUseCase = RegisterUseCase(repo, sessionManager),
-      dispatcher = StandardTestDispatcher(scope.testScheduler),
+      dispatcher = StandardTestDispatcher(scope.testScheduler)
     )
   }
 }

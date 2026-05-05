@@ -18,7 +18,7 @@ class JwtServiceTest {
       audience = "test-audience",
       realm = "test-realm",
       accessTokenTtl = 15.minutes,
-      refreshTokenTtl = 30.days,
+      refreshTokenTtl = 30.days
     )
 
   @Test

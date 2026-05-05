@@ -6,5 +6,4 @@ import java.util.prefs.Preferences
 
 private const val PREFS_NODE = "com/frame/zero/tokens"
 
-internal actual fun createTokenSettings(): Settings =
-  PreferencesSettings(Preferences.userRoot().node(PREFS_NODE))
+internal actual fun createTokenSettings(): Settings = PreferencesSettings(Preferences.userRoot().node(PREFS_NODE))

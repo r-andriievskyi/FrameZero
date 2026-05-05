@@ -24,14 +24,14 @@ data class NotificationRecord(
   val title: String,
   val body: String?,
   val readAt: Instant?,
-  val createdAt: Instant,
+  val createdAt: Instant
 )
 
 interface NotificationRepository {
   suspend fun findForUser(
     userId: UUID,
     limit: Int,
-    cursor: String?,
+    cursor: String?
   ): Pair<List<NotificationRecord>, String?>
 
   suspend fun countUnread(userId: UUID): Int
@@ -54,11 +54,12 @@ class NotificationRepositoryExposed : NotificationRepository {
   override suspend fun findForUser(
     userId: UUID,
     limit: Int,
-    cursor: String?,
+    cursor: String?
   ): Pair<List<NotificationRecord>, String?> =
     dbQuery {
       val rows =
-        NotificationsTable.selectAll()
+        NotificationsTable
+          .selectAll()
           .where {
             var cond = NotificationsTable.userId eq userId
             if (cursor != null) {
@@ -77,12 +78,10 @@ class NotificationRepositoryExposed : NotificationRepository {
               }
             }
             cond
-          }
-          .orderBy(
+          }.orderBy(
             NotificationsTable.createdAt to SortOrder.DESC,
-            NotificationsTable.id to SortOrder.DESC,
-          )
-          .limit(limit + 1)
+            NotificationsTable.id to SortOrder.DESC
+          ).limit(limit + 1)
           .map { it.toRecord() }
 
       val hasMore = rows.size > limit
@@ -99,7 +98,8 @@ class NotificationRepositoryExposed : NotificationRepository {
 
   override suspend fun countUnread(userId: UUID): Int =
     dbQuery {
-      NotificationsTable.selectAll()
+      NotificationsTable
+        .selectAll()
         .where { (NotificationsTable.userId eq userId) and NotificationsTable.readAt.isNull() }
         .count()
         .toInt()
@@ -152,7 +152,7 @@ class NotificationRepositoryExposed : NotificationRepository {
         title = title,
         body = body,
         readAt = null,
-        createdAt = now,
+        createdAt = now
       )
     }
 
@@ -163,6 +163,6 @@ class NotificationRepositoryExposed : NotificationRepository {
       title = this[NotificationsTable.title],
       body = this[NotificationsTable.body],
       readAt = this[NotificationsTable.readAt],
-      createdAt = this[NotificationsTable.createdAt],
+      createdAt = this[NotificationsTable.createdAt]
     )
 }

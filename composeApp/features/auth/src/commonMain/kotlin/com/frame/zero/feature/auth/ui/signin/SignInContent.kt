@@ -39,7 +39,7 @@ fun SignInContent(component: SignInComponent) {
   SignInContent(
     state = state,
     onIntent = component::onIntent,
-    onCreateAccountClick = component.onNavigateToRegister,
+    onCreateAccountClick = component.onNavigateToRegister
   )
 }
 
@@ -47,11 +47,12 @@ fun SignInContent(component: SignInComponent) {
 private fun SignInContent(
   state: SignInState,
   onIntent: (SignInIntent) -> Unit,
-  onCreateAccountClick: () -> Unit,
+  onCreateAccountClick: () -> Unit
 ) {
   Column(
     modifier =
-      Modifier.fillMaxSize()
+      Modifier
+        .fillMaxSize()
         .background(AppTheme.colorSystem.background)
         .padding(horizontal = AppTheme.spacingSystem.space16)
         .systemBarsPadding()
@@ -61,13 +62,13 @@ private fun SignInContent(
       Image(
         painter = painterResource(Res.drawable.ic_logo),
         colorFilter = ColorFilter.tint(AppTheme.colorSystem.accent),
-        contentDescription = null,
+        contentDescription = null
       )
       HorizontalSpacer(AppTheme.spacingSystem.space8)
       Text(
         text = "FrameZero",
         color = AppTheme.colorSystem.textPrimary,
-        style = AppTheme.typographySystem.displayLarge,
+        style = AppTheme.typographySystem.displayLarge
       )
     }
     VerticalSpacer(AppTheme.spacingSystem.space24)
@@ -76,7 +77,7 @@ private fun SignInContent(
       text = "Welcome back",
       color = AppTheme.colorSystem.textPrimary,
       style = AppTheme.typographySystem.displayMedium,
-      textAlign = TextAlign.Center,
+      textAlign = TextAlign.Center
     )
     VerticalSpacer(AppTheme.spacingSystem.space8)
     Text(
@@ -84,13 +85,13 @@ private fun SignInContent(
       text = "Sign in to your production workspace",
       color = AppTheme.colorSystem.textSecondary,
       style = AppTheme.typographySystem.bodyLarge,
-      textAlign = TextAlign.Center,
+      textAlign = TextAlign.Center
     )
     VerticalSpacer(AppTheme.spacingSystem.space24)
     Text(
       text = "EMAIL",
       color = AppTheme.colorSystem.textPrimary,
-      style = AppTheme.typographySystem.labelSmall,
+      style = AppTheme.typographySystem.labelSmall
     )
     VerticalSpacer(AppTheme.spacingSystem.space8)
     SingleLineInputField(
@@ -98,13 +99,13 @@ private fun SignInContent(
       onValueChange = { onIntent(SignInIntent.EmailChanged(it)) },
       placeholder = "you@studio.com",
       enabled = !state.isLoading,
-      modifier = Modifier.fillMaxWidth(),
+      modifier = Modifier.fillMaxWidth()
     )
     VerticalSpacer(AppTheme.spacingSystem.space16)
     Text(
       text = "PASSWORD",
       color = AppTheme.colorSystem.textPrimary,
-      style = AppTheme.typographySystem.labelSmall,
+      style = AppTheme.typographySystem.labelSmall
     )
     VerticalSpacer(AppTheme.spacingSystem.space8)
     SingleLineInputField(
@@ -113,7 +114,7 @@ private fun SignInContent(
       placeholder = "******",
       visualTransformation = PasswordVisualTransformation(),
       enabled = !state.isLoading,
-      modifier = Modifier.fillMaxWidth(),
+      modifier = Modifier.fillMaxWidth()
     )
     VerticalSpacer(AppTheme.spacingSystem.space8)
     Text(
@@ -121,20 +122,20 @@ private fun SignInContent(
       text = "Forgot password?",
       color = AppTheme.colorSystem.accent,
       style = AppTheme.typographySystem.bodyMedium,
-      textAlign = TextAlign.End,
+      textAlign = TextAlign.End
     )
     VerticalSpacer(AppTheme.spacingSystem.space24)
     CtaButton(
       text = "Sign in",
       onClick = { onIntent(SignInIntent.Submit) },
-      modifier = Modifier.fillMaxWidth(),
+      modifier = Modifier.fillMaxWidth()
     )
     state.error?.let { error ->
       VerticalSpacer(AppTheme.spacingSystem.space8)
       Text(
         text = error,
         color = AppTheme.colorSystem.errorText,
-        style = AppTheme.typographySystem.bodySmall,
+        style = AppTheme.typographySystem.bodySmall
       )
     }
     Spacer(modifier = Modifier.weight(1f))
@@ -142,14 +143,14 @@ private fun SignInContent(
       Text(
         text = "New to FrameZero?",
         color = AppTheme.colorSystem.textSecondary,
-        style = AppTheme.typographySystem.bodyMedium,
+        style = AppTheme.typographySystem.bodyMedium
       )
       HorizontalSpacer(AppTheme.spacingSystem.space4)
       Text(
         modifier = Modifier.clickable(enabled = !state.isLoading) { onCreateAccountClick() },
         text = "Create account",
         color = AppTheme.colorSystem.accent,
-        style = AppTheme.typographySystem.bodyMedium,
+        style = AppTheme.typographySystem.bodyMedium
       )
     }
     VerticalSpacer(AppTheme.spacingSystem.space24)
@@ -163,7 +164,7 @@ private fun SignInContentPreview() {
     SignInContent(
       state = SignInState(email = "user@example.com", password = "secret"),
       onIntent = {},
-      onCreateAccountClick = {},
+      onCreateAccountClick = {}
     )
   }
 }

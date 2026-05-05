@@ -74,35 +74,40 @@ fun Application.module(config: AppConfig) {
 
   install(StatusPages) {
     exception<AppException> { call, cause ->
-      call.application.environment.log.debug("AppException: {}", cause.error.humanMessage)
+      call.application.environment.log
+        .debug("AppException: {}", cause.error.humanMessage)
       call.respond(cause.error.status, cause.error.toResponse())
     }
     exception<AuthException> { call, cause ->
-      call.application.environment.log.debug("AuthException: {}", cause.error.message)
+      call.application.environment.log
+        .debug("AuthException: {}", cause.error.message)
       call.respond(
         cause.error.status,
-        ErrorResponse(error = "UNAUTHORIZED", message = cause.error.message),
+        ErrorResponse(error = "UNAUTHORIZED", message = cause.error.message)
       )
     }
     exception<SerializationException> { call, cause ->
-      call.application.environment.log.debug("SerializationException: {}", cause.message)
+      call.application.environment.log
+        .debug("SerializationException: {}", cause.message)
       call.respond(
         HttpStatusCode.BadRequest,
-        ErrorResponse(error = "VALIDATION_ERROR", message = "Malformed request body"),
+        ErrorResponse(error = "VALIDATION_ERROR", message = "Malformed request body")
       )
     }
     exception<IllegalArgumentException> { call, cause ->
-      call.application.environment.log.debug("IllegalArgumentException: {}", cause.message)
+      call.application.environment.log
+        .debug("IllegalArgumentException: {}", cause.message)
       call.respond(
         HttpStatusCode.BadRequest,
-        ErrorResponse(error = "VALIDATION_ERROR", message = cause.message ?: "Invalid request"),
+        ErrorResponse(error = "VALIDATION_ERROR", message = cause.message ?: "Invalid request")
       )
     }
     exception<Throwable> { call, cause ->
-      call.application.environment.log.error("Unhandled exception", cause)
+      call.application.environment.log
+        .error("Unhandled exception", cause)
       call.respond(
         HttpStatusCode.InternalServerError,
-        ErrorResponse(error = "INTERNAL", message = "Internal server error"),
+        ErrorResponse(error = "INTERNAL", message = "Internal server error")
       )
     }
   }

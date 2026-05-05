@@ -14,7 +14,7 @@ data class ProductionSummaryDto(
   val progressPercent: Int,
   val daysLeft: Int,
   val accentColorHint: AccentColorHint,
-  val updatedAt: Instant,
+  val updatedAt: Instant
 )
 
 @Serializable
@@ -33,7 +33,7 @@ data class ProductionDetailDto(
   val keyCrew: List<ProductionMemberDto>,
   val pipeline: List<PipelinePhaseDto>,
   val createdAt: Instant,
-  val updatedAt: Instant,
+  val updatedAt: Instant
 )
 
 @Serializable
@@ -44,7 +44,7 @@ data class ProductionMemberDto(
   val role: String,
   val initials: String,
   val avatarColorHex: String?,
-  val addedAt: Instant,
+  val addedAt: Instant
 )
 
 @Serializable
@@ -52,14 +52,14 @@ data class PipelinePhaseDto(
   val phase: ProductionPhase,
   val label: String,
   val isCompleted: Boolean,
-  val isCurrent: Boolean,
+  val isCurrent: Boolean
 )
 
 @Serializable
 enum class AccentColorHint {
   GREEN,
   PURPLE,
-  ORANGE,
+  ORANGE
 }
 
 @Serializable
@@ -71,11 +71,15 @@ data class CreateProductionRequest(
   val startDate: LocalDate,
   val wrapDate: LocalDate,
   val budgetCents: Long? = null,
-  val crew: List<CreateCrewMemberDto> = emptyList(),
+  val crew: List<CreateCrewMemberDto> = emptyList()
 )
 
 @Serializable
-data class CreateCrewMemberDto(val name: String, val role: String, val email: String? = null)
+data class CreateCrewMemberDto(
+  val name: String,
+  val role: String,
+  val email: String? = null
+)
 
 @Serializable
 data class UpdateProductionRequest(
@@ -83,12 +87,20 @@ data class UpdateProductionRequest(
   val logline: String? = null,
   val startDate: LocalDate? = null,
   val wrapDate: LocalDate? = null,
-  val budgetCents: Long? = null,
+  val budgetCents: Long? = null
 )
 
-@Serializable data class PhaseTransitionRequest(val phase: ProductionPhase)
+@Serializable data class PhaseTransitionRequest(
+  val phase: ProductionPhase
+)
 
 @Serializable
-data class AddMemberRequest(val name: String, val role: String, val email: String? = null)
+data class AddMemberRequest(
+  val name: String,
+  val role: String,
+  val email: String? = null
+)
 
-@Serializable data class UpdateMemberRequest(val role: String)
+@Serializable data class UpdateMemberRequest(
+  val role: String
+)

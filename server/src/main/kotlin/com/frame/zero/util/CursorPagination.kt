@@ -3,7 +3,10 @@ package com.frame.zero.util
 import java.util.Base64
 import java.util.UUID
 
-data class PageCursor(val epochMillis: Long, val id: UUID)
+data class PageCursor(
+  val epochMillis: Long,
+  val id: UUID
+)
 
 fun encodeCursor(
   epochMillis: Long,

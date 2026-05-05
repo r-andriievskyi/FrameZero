@@ -34,7 +34,7 @@ data class TaskRecord(
   val dueDate: LocalDate?,
   val status: TaskStatus,
   val assigneeUserId: UUID?,
-  val createdAt: Instant,
+  val createdAt: Instant
 )
 
 interface TaskRepository {
@@ -43,7 +43,7 @@ interface TaskRepository {
     title: String,
     description: String?,
     dueDate: LocalDate?,
-    assigneeUserId: UUID?,
+    assigneeUserId: UUID?
   ): TaskRecord
 
   suspend fun findById(id: UUID): TaskRecord?
@@ -54,7 +54,7 @@ interface TaskRepository {
     status: TaskStatus?,
     productionId: UUID?,
     limit: Int,
-    cursor: String?,
+    cursor: String?
   ): Pair<List<TaskRecord>, String?>
 
   suspend fun findForUserLimit(
@@ -65,7 +65,7 @@ interface TaskRepository {
   suspend fun findInRangeForUser(
     userId: UUID,
     rangeStart: LocalDate,
-    rangeEnd: LocalDate,
+    rangeEnd: LocalDate
   ): List<TaskRecord>
 
   suspend fun countOpenForUser(userId: UUID): Int
@@ -76,7 +76,7 @@ interface TaskRepository {
     description: String?,
     dueDate: LocalDate?,
     status: TaskStatus?,
-    assigneeUserId: UUID?,
+    assigneeUserId: UUID?
   ): TaskRecord?
 
   suspend fun delete(id: UUID): Boolean
@@ -88,7 +88,7 @@ class TaskRepositoryExposed : TaskRepository {
     title: String,
     description: String?,
     dueDate: LocalDate?,
-    assigneeUserId: UUID?,
+    assigneeUserId: UUID?
   ): TaskRecord =
     dbQuery {
       val newId = UUID.randomUUID()
@@ -104,7 +104,8 @@ class TaskRepositoryExposed : TaskRepository {
         it[createdAt] = now
       }
       val prodTitle =
-        ProductionsTable.selectAll()
+        ProductionsTable
+          .selectAll()
           .where { ProductionsTable.id eq productionId }
           .singleOrNull()
           ?.get(ProductionsTable.title) ?: ""
@@ -117,7 +118,7 @@ class TaskRepositoryExposed : TaskRepository {
         dueDate = dueDate,
         status = TaskStatus.OPEN,
         assigneeUserId = assigneeUserId,
-        createdAt = now,
+        createdAt = now
       )
     }
 
@@ -136,7 +137,7 @@ class TaskRepositoryExposed : TaskRepository {
     status: TaskStatus?,
     productionId: UUID?,
     limit: Int,
-    cursor: String?,
+    cursor: String?
   ): Pair<List<TaskRecord>, String?> =
     dbQuery {
       val rows =
@@ -160,8 +161,7 @@ class TaskRepositoryExposed : TaskRepository {
               }
             }
             cond
-          }
-          .orderBy(TasksTable.dueDate to SortOrder.ASC_NULLS_LAST, TasksTable.id to SortOrder.ASC)
+          }.orderBy(TasksTable.dueDate to SortOrder.ASC_NULLS_LAST, TasksTable.id to SortOrder.ASC)
           .limit(limit + 1)
           .map { it.toRecord() }
 
@@ -186,8 +186,7 @@ class TaskRepositoryExposed : TaskRepository {
         .selectAll()
         .where {
           (TasksTable.assigneeUserId eq userId) and (TasksTable.status eq TaskStatus.OPEN.name)
-        }
-        .orderBy(TasksTable.dueDate to SortOrder.ASC_NULLS_LAST)
+        }.orderBy(TasksTable.dueDate to SortOrder.ASC_NULLS_LAST)
         .limit(limit)
         .map { it.toRecord() }
     }
@@ -195,11 +194,12 @@ class TaskRepositoryExposed : TaskRepository {
   override suspend fun findInRangeForUser(
     userId: UUID,
     rangeStart: LocalDate,
-    rangeEnd: LocalDate,
+    rangeEnd: LocalDate
   ): List<TaskRecord> =
     dbQuery {
       val memberProductionIds =
-        ProductionMembersTable.selectAll()
+        ProductionMembersTable
+          .selectAll()
           .where { ProductionMembersTable.userId eq userId }
           .map { it[ProductionMembersTable.productionId] }
       if (memberProductionIds.isEmpty()) return@dbQuery emptyList()
@@ -211,18 +211,17 @@ class TaskRepositoryExposed : TaskRepository {
             (TasksTable.dueDate greaterEq rangeStart) and
             (TasksTable.dueDate lessEq rangeEnd) and
             (TasksTable.productionId inList memberProductionIds)
-        }
-        .orderBy(TasksTable.dueDate to SortOrder.ASC, TasksTable.id to SortOrder.ASC)
+        }.orderBy(TasksTable.dueDate to SortOrder.ASC, TasksTable.id to SortOrder.ASC)
         .map { it.toRecord() }
     }
 
   override suspend fun countOpenForUser(userId: UUID): Int =
     dbQuery {
-      TasksTable.selectAll()
+      TasksTable
+        .selectAll()
         .where {
           (TasksTable.assigneeUserId eq userId) and (TasksTable.status eq TaskStatus.OPEN.name)
-        }
-        .count()
+        }.count()
         .toInt()
     }
 
@@ -232,7 +231,7 @@ class TaskRepositoryExposed : TaskRepository {
     description: String?,
     dueDate: LocalDate?,
     status: TaskStatus?,
-    assigneeUserId: UUID?,
+    assigneeUserId: UUID?
   ): TaskRecord? =
     dbQuery {
       val updated =
@@ -269,6 +268,6 @@ class TaskRepositoryExposed : TaskRepository {
       dueDate = this[TasksTable.dueDate],
       status = TaskStatus.valueOf(this[TasksTable.status]),
       assigneeUserId = this[TasksTable.assigneeUserId],
-      createdAt = this[TasksTable.createdAt],
+      createdAt = this[TasksTable.createdAt]
     )
 }

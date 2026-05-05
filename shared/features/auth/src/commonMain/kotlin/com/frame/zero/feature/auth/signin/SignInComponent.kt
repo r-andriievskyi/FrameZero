@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.StateFlow
 class SignInComponent(
   componentContext: ComponentContext,
   val onNavigateToRegister: () -> Unit,
-  viewModelFactory: () -> SignInViewModel,
+  viewModelFactory: () -> SignInViewModel
 ) : ComponentContext by componentContext {
   private val viewModel: SignInViewModel = instanceKeeper.getOrCreate { viewModelFactory() }
 

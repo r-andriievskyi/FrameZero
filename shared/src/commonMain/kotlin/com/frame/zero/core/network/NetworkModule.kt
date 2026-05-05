@@ -35,7 +35,7 @@ val networkModule: Module =
 private fun provideHttpClient(
   config: NetworkConfig,
   tokenStorage: TokenStorage,
-  logoutSignal: LogoutSignal,
+  logoutSignal: LogoutSignal
 ): HttpClient =
   httpClient {
     install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
@@ -57,8 +57,7 @@ private fun provideHttpClient(
           val response =
             runCatching {
               client.post("${config.baseUrl}/auth/refresh") { setBody(RefreshRequest(refresh)) }
-            }
-              .getOrNull()
+            }.getOrNull()
           if (response == null || !response.status.isSuccess()) {
             handleRefreshFailure(tokenStorage, logoutSignal)
             return@refreshTokens null
@@ -72,7 +71,11 @@ private fun provideHttpClient(
           BearerTokens(body.accessToken, body.refreshToken)
         }
         sendWithoutRequest { request ->
-          val path = "/" + request.url.pathSegments.filter { it.isNotEmpty() }.joinToString("/")
+          val path =
+            "/" +
+              request.url.pathSegments
+                .filter { it.isNotEmpty() }
+                .joinToString("/")
           path !in UNAUTHENTICATED_PATHS
         }
       }

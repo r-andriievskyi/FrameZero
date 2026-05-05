@@ -8,7 +8,7 @@ internal data class RegisterCall(
   val email: String,
   val password: String,
   val firstName: String,
-  val lastName: String,
+  val lastName: String
 )
 
 internal class FakeAuthRepository(
@@ -18,7 +18,7 @@ internal class FakeAuthRepository(
   private val registerThrows: Throwable? = null,
   private val logoutThrows: Throwable? = null,
   private val currentUserDto: UserDto = UserDto("", "", "", ""),
-  private val currentUserThrows: Throwable? = null,
+  private val currentUserThrows: Throwable? = null
 ) : AuthRepository {
   val loginCalls: MutableList<Pair<String, String>> = mutableListOf()
   val registerCalls: MutableList<RegisterCall> = mutableListOf()
@@ -38,7 +38,7 @@ internal class FakeAuthRepository(
     email: String,
     password: String,
     firstName: String,
-    lastName: String,
+    lastName: String
   ): UserDto {
     registerCalls += RegisterCall(email, password, firstName, lastName)
     registerThrows?.let { throw it }
@@ -57,8 +57,7 @@ internal class FakeAuthRepository(
 }
 
 internal object NoopSessionAuthOperations : SessionAuthOperations {
-  override suspend fun fetchCurrentUser(): UserDto =
-    UserDto(id = "", email = "", firstName = "", lastName = "")
+  override suspend fun fetchCurrentUser(): UserDto = UserDto(id = "", email = "", firstName = "", lastName = "")
 
   override suspend fun signOutRemote() = Unit
 }

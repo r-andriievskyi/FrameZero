@@ -54,12 +54,13 @@ private fun DashboardContent(state: DashboardTabState) {
   val dashboard = state.dashboard
   Column(
     modifier =
-      Modifier.fillMaxSize()
+      Modifier
+        .fillMaxSize()
         .background(AppTheme.colorSystem.background)
         .verticalScroll(rememberScrollState())
         .padding(
           horizontal = AppTheme.spacingSystem.space16,
-          vertical = AppTheme.spacingSystem.space24,
+          vertical = AppTheme.spacingSystem.space24
         )
   ) {
     if (dashboard != null) {
@@ -74,7 +75,7 @@ private fun DashboardContent(state: DashboardTabState) {
       Text(
         text = "Hello, ${state.userName}",
         style = AppTheme.typographySystem.displayMedium,
-        color = AppTheme.colorSystem.textPrimary,
+        color = AppTheme.colorSystem.textPrimary
       )
     }
   }
@@ -87,7 +88,7 @@ private fun GreetingSection(greeting: DashboardGreeting) {
   Text(
     text = "Good morning, ${greeting.displayName} 👋",
     style = AppTheme.typographySystem.displayMedium,
-    color = AppTheme.colorSystem.textPrimary,
+    color = AppTheme.colorSystem.textPrimary
   )
   VerticalSpacer(AppTheme.spacingSystem.space4)
   Text(
@@ -95,7 +96,7 @@ private fun GreetingSection(greeting: DashboardGreeting) {
       "${greeting.activeProductionsCount} active productions · " +
         "${greeting.openTasksCount} open tasks",
     style = AppTheme.typographySystem.bodyMedium,
-    color = AppTheme.colorSystem.textSecondary,
+    color = AppTheme.colorSystem.textSecondary
   )
 }
 
@@ -105,19 +106,19 @@ private fun GreetingSection(greeting: DashboardGreeting) {
 private fun StatsRow(stats: DashboardStats) {
   Row(
     modifier = Modifier.fillMaxWidth(),
-    horizontalArrangement = Arrangement.spacedBy(AppTheme.spacingSystem.space8),
+    horizontalArrangement = Arrangement.spacedBy(AppTheme.spacingSystem.space8)
   ) {
     StatCard(
       modifier = Modifier.weight(1f),
       icon = "📊",
       value = stats.activeProjects.toString(),
-      label = "Active Projects",
+      label = "Active Projects"
     )
     StatCard(
       modifier = Modifier.weight(1f),
       icon = "✅",
       value = stats.openTasks.toString(),
-      label = "Open Tasks",
+      label = "Open Tasks"
     )
   }
 }
@@ -139,19 +140,19 @@ private fun StatCard(
     Text(
       text = icon,
       style = AppTheme.typographySystem.titleMedium,
-      modifier = Modifier.size(24.dp),
+      modifier = Modifier.size(24.dp)
     )
     VerticalSpacer(AppTheme.spacingSystem.space8)
     Text(
       text = value,
       style = AppTheme.typographySystem.displayMedium,
-      color = AppTheme.colorSystem.textPrimary,
+      color = AppTheme.colorSystem.textPrimary
     )
     VerticalSpacer(AppTheme.spacingSystem.space4)
     Text(
       text = label,
       style = AppTheme.typographySystem.bodySmall,
-      color = AppTheme.colorSystem.textMuted,
+      color = AppTheme.colorSystem.textMuted
     )
   }
 }
@@ -172,31 +173,32 @@ private fun MyTasksSection(tasks: List<DashboardTask>) {
 private fun TaskCard(task: DashboardTask) {
   Row(
     modifier =
-      Modifier.fillMaxWidth()
+      Modifier
+        .fillMaxWidth()
         .clip(RoundedCornerShape(AppTheme.radiusSystem.radius16))
         .background(AppTheme.colorSystem.cardBackground)
         .padding(AppTheme.spacingSystem.space16),
-    verticalAlignment = Alignment.CenterVertically,
+    verticalAlignment = Alignment.CenterVertically
   ) {
     Column(modifier = Modifier.weight(1f)) {
       Text(
         text = task.title,
         style = AppTheme.typographySystem.titleSmall,
-        color = AppTheme.colorSystem.textPrimary,
+        color = AppTheme.colorSystem.textPrimary
       )
       VerticalSpacer(AppTheme.spacingSystem.space4)
       Row {
         Text(
           text = task.productionTitle,
           style = AppTheme.typographySystem.bodySmall,
-          color = AppTheme.colorSystem.textMuted,
+          color = AppTheme.colorSystem.textMuted
         )
         val dueLabel = task.dueLabel
         if (dueLabel != null) {
           Text(
             text = " · ",
             style = AppTheme.typographySystem.bodySmall,
-            color = AppTheme.colorSystem.textMuted,
+            color = AppTheme.colorSystem.textMuted
           )
           val dueLabelColor =
             when {
@@ -211,7 +213,7 @@ private fun TaskCard(task: DashboardTask) {
     Text(
       text = "›",
       style = AppTheme.typographySystem.titleLarge,
-      color = AppTheme.colorSystem.textMuted,
+      color = AppTheme.colorSystem.textMuted
     )
   }
 }
@@ -233,16 +235,18 @@ private fun ProductionCard(production: DashboardProduction) {
   val accentColor = accentColorFor(production.accentColorHint)
   Row(
     modifier =
-      Modifier.fillMaxWidth()
+      Modifier
+        .fillMaxWidth()
         .clip(RoundedCornerShape(AppTheme.radiusSystem.radius16))
         .background(AppTheme.colorSystem.cardBackground)
         .padding(AppTheme.spacingSystem.space16),
-    verticalAlignment = Alignment.CenterVertically,
+    verticalAlignment = Alignment.CenterVertically
   ) {
     // Color bar indicator
     Box(
       modifier =
-        Modifier.width(4.dp)
+        Modifier
+          .width(4.dp)
           .height(40.dp)
           .clip(RoundedCornerShape(AppTheme.radiusSystem.radius4))
           .background(accentColor)
@@ -252,26 +256,26 @@ private fun ProductionCard(production: DashboardProduction) {
       Text(
         text = production.title,
         style = AppTheme.typographySystem.titleSmall,
-        color = AppTheme.colorSystem.textPrimary,
+        color = AppTheme.colorSystem.textPrimary
       )
       VerticalSpacer(AppTheme.spacingSystem.space2)
       Text(
         text = production.phase.displayLabel(),
         style = AppTheme.typographySystem.bodySmall,
-        color = AppTheme.colorSystem.textMuted,
+        color = AppTheme.colorSystem.textMuted
       )
     }
     Column(horizontalAlignment = Alignment.End) {
       Text(
         text = "${production.progressPercent}%",
         style = AppTheme.typographySystem.titleSmall.copy(fontWeight = FontWeight.Bold),
-        color = accentColor,
+        color = accentColor
       )
       VerticalSpacer(AppTheme.spacingSystem.space2)
       Text(
         text = "${production.daysLeft}d left",
         style = AppTheme.typographySystem.bodySmall,
-        color = AppTheme.colorSystem.textMuted,
+        color = AppTheme.colorSystem.textMuted
       )
     }
   }
@@ -287,17 +291,17 @@ private fun SectionHeader(
   Row(
     modifier = Modifier.fillMaxWidth(),
     horizontalArrangement = Arrangement.SpaceBetween,
-    verticalAlignment = Alignment.CenterVertically,
+    verticalAlignment = Alignment.CenterVertically
   ) {
     Text(
       text = title,
       style = AppTheme.typographySystem.titleMedium,
-      color = AppTheme.colorSystem.textPrimary,
+      color = AppTheme.colorSystem.textPrimary
     )
     Text(
       text = actionLabel,
       style = AppTheme.typographySystem.labelMedium,
-      color = AppTheme.colorSystem.accentText,
+      color = AppTheme.colorSystem.accentText
     )
   }
 }
@@ -330,7 +334,7 @@ private fun DashboardContentPreview() {
                 DashboardGreeting(
                   displayName = "Maya",
                   activeProductionsCount = 3,
-                  openTasksCount = 12,
+                  openTasksCount = 12
                 ),
               stats = DashboardStats(activeProjects = 3, openTasks = 12),
               myTasks =
@@ -341,7 +345,7 @@ private fun DashboardContentPreview() {
                     productionTitle = "Echoes of Silence",
                     dueDate = LocalDate(2026, 5, 4),
                     dueLabel = "Today",
-                    status = TaskStatus.OPEN,
+                    status = TaskStatus.OPEN
                   ),
                   DashboardTask(
                     id = "2",
@@ -349,7 +353,7 @@ private fun DashboardContentPreview() {
                     productionTitle = "Neon Wolves",
                     dueDate = LocalDate(2026, 5, 5),
                     dueLabel = "Tomorrow",
-                    status = TaskStatus.OPEN,
+                    status = TaskStatus.OPEN
                   ),
                   DashboardTask(
                     id = "3",
@@ -357,8 +361,8 @@ private fun DashboardContentPreview() {
                     productionTitle = "The Last Frame",
                     dueDate = LocalDate(2026, 4, 28),
                     dueLabel = "Apr 28",
-                    status = TaskStatus.OPEN,
-                  ),
+                    status = TaskStatus.OPEN
+                  )
                 ),
               productionStatus =
                 listOf(
@@ -369,7 +373,7 @@ private fun DashboardContentPreview() {
                     progressPercent = 68,
                     daysLeft = 24,
                     accentColorHint = AccentColorHint.GREEN,
-                    updatedAt = Instant.fromEpochSeconds(0),
+                    updatedAt = Instant.fromEpochSeconds(0)
                   ),
                   DashboardProduction(
                     id = "2",
@@ -378,10 +382,10 @@ private fun DashboardContentPreview() {
                     progressPercent = 34,
                     daysLeft = 61,
                     accentColorHint = AccentColorHint.PURPLE,
-                    updatedAt = Instant.fromEpochSeconds(0),
-                  ),
-                ),
-            ),
+                    updatedAt = Instant.fromEpochSeconds(0)
+                  )
+                )
+            )
         )
     )
   }

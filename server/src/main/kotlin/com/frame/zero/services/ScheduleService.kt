@@ -26,13 +26,13 @@ import kotlin.time.toKotlinInstant
 class ScheduleService(
   private val events: ScheduleEventRepository,
   private val tasks: TaskRepository,
-  private val access: ProductionAccessService,
+  private val access: ProductionAccessService
 ) {
   suspend fun get(
     userId: UUID,
     view: String,
     dateParam: String,
-    timezone: ZoneId,
+    timezone: ZoneId
   ): ScheduleResponse {
     val (rangeStart, rangeEnd) =
       when (view) {
@@ -77,7 +77,7 @@ class ScheduleService(
     return ScheduleResponse(
       rangeStart = rangeStart.toKotlin(),
       rangeEnd = rangeEnd.toKotlin(),
-      days = days,
+      days = days
     )
   }
 
@@ -108,7 +108,7 @@ class ScheduleService(
         location = request.location?.trim(),
         startsAt = request.startsAt.toJavaInstant(),
         endsAt = request.endsAt.toJavaInstant(),
-        kind = request.kind,
+        kind = request.kind
       )
     return record.toDto()
   }
@@ -116,7 +116,7 @@ class ScheduleService(
   suspend fun update(
     userId: UUID,
     eventId: UUID,
-    request: UpdateScheduleEventRequest,
+    request: UpdateScheduleEventRequest
   ): ScheduleEventDto {
     val event = events.findById(eventId) ?: throw AppException(AppError.NotFound)
     access.requireAccess(userId, event.productionId, AccessLevel.WRITE)
@@ -139,7 +139,7 @@ class ScheduleService(
         location = request.location?.trim(),
         startsAt = startsAt,
         endsAt = endsAt,
-        kind = request.kind,
+        kind = request.kind
       ) ?: throw AppException(AppError.NotFound)
     return updated.toDto()
   }
@@ -175,7 +175,7 @@ class ScheduleService(
       endsAt = endsAt.toKotlinInstant(),
       kind = kind,
       productionId = productionId.toString(),
-      productionTitle = productionTitle,
+      productionTitle = productionTitle
     )
 
   private fun ScheduleEventRecord.toScheduleItem(): ScheduleItemDto =
@@ -188,7 +188,7 @@ class ScheduleService(
       startsAt = startsAt.toKotlinInstant(),
       endsAt = endsAt.toKotlinInstant(),
       location = location,
-      eventKind = kind,
+      eventKind = kind
     )
 
   private fun TaskRecord.toScheduleItem(): ScheduleItemDto =
@@ -199,6 +199,6 @@ class ScheduleService(
       productionId = productionId.toString(),
       productionTitle = productionTitle,
       dueDate = dueDate?.toKotlin(),
-      taskStatus = status,
+      taskStatus = status
     )
 }

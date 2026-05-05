@@ -9,7 +9,7 @@ import io.ktor.client.request.get
 
 class UserRepositoryImpl(
   private val httpClient: HttpClient,
-  private val networkConfig: NetworkConfig,
+  private val networkConfig: NetworkConfig
 ) : UserRepository {
   override suspend fun getMe(): UserDto = httpClient.get("${networkConfig.baseUrl}/auth/me").body()
 }

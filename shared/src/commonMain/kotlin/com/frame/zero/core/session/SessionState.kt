@@ -7,5 +7,7 @@ sealed interface SessionState {
 
   data object LoggedOut : SessionState
 
-  data class LoggedIn(val user: User) : SessionState
+  data class LoggedIn(
+    val user: User
+  ) : SessionState
 }

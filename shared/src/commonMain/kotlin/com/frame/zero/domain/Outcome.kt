@@ -1,9 +1,13 @@
 package com.frame.zero.domain
 
 sealed interface Outcome<out T> {
-  data class Success<T>(val data: T) : Outcome<T>
+  data class Success<T>(
+    val data: T
+  ) : Outcome<T>
 
-  data class Failure(val error: DomainError) : Outcome<Nothing>
+  data class Failure(
+    val error: DomainError
+  ) : Outcome<Nothing>
 }
 
 inline fun <T, R> Outcome<T>.map(transform: (T) -> R): Outcome<R> =

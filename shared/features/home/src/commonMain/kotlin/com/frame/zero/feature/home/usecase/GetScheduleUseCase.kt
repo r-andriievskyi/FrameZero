@@ -11,9 +11,13 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.number
 import kotlinx.io.IOException
 
-class GetScheduleUseCase(private val scheduleRepository: ScheduleRepository) :
-  UseCase<GetScheduleUseCase.Params, Schedule>() {
-  data class Params(val view: ScheduleView, val date: LocalDate)
+class GetScheduleUseCase(
+  private val scheduleRepository: ScheduleRepository
+) : UseCase<GetScheduleUseCase.Params, Schedule>() {
+  data class Params(
+    val view: ScheduleView,
+    val date: LocalDate
+  )
 
   override fun mapError(throwable: Throwable): DomainError =
     when (throwable) {

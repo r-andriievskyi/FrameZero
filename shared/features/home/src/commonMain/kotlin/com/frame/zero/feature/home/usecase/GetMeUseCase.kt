@@ -8,7 +8,9 @@ import com.frame.zero.repository.user.UserRepository
 import io.ktor.client.plugins.ResponseException
 import kotlinx.io.IOException
 
-class GetMeUseCase(private val userRepository: UserRepository) : NoParamsUseCase<User>() {
+class GetMeUseCase(
+  private val userRepository: UserRepository
+) : NoParamsUseCase<User>() {
   override fun mapError(throwable: Throwable): DomainError =
     when (throwable) {
       is IOException -> DomainError.Network(throwable.message ?: "Network error")

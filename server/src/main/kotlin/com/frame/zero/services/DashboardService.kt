@@ -21,7 +21,7 @@ private const val DASHBOARD_LIMIT = 5
 class DashboardService(
   private val users: UserRepository,
   private val productions: ProductionRepository,
-  private val tasks: TaskRepository,
+  private val tasks: TaskRepository
 ) {
   suspend fun get(
     userId: UUID,
@@ -42,14 +42,17 @@ class DashboardService(
         query = null,
         sort = ProductionSort.DUE_DATE,
         limit = DASHBOARD_LIMIT,
-        cursor = null,
+        cursor = null
       )
 
     val productionStatus =
       productionItems.map { prod ->
         val today = java.time.LocalDate.now()
         val progress = computeProgress(prod.startDate, prod.wrapDate, today)
-        val daysLeft = java.time.temporal.ChronoUnit.DAYS.between(today, prod.wrapDate).toInt()
+        val daysLeft =
+          java.time.temporal.ChronoUnit.DAYS
+            .between(today, prod.wrapDate)
+            .toInt()
         com.frame.zero.dto.production.ProductionSummaryDto(
           id = prod.id.toString(),
           title = prod.title,
@@ -57,7 +60,7 @@ class DashboardService(
           progressPercent = progress,
           daysLeft = daysLeft,
           accentColorHint = phaseAccent(prod.phase),
-          updatedAt = prod.updatedAt.toKotlinInstant(),
+          updatedAt = prod.updatedAt.toKotlinInstant()
         )
       }
 
@@ -66,11 +69,11 @@ class DashboardService(
         GreetingDto(
           displayName = displayName,
           activeProductionsCount = activeCount,
-          openTasksCount = openTaskCount,
+          openTasksCount = openTaskCount
         ),
       stats = StatsDto(activeProjects = activeCount, openTasks = openTaskCount),
       myTasks = myTasks,
-      productionStatus = productionStatus,
+      productionStatus = productionStatus
     )
   }
 
@@ -82,7 +85,7 @@ class DashboardService(
       productionTitle = productionTitle,
       dueDate = dueDate?.toKotlin(),
       dueLabel = label,
-      status = status,
+      status = status
     )
   }
 
@@ -90,12 +93,17 @@ class DashboardService(
     fun computeProgress(
       start: java.time.LocalDate,
       wrap: java.time.LocalDate,
-      today: java.time.LocalDate,
+      today: java.time.LocalDate
     ): Int {
       if (!today.isAfter(start)) return 0
       if (!today.isBefore(wrap)) return 100
-      val total = java.time.temporal.ChronoUnit.DAYS.between(start, wrap).coerceAtLeast(1)
-      val elapsed = java.time.temporal.ChronoUnit.DAYS.between(start, today)
+      val total =
+        java.time.temporal.ChronoUnit.DAYS
+          .between(start, wrap)
+          .coerceAtLeast(1)
+      val elapsed =
+        java.time.temporal.ChronoUnit.DAYS
+          .between(start, today)
       return (elapsed * 100 / total).toInt().coerceIn(0, 100)
     }
 

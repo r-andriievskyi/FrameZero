@@ -19,7 +19,10 @@ fun Route.notificationRoutes() {
     route("/api/v1/notifications") {
       get {
         val userId = call.userId()
-        val limit = call.request.queryParameters["limit"]?.toIntOrNull()?.coerceIn(1, 100) ?: 20
+        val limit =
+          call.request.queryParameters["limit"]
+            ?.toIntOrNull()
+            ?.coerceIn(1, 100) ?: 20
         val cursor = call.request.queryParameters["cursor"]
         call.respond(service.list(userId, limit, cursor))
       }
