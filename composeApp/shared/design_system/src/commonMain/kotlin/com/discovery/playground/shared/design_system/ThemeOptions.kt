@@ -64,7 +64,7 @@ data class ThemeOptions(
   val colorSystem: ColorSystem,
   val typographySystem: TypographySystem,
   val spacingSystem: SpacingSystem,
-  val radiusSystem: RadiusSystem,
+  val radiusSystem: RadiusSystem
 ) {
   companion object {
     fun light() =
@@ -97,11 +97,11 @@ data class ThemeOptions(
             priorityMedSurface = TokenColorAmberSoftL,
             priorityMedText = TokenColorAmberTextL,
             priorityLowSurface = TokenColorTealSoftL,
-            priorityLowText = TokenColorTealTextL,
+            priorityLowText = TokenColorTealTextL
           ),
         typographySystem = sharedTypography(),
         spacingSystem = sharedSpacing(),
-        radiusSystem = sharedRadius(),
+        radiusSystem = sharedRadius()
       )
 
     fun dark() =
@@ -134,11 +134,11 @@ data class ThemeOptions(
             priorityMedSurface = TokenColorAmberSoftD,
             priorityMedText = TokenColorAmberTextD,
             priorityLowSurface = TokenColorTealSoftD,
-            priorityLowText = TokenColorTealTextD,
+            priorityLowText = TokenColorTealTextD
           ),
         typographySystem = sharedTypography(),
         spacingSystem = sharedSpacing(),
-        radiusSystem = sharedRadius(),
+        radiusSystem = sharedRadius()
       )
 
     private fun sharedTypography() =
@@ -156,7 +156,7 @@ data class ThemeOptions(
         labelSmall = LabelSmall,
         caption = Caption,
         monoMedium = MonoMedium,
-        monoSmall = MonoSmall,
+        monoSmall = MonoSmall
       )
 
     private fun sharedSpacing() =

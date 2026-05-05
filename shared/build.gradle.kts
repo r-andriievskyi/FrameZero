@@ -46,10 +46,18 @@ kotlin {
 
 android {
   namespace = "com.frame.zero.shared"
-  compileSdk = libs.versions.android.compileSdk.get().toInt()
+  compileSdk =
+    libs.versions.android.compileSdk
+      .get()
+      .toInt()
   compileOptions {
     sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
   }
-  defaultConfig { minSdk = libs.versions.android.minSdk.get().toInt() }
+  defaultConfig {
+    minSdk =
+      libs.versions.android.minSdk
+        .get()
+        .toInt()
+  }
 }

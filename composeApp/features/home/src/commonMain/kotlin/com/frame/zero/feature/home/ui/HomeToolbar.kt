@@ -18,7 +18,7 @@ import org.jetbrains.compose.resources.painterResource
 fun HomeToolbar(
   onNotificationsClick: () -> Unit,
   onSettingsClick: () -> Unit,
-  modifier: Modifier = Modifier,
+  modifier: Modifier = Modifier
 ) {
   Row(
     modifier =
@@ -26,14 +26,14 @@ fun HomeToolbar(
         .fillMaxWidth()
         .padding(
           horizontal = AppTheme.spacingSystem.space16,
-          vertical = AppTheme.spacingSystem.space8,
+          vertical = AppTheme.spacingSystem.space8
         ),
-    verticalAlignment = Alignment.CenterVertically,
+    verticalAlignment = Alignment.CenterVertically
   ) {
     Image(
       painter = painterResource(Res.drawable.ic_logo),
       contentDescription = null,
-      colorFilter = ColorFilter.tint(AppTheme.colorSystem.accent),
+      colorFilter = ColorFilter.tint(AppTheme.colorSystem.accent)
     )
     Spacer(modifier = Modifier.weight(1f))
     /*

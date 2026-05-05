@@ -41,7 +41,7 @@ class TaskRoutesTest {
       genre = Genre.DRAMA,
       phase = ProductionPhase.PRODUCTION,
       startDate = LocalDate(2026, 1, 1),
-      wrapDate = LocalDate(2026, 12, 31),
+      wrapDate = LocalDate(2026, 12, 31)
     )
 
   @Test
@@ -144,7 +144,7 @@ class TaskRoutesTest {
       env.taskService.create(
         userId,
         CreateTaskRequest(productionId = prod.id, title = "T1"),
-        java.time.ZoneId.of("UTC"),
+        java.time.ZoneId.of("UTC")
       )
 
       val response =
@@ -167,7 +167,7 @@ class TaskRoutesTest {
         env.taskService.create(
           userId,
           CreateTaskRequest(productionId = prod.id, title = "T"),
-          java.time.ZoneId.of("UTC"),
+          java.time.ZoneId.of("UTC")
         )
 
       val response =

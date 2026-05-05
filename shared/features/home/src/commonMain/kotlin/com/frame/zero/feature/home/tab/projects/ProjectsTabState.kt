@@ -4,5 +4,5 @@ import com.frame.zero.domain.production.Production
 
 data class ProjectsTabState(
   val isLoading: Boolean = false,
-  val productions: List<Production> = emptyList(),
+  val productions: List<Production> = emptyList()
 )

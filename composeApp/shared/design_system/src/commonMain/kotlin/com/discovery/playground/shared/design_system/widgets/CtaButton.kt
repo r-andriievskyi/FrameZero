@@ -32,18 +32,17 @@ fun CtaButton(
         .clickableWithRipple(
           color = AppTheme.colorSystem.accentDim,
           bounded = true,
-          onClick = onClick,
-        )
-        .padding(
+          onClick = onClick
+        ).padding(
           horizontal = AppTheme.spacingSystem.space8,
-          vertical = AppTheme.spacingSystem.space8,
+          vertical = AppTheme.spacingSystem.space8
         ),
-    contentAlignment = Alignment.Center,
+    contentAlignment = Alignment.Center
   ) {
     Text(
       text = text,
       style = AppTheme.typographySystem.labelLarge,
-      color = AppTheme.colorSystem.textOnAccent,
+      color = AppTheme.colorSystem.textOnAccent
     )
   }
 }

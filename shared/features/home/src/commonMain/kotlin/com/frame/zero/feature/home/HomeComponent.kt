@@ -15,21 +15,21 @@ class HomeComponent(
   val onSettingsClick: () -> Unit = {},
   dashboardViewModelFactory: () -> DashboardTabViewModel,
   projectsViewModelFactory: () -> ProjectsTabViewModel,
-  scheduleViewModelFactory: () -> ScheduleTabViewModel,
+  scheduleViewModelFactory: () -> ScheduleTabViewModel
 ) : ComponentContext by componentContext {
   val dashboardTab =
     DashboardTabComponent(
       componentContext = childContext(key = "tab-dashboard"),
-      viewModelFactory = dashboardViewModelFactory,
+      viewModelFactory = dashboardViewModelFactory
     )
   val projectsTab =
     ProjectsTabComponent(
       componentContext = childContext(key = "tab-projects"),
-      viewModelFactory = projectsViewModelFactory,
+      viewModelFactory = projectsViewModelFactory
     )
   val scheduleTab =
     ScheduleTabComponent(
       componentContext = childContext(key = "tab-schedule"),
-      viewModelFactory = scheduleViewModelFactory,
+      viewModelFactory = scheduleViewModelFactory
     )
 }

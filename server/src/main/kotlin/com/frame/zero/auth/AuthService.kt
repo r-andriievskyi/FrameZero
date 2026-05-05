@@ -20,13 +20,13 @@ class AuthService(
   private val passwordHasher: PasswordHasher,
   private val tokenHasher: TokenHasher,
   private val jwtService: JwtService,
-  private val jwtConfig: JwtConfig,
+  private val jwtConfig: JwtConfig
 ) {
   suspend fun register(
     email: String,
     password: String,
     firstName: String,
-    lastName: String,
+    lastName: String
   ): AuthResponse {
     validateEmail(email)
     validatePassword(password)
@@ -37,7 +37,7 @@ class AuthService(
         email = normalized,
         passwordHash = passwordHasher.hash(password),
         firstName = firstName.trim(),
-        lastName = lastName.trim(),
+        lastName = lastName.trim()
       )
     return issueTokens(user)
   }
@@ -63,7 +63,7 @@ class AuthService(
     refreshTokens.create(userId = user.id, tokenHash = newRefreshHash, expiresAt = expiresAt)
     return RefreshResponse(
       accessToken = jwtService.createAccessToken(user.id, user.email),
-      refreshToken = newRefresh,
+      refreshToken = newRefresh
     )
   }
 
@@ -79,7 +79,7 @@ class AuthService(
     return AuthResponse(
       accessToken = jwtService.createAccessToken(user.id, user.email),
       refreshToken = refresh,
-      user = user.toDto(),
+      user = user.toDto()
     )
   }
 

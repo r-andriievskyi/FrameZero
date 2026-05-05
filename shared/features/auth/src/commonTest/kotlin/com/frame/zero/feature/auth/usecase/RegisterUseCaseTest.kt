@@ -35,7 +35,7 @@ class RegisterUseCaseTest {
             email = "new@x.com",
             password = "p",
             firstName = "Jane",
-            lastName = "Doe",
+            lastName = "Doe"
           )
         )
 
@@ -71,7 +71,7 @@ class RegisterUseCaseTest {
           email = "typed@x.com",
           password = "secret",
           firstName = "Jane",
-          lastName = "Doe",
+          lastName = "Doe"
         )
       )
 
@@ -87,6 +87,6 @@ class RegisterUseCaseTest {
       tokenStorage = TokenStorage(MapSettings()),
       authOperations = NoopSessionAuthOperations,
       logoutSignal = LogoutSignal(),
-      scope = backgroundScope,
+      scope = backgroundScope
     )
 }

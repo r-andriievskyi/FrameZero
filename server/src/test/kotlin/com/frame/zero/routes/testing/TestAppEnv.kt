@@ -42,7 +42,7 @@ internal val testJwtConfig =
     audience = "test-audience",
     realm = "test-realm",
     accessTokenTtl = 15.minutes,
-    refreshTokenTtl = 30.days,
+    refreshTokenTtl = 30.days
   )
 
 internal class TestAppEnv {
@@ -92,7 +92,7 @@ internal class TestAppEnv {
       exception<SerializationException> { call, _ ->
         call.respond(
           HttpStatusCode.BadRequest,
-          ErrorResponse(error = "VALIDATION_ERROR", message = "Malformed request body"),
+          ErrorResponse(error = "VALIDATION_ERROR", message = "Malformed request body")
         )
       }
     }

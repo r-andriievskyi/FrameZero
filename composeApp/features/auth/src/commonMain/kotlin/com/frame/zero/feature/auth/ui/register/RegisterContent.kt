@@ -39,7 +39,7 @@ fun RegisterContent(component: RegisterComponent) {
   RegisterContent(
     state = state,
     onIntent = component::onIntent,
-    onSignInClick = component.onNavigateToSignIn,
+    onSignInClick = component.onNavigateToSignIn
   )
 }
 
@@ -47,11 +47,12 @@ fun RegisterContent(component: RegisterComponent) {
 private fun RegisterContent(
   state: RegisterState,
   onIntent: (RegisterIntent) -> Unit,
-  onSignInClick: () -> Unit,
+  onSignInClick: () -> Unit
 ) {
   Column(
     modifier =
-      Modifier.fillMaxSize()
+      Modifier
+        .fillMaxSize()
         .background(AppTheme.colorSystem.background)
         .padding(horizontal = AppTheme.spacingSystem.space16)
         .systemBarsPadding()
@@ -61,13 +62,13 @@ private fun RegisterContent(
       Image(
         painter = painterResource(Res.drawable.ic_logo),
         colorFilter = ColorFilter.tint(AppTheme.colorSystem.accent),
-        contentDescription = null,
+        contentDescription = null
       )
       HorizontalSpacer(AppTheme.spacingSystem.space8)
       Text(
         text = "FrameZero",
         color = AppTheme.colorSystem.textPrimary,
-        style = AppTheme.typographySystem.displayLarge,
+        style = AppTheme.typographySystem.displayLarge
       )
     }
     VerticalSpacer(AppTheme.spacingSystem.space24)
@@ -76,7 +77,7 @@ private fun RegisterContent(
       text = "Create account",
       color = AppTheme.colorSystem.textPrimary,
       style = AppTheme.typographySystem.displayMedium,
-      textAlign = TextAlign.Center,
+      textAlign = TextAlign.Center
     )
     VerticalSpacer(AppTheme.spacingSystem.space8)
     Text(
@@ -84,13 +85,13 @@ private fun RegisterContent(
       text = "Join your production team",
       color = AppTheme.colorSystem.textSecondary,
       style = AppTheme.typographySystem.bodyLarge,
-      textAlign = TextAlign.Center,
+      textAlign = TextAlign.Center
     )
     VerticalSpacer(AppTheme.spacingSystem.space24)
     Text(
       text = "FIRST NAME",
       color = AppTheme.colorSystem.textPrimary,
-      style = AppTheme.typographySystem.labelSmall,
+      style = AppTheme.typographySystem.labelSmall
     )
     VerticalSpacer(AppTheme.spacingSystem.space8)
     SingleLineInputField(
@@ -98,13 +99,13 @@ private fun RegisterContent(
       onValueChange = { onIntent(RegisterIntent.FirstNameChanged(it)) },
       placeholder = "John",
       enabled = !state.isLoading,
-      modifier = Modifier.fillMaxWidth(),
+      modifier = Modifier.fillMaxWidth()
     )
     VerticalSpacer(AppTheme.spacingSystem.space16)
     Text(
       text = "LAST NAME",
       color = AppTheme.colorSystem.textPrimary,
-      style = AppTheme.typographySystem.labelSmall,
+      style = AppTheme.typographySystem.labelSmall
     )
     VerticalSpacer(AppTheme.spacingSystem.space8)
     SingleLineInputField(
@@ -112,13 +113,13 @@ private fun RegisterContent(
       onValueChange = { onIntent(RegisterIntent.LastNameChanged(it)) },
       placeholder = "Doe",
       enabled = !state.isLoading,
-      modifier = Modifier.fillMaxWidth(),
+      modifier = Modifier.fillMaxWidth()
     )
     VerticalSpacer(AppTheme.spacingSystem.space16)
     Text(
       text = "EMAIL",
       color = AppTheme.colorSystem.textPrimary,
-      style = AppTheme.typographySystem.labelSmall,
+      style = AppTheme.typographySystem.labelSmall
     )
     VerticalSpacer(AppTheme.spacingSystem.space8)
     SingleLineInputField(
@@ -126,13 +127,13 @@ private fun RegisterContent(
       onValueChange = { onIntent(RegisterIntent.EmailChanged(it)) },
       placeholder = "you@studio.com",
       enabled = !state.isLoading,
-      modifier = Modifier.fillMaxWidth(),
+      modifier = Modifier.fillMaxWidth()
     )
     VerticalSpacer(AppTheme.spacingSystem.space16)
     Text(
       text = "PASSWORD",
       color = AppTheme.colorSystem.textPrimary,
-      style = AppTheme.typographySystem.labelSmall,
+      style = AppTheme.typographySystem.labelSmall
     )
     VerticalSpacer(AppTheme.spacingSystem.space8)
     SingleLineInputField(
@@ -141,20 +142,20 @@ private fun RegisterContent(
       placeholder = "******",
       visualTransformation = PasswordVisualTransformation(),
       enabled = !state.isLoading,
-      modifier = Modifier.fillMaxWidth(),
+      modifier = Modifier.fillMaxWidth()
     )
     VerticalSpacer(AppTheme.spacingSystem.space24)
     CtaButton(
       text = "Create account",
       onClick = { onIntent(RegisterIntent.Submit) },
-      modifier = Modifier.fillMaxWidth(),
+      modifier = Modifier.fillMaxWidth()
     )
     state.error?.let { error ->
       VerticalSpacer(AppTheme.spacingSystem.space8)
       Text(
         text = error,
         color = AppTheme.colorSystem.errorText,
-        style = AppTheme.typographySystem.bodySmall,
+        style = AppTheme.typographySystem.bodySmall
       )
     }
     Spacer(modifier = Modifier.weight(1f))
@@ -162,14 +163,14 @@ private fun RegisterContent(
       Text(
         text = "Already have an account?",
         color = AppTheme.colorSystem.textSecondary,
-        style = AppTheme.typographySystem.bodyMedium,
+        style = AppTheme.typographySystem.bodyMedium
       )
       HorizontalSpacer(AppTheme.spacingSystem.space4)
       Text(
         modifier = Modifier.clickable(enabled = !state.isLoading) { onSignInClick() },
         text = "Sign in",
         color = AppTheme.colorSystem.accent,
-        style = AppTheme.typographySystem.bodyMedium,
+        style = AppTheme.typographySystem.bodyMedium
       )
     }
     VerticalSpacer(AppTheme.spacingSystem.space24)

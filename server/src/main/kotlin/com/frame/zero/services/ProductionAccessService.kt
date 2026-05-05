@@ -9,12 +9,12 @@ import java.util.UUID
 enum class AccessLevel {
   READ,
   WRITE,
-  OWNER,
+  OWNER
 }
 
 class ProductionAccessService(
   private val productions: ProductionRepository,
-  private val members: ProductionMemberRepository,
+  private val members: ProductionMemberRepository
 ) {
   suspend fun requireAccess(
     userId: UUID,

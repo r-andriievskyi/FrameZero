@@ -18,5 +18,5 @@ data class TypographySystem(
   val labelSmall: TextStyle,
   val caption: TextStyle,
   val monoMedium: TextStyle,
-  val monoSmall: TextStyle,
+  val monoSmall: TextStyle
 )

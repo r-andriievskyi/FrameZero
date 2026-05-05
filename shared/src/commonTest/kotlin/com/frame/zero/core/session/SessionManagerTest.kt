@@ -111,13 +111,13 @@ class SessionManagerTest {
       tokenStorage = TokenStorage(MapSettings()),
       authOperations = FakeAuthOps(),
       logoutSignal = LogoutSignal(),
-      scope = backgroundScope,
+      scope = backgroundScope
     )
 
   private class FakeAuthOps(
     private val currentUserDto: UserDto = UserDto("", "", "", ""),
     private val fetchThrows: Boolean = false,
-    private val signOutThrows: Boolean = false,
+    private val signOutThrows: Boolean = false
   ) : SessionAuthOperations {
     var fetchCalls = 0
     var signOutCalls = 0

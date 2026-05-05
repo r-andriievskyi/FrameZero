@@ -10,15 +10,18 @@ import kotlin.time.Instant
 data class ScheduleResponse(
   val rangeStart: LocalDate,
   val rangeEnd: LocalDate,
-  val days: List<ScheduleDayDto>,
+  val days: List<ScheduleDayDto>
 )
 
-@Serializable data class ScheduleDayDto(val date: LocalDate, val items: List<ScheduleItemDto>)
+@Serializable data class ScheduleDayDto(
+  val date: LocalDate,
+  val items: List<ScheduleItemDto>
+)
 
 @Serializable
 enum class ScheduleItemSource {
   TASK,
-  EVENT,
+  EVENT
 }
 
 /**
@@ -37,7 +40,7 @@ data class ScheduleItemDto(
   val dueDate: LocalDate? = null,
   val location: String? = null,
   val eventKind: ScheduleEventKind? = null,
-  val taskStatus: TaskStatus? = null,
+  val taskStatus: TaskStatus? = null
 )
 
 @Serializable
@@ -49,7 +52,7 @@ data class ScheduleEventDto(
   val endsAt: Instant,
   val kind: ScheduleEventKind,
   val productionId: String,
-  val productionTitle: String,
+  val productionTitle: String
 )
 
 @Serializable
@@ -59,7 +62,7 @@ data class CreateScheduleEventRequest(
   val location: String? = null,
   val startsAt: Instant,
   val endsAt: Instant,
-  val kind: ScheduleEventKind,
+  val kind: ScheduleEventKind
 )
 
 @Serializable
@@ -68,5 +71,5 @@ data class UpdateScheduleEventRequest(
   val location: String? = null,
   val startsAt: Instant? = null,
   val endsAt: Instant? = null,
-  val kind: ScheduleEventKind? = null,
+  val kind: ScheduleEventKind? = null
 )

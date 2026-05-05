@@ -68,6 +68,6 @@ class LoginUseCaseTest {
       tokenStorage = TokenStorage(MapSettings()),
       authOperations = NoopSessionAuthOperations,
       logoutSignal = LogoutSignal(),
-      scope = backgroundScope,
+      scope = backgroundScope
     )
 }

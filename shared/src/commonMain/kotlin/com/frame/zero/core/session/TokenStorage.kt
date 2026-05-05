@@ -2,7 +2,9 @@ package com.frame.zero.core.session
 
 import com.russhwolf.settings.Settings
 
-class TokenStorage(private val settings: Settings) {
+class TokenStorage(
+  private val settings: Settings
+) {
   fun saveTokens(
     accessToken: String,
     refreshToken: String

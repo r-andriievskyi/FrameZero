@@ -15,7 +15,7 @@ import com.frame.zero.feature.auth.signin.SignInViewModel
 class AuthComponent(
   componentContext: ComponentContext,
   private val signInViewModelFactory: () -> SignInViewModel,
-  private val registerViewModelFactory: () -> RegisterViewModel,
+  private val registerViewModelFactory: () -> RegisterViewModel
 ) : ComponentContext by componentContext {
   private val navigation = StackNavigation<Config>()
 
@@ -25,7 +25,7 @@ class AuthComponent(
       serializer = null,
       initialConfiguration = Config.SignIn,
       handleBackButton = true,
-      childFactory = ::createChild,
+      childFactory = ::createChild
     )
 
   private fun createChild(
@@ -38,7 +38,7 @@ class AuthComponent(
           SignInComponent(
             componentContext = context,
             onNavigateToRegister = { navigation.bringToFront(Config.Register) },
-            viewModelFactory = signInViewModelFactory,
+            viewModelFactory = signInViewModelFactory
           )
         )
       Config.Register ->
@@ -46,7 +46,7 @@ class AuthComponent(
           RegisterComponent(
             componentContext = context,
             onNavigateToSignIn = { navigation.pop() },
-            viewModelFactory = registerViewModelFactory,
+            viewModelFactory = registerViewModelFactory
           )
         )
     }
@@ -58,8 +58,12 @@ class AuthComponent(
   }
 
   sealed interface Child {
-    data class SignIn(val component: SignInComponent) : Child
+    data class SignIn(
+      val component: SignInComponent
+    ) : Child
 
-    data class Register(val component: RegisterComponent) : Child
+    data class Register(
+      val component: RegisterComponent
+    ) : Child
   }
 }

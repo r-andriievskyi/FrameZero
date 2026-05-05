@@ -10,11 +10,11 @@ import androidx.compose.ui.unit.Dp
 @Composable
 fun VerticalSpacer(
   spaceBy: Dp,
-  modifier: Modifier = Modifier,
+  modifier: Modifier = Modifier
 ) = Spacer(modifier = modifier.height(spaceBy))
 
 @Composable
 fun HorizontalSpacer(
   spaceBy: Dp,
-  modifier: Modifier = Modifier,
+  modifier: Modifier = Modifier
 ) = Spacer(modifier = modifier.width(spaceBy))

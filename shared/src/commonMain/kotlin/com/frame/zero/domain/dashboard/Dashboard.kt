@@ -10,16 +10,19 @@ data class Dashboard(
   val greeting: DashboardGreeting,
   val stats: DashboardStats,
   val myTasks: List<DashboardTask>,
-  val productionStatus: List<DashboardProduction>,
+  val productionStatus: List<DashboardProduction>
 )
 
 data class DashboardGreeting(
   val displayName: String,
   val activeProductionsCount: Int,
-  val openTasksCount: Int,
+  val openTasksCount: Int
 )
 
-data class DashboardStats(val activeProjects: Int, val openTasks: Int)
+data class DashboardStats(
+  val activeProjects: Int,
+  val openTasks: Int
+)
 
 data class DashboardTask(
   val id: String,
@@ -27,7 +30,7 @@ data class DashboardTask(
   val productionTitle: String,
   val dueDate: LocalDate?,
   val dueLabel: String?,
-  val status: TaskStatus,
+  val status: TaskStatus
 )
 
 data class DashboardProduction(
@@ -37,5 +40,5 @@ data class DashboardProduction(
   val progressPercent: Int,
   val daysLeft: Int,
   val accentColorHint: AccentColorHint,
-  val updatedAt: Instant,
+  val updatedAt: Instant
 )

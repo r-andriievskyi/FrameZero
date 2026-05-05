@@ -11,18 +11,17 @@ fun DashboardResponse.toDomain(): Dashboard =
     greeting = greeting.toDomain(),
     stats = stats.toDomain(),
     myTasks = myTasks.map { it.toDomain() },
-    productionStatus = productionStatus.map { it.toDomain() },
+    productionStatus = productionStatus.map { it.toDomain() }
   )
 
 fun GreetingDto.toDomain(): DashboardGreeting =
   DashboardGreeting(
     displayName = displayName,
     activeProductionsCount = activeProductionsCount,
-    openTasksCount = openTasksCount,
+    openTasksCount = openTasksCount
   )
 
-fun StatsDto.toDomain(): DashboardStats =
-  DashboardStats(activeProjects = activeProjects, openTasks = openTasks)
+fun StatsDto.toDomain(): DashboardStats = DashboardStats(activeProjects = activeProjects, openTasks = openTasks)
 
 fun TaskSummaryDto.toDomain(): DashboardTask =
   DashboardTask(
@@ -31,7 +30,7 @@ fun TaskSummaryDto.toDomain(): DashboardTask =
     productionTitle = productionTitle,
     dueDate = dueDate,
     dueLabel = dueLabel,
-    status = status,
+    status = status
   )
 
 fun ProductionSummaryDto.toDomain(): DashboardProduction =
@@ -42,5 +41,5 @@ fun ProductionSummaryDto.toDomain(): DashboardProduction =
     progressPercent = progressPercent,
     daysLeft = daysLeft,
     accentColorHint = accentColorHint,
-    updatedAt = updatedAt,
+    updatedAt = updatedAt
   )

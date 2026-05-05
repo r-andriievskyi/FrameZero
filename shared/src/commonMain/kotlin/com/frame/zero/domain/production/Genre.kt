@@ -12,5 +12,5 @@ enum class Genre {
   DOCUMENTARY,
   ACTION,
   ANIMATION,
-  OTHER,
+  OTHER
 }

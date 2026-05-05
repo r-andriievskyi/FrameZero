@@ -6,5 +6,5 @@ import com.frame.zero.domain.schedule.ScheduleView
 data class ScheduleTabState(
   val isLoading: Boolean = false,
   val view: ScheduleView = ScheduleView.DAY,
-  val schedule: Schedule? = null,
+  val schedule: Schedule? = null
 )

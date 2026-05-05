@@ -168,23 +168,24 @@ class SignInViewModelTest {
 
   private fun makeViewModel(
     scope: TestScope,
-    repo: AuthRepository = FakeAuthRepository(),
+    repo: AuthRepository = FakeAuthRepository()
   ): SignInViewModel {
     val sessionManager =
       SessionManager(
         tokenStorage = TokenStorage(MapSettings()),
         authOperations = NoopSessionAuthOperations,
         logoutSignal = LogoutSignal(),
-        scope = scope.backgroundScope,
+        scope = scope.backgroundScope
       )
     return SignInViewModel(
       loginUseCase = LoginUseCase(repo, sessionManager),
-      dispatcher = StandardTestDispatcher(scope.testScheduler),
+      dispatcher = StandardTestDispatcher(scope.testScheduler)
     )
   }
 
-  private class GatedAuthRepository(private val loginGate: CompletableDeferred<UserDto>) :
-    AuthRepository {
+  private class GatedAuthRepository(
+    private val loginGate: CompletableDeferred<UserDto>
+  ) : AuthRepository {
     var loginInvocations: Int = 0
       private set
 
@@ -200,7 +201,7 @@ class SignInViewModelTest {
       email: String,
       password: String,
       firstName: String,
-      lastName: String,
+      lastName: String
     ): UserDto = error("not expected")
 
     override suspend fun logout() = Unit

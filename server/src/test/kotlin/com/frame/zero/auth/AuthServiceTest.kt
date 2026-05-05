@@ -27,7 +27,7 @@ class AuthServiceTest {
       audience = "test-audience",
       realm = "test-realm",
       accessTokenTtl = 15.minutes,
-      refreshTokenTtl = 30.days,
+      refreshTokenTtl = 30.days
     )
 
   // -- register --------------------------------------------------------------
@@ -289,7 +289,7 @@ class AuthServiceTest {
     tokens: RefreshTokenRepository = FakeRefreshTokenRepository(),
     passwordHasher: PasswordHasher = PasswordHasher(),
     tokenHasher: TokenHasher = TokenHasher(),
-    jwtConfig: JwtConfig = baseJwtConfig,
+    jwtConfig: JwtConfig = baseJwtConfig
   ): AuthService =
     AuthService(
       users = users,
@@ -297,6 +297,6 @@ class AuthServiceTest {
       passwordHasher = passwordHasher,
       tokenHasher = tokenHasher,
       jwtService = JwtService(jwtConfig),
-      jwtConfig = jwtConfig,
+      jwtConfig = jwtConfig
     )
 }

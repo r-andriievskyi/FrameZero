@@ -7,7 +7,7 @@ import kotlin.time.Instant
 @Serializable
 enum class TaskStatus {
   OPEN,
-  DONE,
+  DONE
 }
 
 @Serializable
@@ -17,7 +17,7 @@ data class TaskSummaryDto(
   val productionTitle: String,
   val dueDate: LocalDate?,
   val dueLabel: String?,
-  val status: TaskStatus,
+  val status: TaskStatus
 )
 
 @Serializable
@@ -30,7 +30,7 @@ data class TaskDetailDto(
   val dueDate: LocalDate?,
   val status: TaskStatus,
   val assigneeUserId: String?,
-  val createdAt: Instant,
+  val createdAt: Instant
 )
 
 @Serializable
@@ -39,7 +39,7 @@ data class CreateTaskRequest(
   val title: String,
   val description: String? = null,
   val dueDate: LocalDate? = null,
-  val assigneeUserId: String? = null,
+  val assigneeUserId: String? = null
 )
 
 @Serializable
@@ -48,5 +48,5 @@ data class UpdateTaskRequest(
   val description: String? = null,
   val dueDate: LocalDate? = null,
   val status: TaskStatus? = null,
-  val assigneeUserId: String? = null,
+  val assigneeUserId: String? = null
 )

@@ -16,7 +16,10 @@ import java.time.ZoneId
 import java.util.UUID
 import kotlin.time.toKotlinInstant
 
-class TaskService(private val tasks: TaskRepository, private val access: ProductionAccessService) {
+class TaskService(
+  private val tasks: TaskRepository,
+  private val access: ProductionAccessService
+) {
   suspend fun list(
     userId: UUID,
     assigneeMe: Boolean,
@@ -24,7 +27,7 @@ class TaskService(private val tasks: TaskRepository, private val access: Product
     productionId: UUID?,
     limit: Int,
     cursor: String?,
-    timezone: ZoneId,
+    timezone: ZoneId
   ): Pair<List<TaskSummaryDto>, String?> {
     if (productionId != null) access.requireAccess(userId, productionId, AccessLevel.READ)
     val (items, nextCursor) =
@@ -34,7 +37,7 @@ class TaskService(private val tasks: TaskRepository, private val access: Product
         status = status,
         productionId = productionId,
         limit = limit,
-        cursor = cursor,
+        cursor = cursor
       )
     return Pair(items.map { it.toSummaryDto(timezone) }, nextCursor)
   }
@@ -77,7 +80,7 @@ class TaskService(private val tasks: TaskRepository, private val access: Product
         title = request.title.trim(),
         description = request.description?.trim(),
         dueDate = request.dueDate?.toJava(),
-        assigneeUserId = assigneeId,
+        assigneeUserId = assigneeId
       )
     return task.toDetailDto()
   }
@@ -86,7 +89,7 @@ class TaskService(private val tasks: TaskRepository, private val access: Product
     userId: UUID,
     taskId: UUID,
     request: UpdateTaskRequest,
-    timezone: ZoneId,
+    timezone: ZoneId
   ): TaskDetailDto {
     val task = tasks.findById(taskId) ?: throw AppException(AppError.NotFound)
     access.requireAccess(userId, task.productionId, AccessLevel.WRITE)
@@ -109,7 +112,7 @@ class TaskService(private val tasks: TaskRepository, private val access: Product
         description = request.description?.trim(),
         dueDate = request.dueDate?.toJava(),
         status = request.status,
-        assigneeUserId = assigneeId,
+        assigneeUserId = assigneeId
       ) ?: throw AppException(AppError.NotFound)
     return updated.toDetailDto()
   }
@@ -130,7 +133,7 @@ class TaskService(private val tasks: TaskRepository, private val access: Product
       productionTitle = productionTitle,
       dueDate = dueDate?.toKotlin(),
       dueLabel = dueDate?.let { dueLabelFor(it, tz) },
-      status = status,
+      status = status
     )
 
   private fun TaskRecord.toDetailDto(): TaskDetailDto =
@@ -143,11 +146,10 @@ class TaskService(private val tasks: TaskRepository, private val access: Product
       dueDate = dueDate?.toKotlin(),
       status = status,
       assigneeUserId = assigneeUserId?.toString(),
-      createdAt = createdAt.toKotlinInstant(),
+      createdAt = createdAt.toKotlinInstant()
     )
 
   private companion object {
-    fun kotlinx.datetime.LocalDate.toJava(): java.time.LocalDate =
-      java.time.LocalDate.of(year, month.number, day)
+    fun kotlinx.datetime.LocalDate.toJava(): java.time.LocalDate = java.time.LocalDate.of(year, month.number, day)
   }
 }

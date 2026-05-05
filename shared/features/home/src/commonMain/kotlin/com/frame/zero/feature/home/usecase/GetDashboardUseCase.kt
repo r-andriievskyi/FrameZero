@@ -8,8 +8,9 @@ import com.frame.zero.repository.dashboard.DashboardRepository
 import io.ktor.client.plugins.ResponseException
 import kotlinx.io.IOException
 
-class GetDashboardUseCase(private val dashboardRepository: DashboardRepository) :
-  NoParamsUseCase<Dashboard>() {
+class GetDashboardUseCase(
+  private val dashboardRepository: DashboardRepository
+) : NoParamsUseCase<Dashboard>() {
   override fun mapError(throwable: Throwable): DomainError =
     when (throwable) {
       is IOException -> DomainError.Network(throwable.message ?: "Network error")

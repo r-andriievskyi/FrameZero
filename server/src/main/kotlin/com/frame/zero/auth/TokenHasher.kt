@@ -18,7 +18,10 @@ class TokenHasher {
   }
 
   private fun base64UrlEncode(bytes: ByteArray): String =
-    java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(bytes)
+    java.util.Base64
+      .getUrlEncoder()
+      .withoutPadding()
+      .encodeToString(bytes)
 
   private companion object {
     const val TOKEN_BYTE_LENGTH = 48

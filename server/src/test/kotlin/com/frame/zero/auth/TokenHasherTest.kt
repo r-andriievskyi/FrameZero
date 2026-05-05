@@ -13,7 +13,7 @@ class TokenHasherTest {
   fun `sha256 matches the known vector for abc`() {
     assertEquals(
       "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
-      hasher.sha256("abc"),
+      hasher.sha256("abc")
     )
   }
 
@@ -21,7 +21,7 @@ class TokenHasherTest {
   fun `sha256 of empty string matches the known vector`() {
     assertEquals(
       "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      hasher.sha256(""),
+      hasher.sha256("")
     )
   }
 

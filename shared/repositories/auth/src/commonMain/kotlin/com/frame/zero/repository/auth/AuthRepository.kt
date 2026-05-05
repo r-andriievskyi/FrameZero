@@ -7,7 +7,7 @@ interface AuthRepository {
     email: String,
     password: String,
     firstName: String,
-    lastName: String,
+    lastName: String
   ): UserDto
 
   suspend fun login(

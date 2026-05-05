@@ -25,7 +25,7 @@ fun Route.authRoutes() {
       val body = call.receive<RegisterRequest>()
       call.respond(
         HttpStatusCode.Created,
-        service.register(body.email, body.password, body.firstName, body.lastName),
+        service.register(body.email, body.password, body.firstName, body.lastName)
       )
     }
 
