@@ -16,15 +16,16 @@ import com.frame.zero.repository.schedule.ScheduleRepository
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
-val featureHomeModule: Module = module {
-  single<DashboardRepository> { DashboardRepositoryImpl(get(), get()) }
-  single<ProductionsRepository> { ProductionsRepositoryImpl(get(), get()) }
-  single<ScheduleRepository> { ScheduleRepositoryImpl(get(), get()) }
-  factory { GetMeUseCase(get()) }
-  factory { GetDashboardUseCase(get()) }
-  factory { GetProductionsUseCase(get()) }
-  factory { GetScheduleUseCase(get()) }
-  factory { DashboardTabViewModel(get(), get()) }
-  factory { ProjectsTabViewModel(get()) }
-  factory { ScheduleTabViewModel(get()) }
-}
+val featureHomeModule: Module =
+  module {
+    single<DashboardRepository> { DashboardRepositoryImpl(get(), get()) }
+    single<ProductionsRepository> { ProductionsRepositoryImpl(get(), get()) }
+    single<ScheduleRepository> { ScheduleRepositoryImpl(get(), get()) }
+    factory { GetMeUseCase(get()) }
+    factory { GetDashboardUseCase(get()) }
+    factory { GetProductionsUseCase(get()) }
+    factory { GetScheduleUseCase(get()) }
+    factory { DashboardTabViewModel(get(), get()) }
+    factory { ProjectsTabViewModel(get()) }
+    factory { ScheduleTabViewModel(get()) }
+  }

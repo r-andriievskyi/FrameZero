@@ -11,7 +11,6 @@ import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
 class JwtServiceTest {
-
   private val baseConfig =
     JwtConfig(
       secret = "test-secret-must-be-long-enough-for-hmac256",

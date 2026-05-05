@@ -8,9 +8,6 @@ import com.frame.zero.domain.production.ProductionPhase
 import com.frame.zero.domain.production.ProductionSort
 import com.frame.zero.util.decodeCursor
 import com.frame.zero.util.encodeCursor
-import java.time.Instant
-import java.time.LocalDate
-import java.util.UUID
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and
@@ -26,6 +23,9 @@ import org.jetbrains.exposed.v1.core.or
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.update
+import java.time.Instant
+import java.time.LocalDate
+import java.util.UUID
 
 data class ProductionRecord(
   val id: UUID,
@@ -76,7 +76,10 @@ interface ProductionRepository {
     budgetCents: Long?,
   ): ProductionRecord?
 
-  suspend fun updatePhase(id: UUID, phase: ProductionPhase): ProductionRecord?
+  suspend fun updatePhase(
+    id: UUID,
+    phase: ProductionPhase
+  ): ProductionRecord?
 
   suspend fun softDelete(id: UUID)
 }
@@ -91,44 +94,46 @@ class ProductionRepositoryExposed : ProductionRepository {
     wrapDate: LocalDate,
     budgetCents: Long?,
     ownerUserId: UUID,
-  ): ProductionRecord = dbQuery {
-    val newId = UUID.randomUUID()
-    val now = Instant.now()
-    ProductionsTable.insert {
-      it[id] = newId
-      it[ProductionsTable.title] = title
-      it[ProductionsTable.genre] = genre.name
-      it[ProductionsTable.logline] = logline
-      it[ProductionsTable.phase] = phase.name
-      it[ProductionsTable.startDate] = startDate
-      it[ProductionsTable.wrapDate] = wrapDate
-      it[ProductionsTable.budgetCents] = budgetCents
-      it[ProductionsTable.ownerUserId] = ownerUserId
-      it[createdAt] = now
-      it[updatedAt] = now
+  ): ProductionRecord =
+    dbQuery {
+      val newId = UUID.randomUUID()
+      val now = Instant.now()
+      ProductionsTable.insert {
+        it[id] = newId
+        it[ProductionsTable.title] = title
+        it[ProductionsTable.genre] = genre.name
+        it[ProductionsTable.logline] = logline
+        it[ProductionsTable.phase] = phase.name
+        it[ProductionsTable.startDate] = startDate
+        it[ProductionsTable.wrapDate] = wrapDate
+        it[ProductionsTable.budgetCents] = budgetCents
+        it[ProductionsTable.ownerUserId] = ownerUserId
+        it[createdAt] = now
+        it[updatedAt] = now
+      }
+      ProductionRecord(
+        id = newId,
+        title = title,
+        genre = genre,
+        logline = logline,
+        phase = phase,
+        startDate = startDate,
+        wrapDate = wrapDate,
+        budgetCents = budgetCents,
+        ownerUserId = ownerUserId,
+        deletedAt = null,
+        createdAt = now,
+        updatedAt = now,
+      )
     }
-    ProductionRecord(
-      id = newId,
-      title = title,
-      genre = genre,
-      logline = logline,
-      phase = phase,
-      startDate = startDate,
-      wrapDate = wrapDate,
-      budgetCents = budgetCents,
-      ownerUserId = ownerUserId,
-      deletedAt = null,
-      createdAt = now,
-      updatedAt = now,
-    )
-  }
 
-  override suspend fun findById(id: UUID): ProductionRecord? = dbQuery {
-    ProductionsTable.selectAll()
-      .where { (ProductionsTable.id eq id) and ProductionsTable.deletedAt.isNull() }
-      .singleOrNull()
-      ?.toRecord()
-  }
+  override suspend fun findById(id: UUID): ProductionRecord? =
+    dbQuery {
+      ProductionsTable.selectAll()
+        .where { (ProductionsTable.id eq id) and ProductionsTable.deletedAt.isNull() }
+        .singleOrNull()
+        ?.toRecord()
+    }
 
   override suspend fun findAccessible(
     userId: UUID,
@@ -137,111 +142,117 @@ class ProductionRepositoryExposed : ProductionRepository {
     sort: ProductionSort,
     limit: Int,
     cursor: String?,
-  ): Pair<List<ProductionRecord>, String?> = dbQuery {
-    val memberProductionIds =
-      ProductionMembersTable.selectAll()
-        .where { ProductionMembersTable.userId eq userId }
-        .map { it[ProductionMembersTable.productionId] }
+  ): Pair<List<ProductionRecord>, String?> =
+    dbQuery {
+      val memberProductionIds =
+        ProductionMembersTable.selectAll()
+          .where { ProductionMembersTable.userId eq userId }
+          .map { it[ProductionMembersTable.productionId] }
 
-    val baseQuery =
-      ProductionsTable.selectAll().where {
-        val accessCond =
-          if (memberProductionIds.isEmpty()) {
-            ProductionsTable.ownerUserId eq userId
-          } else {
-            (ProductionsTable.ownerUserId eq userId) or
-              (ProductionsTable.id inList memberProductionIds)
+      val baseQuery =
+        ProductionsTable.selectAll().where {
+          val accessCond =
+            if (memberProductionIds.isEmpty()) {
+              ProductionsTable.ownerUserId eq userId
+            } else {
+              (ProductionsTable.ownerUserId eq userId) or
+                (ProductionsTable.id inList memberProductionIds)
+            }
+
+          var cond = ProductionsTable.deletedAt.isNull() and accessCond
+
+          if (phases.isNotEmpty()) {
+            val phaseNames = phases.map { it.name }
+            cond = cond and (ProductionsTable.phase inList phaseNames)
           }
 
-        var cond = ProductionsTable.deletedAt.isNull() and accessCond
+          if (!query.isNullOrBlank()) {
+            cond = cond and (ProductionsTable.title.lowerCase() like "%${query.lowercase()}%")
+          }
 
-        if (phases.isNotEmpty()) {
-          val phaseNames = phases.map { it.name }
-          cond = cond and (ProductionsTable.phase inList phaseNames)
-        }
-
-        if (!query.isNullOrBlank()) {
-          cond = cond and (ProductionsTable.title.lowerCase() like "%${query.lowercase()}%")
-        }
-
-        if (cursor != null) {
-          val pc = decodeCursor(cursor)
-          if (pc != null) {
-            cond =
-              cond and
+          if (cursor != null) {
+            val pc = decodeCursor(cursor)
+            if (pc != null) {
+              cond =
+                cond and
                 when (sort) {
                   ProductionSort.DUE_DATE -> {
                     val cursorDate = LocalDate.ofEpochDay(pc.epochMillis)
                     (ProductionsTable.wrapDate greater cursorDate) or
-                      ((ProductionsTable.wrapDate eq cursorDate) and
-                        (ProductionsTable.id greater pc.id))
+                      (
+                        (ProductionsTable.wrapDate eq cursorDate) and
+                          (ProductionsTable.id greater pc.id)
+                      )
                   }
                   ProductionSort.RECENT -> {
                     val cursorTs = Instant.ofEpochMilli(pc.epochMillis)
                     (ProductionsTable.updatedAt less cursorTs) or
-                      ((ProductionsTable.updatedAt eq cursorTs) and
-                        (ProductionsTable.id less pc.id))
+                      (
+                        (ProductionsTable.updatedAt eq cursorTs) and
+                          (ProductionsTable.id less pc.id)
+                      )
                   }
                 }
+            }
           }
+
+          cond
         }
 
-        cond
-      }
-
-    val ordered =
-      when (sort) {
-        ProductionSort.DUE_DATE ->
-          baseQuery.orderBy(
-            ProductionsTable.wrapDate to SortOrder.ASC,
-            ProductionsTable.id to SortOrder.ASC,
-          )
-        ProductionSort.RECENT ->
-          baseQuery.orderBy(
-            ProductionsTable.updatedAt to SortOrder.DESC,
-            ProductionsTable.id to SortOrder.DESC,
-          )
-      }
-
-    val rows = ordered.limit(limit + 1).map { it.toRecord() }
-
-    val hasMore = rows.size > limit
-    val items = if (hasMore) rows.dropLast(1) else rows
-    val nextCursor =
-      if (hasMore) {
-        val last = items.last()
+      val ordered =
         when (sort) {
-          ProductionSort.DUE_DATE -> encodeCursor(last.wrapDate.toEpochDay(), last.id)
-          ProductionSort.RECENT -> encodeCursor(last.updatedAt.toEpochMilli(), last.id)
+          ProductionSort.DUE_DATE ->
+            baseQuery.orderBy(
+              ProductionsTable.wrapDate to SortOrder.ASC,
+              ProductionsTable.id to SortOrder.ASC,
+            )
+          ProductionSort.RECENT ->
+            baseQuery.orderBy(
+              ProductionsTable.updatedAt to SortOrder.DESC,
+              ProductionsTable.id to SortOrder.DESC,
+            )
         }
-      } else {
-        null
-      }
-    Pair(items, nextCursor)
-  }
 
-  override suspend fun countActiveForUser(userId: UUID): Int = dbQuery {
-    val memberProductionIds =
-      ProductionMembersTable.selectAll()
-        .where { ProductionMembersTable.userId eq userId }
-        .map { it[ProductionMembersTable.productionId] }
+      val rows = ordered.limit(limit + 1).map { it.toRecord() }
 
-    ProductionsTable.selectAll()
-      .where {
-        val accessCond =
-          if (memberProductionIds.isEmpty()) {
-            ProductionsTable.ownerUserId eq userId
-          } else {
-            (ProductionsTable.ownerUserId eq userId) or
-              (ProductionsTable.id inList memberProductionIds)
+      val hasMore = rows.size > limit
+      val items = if (hasMore) rows.dropLast(1) else rows
+      val nextCursor =
+        if (hasMore) {
+          val last = items.last()
+          when (sort) {
+            ProductionSort.DUE_DATE -> encodeCursor(last.wrapDate.toEpochDay(), last.id)
+            ProductionSort.RECENT -> encodeCursor(last.updatedAt.toEpochMilli(), last.id)
           }
-        ProductionsTable.deletedAt.isNull() and
-          (ProductionsTable.phase neq ProductionPhase.DISTRIBUTION.name) and
-          accessCond
-      }
-      .count()
-      .toInt()
-  }
+        } else {
+          null
+        }
+      Pair(items, nextCursor)
+    }
+
+  override suspend fun countActiveForUser(userId: UUID): Int =
+    dbQuery {
+      val memberProductionIds =
+        ProductionMembersTable.selectAll()
+          .where { ProductionMembersTable.userId eq userId }
+          .map { it[ProductionMembersTable.productionId] }
+
+      ProductionsTable.selectAll()
+        .where {
+          val accessCond =
+            if (memberProductionIds.isEmpty()) {
+              ProductionsTable.ownerUserId eq userId
+            } else {
+              (ProductionsTable.ownerUserId eq userId) or
+                (ProductionsTable.id inList memberProductionIds)
+            }
+          ProductionsTable.deletedAt.isNull() and
+            (ProductionsTable.phase neq ProductionPhase.DISTRIBUTION.name) and
+            accessCond
+        }
+        .count()
+        .toInt()
+    }
 
   override suspend fun update(
     id: UUID,
@@ -250,33 +261,42 @@ class ProductionRepositoryExposed : ProductionRepository {
     startDate: LocalDate?,
     wrapDate: LocalDate?,
     budgetCents: Long?,
-  ): ProductionRecord? = dbQuery {
-    val now = Instant.now()
-    val updated =
-      ProductionsTable.update({ ProductionsTable.id eq id }) { row ->
-        title?.let { row[ProductionsTable.title] = it }
-        logline?.let { row[ProductionsTable.logline] = it }
-        startDate?.let { row[ProductionsTable.startDate] = it }
-        wrapDate?.let { row[ProductionsTable.wrapDate] = it }
-        budgetCents?.let { row[ProductionsTable.budgetCents] = it }
-        row[updatedAt] = now
+  ): ProductionRecord? =
+    dbQuery {
+      val now = Instant.now()
+      val updated =
+        ProductionsTable.update({ ProductionsTable.id eq id }) { row ->
+          title?.let { row[ProductionsTable.title] = it }
+          logline?.let { row[ProductionsTable.logline] = it }
+          startDate?.let { row[ProductionsTable.startDate] = it }
+          wrapDate?.let { row[ProductionsTable.wrapDate] = it }
+          budgetCents?.let { row[ProductionsTable.budgetCents] = it }
+          row[updatedAt] = now
+        }
+      if (updated == 0) {
+        null
+      } else {
+        ProductionsTable.selectAll().where { ProductionsTable.id eq id }.singleOrNull()?.toRecord()
       }
-    if (updated == 0) null
-    else ProductionsTable.selectAll().where { ProductionsTable.id eq id }.singleOrNull()?.toRecord()
-  }
-
-  override suspend fun updatePhase(id: UUID, phase: ProductionPhase): ProductionRecord? = dbQuery {
-    val now = Instant.now()
-    ProductionsTable.update({ ProductionsTable.id eq id }) {
-      it[ProductionsTable.phase] = phase.name
-      it[updatedAt] = now
     }
-    ProductionsTable.selectAll().where { ProductionsTable.id eq id }.singleOrNull()?.toRecord()
-  }
 
-  override suspend fun softDelete(id: UUID): Unit = dbQuery {
-    ProductionsTable.update({ ProductionsTable.id eq id }) { it[deletedAt] = Instant.now() }
-  }
+  override suspend fun updatePhase(
+    id: UUID,
+    phase: ProductionPhase
+  ): ProductionRecord? =
+    dbQuery {
+      val now = Instant.now()
+      ProductionsTable.update({ ProductionsTable.id eq id }) {
+        it[ProductionsTable.phase] = phase.name
+        it[updatedAt] = now
+      }
+      ProductionsTable.selectAll().where { ProductionsTable.id eq id }.singleOrNull()?.toRecord()
+    }
+
+  override suspend fun softDelete(id: UUID): Unit =
+    dbQuery {
+      ProductionsTable.update({ ProductionsTable.id eq id }) { it[deletedAt] = Instant.now() }
+    }
 
   private fun ResultRow.toRecord(): ProductionRecord =
     ProductionRecord(

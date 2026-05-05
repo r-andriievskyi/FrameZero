@@ -11,13 +11,12 @@ import com.frame.zero.repository.TaskRecord
 import com.frame.zero.repository.TaskRepository
 import com.frame.zero.util.dueLabelFor
 import com.frame.zero.util.toKotlin
+import kotlinx.datetime.number
 import java.time.ZoneId
 import java.util.UUID
 import kotlin.time.toKotlinInstant
-import kotlinx.datetime.number
 
 class TaskService(private val tasks: TaskRepository, private val access: ProductionAccessService) {
-
   suspend fun list(
     userId: UUID,
     assigneeMe: Boolean,
@@ -40,13 +39,21 @@ class TaskService(private val tasks: TaskRepository, private val access: Product
     return Pair(items.map { it.toSummaryDto(timezone) }, nextCursor)
   }
 
-  suspend fun get(userId: UUID, taskId: UUID, timezone: ZoneId): TaskDetailDto {
+  suspend fun get(
+    userId: UUID,
+    taskId: UUID,
+    timezone: ZoneId
+  ): TaskDetailDto {
     val task = tasks.findById(taskId) ?: throw AppException(AppError.NotFound)
     access.requireAccess(userId, task.productionId, AccessLevel.READ)
     return task.toDetailDto()
   }
 
-  suspend fun create(userId: UUID, request: CreateTaskRequest, timezone: ZoneId): TaskDetailDto {
+  suspend fun create(
+    userId: UUID,
+    request: CreateTaskRequest,
+    timezone: ZoneId
+  ): TaskDetailDto {
     val errors = mutableMapOf<String, String>()
     if (request.title.isBlank()) errors["title"] = "Required"
     if (request.title.length > 200) errors["title"] = "Max 200 characters"
@@ -85,8 +92,9 @@ class TaskService(private val tasks: TaskRepository, private val access: Product
     access.requireAccess(userId, task.productionId, AccessLevel.WRITE)
 
     val requestTitle = request.title
-    if (requestTitle != null && requestTitle.isBlank())
+    if (requestTitle != null && requestTitle.isBlank()) {
       throw AppException(AppError.ValidationError(mapOf("title" to "Cannot be empty")))
+    }
 
     val assigneeId =
       request.assigneeUserId?.let {
@@ -106,7 +114,10 @@ class TaskService(private val tasks: TaskRepository, private val access: Product
     return updated.toDetailDto()
   }
 
-  suspend fun delete(userId: UUID, taskId: UUID) {
+  suspend fun delete(
+    userId: UUID,
+    taskId: UUID
+  ) {
     val task = tasks.findById(taskId) ?: throw AppException(AppError.NotFound)
     access.requireAccess(userId, task.productionId, AccessLevel.WRITE)
     tasks.delete(taskId)

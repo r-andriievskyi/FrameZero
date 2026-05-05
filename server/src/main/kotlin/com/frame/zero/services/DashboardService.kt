@@ -23,8 +23,10 @@ class DashboardService(
   private val productions: ProductionRepository,
   private val tasks: TaskRepository,
 ) {
-
-  suspend fun get(userId: UUID, timezone: ZoneId): DashboardResponse {
+  suspend fun get(
+    userId: UUID,
+    timezone: ZoneId
+  ): DashboardResponse {
     val user = users.findById(userId)
     val displayName = user?.let { "${it.firstName} ${it.lastName}".trim() } ?: ""
 
@@ -43,20 +45,21 @@ class DashboardService(
         cursor = null,
       )
 
-    val productionStatus = productionItems.map { prod ->
-      val today = java.time.LocalDate.now()
-      val progress = computeProgress(prod.startDate, prod.wrapDate, today)
-      val daysLeft = java.time.temporal.ChronoUnit.DAYS.between(today, prod.wrapDate).toInt()
-      com.frame.zero.dto.production.ProductionSummaryDto(
-        id = prod.id.toString(),
-        title = prod.title,
-        phase = prod.phase,
-        progressPercent = progress,
-        daysLeft = daysLeft,
-        accentColorHint = phaseAccent(prod.phase),
-        updatedAt = prod.updatedAt.toKotlinInstant(),
-      )
-    }
+    val productionStatus =
+      productionItems.map { prod ->
+        val today = java.time.LocalDate.now()
+        val progress = computeProgress(prod.startDate, prod.wrapDate, today)
+        val daysLeft = java.time.temporal.ChronoUnit.DAYS.between(today, prod.wrapDate).toInt()
+        com.frame.zero.dto.production.ProductionSummaryDto(
+          id = prod.id.toString(),
+          title = prod.title,
+          phase = prod.phase,
+          progressPercent = progress,
+          daysLeft = daysLeft,
+          accentColorHint = phaseAccent(prod.phase),
+          updatedAt = prod.updatedAt.toKotlinInstant(),
+        )
+      }
 
     return DashboardResponse(
       greeting =

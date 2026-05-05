@@ -3,7 +3,6 @@ package com.frame.zero.feature.home.tab.projects
 import com.arkivanov.essenty.instancekeeper.InstanceKeeper
 import com.frame.zero.domain.Outcome
 import com.frame.zero.feature.home.usecase.GetProductionsUseCase
-import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -12,6 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlin.coroutines.CoroutineContext
 
 /**
  * See [com.frame.zero.feature.home.tab.dashboard.DashboardTabViewModel] for the lifecycle contract

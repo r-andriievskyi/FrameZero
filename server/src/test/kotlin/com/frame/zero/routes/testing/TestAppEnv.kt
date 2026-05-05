@@ -28,12 +28,12 @@ import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.response.respond
 import io.ktor.server.routing.routing
-import java.util.UUID
-import kotlin.time.Duration.Companion.days
-import kotlin.time.Duration.Companion.minutes
 import kotlinx.serialization.SerializationException
 import org.koin.dsl.module
 import org.koin.ktor.plugin.Koin
+import java.util.UUID
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.minutes
 
 internal val testJwtConfig =
   JwtConfig(
@@ -72,7 +72,8 @@ internal class TestAppEnv {
           single { taskService }
           single { scheduleService }
           single { notificationService }
-        })
+        }
+      )
     }
     app.install(ContentNegotiation) { json() }
     app.install(Authentication) {

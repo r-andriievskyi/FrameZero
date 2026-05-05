@@ -7,11 +7,11 @@ import com.frame.zero.database.RefreshTokensTable
 import com.frame.zero.database.ScheduleEventsTable
 import com.frame.zero.database.TasksTable
 import com.frame.zero.database.UsersTable
-import java.util.UUID
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import java.util.UUID
 
 /**
  * Spins up a uniquely-named H2 in-memory database with the production schema for the duration of a

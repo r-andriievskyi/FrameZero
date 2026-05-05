@@ -48,4 +48,5 @@ private val iosRoot: RootComponent by lazy {
   )
 }
 
+@Suppress("ktlint:standard:function-naming")
 fun MainViewController() = ComposeUIViewController { App(iosRoot) }

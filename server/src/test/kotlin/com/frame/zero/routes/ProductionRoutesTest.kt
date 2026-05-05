@@ -16,15 +16,15 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.server.testing.testApplication
-import java.util.UUID
-import kotlin.test.AfterTest
-import kotlin.test.Test
-import kotlin.test.assertEquals
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.koin.core.context.GlobalContext
 import org.koin.core.context.stopKoin
+import java.util.UUID
+import kotlin.test.AfterTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class ProductionRoutesTest {
   private val json = Json { ignoreUnknownKeys = true }
@@ -44,167 +44,177 @@ class ProductionRoutesTest {
     )
 
   @Test
-  fun `POST productions returns 201 with created production`() = testApplication {
-    val env = TestAppEnv()
-    application { env.configure(this) }
-    val userId = UUID.randomUUID()
-    val token = env.tokenFor(userId)
+  fun `POST productions returns 201 with created production`() =
+    testApplication {
+      val env = TestAppEnv()
+      application { env.configure(this) }
+      val userId = UUID.randomUUID()
+      val token = env.tokenFor(userId)
 
-    val response =
-      client.post("/api/v1/productions") {
-        header(HttpHeaders.Authorization, "Bearer $token")
-        contentType(ContentType.Application.Json)
-        setBody(json.encodeToString(validRequest))
-      }
+      val response =
+        client.post("/api/v1/productions") {
+          header(HttpHeaders.Authorization, "Bearer $token")
+          contentType(ContentType.Application.Json)
+          setBody(json.encodeToString(validRequest))
+        }
 
-    assertEquals(HttpStatusCode.Created, response.status)
-    val body = json.decodeFromString<ProductionDetailDto>(response.bodyAsText())
-    assertEquals("Test Film", body.title)
-    assertEquals(Genre.DRAMA, body.genre)
-  }
-
-  @Test
-  fun `POST productions without token returns 401`() = testApplication {
-    val env = TestAppEnv()
-    application { env.configure(this) }
-
-    val response =
-      client.post("/api/v1/productions") {
-        contentType(ContentType.Application.Json)
-        setBody(json.encodeToString(validRequest))
-      }
-
-    assertEquals(HttpStatusCode.Unauthorized, response.status)
-  }
+      assertEquals(HttpStatusCode.Created, response.status)
+      val body = json.decodeFromString<ProductionDetailDto>(response.bodyAsText())
+      assertEquals("Test Film", body.title)
+      assertEquals(Genre.DRAMA, body.genre)
+    }
 
   @Test
-  fun `POST productions with invalid body returns 400`() = testApplication {
-    val env = TestAppEnv()
-    application { env.configure(this) }
-    val userId = UUID.randomUUID()
-    val token = env.tokenFor(userId)
+  fun `POST productions without token returns 401`() =
+    testApplication {
+      val env = TestAppEnv()
+      application { env.configure(this) }
 
-    val response =
-      client.post("/api/v1/productions") {
-        header(HttpHeaders.Authorization, "Bearer $token")
-        contentType(ContentType.Application.Json)
-        setBody("{not valid json")
-      }
+      val response =
+        client.post("/api/v1/productions") {
+          contentType(ContentType.Application.Json)
+          setBody(json.encodeToString(validRequest))
+        }
 
-    assertEquals(HttpStatusCode.BadRequest, response.status)
-  }
+      assertEquals(HttpStatusCode.Unauthorized, response.status)
+    }
 
   @Test
-  fun `POST productions with wrapDate before startDate returns 400`() = testApplication {
-    val env = TestAppEnv()
-    application { env.configure(this) }
-    val userId = UUID.randomUUID()
-    val token = env.tokenFor(userId)
-    val badRequest =
-      validRequest.copy(startDate = LocalDate(2026, 6, 1), wrapDate = LocalDate(2026, 1, 1))
+  fun `POST productions with invalid body returns 400`() =
+    testApplication {
+      val env = TestAppEnv()
+      application { env.configure(this) }
+      val userId = UUID.randomUUID()
+      val token = env.tokenFor(userId)
 
-    val response =
-      client.post("/api/v1/productions") {
-        header(HttpHeaders.Authorization, "Bearer $token")
-        contentType(ContentType.Application.Json)
-        setBody(json.encodeToString(badRequest))
-      }
+      val response =
+        client.post("/api/v1/productions") {
+          header(HttpHeaders.Authorization, "Bearer $token")
+          contentType(ContentType.Application.Json)
+          setBody("{not valid json")
+        }
 
-    assertEquals(HttpStatusCode.BadRequest, response.status)
-  }
-
-  @Test
-  fun `GET production by id returns 200 for owner`() = testApplication {
-    val env = TestAppEnv()
-    application { env.configure(this) }
-    val userId = UUID.randomUUID()
-    val token = env.tokenFor(userId)
-    val created = env.productionService.create(userId, validRequest)
-
-    val response =
-      client.get("/api/v1/productions/${created.id}") {
-        header(HttpHeaders.Authorization, "Bearer $token")
-      }
-
-    assertEquals(HttpStatusCode.OK, response.status)
-    val body = json.decodeFromString<ProductionDetailDto>(response.bodyAsText())
-    assertEquals(created.id, body.id)
-  }
+      assertEquals(HttpStatusCode.BadRequest, response.status)
+    }
 
   @Test
-  fun `GET production by id without token returns 401`() = testApplication {
-    val env = TestAppEnv()
-    application { env.configure(this) }
-    val ownerId = UUID.randomUUID()
-    val created = env.productionService.create(ownerId, validRequest)
+  fun `POST productions with wrapDate before startDate returns 400`() =
+    testApplication {
+      val env = TestAppEnv()
+      application { env.configure(this) }
+      val userId = UUID.randomUUID()
+      val token = env.tokenFor(userId)
+      val badRequest =
+        validRequest.copy(startDate = LocalDate(2026, 6, 1), wrapDate = LocalDate(2026, 1, 1))
 
-    val response = client.get("/api/v1/productions/${created.id}")
+      val response =
+        client.post("/api/v1/productions") {
+          header(HttpHeaders.Authorization, "Bearer $token")
+          contentType(ContentType.Application.Json)
+          setBody(json.encodeToString(badRequest))
+        }
 
-    assertEquals(HttpStatusCode.Unauthorized, response.status)
-  }
-
-  @Test
-  fun `GET production by id returns 403 for non-member`() = testApplication {
-    val env = TestAppEnv()
-    application { env.configure(this) }
-    val ownerId = UUID.randomUUID()
-    val strangerToken = env.tokenFor(UUID.randomUUID())
-    val created = env.productionService.create(ownerId, validRequest)
-
-    val response =
-      client.get("/api/v1/productions/${created.id}") {
-        header(HttpHeaders.Authorization, "Bearer $strangerToken")
-      }
-
-    assertEquals(HttpStatusCode.Forbidden, response.status)
-  }
+      assertEquals(HttpStatusCode.BadRequest, response.status)
+    }
 
   @Test
-  fun `GET production by id returns 404 for unknown id`() = testApplication {
-    val env = TestAppEnv()
-    application { env.configure(this) }
-    val userId = UUID.randomUUID()
-    val token = env.tokenFor(userId)
+  fun `GET production by id returns 200 for owner`() =
+    testApplication {
+      val env = TestAppEnv()
+      application { env.configure(this) }
+      val userId = UUID.randomUUID()
+      val token = env.tokenFor(userId)
+      val created = env.productionService.create(userId, validRequest)
 
-    val response =
-      client.get("/api/v1/productions/${UUID.randomUUID()}") {
-        header(HttpHeaders.Authorization, "Bearer $token")
-      }
+      val response =
+        client.get("/api/v1/productions/${created.id}") {
+          header(HttpHeaders.Authorization, "Bearer $token")
+        }
 
-    assertEquals(HttpStatusCode.NotFound, response.status)
-  }
-
-  @Test
-  fun `DELETE production returns 204 for owner`() = testApplication {
-    val env = TestAppEnv()
-    application { env.configure(this) }
-    val userId = UUID.randomUUID()
-    val token = env.tokenFor(userId)
-    val created = env.productionService.create(userId, validRequest)
-
-    val response =
-      client.delete("/api/v1/productions/${created.id}") {
-        header(HttpHeaders.Authorization, "Bearer $token")
-      }
-
-    assertEquals(HttpStatusCode.NoContent, response.status)
-  }
+      assertEquals(HttpStatusCode.OK, response.status)
+      val body = json.decodeFromString<ProductionDetailDto>(response.bodyAsText())
+      assertEquals(created.id, body.id)
+    }
 
   @Test
-  fun `DELETE production returns 403 for non-owner`() = testApplication {
-    val env = TestAppEnv()
-    application { env.configure(this) }
-    val ownerId = UUID.randomUUID()
-    val otherId = UUID.randomUUID()
-    val otherToken = env.tokenFor(otherId)
-    val created = env.productionService.create(ownerId, validRequest)
-    env.productionMembers.add(created.id, otherId, "Other", "Producer", null)
+  fun `GET production by id without token returns 401`() =
+    testApplication {
+      val env = TestAppEnv()
+      application { env.configure(this) }
+      val ownerId = UUID.randomUUID()
+      val created = env.productionService.create(ownerId, validRequest)
 
-    val response =
-      client.delete("/api/v1/productions/${created.id}") {
-        header(HttpHeaders.Authorization, "Bearer $otherToken")
-      }
+      val response = client.get("/api/v1/productions/${created.id}")
 
-    assertEquals(HttpStatusCode.Forbidden, response.status)
-  }
+      assertEquals(HttpStatusCode.Unauthorized, response.status)
+    }
+
+  @Test
+  fun `GET production by id returns 403 for non-member`() =
+    testApplication {
+      val env = TestAppEnv()
+      application { env.configure(this) }
+      val ownerId = UUID.randomUUID()
+      val strangerToken = env.tokenFor(UUID.randomUUID())
+      val created = env.productionService.create(ownerId, validRequest)
+
+      val response =
+        client.get("/api/v1/productions/${created.id}") {
+          header(HttpHeaders.Authorization, "Bearer $strangerToken")
+        }
+
+      assertEquals(HttpStatusCode.Forbidden, response.status)
+    }
+
+  @Test
+  fun `GET production by id returns 404 for unknown id`() =
+    testApplication {
+      val env = TestAppEnv()
+      application { env.configure(this) }
+      val userId = UUID.randomUUID()
+      val token = env.tokenFor(userId)
+
+      val response =
+        client.get("/api/v1/productions/${UUID.randomUUID()}") {
+          header(HttpHeaders.Authorization, "Bearer $token")
+        }
+
+      assertEquals(HttpStatusCode.NotFound, response.status)
+    }
+
+  @Test
+  fun `DELETE production returns 204 for owner`() =
+    testApplication {
+      val env = TestAppEnv()
+      application { env.configure(this) }
+      val userId = UUID.randomUUID()
+      val token = env.tokenFor(userId)
+      val created = env.productionService.create(userId, validRequest)
+
+      val response =
+        client.delete("/api/v1/productions/${created.id}") {
+          header(HttpHeaders.Authorization, "Bearer $token")
+        }
+
+      assertEquals(HttpStatusCode.NoContent, response.status)
+    }
+
+  @Test
+  fun `DELETE production returns 403 for non-owner`() =
+    testApplication {
+      val env = TestAppEnv()
+      application { env.configure(this) }
+      val ownerId = UUID.randomUUID()
+      val otherId = UUID.randomUUID()
+      val otherToken = env.tokenFor(otherId)
+      val created = env.productionService.create(ownerId, validRequest)
+      env.productionMembers.add(created.id, otherId, "Other", "Producer", null)
+
+      val response =
+        client.delete("/api/v1/productions/${created.id}") {
+          header(HttpHeaders.Authorization, "Bearer $otherToken")
+        }
+
+      assertEquals(HttpStatusCode.Forbidden, response.status)
+    }
 }

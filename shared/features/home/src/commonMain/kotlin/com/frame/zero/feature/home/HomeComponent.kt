@@ -17,7 +17,6 @@ class HomeComponent(
   projectsViewModelFactory: () -> ProjectsTabViewModel,
   scheduleViewModelFactory: () -> ScheduleTabViewModel,
 ) : ComponentContext by componentContext {
-
   val dashboardTab =
     DashboardTabComponent(
       componentContext = childContext(key = "tab-dashboard"),

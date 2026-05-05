@@ -7,7 +7,6 @@ import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
 class OutcomeTest {
-
   @Test
   fun `map transforms data on Success`() {
     val outcome: Outcome<Int> = Outcome.Success(2)
@@ -22,10 +21,11 @@ class OutcomeTest {
     val outcome: Outcome<Int> = Outcome.Failure(DomainError.InvalidCredentials)
     var called = false
 
-    val mapped = outcome.map {
-      called = true
-      it * 2
-    }
+    val mapped =
+      outcome.map {
+        called = true
+        it * 2
+      }
 
     assertFalse(called)
     val failure = assertIs<Outcome.Failure>(mapped)

@@ -7,7 +7,6 @@ import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
 class TokenHasherTest {
-
   private val hasher = TokenHasher()
 
   @Test
