@@ -33,13 +33,13 @@ fun HomeContent(component: HomeComponent) {
       HomeToolbar(
         onNotificationsClick = component.onNotificationsClick,
         onSettingsClick = component.onSettingsClick,
-        modifier = Modifier.statusBarsPadding(),
+        modifier = Modifier.statusBarsPadding()
       )
       HorizontalPager(
         state = pagerState,
         beyondViewportPageCount = 1,
         modifier = Modifier.weight(1f),
-        key = { tabs[it] },
+        key = { tabs[it] }
       ) { page ->
         when (tabs[page]) {
           HomeTab.DASHBOARD -> DashboardTabContent(component.dashboardTab)
@@ -54,9 +54,10 @@ fun HomeContent(component: HomeComponent) {
       selectedTab = activeTab,
       onSelect = { tab -> scope.launch { pagerState.animateScrollToPage(tabs.indexOf(tab)) } },
       modifier =
-        Modifier.align(Alignment.BottomCenter)
+        Modifier
+          .align(Alignment.BottomCenter)
           .systemBarsPadding()
-          .padding(AppTheme.spacingSystem.space16),
+          .padding(AppTheme.spacingSystem.space16)
     )
   }
 }

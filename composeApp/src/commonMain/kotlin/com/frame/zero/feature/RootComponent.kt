@@ -21,7 +21,7 @@ class RootComponent(
   componentContext: ComponentContext,
   sessionManager: SessionManager,
   private val authComponentFactory: (ComponentContext) -> AuthComponent,
-  private val homeComponentFactory: (ComponentContext) -> HomeComponent,
+  private val homeComponentFactory: (ComponentContext) -> HomeComponent
 ) : ComponentContext by componentContext {
   private val navigation = StackNavigation<Config>()
 
@@ -31,7 +31,7 @@ class RootComponent(
       serializer = null,
       initialConfiguration = Config.Splash,
       handleBackButton = false,
-      childFactory = ::createChild,
+      childFactory = ::createChild
     )
 
   init {
@@ -71,8 +71,12 @@ class RootComponent(
   sealed interface Child {
     data object Splash : Child
 
-    data class Auth(val component: AuthComponent) : Child
+    data class Auth(
+      val component: AuthComponent
+    ) : Child
 
-    data class Home(val component: HomeComponent) : Child
+    data class Home(
+      val component: HomeComponent
+    ) : Child
   }
 }

@@ -28,14 +28,14 @@ data class ScheduleEventRecord(
   val location: String?,
   val startsAt: Instant,
   val endsAt: Instant,
-  val kind: ScheduleEventKind,
+  val kind: ScheduleEventKind
 )
 
 interface ScheduleEventRepository {
   suspend fun findInRangeForUser(
     userId: UUID,
     rangeStart: Instant,
-    rangeEnd: Instant,
+    rangeEnd: Instant
   ): List<ScheduleEventRecord>
 
   suspend fun findById(id: UUID): ScheduleEventRecord?
@@ -46,7 +46,7 @@ interface ScheduleEventRepository {
     location: String?,
     startsAt: Instant,
     endsAt: Instant,
-    kind: ScheduleEventKind,
+    kind: ScheduleEventKind
   ): ScheduleEventRecord
 
   suspend fun update(
@@ -55,7 +55,7 @@ interface ScheduleEventRepository {
     location: String?,
     startsAt: Instant?,
     endsAt: Instant?,
-    kind: ScheduleEventKind?,
+    kind: ScheduleEventKind?
   ): ScheduleEventRecord?
 
   suspend fun delete(id: UUID): Boolean
@@ -65,11 +65,12 @@ class ScheduleEventRepositoryExposed : ScheduleEventRepository {
   override suspend fun findInRangeForUser(
     userId: UUID,
     rangeStart: Instant,
-    rangeEnd: Instant,
+    rangeEnd: Instant
   ): List<ScheduleEventRecord> =
     dbQuery {
       val memberProductionIds =
-        ProductionMembersTable.selectAll()
+        ProductionMembersTable
+          .selectAll()
           .where { ProductionMembersTable.userId eq userId }
           .map { it[ProductionMembersTable.productionId] }
       if (memberProductionIds.isEmpty()) return@dbQuery emptyList()
@@ -81,8 +82,7 @@ class ScheduleEventRepositoryExposed : ScheduleEventRepository {
             (ScheduleEventsTable.startsAt less rangeEnd) and
             ProductionsTable.deletedAt.isNull() and
             (ScheduleEventsTable.productionId inList memberProductionIds)
-        }
-        .orderBy(ScheduleEventsTable.startsAt to SortOrder.ASC)
+        }.orderBy(ScheduleEventsTable.startsAt to SortOrder.ASC)
         .map { it.toRecord() }
     }
 
@@ -101,7 +101,7 @@ class ScheduleEventRepositoryExposed : ScheduleEventRepository {
     location: String?,
     startsAt: Instant,
     endsAt: Instant,
-    kind: ScheduleEventKind,
+    kind: ScheduleEventKind
   ): ScheduleEventRecord =
     dbQuery {
       val newId = UUID.randomUUID()
@@ -115,7 +115,8 @@ class ScheduleEventRepositoryExposed : ScheduleEventRepository {
         it[ScheduleEventsTable.kind] = kind.name
       }
       val prodTitle =
-        ProductionsTable.selectAll()
+        ProductionsTable
+          .selectAll()
           .where { ProductionsTable.id eq productionId }
           .singleOrNull()
           ?.get(ProductionsTable.title) ?: ""
@@ -127,7 +128,7 @@ class ScheduleEventRepositoryExposed : ScheduleEventRepository {
         location = location,
         startsAt = startsAt,
         endsAt = endsAt,
-        kind = kind,
+        kind = kind
       )
     }
 
@@ -137,7 +138,7 @@ class ScheduleEventRepositoryExposed : ScheduleEventRepository {
     location: String?,
     startsAt: Instant?,
     endsAt: Instant?,
-    kind: ScheduleEventKind?,
+    kind: ScheduleEventKind?
   ): ScheduleEventRecord? =
     dbQuery {
       val updated =
@@ -173,6 +174,6 @@ class ScheduleEventRepositoryExposed : ScheduleEventRepository {
       location = this[ScheduleEventsTable.location],
       startsAt = this[ScheduleEventsTable.startsAt],
       endsAt = this[ScheduleEventsTable.endsAt],
-      kind = ScheduleEventKind.valueOf(this[ScheduleEventsTable.kind]),
+      kind = ScheduleEventKind.valueOf(this[ScheduleEventsTable.kind])
     )
 }

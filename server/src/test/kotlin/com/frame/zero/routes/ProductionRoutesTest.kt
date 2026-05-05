@@ -40,7 +40,7 @@ class ProductionRoutesTest {
       genre = Genre.DRAMA,
       phase = ProductionPhase.DEVELOPMENT,
       startDate = LocalDate(2026, 1, 1),
-      wrapDate = LocalDate(2026, 6, 30),
+      wrapDate = LocalDate(2026, 6, 30)
     )
 
   @Test

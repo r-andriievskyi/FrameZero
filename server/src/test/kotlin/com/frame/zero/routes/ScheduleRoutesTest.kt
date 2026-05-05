@@ -43,7 +43,7 @@ class ScheduleRoutesTest {
       genre = Genre.DRAMA,
       phase = ProductionPhase.PRODUCTION,
       startDate = LocalDate(2026, 1, 1),
-      wrapDate = LocalDate(2026, 12, 31),
+      wrapDate = LocalDate(2026, 12, 31)
     )
 
   @Test
@@ -124,7 +124,7 @@ class ScheduleRoutesTest {
           title = "Table read",
           startsAt = Instant.parse("2026-05-04T10:00:00Z"),
           endsAt = Instant.parse("2026-05-04T12:00:00Z"),
-          kind = ScheduleEventKind.MEETING,
+          kind = ScheduleEventKind.MEETING
         )
 
       val response =
@@ -160,7 +160,7 @@ class ScheduleRoutesTest {
                 title = "Shoot",
                 startsAt = Instant.parse("2026-05-04T10:00:00Z"),
                 endsAt = Instant.parse("2026-05-04T18:00:00Z"),
-                kind = ScheduleEventKind.SHOOT,
+                kind = ScheduleEventKind.SHOOT
               )
             )
           )

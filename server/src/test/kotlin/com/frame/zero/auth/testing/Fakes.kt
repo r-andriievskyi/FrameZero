@@ -21,7 +21,7 @@ internal class FakeUserRepository : UserRepository {
     email: String,
     passwordHash: String,
     firstName: String,
-    lastName: String,
+    lastName: String
   ): UserRecord {
     val record =
       UserRecord(
@@ -30,7 +30,7 @@ internal class FakeUserRepository : UserRepository {
         passwordHash = passwordHash,
         firstName = firstName,
         lastName = lastName,
-        createdAt = Instant.now(),
+        createdAt = Instant.now()
       )
     users += record
     return record
@@ -47,7 +47,7 @@ internal class FakeRefreshTokenRepository : RefreshTokenRepository {
   override suspend fun create(
     userId: UUID,
     tokenHash: String,
-    expiresAt: Instant,
+    expiresAt: Instant
   ): RefreshTokenRecord {
     val record =
       RefreshTokenRecord(
@@ -55,7 +55,7 @@ internal class FakeRefreshTokenRepository : RefreshTokenRepository {
         userId = userId,
         tokenHash = tokenHash,
         expiresAt = expiresAt,
-        revoked = false,
+        revoked = false
       )
     records += record
     return record

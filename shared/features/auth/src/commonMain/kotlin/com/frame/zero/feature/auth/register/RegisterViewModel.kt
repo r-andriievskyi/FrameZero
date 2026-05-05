@@ -18,7 +18,7 @@ import kotlin.coroutines.CoroutineContext
 
 class RegisterViewModel(
   private val registerUseCase: RegisterUseCase,
-  dispatcher: CoroutineContext = Dispatchers.Main,
+  dispatcher: CoroutineContext = Dispatchers.Main
 ) : InstanceKeeper.Instance {
   private val scope = CoroutineScope(dispatcher + SupervisorJob())
 
@@ -55,7 +55,7 @@ class RegisterViewModel(
               email = current.email.trim(),
               password = current.password,
               firstName = current.firstName.trim(),
-              lastName = current.lastName.trim(),
+              lastName = current.lastName.trim()
             )
           )
       ) {

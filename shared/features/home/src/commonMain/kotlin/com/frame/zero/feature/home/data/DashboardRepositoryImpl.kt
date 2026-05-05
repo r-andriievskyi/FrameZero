@@ -9,7 +9,7 @@ import io.ktor.client.request.get
 
 class DashboardRepositoryImpl(
   private val httpClient: HttpClient,
-  private val networkConfig: NetworkConfig,
+  private val networkConfig: NetworkConfig
 ) : DashboardRepository {
   override suspend fun getDashboard(): DashboardResponse =
     httpClient.get("${networkConfig.baseUrl}/api/v1/dashboard").body()

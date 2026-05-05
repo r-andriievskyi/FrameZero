@@ -23,7 +23,7 @@ fun FloatingBottomNav(
   tabs: List<HomeTab>,
   selectedTab: HomeTab,
   onSelect: (HomeTab) -> Unit,
-  modifier: Modifier = Modifier,
+  modifier: Modifier = Modifier
 ) {
   val shape = RoundedCornerShape(AppTheme.radiusSystem.radiusMax)
   Row(
@@ -34,10 +34,10 @@ fun FloatingBottomNav(
         .background(AppTheme.colorSystem.surfaceElevated)
         .padding(
           horizontal = AppTheme.spacingSystem.space8,
-          vertical = AppTheme.spacingSystem.space4,
+          vertical = AppTheme.spacingSystem.space4
         ),
     horizontalArrangement = Arrangement.spacedBy(AppTheme.spacingSystem.space4),
-    verticalAlignment = Alignment.CenterVertically,
+    verticalAlignment = Alignment.CenterVertically
   ) {
     tabs.forEach { tab ->
       NavItem(tab = tab, selected = tab == selectedTab, onClick = { onSelect(tab) })
@@ -56,14 +56,15 @@ private fun NavItem(
   val textColor = if (selected) colors.accentText else colors.textSecondary
   Box(
     modifier =
-      Modifier.clip(RoundedCornerShape(AppTheme.radiusSystem.radiusMax))
+      Modifier
+        .clip(RoundedCornerShape(AppTheme.radiusSystem.radiusMax))
         .clickable(onClick = onClick)
         .background(background)
         .padding(
           horizontal = AppTheme.spacingSystem.space16,
-          vertical = AppTheme.spacingSystem.space8,
+          vertical = AppTheme.spacingSystem.space8
         ),
-    contentAlignment = Alignment.Center,
+    contentAlignment = Alignment.Center
   ) {
     Text(text = tab.title, style = AppTheme.typographySystem.labelMedium, color = textColor)
   }

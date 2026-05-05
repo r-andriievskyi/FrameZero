@@ -18,13 +18,14 @@ import io.ktor.client.request.setBody
 class AuthRepositoryImpl(
   private val httpClient: HttpClient,
   private val tokenStorage: TokenStorage,
-  private val networkConfig: NetworkConfig,
-) : AuthRepository, SessionAuthOperations {
+  private val networkConfig: NetworkConfig
+) : AuthRepository,
+  SessionAuthOperations {
   override suspend fun register(
     email: String,
     password: String,
     firstName: String,
-    lastName: String,
+    lastName: String
   ): UserDto {
     val response: AuthResponse =
       httpClient
@@ -34,11 +35,10 @@ class AuthRepositoryImpl(
               email = email,
               password = password,
               firstName = firstName,
-              lastName = lastName,
+              lastName = lastName
             )
           )
-        }
-        .body()
+        }.body()
     tokenStorage.saveTokens(response.accessToken, response.refreshToken)
     return response.user
   }
@@ -51,8 +51,7 @@ class AuthRepositoryImpl(
       httpClient
         .post("${networkConfig.baseUrl}/auth/login") {
           setBody(LoginRequest(email = email, password = password))
-        }
-        .body()
+        }.body()
     tokenStorage.saveTokens(response.accessToken, response.refreshToken)
     return response.user
   }
@@ -67,8 +66,7 @@ class AuthRepositoryImpl(
     tokenStorage.clearTokens()
   }
 
-  override suspend fun getCurrentUser(): UserDto =
-    httpClient.get("${networkConfig.baseUrl}/auth/me").body()
+  override suspend fun getCurrentUser(): UserDto = httpClient.get("${networkConfig.baseUrl}/auth/me").body()
 
   override suspend fun fetchCurrentUser(): UserDto = getCurrentUser()
 

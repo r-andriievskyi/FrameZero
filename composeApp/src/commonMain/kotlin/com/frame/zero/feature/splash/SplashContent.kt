@@ -17,7 +17,7 @@ fun SplashContent() {
   Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
     Column(
       horizontalAlignment = Alignment.CenterHorizontally,
-      verticalArrangement = Arrangement.spacedBy(24.dp),
+      verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
       Text(text = "FrameZero", style = MaterialTheme.typography.displayMedium)
       CircularProgressIndicator()

@@ -55,7 +55,7 @@ class AuthRoutesTest {
       audience = "test-audience",
       realm = "test-realm",
       accessTokenTtl = 15.minutes,
-      refreshTokenTtl = 30.days,
+      refreshTokenTtl = 30.days
     )
 
   @AfterTest
@@ -80,7 +80,7 @@ class AuthRoutesTest {
                 email = "u@x.com",
                 password = "password123",
                 firstName = "Jane",
-                lastName = "Doe",
+                lastName = "Doe"
               )
             )
           )
@@ -301,7 +301,7 @@ class AuthRoutesTest {
         passwordHasher = PasswordHasher(),
         tokenHasher = TokenHasher(),
         jwtService = jwtService,
-        jwtConfig = jwtConfig,
+        jwtConfig = jwtConfig
       )
 
     fun configure(app: Application) {
@@ -330,7 +330,7 @@ class AuthRoutesTest {
         exception<IllegalArgumentException> { call, cause ->
           call.respond(
             HttpStatusCode.BadRequest,
-            mapOf("error" to (cause.message ?: "Invalid request")),
+            mapOf("error" to (cause.message ?: "Invalid request"))
           )
         }
       }

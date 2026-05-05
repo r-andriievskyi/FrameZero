@@ -42,7 +42,7 @@ class AuthRepositoryImplTest {
             body =
               """{"accessToken":"a-tok","refreshToken":"r-tok",""" +
                 """"user":{"id":"u1","email":"new@x.com","firstName":"Jane","lastName":"Doe"}}""",
-            status = HttpStatusCode.Created,
+            status = HttpStatusCode.Created
           )
         }
 
@@ -51,7 +51,7 @@ class AuthRepositoryImplTest {
           email = "new@x.com",
           password = "secret",
           firstName = "Jane",
-          lastName = "Doe",
+          lastName = "Doe"
         )
 
       assertEquals(
@@ -71,7 +71,7 @@ class AuthRepositoryImplTest {
             body =
               """{"accessToken":"a","refreshToken":"r",""" +
                 """"user":{"id":"u1","email":"new@x.com","firstName":"Jane","lastName":"Doe"}}""",
-            status = HttpStatusCode.Created,
+            status = HttpStatusCode.Created
           )
         }
 
@@ -79,7 +79,7 @@ class AuthRepositoryImplTest {
         email = "new@x.com",
         password = "secret",
         firstName = "Jane",
-        lastName = "Doe",
+        lastName = "Doe"
       )
 
       val request = env.requests.single()
@@ -87,7 +87,7 @@ class AuthRepositoryImplTest {
       assertEquals("http://test/auth/register", request.url.toString())
       assertEquals(
         """{"email":"new@x.com","password":"secret","firstName":"Jane","lastName":"Doe"}""",
-        request.body.bodyText(),
+        request.body.bodyText()
       )
     }
 
@@ -101,7 +101,7 @@ class AuthRepositoryImplTest {
           email = "dup@x.com",
           password = "secret",
           firstName = "",
-          lastName = "",
+          lastName = ""
         )
       }
       assertFalse(env.storage.hasTokens())
@@ -118,7 +118,7 @@ class AuthRepositoryImplTest {
             body =
               """{"accessToken":"a-tok","refreshToken":"r-tok",""" +
                 """"user":{"id":"u1","email":"u@x.com","firstName":"","lastName":""}}""",
-            status = HttpStatusCode.OK,
+            status = HttpStatusCode.OK
           )
         }
 
@@ -138,7 +138,7 @@ class AuthRepositoryImplTest {
             body =
               """{"accessToken":"a","refreshToken":"r",""" +
                 """"user":{"id":"u1","email":"u@x.com","firstName":"","lastName":""}}""",
-            status = HttpStatusCode.OK,
+            status = HttpStatusCode.OK
           )
         }
 
@@ -234,7 +234,7 @@ class AuthRepositoryImplTest {
         TestEnv { _ ->
           respondJson(
             body = """{"id":"u1","email":"u@x.com","firstName":"Jane","lastName":"Doe"}""",
-            status = HttpStatusCode.OK,
+            status = HttpStatusCode.OK
           )
         }
 
@@ -250,7 +250,7 @@ class AuthRepositoryImplTest {
         TestEnv { _ ->
           respondJson(
             body = """{"id":"u1","email":"u@x.com","firstName":"","lastName":""}""",
-            status = HttpStatusCode.OK,
+            status = HttpStatusCode.OK
           )
         }
 
@@ -279,14 +279,20 @@ class AuthRepositoryImplTest {
         TestEnv { _ ->
           respondJson(
             body = """{"id":"u1","email":"u@x.com","firstName":"","lastName":""}""",
-            status = HttpStatusCode.OK,
+            status = HttpStatusCode.OK
           )
         }
 
       val dto = env.repository.fetchCurrentUser()
 
       assertEquals(UserDto(id = "u1", email = "u@x.com", firstName = "", lastName = ""), dto)
-      assertEquals("http://test/auth/me", env.requests.single().url.toString())
+      assertEquals(
+        "http://test/auth/me",
+        env.requests
+          .single()
+          .url
+          .toString()
+      )
     }
 
   @Test
@@ -297,7 +303,13 @@ class AuthRepositoryImplTest {
 
       env.repository.signOutRemote()
 
-      assertEquals("http://test/auth/logout", env.requests.single().url.toString())
+      assertEquals(
+        "http://test/auth/logout",
+        env.requests
+          .single()
+          .url
+          .toString()
+      )
       assertFalse(env.storage.hasTokens())
     }
 
@@ -326,7 +338,7 @@ class AuthRepositoryImplTest {
         AuthRepositoryImpl(
           httpClient = client,
           tokenStorage = storage,
-          networkConfig = NetworkConfig(baseUrl = "http://test"),
+          networkConfig = NetworkConfig(baseUrl = "http://test")
         )
     }
   }
@@ -339,7 +351,7 @@ class AuthRepositoryImplTest {
       respond(
         content = body,
         status = status,
-        headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
+        headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString())
       )
 
     fun OutgoingContent.bodyText(): String =

@@ -29,7 +29,7 @@ class ProductionService(
   private val productions: ProductionRepository,
   private val members: ProductionMemberRepository,
   private val users: UserRepository,
-  private val access: ProductionAccessService,
+  private val access: ProductionAccessService
 ) {
   suspend fun create(
     userId: UUID,
@@ -45,7 +45,7 @@ class ProductionService(
         startDate = request.startDate.toJava(),
         wrapDate = request.wrapDate.toJava(),
         budgetCents = request.budgetCents,
-        ownerUserId = userId,
+        ownerUserId = userId
       )
 
     val owner = users.findById(userId)
@@ -54,7 +54,7 @@ class ProductionService(
       userId = userId,
       name = owner?.let { "${it.firstName} ${it.lastName}".trim() } ?: "",
       role = "Owner",
-      email = owner?.email,
+      email = owner?.email
     )
 
     request.crew.forEach { crew ->
@@ -64,7 +64,7 @@ class ProductionService(
         userId = linkedUser?.id,
         name = crew.name.trim(),
         role = crew.role.trim(),
-        email = crew.email,
+        email = crew.email
       )
     }
 
@@ -77,7 +77,7 @@ class ProductionService(
     query: String?,
     sort: ProductionSort,
     limit: Int,
-    cursor: String?,
+    cursor: String?
   ): Pair<List<ProductionSummaryDto>, String?> {
     val (items, nextCursor) = productions.findAccessible(userId, phases, query, sort, limit, cursor)
     return Pair(items.map { it.toSummaryDto() }, nextCursor)
@@ -95,7 +95,7 @@ class ProductionService(
   suspend fun update(
     userId: UUID,
     productionId: UUID,
-    request: UpdateProductionRequest,
+    request: UpdateProductionRequest
   ): ProductionDetailDto {
     access.requireAccess(userId, productionId, AccessLevel.WRITE)
     validate(request)
@@ -106,7 +106,7 @@ class ProductionService(
         logline = request.logline?.trim(),
         startDate = request.startDate?.toJava(),
         wrapDate = request.wrapDate?.toJava(),
-        budgetCents = request.budgetCents,
+        budgetCents = request.budgetCents
       ) ?: throw AppException(AppError.NotFound)
     return detailDto(updated, userId)
   }
@@ -114,7 +114,7 @@ class ProductionService(
   suspend fun transitionPhase(
     userId: UUID,
     productionId: UUID,
-    request: PhaseTransitionRequest,
+    request: PhaseTransitionRequest
   ): ProductionDetailDto {
     access.requireAccess(userId, productionId, AccessLevel.WRITE)
     val production = productions.findById(productionId) ?: throw AppException(AppError.NotFound)
@@ -145,7 +145,7 @@ class ProductionService(
   suspend fun addMember(
     userId: UUID,
     productionId: UUID,
-    request: AddMemberRequest,
+    request: AddMemberRequest
   ): ProductionMemberDto {
     access.requireAccess(userId, productionId, AccessLevel.WRITE)
     val errors = mutableMapOf<String, String>()
@@ -160,7 +160,7 @@ class ProductionService(
         userId = linkedUser?.id,
         name = request.name.trim(),
         role = request.role.trim(),
-        email = request.email,
+        email = request.email
       )
     return record.toDto()
   }
@@ -169,7 +169,7 @@ class ProductionService(
     userId: UUID,
     productionId: UUID,
     memberId: UUID,
-    request: UpdateMemberRequest,
+    request: UpdateMemberRequest
   ): ProductionMemberDto {
     access.requireAccess(userId, productionId, AccessLevel.WRITE)
     if (request.role.isBlank()) {
@@ -230,11 +230,14 @@ class ProductionService(
 
   private fun ProductionRecord.toDetailDto(
     membersCount: Int,
-    keyCrew: List<ProductionMemberDto>,
+    keyCrew: List<ProductionMemberDto>
   ): ProductionDetailDto {
     val today = LocalDate.now()
     val progress = computeProgress(startDate, wrapDate, today)
-    val daysLeft = java.time.temporal.ChronoUnit.DAYS.between(today, wrapDate).toInt()
+    val daysLeft =
+      java.time.temporal.ChronoUnit.DAYS
+        .between(today, wrapDate)
+        .toInt()
     return ProductionDetailDto(
       id = id.toString(),
       title = title,
@@ -250,14 +253,17 @@ class ProductionService(
       keyCrew = keyCrew,
       pipeline = buildPipeline(phase),
       createdAt = createdAt.toKotlinInstant(),
-      updatedAt = updatedAt.toKotlinInstant(),
+      updatedAt = updatedAt.toKotlinInstant()
     )
   }
 
   private fun ProductionRecord.toSummaryDto(): ProductionSummaryDto {
     val today = LocalDate.now()
     val progress = computeProgress(startDate, wrapDate, today)
-    val daysLeft = java.time.temporal.ChronoUnit.DAYS.between(today, wrapDate).toInt()
+    val daysLeft =
+      java.time.temporal.ChronoUnit.DAYS
+        .between(today, wrapDate)
+        .toInt()
     return ProductionSummaryDto(
       id = id.toString(),
       title = title,
@@ -265,7 +271,7 @@ class ProductionService(
       progressPercent = progress,
       daysLeft = daysLeft,
       accentColorHint = phase.toAccentHint(),
-      updatedAt = updatedAt.toKotlinInstant(),
+      updatedAt = updatedAt.toKotlinInstant()
     )
   }
 
@@ -277,7 +283,7 @@ class ProductionService(
       role = role,
       initials = initialsFrom(name),
       avatarColorHex = avatarColorHex,
-      addedAt = addedAt.toKotlinInstant(),
+      addedAt = addedAt.toKotlinInstant()
     )
 
   private companion object {
@@ -288,8 +294,13 @@ class ProductionService(
     ): Int {
       if (!today.isAfter(start)) return 0
       if (!today.isBefore(wrap)) return 100
-      val total = java.time.temporal.ChronoUnit.DAYS.between(start, wrap).coerceAtLeast(1)
-      val elapsed = java.time.temporal.ChronoUnit.DAYS.between(start, today)
+      val total =
+        java.time.temporal.ChronoUnit.DAYS
+          .between(start, wrap)
+          .coerceAtLeast(1)
+      val elapsed =
+        java.time.temporal.ChronoUnit.DAYS
+          .between(start, today)
       return (elapsed * 100 / total).toInt().coerceIn(0, 100)
     }
 
@@ -297,9 +308,13 @@ class ProductionService(
       ProductionPhase.entries.map { p ->
         PipelinePhaseDto(
           phase = p,
-          label = p.name.replace('_', ' ').lowercase().replaceFirstChar { it.uppercase() },
+          label =
+            p.name
+              .replace('_', ' ')
+              .lowercase()
+              .replaceFirstChar { it.uppercase() },
           isCompleted = p.ordinal < current.ordinal,
-          isCurrent = p == current,
+          isCurrent = p == current
         )
       }
 
@@ -329,7 +344,7 @@ class ProductionService(
         "DP",
         "Director of Photography",
         "1st AD",
-        "Production Designer",
+        "Production Designer"
       )
 
     val rolePriority: Comparator<ProductionMemberRecord> =

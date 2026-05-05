@@ -47,7 +47,10 @@ fun Route.taskRoutes() {
                 )
               }
           }
-        val limit = call.request.queryParameters["limit"]?.toIntOrNull()?.coerceIn(1, 100) ?: 20
+        val limit =
+          call.request.queryParameters["limit"]
+            ?.toIntOrNull()
+            ?.coerceIn(1, 100) ?: 20
         val cursor = call.request.queryParameters["cursor"]
         val (items, nextCursor) =
           service.list(userId, assigneeMe, status, productionId, limit, cursor, tz)

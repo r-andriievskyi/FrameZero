@@ -10,7 +10,7 @@ data class JwtConfig(
   val audience: String,
   val realm: String,
   val accessTokenTtl: Duration,
-  val refreshTokenTtl: Duration,
+  val refreshTokenTtl: Duration
 ) {
   companion object {
     fun fromEnv(): JwtConfig =
@@ -20,7 +20,7 @@ data class JwtConfig(
         audience = env("JWT_AUDIENCE", "framezero-api"),
         realm = env("JWT_REALM", "framezero"),
         accessTokenTtl = 15.minutes,
-        refreshTokenTtl = 30.days,
+        refreshTokenTtl = 30.days
       )
   }
 }

@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.StateFlow
 
 class ScheduleTabComponent(
   componentContext: ComponentContext,
-  viewModelFactory: () -> ScheduleTabViewModel,
+  viewModelFactory: () -> ScheduleTabViewModel
 ) : ComponentContext by componentContext {
   private val viewModel: ScheduleTabViewModel = instanceKeeper.getOrCreate { viewModelFactory() }
 

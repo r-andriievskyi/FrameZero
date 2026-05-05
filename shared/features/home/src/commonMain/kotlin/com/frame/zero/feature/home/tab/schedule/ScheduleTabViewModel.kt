@@ -24,7 +24,7 @@ import kotlin.time.ExperimentalTime
  */
 class ScheduleTabViewModel(
   private val getScheduleUseCase: GetScheduleUseCase,
-  dispatcher: CoroutineContext = Dispatchers.Main,
+  dispatcher: CoroutineContext = Dispatchers.Main
 ) : InstanceKeeper.Instance {
   private val scope = CoroutineScope(dispatcher + SupervisorJob())
 
@@ -65,5 +65,8 @@ class ScheduleTabViewModel(
 
   @OptIn(ExperimentalTime::class)
   private fun today(): LocalDate =
-    Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+    Clock.System
+      .now()
+      .toLocalDateTime(TimeZone.currentSystemDefault())
+      .date
 }

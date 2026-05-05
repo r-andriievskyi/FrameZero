@@ -14,7 +14,7 @@ class SessionManager(
   private val tokenStorage: TokenStorage,
   private val authOperations: SessionAuthOperations,
   logoutSignal: LogoutSignal,
-  scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default),
+  scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 ) {
   private val _state = MutableStateFlow<SessionState>(SessionState.Loading)
   val state: StateFlow<SessionState> = _state.asStateFlow()
@@ -32,7 +32,7 @@ class SessionManager(
     runCatching { authOperations.fetchCurrentUser() }
       .fold(
         onSuccess = { _state.value = SessionState.LoggedIn(it.toDomain()) },
-        onFailure = { forceLogout() },
+        onFailure = { forceLogout() }
       )
   }
 

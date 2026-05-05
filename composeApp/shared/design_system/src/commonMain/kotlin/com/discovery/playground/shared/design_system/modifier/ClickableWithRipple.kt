@@ -10,10 +10,10 @@ fun Modifier.clickableWithRipple(
   color: Color,
   bounded: Boolean = false,
   radius: Dp = Dp.Unspecified,
-  onClick: () -> Unit,
+  onClick: () -> Unit
 ): Modifier =
   clickable(
     interactionSource = null,
     indication = ripple(color = color, bounded = bounded, radius = radius),
-    onClick = onClick,
+    onClick = onClick
   )

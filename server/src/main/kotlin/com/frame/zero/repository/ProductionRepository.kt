@@ -39,7 +39,7 @@ data class ProductionRecord(
   val ownerUserId: UUID,
   val deletedAt: Instant?,
   val createdAt: Instant,
-  val updatedAt: Instant,
+  val updatedAt: Instant
 )
 
 interface ProductionRepository {
@@ -51,7 +51,7 @@ interface ProductionRepository {
     startDate: LocalDate,
     wrapDate: LocalDate,
     budgetCents: Long?,
-    ownerUserId: UUID,
+    ownerUserId: UUID
   ): ProductionRecord
 
   suspend fun findById(id: UUID): ProductionRecord?
@@ -62,7 +62,7 @@ interface ProductionRepository {
     query: String?,
     sort: ProductionSort,
     limit: Int,
-    cursor: String?,
+    cursor: String?
   ): Pair<List<ProductionRecord>, String?>
 
   suspend fun countActiveForUser(userId: UUID): Int
@@ -73,7 +73,7 @@ interface ProductionRepository {
     logline: String?,
     startDate: LocalDate?,
     wrapDate: LocalDate?,
-    budgetCents: Long?,
+    budgetCents: Long?
   ): ProductionRecord?
 
   suspend fun updatePhase(
@@ -93,7 +93,7 @@ class ProductionRepositoryExposed : ProductionRepository {
     startDate: LocalDate,
     wrapDate: LocalDate,
     budgetCents: Long?,
-    ownerUserId: UUID,
+    ownerUserId: UUID
   ): ProductionRecord =
     dbQuery {
       val newId = UUID.randomUUID()
@@ -123,13 +123,14 @@ class ProductionRepositoryExposed : ProductionRepository {
         ownerUserId = ownerUserId,
         deletedAt = null,
         createdAt = now,
-        updatedAt = now,
+        updatedAt = now
       )
     }
 
   override suspend fun findById(id: UUID): ProductionRecord? =
     dbQuery {
-      ProductionsTable.selectAll()
+      ProductionsTable
+        .selectAll()
         .where { (ProductionsTable.id eq id) and ProductionsTable.deletedAt.isNull() }
         .singleOrNull()
         ?.toRecord()
@@ -141,11 +142,12 @@ class ProductionRepositoryExposed : ProductionRepository {
     query: String?,
     sort: ProductionSort,
     limit: Int,
-    cursor: String?,
+    cursor: String?
   ): Pair<List<ProductionRecord>, String?> =
     dbQuery {
       val memberProductionIds =
-        ProductionMembersTable.selectAll()
+        ProductionMembersTable
+          .selectAll()
           .where { ProductionMembersTable.userId eq userId }
           .map { it[ProductionMembersTable.productionId] }
 
@@ -204,12 +206,12 @@ class ProductionRepositoryExposed : ProductionRepository {
           ProductionSort.DUE_DATE ->
             baseQuery.orderBy(
               ProductionsTable.wrapDate to SortOrder.ASC,
-              ProductionsTable.id to SortOrder.ASC,
+              ProductionsTable.id to SortOrder.ASC
             )
           ProductionSort.RECENT ->
             baseQuery.orderBy(
               ProductionsTable.updatedAt to SortOrder.DESC,
-              ProductionsTable.id to SortOrder.DESC,
+              ProductionsTable.id to SortOrder.DESC
             )
         }
 
@@ -233,11 +235,13 @@ class ProductionRepositoryExposed : ProductionRepository {
   override suspend fun countActiveForUser(userId: UUID): Int =
     dbQuery {
       val memberProductionIds =
-        ProductionMembersTable.selectAll()
+        ProductionMembersTable
+          .selectAll()
           .where { ProductionMembersTable.userId eq userId }
           .map { it[ProductionMembersTable.productionId] }
 
-      ProductionsTable.selectAll()
+      ProductionsTable
+        .selectAll()
         .where {
           val accessCond =
             if (memberProductionIds.isEmpty()) {
@@ -249,8 +253,7 @@ class ProductionRepositoryExposed : ProductionRepository {
           ProductionsTable.deletedAt.isNull() and
             (ProductionsTable.phase neq ProductionPhase.DISTRIBUTION.name) and
             accessCond
-        }
-        .count()
+        }.count()
         .toInt()
     }
 
@@ -260,7 +263,7 @@ class ProductionRepositoryExposed : ProductionRepository {
     logline: String?,
     startDate: LocalDate?,
     wrapDate: LocalDate?,
-    budgetCents: Long?,
+    budgetCents: Long?
   ): ProductionRecord? =
     dbQuery {
       val now = Instant.now()
@@ -276,7 +279,11 @@ class ProductionRepositoryExposed : ProductionRepository {
       if (updated == 0) {
         null
       } else {
-        ProductionsTable.selectAll().where { ProductionsTable.id eq id }.singleOrNull()?.toRecord()
+        ProductionsTable
+          .selectAll()
+          .where { ProductionsTable.id eq id }
+          .singleOrNull()
+          ?.toRecord()
       }
     }
 
@@ -290,7 +297,11 @@ class ProductionRepositoryExposed : ProductionRepository {
         it[ProductionsTable.phase] = phase.name
         it[updatedAt] = now
       }
-      ProductionsTable.selectAll().where { ProductionsTable.id eq id }.singleOrNull()?.toRecord()
+      ProductionsTable
+        .selectAll()
+        .where { ProductionsTable.id eq id }
+        .singleOrNull()
+        ?.toRecord()
     }
 
   override suspend fun softDelete(id: UUID): Unit =
@@ -311,6 +322,6 @@ class ProductionRepositoryExposed : ProductionRepository {
       ownerUserId = this[ProductionsTable.ownerUserId],
       deletedAt = this[ProductionsTable.deletedAt],
       createdAt = this[ProductionsTable.createdAt],
-      updatedAt = this[ProductionsTable.updatedAt],
+      updatedAt = this[ProductionsTable.updatedAt]
     )
 }

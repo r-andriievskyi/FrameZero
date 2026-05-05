@@ -25,7 +25,7 @@ internal class H2TestDatabase {
     database =
       Database.connect(
         url = "jdbc:h2:mem:$name;DB_CLOSE_DELAY=-1;MODE=PostgreSQL;NON_KEYWORDS=VALUE",
-        driver = "org.h2.Driver",
+        driver = "org.h2.Driver"
       )
     transaction(database) {
       SchemaUtils.create(
@@ -35,7 +35,7 @@ internal class H2TestDatabase {
         ProductionMembersTable,
         TasksTable,
         ScheduleEventsTable,
-        NotificationsTable,
+        NotificationsTable
       )
     }
   }
@@ -49,7 +49,7 @@ internal class H2TestDatabase {
         ProductionMembersTable,
         ProductionsTable,
         RefreshTokensTable,
-        UsersTable,
+        UsersTable
       )
     }
     TransactionManager.closeAndUnregister(database)

@@ -14,6 +14,10 @@ fun dueLabelFor(
   return when (date) {
     today -> "Today"
     today.plusDays(1) -> "Tomorrow"
-    else -> date.format(java.time.format.DateTimeFormatter.ofPattern("MMM d"))
+    else ->
+      date.format(
+        java.time.format.DateTimeFormatter
+          .ofPattern("MMM d")
+      )
   }
 }

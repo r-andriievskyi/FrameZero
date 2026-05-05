@@ -31,5 +31,5 @@ data class ColorSystem(
   val priorityMedSurface: Color,
   val priorityMedText: Color,
   val priorityLowSurface: Color,
-  val priorityLowText: Color,
+  val priorityLowText: Color
 )

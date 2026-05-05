@@ -19,7 +19,7 @@ import kotlin.coroutines.CoroutineContext
  */
 class ProjectsTabViewModel(
   private val getProductionsUseCase: GetProductionsUseCase,
-  dispatcher: CoroutineContext = Dispatchers.Main,
+  dispatcher: CoroutineContext = Dispatchers.Main
 ) : InstanceKeeper.Instance {
   private val scope = CoroutineScope(dispatcher + SupervisorJob())
 

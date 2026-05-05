@@ -29,7 +29,7 @@ class MainActivity : ComponentActivity() {
         AuthComponent(
           componentContext = ctx,
           signInViewModelFactory = { koin.get<SignInViewModel>() },
-          registerViewModelFactory = { koin.get<RegisterViewModel>() },
+          registerViewModelFactory = { koin.get<RegisterViewModel>() }
         )
       },
       homeComponentFactory = { ctx ->
@@ -37,9 +37,9 @@ class MainActivity : ComponentActivity() {
           ctx,
           dashboardViewModelFactory = { koin.get<DashboardTabViewModel>() },
           projectsViewModelFactory = { koin.get<ProjectsTabViewModel>() },
-          scheduleViewModelFactory = { koin.get<ScheduleTabViewModel>() },
+          scheduleViewModelFactory = { koin.get<ScheduleTabViewModel>() }
         )
-      },
+      }
     )
   }
 

@@ -3,8 +3,7 @@ package com.frame.zero.auth
 import at.favre.lib.crypto.bcrypt.BCrypt
 
 class PasswordHasher {
-  fun hash(password: String): String =
-    BCrypt.withDefaults().hashToString(BCRYPT_COST, password.toCharArray())
+  fun hash(password: String): String = BCrypt.withDefaults().hashToString(BCRYPT_COST, password.toCharArray())
 
   fun verify(
     password: String,

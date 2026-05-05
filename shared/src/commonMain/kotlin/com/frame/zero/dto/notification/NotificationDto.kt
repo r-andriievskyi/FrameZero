@@ -9,15 +9,18 @@ data class NotificationDto(
   val title: String,
   val body: String?,
   val readAt: Instant?,
-  val createdAt: Instant,
+  val createdAt: Instant
 )
 
 @Serializable
 data class NotificationsResponse(
   val items: List<NotificationDto>,
   val unreadCount: Int,
-  val nextCursor: String?,
+  val nextCursor: String?
 )
 
 @Serializable
-data class MarkReadRequest(val ids: List<String> = emptyList(), val all: Boolean = false)
+data class MarkReadRequest(
+  val ids: List<String> = emptyList(),
+  val all: Boolean = false
+)
