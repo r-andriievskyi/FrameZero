@@ -6,6 +6,7 @@ import com.frame.zero.domain.production.Genre
 import com.frame.zero.domain.production.Production
 import com.frame.zero.domain.production.ProductionPhase
 import com.frame.zero.domain.production.toProduction
+import com.frame.zero.dto.production.CreateCrewMemberDto
 import com.frame.zero.dto.production.CreateProductionRequest
 import com.frame.zero.repository.productions.ProductionsRepository
 import io.ktor.client.plugins.ResponseException
@@ -21,7 +22,9 @@ class CreateProductionUseCase(
     val phase: ProductionPhase,
     val logline: String?,
     val startDate: LocalDate,
-    val wrapDate: LocalDate
+    val wrapDate: LocalDate,
+    val budgetCents: Long? = null,
+    val crew: List<CreateCrewMemberDto> = emptyList()
   )
 
   override fun mapError(throwable: Throwable): DomainError =
@@ -39,7 +42,9 @@ class CreateProductionUseCase(
         phase = params.phase,
         logline = params.logline?.ifBlank { null },
         startDate = params.startDate,
-        wrapDate = params.wrapDate
+        wrapDate = params.wrapDate,
+        budgetCents = params.budgetCents,
+        crew = params.crew
       )
     ).toProduction()
 }
