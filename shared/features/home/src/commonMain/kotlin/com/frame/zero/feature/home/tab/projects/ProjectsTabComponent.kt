@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.StateFlow
 
 class ProjectsTabComponent(
   componentContext: ComponentContext,
+  val onCreateProductionClick: () -> Unit = {},
   viewModelFactory: () -> ProjectsTabViewModel
 ) : ComponentContext by componentContext {
   private val viewModel: ProjectsTabViewModel = instanceKeeper.getOrCreate { viewModelFactory() }
