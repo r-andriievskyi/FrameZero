@@ -65,7 +65,7 @@ fun Application.module(config: AppConfig) {
     jwt("auth-jwt") {
       val jwtService = JwtService(config.jwt)
       realm = config.jwt.realm
-      verifier(jwtService.verifier)
+      verifier(jwtService.tokenVerifier)
       validate { credential ->
         if (credential.payload.subject.isNullOrBlank()) null else JWTPrincipal(credential.payload)
       }

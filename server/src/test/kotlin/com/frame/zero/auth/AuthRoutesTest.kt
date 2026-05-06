@@ -310,7 +310,7 @@ class AuthRoutesTest {
       app.install(Authentication) {
         jwt("auth-jwt") {
           realm = jwtConfig.realm
-          verifier(jwtService.verifier)
+          verifier(jwtService.tokenVerifier)
           validate { credential ->
             if (credential.payload.subject.isNullOrBlank()) {
               null
