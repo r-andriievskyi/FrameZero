@@ -80,7 +80,12 @@ class ProductionService(
     cursor: String?
   ): Pair<List<ProductionSummaryDto>, String?> {
     val (items, nextCursor) = productions.findAccessible(userId, phases, query, sort, limit, cursor)
-    return Pair(items.map { it.toSummaryDto() }, nextCursor)
+    val summaries = buildList {
+      for (item in items) {
+        add(item.toSummaryDto(members.countByProduction(item.id)))
+      }
+    }
+    return Pair(summaries, nextCursor)
   }
 
   suspend fun get(
@@ -257,7 +262,7 @@ class ProductionService(
     )
   }
 
-  private fun ProductionRecord.toSummaryDto(): ProductionSummaryDto {
+  private fun ProductionRecord.toSummaryDto(membersCount: Int): ProductionSummaryDto {
     val today = LocalDate.now()
     val progress = computeProgress(startDate, wrapDate, today)
     val daysLeft =
@@ -267,9 +272,11 @@ class ProductionService(
     return ProductionSummaryDto(
       id = id.toString(),
       title = title,
+      genre = genre,
       phase = phase,
       progressPercent = progress,
       daysLeft = daysLeft,
+      membersCount = membersCount,
       accentColorHint = phase.toAccentHint(),
       updatedAt = updatedAt.toKotlinInstant()
     )
