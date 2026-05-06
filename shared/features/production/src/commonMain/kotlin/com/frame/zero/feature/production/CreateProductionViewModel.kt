@@ -2,6 +2,7 @@ package com.frame.zero.feature.production
 
 import com.arkivanov.essenty.instancekeeper.InstanceKeeper
 import com.frame.zero.domain.Outcome
+import com.frame.zero.dto.production.CreateCrewMemberDto
 import com.frame.zero.feature.production.domain.CreateProductionUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -37,25 +38,69 @@ class CreateProductionViewModel(
         _state.update { it.copy(startDate = intent.date, error = null) }
       is CreateProductionIntent.WrapDateChanged ->
         _state.update { it.copy(wrapDate = intent.date, error = null) }
+      is CreateProductionIntent.BudgetChanged ->
+        _state.update { it.copy(budgetCents = intent.budgetCents) }
+      is CreateProductionIntent.CrewNameChanged ->
+        _state.update { it.copy(crewNameInput = intent.name) }
+      is CreateProductionIntent.CrewRoleChanged ->
+        _state.update { it.copy(crewRoleInput = intent.role) }
+      CreateProductionIntent.AddCrewMember -> addCrewMember()
+      is CreateProductionIntent.RemoveCrewMember ->
+        _state.update {
+          it.copy(crewMembers = it.crewMembers.toMutableList().apply { removeAt(intent.index) })
+        }
+      CreateProductionIntent.NextStep -> nextStep()
+      CreateProductionIntent.PreviousStep ->
+        _state.update {
+          if (it.currentStep > 1) it.copy(currentStep = it.currentStep - 1, error = null)
+          else it
+        }
       CreateProductionIntent.Submit -> submit()
+    }
+  }
+
+  private fun addCrewMember() {
+    val current = _state.value
+    val name = current.crewNameInput.trim()
+    if (name.isBlank()) return
+    _state.update {
+      it.copy(
+        crewMembers = it.crewMembers + CrewMemberEntry(name = name, role = it.crewRoleInput),
+        crewNameInput = "",
+        crewRoleInput = "Director"
+      )
+    }
+  }
+
+  private fun nextStep() {
+    val current = _state.value
+    when (current.currentStep) {
+      1 -> {
+        if (!current.canAdvanceStep1) {
+          _state.update { it.copy(error = "Title is required") }
+          return
+        }
+        _state.update { it.copy(currentStep = 2, error = null) }
+      }
+      2 -> {
+        if (!current.canAdvanceStep2) {
+          _state.update { it.copy(error = "Valid start and wrap dates are required") }
+          return
+        }
+        _state.update { it.copy(currentStep = 3, error = null) }
+      }
+      3 -> _state.update { it.copy(currentStep = 4, error = null) }
+      4 -> submit()
     }
   }
 
   private fun submit() {
     val current = _state.value
     if (current.isLoading) return
-    if (current.title.isBlank()) {
-      _state.update { it.copy(error = "Title is required") }
-      return
-    }
     val start = current.startDate
     val wrap = current.wrapDate
     if (start == null || wrap == null) {
       _state.update { it.copy(error = "Start and wrap dates are required") }
-      return
-    }
-    if (!wrap.toEpochDays().let { w -> start.toEpochDays() < w }) {
-      _state.update { it.copy(error = "Wrap date must be after start date") }
       return
     }
     scope.launch {
@@ -66,7 +111,9 @@ class CreateProductionViewModel(
         phase = current.phase,
         logline = current.logline.ifBlank { null },
         startDate = start,
-        wrapDate = wrap
+        wrapDate = wrap,
+        budgetCents = current.budgetCents,
+        crew = current.crewMembers.map { CreateCrewMemberDto(name = it.name, role = it.role) }
       )
       when (val outcome = createProductionUseCase(params)) {
         is Outcome.Success -> _state.update { it.copy(isLoading = false, isSuccess = true) }

@@ -29,5 +29,27 @@ sealed interface CreateProductionIntent {
     val date: LocalDate
   ) : CreateProductionIntent
 
+  data class BudgetChanged(
+    val budgetCents: Long?
+  ) : CreateProductionIntent
+
+  data class CrewNameChanged(
+    val name: String
+  ) : CreateProductionIntent
+
+  data class CrewRoleChanged(
+    val role: String
+  ) : CreateProductionIntent
+
+  data object AddCrewMember : CreateProductionIntent
+
+  data class RemoveCrewMember(
+    val index: Int
+  ) : CreateProductionIntent
+
+  data object NextStep : CreateProductionIntent
+
+  data object PreviousStep : CreateProductionIntent
+
   data object Submit : CreateProductionIntent
 }
