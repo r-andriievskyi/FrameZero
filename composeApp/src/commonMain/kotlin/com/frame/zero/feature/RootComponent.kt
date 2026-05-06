@@ -1,9 +1,12 @@
 package com.frame.zero.feature
 
 import com.arkivanov.decompose.ComponentContext
+import com.arkivanov.decompose.DelicateDecomposeApi
 import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.router.stack.StackNavigation
 import com.arkivanov.decompose.router.stack.childStack
+import com.arkivanov.decompose.router.stack.pop
+import com.arkivanov.decompose.router.stack.push
 import com.arkivanov.decompose.router.stack.replaceAll
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.essenty.lifecycle.doOnDestroy
@@ -11,6 +14,8 @@ import com.frame.zero.core.session.SessionManager
 import com.frame.zero.core.session.SessionState
 import com.frame.zero.feature.auth.AuthComponent
 import com.frame.zero.feature.home.HomeComponent
+import com.frame.zero.feature.production.CreateProductionComponent
+import com.frame.zero.feature.production.CreateProductionViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -21,7 +26,8 @@ class RootComponent(
   componentContext: ComponentContext,
   sessionManager: SessionManager,
   private val authComponentFactory: (ComponentContext) -> AuthComponent,
-  private val homeComponentFactory: (ComponentContext) -> HomeComponent
+  private val homeComponentFactory: (ComponentContext, onCreateProductionClick: () -> Unit) -> HomeComponent,
+  private val createProductionViewModelFactory: () -> CreateProductionViewModel
 ) : ComponentContext by componentContext {
   private val navigation = StackNavigation<Config>()
 
@@ -30,7 +36,7 @@ class RootComponent(
       source = navigation,
       serializer = null,
       initialConfiguration = Config.Splash,
-      handleBackButton = false,
+      handleBackButton = true,
       childFactory = ::createChild
     )
 
@@ -57,7 +63,20 @@ class RootComponent(
     when (config) {
       Config.Splash -> Child.Splash
       Config.Auth -> Child.Auth(authComponentFactory(context))
-      Config.Home -> Child.Home(homeComponentFactory(context))
+      Config.Home -> Child.Home(
+        homeComponentFactory(context) {
+          @OptIn(DelicateDecomposeApi::class)
+          navigation.push(Config.CreateProduction)
+        }
+      )
+      Config.CreateProduction -> Child.CreateProduction(
+        CreateProductionComponent(
+          componentContext = context,
+          onBack = { navigation.pop() },
+          onCreated = { navigation.pop() },
+          viewModelFactory = createProductionViewModelFactory
+        )
+      )
     }
 
   sealed interface Config {
@@ -66,6 +85,8 @@ class RootComponent(
     data object Auth : Config
 
     data object Home : Config
+
+    data object CreateProduction : Config
   }
 
   sealed interface Child {
@@ -77,6 +98,10 @@ class RootComponent(
 
     data class Home(
       val component: HomeComponent
+    ) : Child
+
+    data class CreateProduction(
+      val component: CreateProductionComponent
     ) : Child
   }
 }
