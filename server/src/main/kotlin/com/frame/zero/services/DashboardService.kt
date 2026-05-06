@@ -6,6 +6,7 @@ import com.frame.zero.dto.dashboard.GreetingDto
 import com.frame.zero.dto.dashboard.StatsDto
 import com.frame.zero.dto.production.ProductionSummaryDto
 import com.frame.zero.dto.task.TaskSummaryDto
+import com.frame.zero.repository.ProductionMemberRepository
 import com.frame.zero.repository.ProductionRepository
 import com.frame.zero.repository.TaskRecord
 import com.frame.zero.repository.TaskRepository
@@ -21,6 +22,7 @@ private const val DASHBOARD_LIMIT = 5
 class DashboardService(
   private val users: UserRepository,
   private val productions: ProductionRepository,
+  private val members: ProductionMemberRepository,
   private val tasks: TaskRepository
 ) {
   suspend fun get(
@@ -45,24 +47,26 @@ class DashboardService(
         cursor = null
       )
 
-    val productionStatus =
-      productionItems.map { prod ->
-        val today = java.time.LocalDate.now()
-        val progress = computeProgress(prod.startDate, prod.wrapDate, today)
-        val daysLeft =
-          java.time.temporal.ChronoUnit.DAYS
-            .between(today, prod.wrapDate)
-            .toInt()
-        com.frame.zero.dto.production.ProductionSummaryDto(
-          id = prod.id.toString(),
-          title = prod.title,
-          phase = prod.phase,
-          progressPercent = progress,
-          daysLeft = daysLeft,
-          accentColorHint = phaseAccent(prod.phase),
-          updatedAt = prod.updatedAt.toKotlinInstant()
-        )
-      }
+    val productionStatus = productionItems.map { prod ->
+      val today = java.time.LocalDate.now()
+      val progress = computeProgress(prod.startDate, prod.wrapDate, today)
+      val daysLeft =
+        java.time.temporal.ChronoUnit.DAYS
+          .between(today, prod.wrapDate)
+          .toInt()
+      val membersCount = members.countByProduction(prod.id)
+      ProductionSummaryDto(
+        id = prod.id.toString(),
+        title = prod.title,
+        genre = prod.genre,
+        phase = prod.phase,
+        progressPercent = progress,
+        daysLeft = daysLeft,
+        membersCount = membersCount,
+        accentColorHint = phaseAccent(prod.phase),
+        updatedAt = prod.updatedAt.toKotlinInstant()
+      )
+    }
 
     return DashboardResponse(
       greeting =
@@ -113,12 +117,16 @@ class DashboardService(
       when (phase) {
         com.frame.zero.domain.production.ProductionPhase.DEVELOPMENT ->
           com.frame.zero.dto.production.AccentColorHint.GREEN
+
         com.frame.zero.domain.production.ProductionPhase.PRE_PRODUCTION ->
           com.frame.zero.dto.production.AccentColorHint.ORANGE
+
         com.frame.zero.domain.production.ProductionPhase.PRODUCTION ->
           com.frame.zero.dto.production.AccentColorHint.ORANGE
+
         com.frame.zero.domain.production.ProductionPhase.POST_PRODUCTION ->
           com.frame.zero.dto.production.AccentColorHint.PURPLE
+
         com.frame.zero.domain.production.ProductionPhase.DISTRIBUTION ->
           com.frame.zero.dto.production.AccentColorHint.GREEN
       }
