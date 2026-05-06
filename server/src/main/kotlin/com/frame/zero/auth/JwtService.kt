@@ -8,29 +8,30 @@ import java.util.Date
 import java.util.UUID
 
 class JwtService(
-  private val config: JwtConfig
+  private val jwtConfig: JwtConfig
 ) {
-  private val algorithm = Algorithm.HMAC256(config.secret)
+  private val signingAlgorithm = Algorithm.HMAC256(jwtConfig.secret)
 
-  val verifier: JWTVerifier = JWT.require(algorithm)
-    .withIssuer(config.issuer)
-    .withAudience(config.audience)
+  val tokenVerifier: JWTVerifier = JWT.require(signingAlgorithm)
+    .withIssuer(jwtConfig.issuer)
+    .withAudience(jwtConfig.audience)
     .build()
 
   fun createAccessToken(
     userId: UUID,
     email: String
   ): String {
-    val now = System.currentTimeMillis()
+    val currentTime = System.currentTimeMillis()
+    val expiresAtMillis = currentTime + jwtConfig.accessTokenTtl.inWholeMilliseconds
     return JWT
       .create()
-      .withIssuer(config.issuer)
-      .withAudience(config.audience)
+      .withIssuer(jwtConfig.issuer)
+      .withAudience(jwtConfig.audience)
       .withSubject(userId.toString())
       .withClaim(EMAIL_CLAIM, email)
-      .withIssuedAt(Date(now))
-      .withExpiresAt(Date(now + config.accessTokenTtl.inWholeMilliseconds))
-      .sign(algorithm)
+      .withIssuedAt(Date(currentTime))
+      .withExpiresAt(Date(expiresAtMillis))
+      .sign(signingAlgorithm)
   }
 
   companion object {
