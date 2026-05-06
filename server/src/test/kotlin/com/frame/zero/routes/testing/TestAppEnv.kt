@@ -79,7 +79,7 @@ internal class TestAppEnv {
     app.install(Authentication) {
       jwt("auth-jwt") {
         realm = testJwtConfig.realm
-        verifier(jwtService.verifier)
+        verifier(jwtService.tokenVerifier)
         validate { credential ->
           if (credential.payload.subject.isNullOrBlank()) null else JWTPrincipal(credential.payload)
         }
