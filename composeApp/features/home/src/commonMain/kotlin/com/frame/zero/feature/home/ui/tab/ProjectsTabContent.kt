@@ -1,16 +1,21 @@
 package com.frame.zero.feature.home.ui.tab
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -25,7 +30,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.discovery.playground.shared.design_system.AppTheme
@@ -78,19 +85,21 @@ private fun ProjectsContent(state: ProjectsTabState) {
         style = AppTheme.typographySystem.displayMedium,
         color = AppTheme.colorSystem.textPrimary
       )
-      Box(
-        modifier =
-          Modifier
-            .size(40.dp)
-            .clip(RoundedCornerShape(AppTheme.radiusSystem.radiusMax))
-            .background(AppTheme.colorSystem.accent),
-        contentAlignment = Alignment.Center
-      ) {
-        Text(
-          text = "+",
-          style = AppTheme.typographySystem.titleLarge,
-          color = AppTheme.colorSystem.textOnAccent
-        )
+      if (filteredProductions.isNotEmpty()) {
+        Box(
+          modifier =
+            Modifier
+              .size(40.dp)
+              .clip(RoundedCornerShape(AppTheme.radiusSystem.radiusMax))
+              .background(AppTheme.colorSystem.accent),
+          contentAlignment = Alignment.Center
+        ) {
+          Text(
+            text = "+",
+            style = AppTheme.typographySystem.titleLarge,
+            color = AppTheme.colorSystem.textOnAccent
+          )
+        }
       }
     }
 
@@ -101,10 +110,193 @@ private fun ProjectsContent(state: ProjectsTabState) {
 
     VerticalSpacer(AppTheme.spacingSystem.space16)
 
-    // Production cards
-    filteredProductions.forEach { production ->
-      ProductionCard(production = production)
-      VerticalSpacer(AppTheme.spacingSystem.space16)
+    // Production cards or empty state
+    if (filteredProductions.isEmpty()) {
+      EmptyState()
+    } else {
+      filteredProductions.forEach { production ->
+        ProductionCard(production = production)
+        VerticalSpacer(AppTheme.spacingSystem.space16)
+      }
+    }
+  }
+}
+
+@Composable
+private fun EmptyState() {
+  Column(
+    modifier = Modifier.fillMaxWidth().padding(vertical = AppTheme.spacingSystem.space24),
+    horizontalAlignment = Alignment.CenterHorizontally
+  ) {
+    // Illustration: stacked cards
+    EmptyStateIllustration()
+
+    VerticalSpacer(AppTheme.spacingSystem.space24)
+
+    Text(
+      text = "Start your first production",
+      style = AppTheme.typographySystem.titleMedium,
+      color = AppTheme.colorSystem.textPrimary,
+      textAlign = TextAlign.Center
+    )
+
+    VerticalSpacer(AppTheme.spacingSystem.space8)
+
+    Text(
+      text = "You haven't been added to any productions\nyet. Create one to start tracking scenes,\ncrew, and schedule.",
+      style = AppTheme.typographySystem.bodySmall,
+      color = AppTheme.colorSystem.textMuted,
+      textAlign = TextAlign.Center
+    )
+
+    VerticalSpacer(AppTheme.spacingSystem.space24)
+
+    // Create production button
+    Box(
+      modifier =
+        Modifier
+          .fillMaxWidth(0.7f)
+          .clip(RoundedCornerShape(AppTheme.radiusSystem.radius16))
+          .background(AppTheme.colorSystem.accent)
+          .clickable { }
+          .padding(
+            horizontal = AppTheme.spacingSystem.space24,
+            vertical = AppTheme.spacingSystem.space16
+          ),
+      contentAlignment = Alignment.Center
+    ) {
+      Text(
+        text = "+  Create production",
+        style = AppTheme.typographySystem.labelLarge,
+        color = AppTheme.colorSystem.textOnAccent
+      )
+    }
+
+    VerticalSpacer(AppTheme.spacingSystem.space16)
+
+    Text(
+      text = "Or ask a producer to invite you to one",
+      style = AppTheme.typographySystem.bodySmall,
+      color = AppTheme.colorSystem.textMuted,
+      textAlign = TextAlign.Center
+    )
+  }
+}
+
+@Composable
+private fun EmptyStateIllustration() {
+  val cardShape = RoundedCornerShape(AppTheme.radiusSystem.radius16)
+
+  Box(
+    modifier = Modifier.size(width = 220.dp, height = 160.dp),
+    contentAlignment = Alignment.BottomCenter
+  ) {
+    // Back card (rotated left)
+    Box(
+      modifier =
+        Modifier
+          .size(width = 180.dp, height = 100.dp)
+          .offset(y = (-40).dp)
+          .rotate(-5f)
+          .clip(cardShape)
+          .background(AppTheme.colorSystem.cardBackground)
+          .border(1.dp, AppTheme.colorSystem.cardBorder, cardShape)
+    )
+
+    // Middle card (rotated right)
+    Box(
+      modifier =
+        Modifier
+          .size(width = 180.dp, height = 100.dp)
+          .offset(y = (-25).dp)
+          .rotate(3f)
+          .clip(cardShape)
+          .background(AppTheme.colorSystem.cardBackground)
+          .border(1.dp, AppTheme.colorSystem.cardBorder, cardShape)
+    ) {
+      // Colored progress bars at bottom of middle card
+      Row(
+        modifier =
+          Modifier
+            .align(Alignment.BottomStart)
+            .padding(AppTheme.spacingSystem.space8)
+            .fillMaxWidth()
+      ) {
+        Box(
+          modifier =
+            Modifier
+              .weight(1f)
+              .height(4.dp)
+              .clip(RoundedCornerShape(AppTheme.radiusSystem.radius4))
+              .background(AppTheme.colorSystem.warningText)
+        )
+        Spacer(modifier = Modifier.width(AppTheme.spacingSystem.space4))
+        Box(
+          modifier =
+            Modifier
+              .weight(1f)
+              .height(4.dp)
+              .clip(RoundedCornerShape(AppTheme.radiusSystem.radius4))
+              .background(AppTheme.colorSystem.successText)
+        )
+        Spacer(modifier = Modifier.width(AppTheme.spacingSystem.space4))
+        Box(
+          modifier =
+            Modifier
+              .weight(0.5f)
+              .height(4.dp)
+              .clip(RoundedCornerShape(AppTheme.radiusSystem.radius4))
+              .background(AppTheme.colorSystem.accent)
+        )
+      }
+    }
+
+    // Front card
+    Box(
+      modifier =
+        Modifier
+          .size(width = 200.dp, height = 70.dp)
+          .clip(cardShape)
+          .background(AppTheme.colorSystem.cardBackground)
+          .border(1.dp, AppTheme.colorSystem.cardBorder, cardShape)
+          .padding(AppTheme.spacingSystem.space8),
+      contentAlignment = Alignment.CenterStart
+    ) {
+      Row(verticalAlignment = Alignment.CenterVertically) {
+        // Plus icon
+        Box(
+          modifier =
+            Modifier
+              .size(32.dp)
+              .clip(RoundedCornerShape(AppTheme.radiusSystem.radius8))
+              .background(AppTheme.colorSystem.accent),
+          contentAlignment = Alignment.Center
+        ) {
+          Text(
+            text = "+",
+            style = AppTheme.typographySystem.titleSmall,
+            color = AppTheme.colorSystem.textOnAccent
+          )
+        }
+        Spacer(modifier = Modifier.width(AppTheme.spacingSystem.space8))
+        Column {
+          Box(
+            modifier =
+              Modifier
+                .size(width = 80.dp, height = 8.dp)
+                .clip(RoundedCornerShape(AppTheme.radiusSystem.radius4))
+                .background(AppTheme.colorSystem.border)
+          )
+          VerticalSpacer(AppTheme.spacingSystem.space4)
+          Box(
+            modifier =
+              Modifier
+                .size(width = 50.dp, height = 6.dp)
+                .clip(RoundedCornerShape(AppTheme.radiusSystem.radius4))
+                .background(AppTheme.colorSystem.border)
+          )
+        }
+      }
     }
   }
 }
@@ -122,6 +314,7 @@ private fun FilterChipsRow(
   )
 
   Row(
+    modifier = Modifier.horizontalScroll(rememberScrollState()),
     horizontalArrangement = Arrangement.spacedBy(AppTheme.spacingSystem.space8)
   ) {
     filters.forEach { (phase, label) ->
@@ -332,6 +525,14 @@ private fun Genre.displayLabel(): String =
   name.replace('_', ' ').lowercase().replaceFirstChar { it.uppercase() }
 
 // ── Preview ───────────────────────────────────────────────────────────
+
+@Preview
+@Composable
+private fun ProjectsEmptyPreview() {
+  AppTheme(darkTheme = true) {
+    ProjectsContent(state = ProjectsTabState(isLoading = false, productions = emptyList()))
+  }
+}
 
 @OptIn(ExperimentalTime::class)
 @Preview
