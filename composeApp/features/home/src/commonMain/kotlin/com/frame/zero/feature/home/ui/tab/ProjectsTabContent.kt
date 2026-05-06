@@ -50,11 +50,14 @@ import kotlin.time.ExperimentalTime
 fun ProjectsTabContent(component: ProjectsTabComponent) {
   LaunchedEffect(Unit) { component.onAppeared() }
   val state by component.state.collectAsState()
-  ProjectsContent(state = state)
+  ProjectsContent(state = state, onCreateProductionClick = component.onCreateProductionClick)
 }
 
 @Composable
-private fun ProjectsContent(state: ProjectsTabState) {
+private fun ProjectsContent(
+  state: ProjectsTabState,
+  onCreateProductionClick: () -> Unit
+) {
   var selectedFilter by remember { mutableStateOf<ProductionPhase?>(null) }
 
   val filteredProductions = if (selectedFilter == null) {
@@ -91,7 +94,8 @@ private fun ProjectsContent(state: ProjectsTabState) {
             Modifier
               .size(40.dp)
               .clip(RoundedCornerShape(AppTheme.radiusSystem.radiusMax))
-              .background(AppTheme.colorSystem.accent),
+              .background(AppTheme.colorSystem.accent)
+              .clickable(onClick = onCreateProductionClick),
           contentAlignment = Alignment.Center
         ) {
           Text(
@@ -112,7 +116,7 @@ private fun ProjectsContent(state: ProjectsTabState) {
 
     // Production cards or empty state
     if (filteredProductions.isEmpty()) {
-      EmptyState()
+      EmptyState(onCreateProductionClick = onCreateProductionClick)
     } else {
       filteredProductions.forEach { production ->
         ProductionCard(production = production)
@@ -123,7 +127,7 @@ private fun ProjectsContent(state: ProjectsTabState) {
 }
 
 @Composable
-private fun EmptyState() {
+private fun EmptyState(onCreateProductionClick: () -> Unit) {
   Column(
     modifier = Modifier.fillMaxWidth().padding(vertical = AppTheme.spacingSystem.space24),
     horizontalAlignment = Alignment.CenterHorizontally
@@ -143,7 +147,8 @@ private fun EmptyState() {
     VerticalSpacer(AppTheme.spacingSystem.space8)
 
     Text(
-      text = "You haven't been added to any productions\nyet. Create one to start tracking scenes,\ncrew, and schedule.",
+      text = "You haven't been added to any productions\nyet. Create one to start tracking scenes,\n" +
+        "crew, and schedule.",
       style = AppTheme.typographySystem.bodySmall,
       color = AppTheme.colorSystem.textMuted,
       textAlign = TextAlign.Center
@@ -158,7 +163,7 @@ private fun EmptyState() {
           .fillMaxWidth(0.7f)
           .clip(RoundedCornerShape(AppTheme.radiusSystem.radius16))
           .background(AppTheme.colorSystem.accent)
-          .clickable { }
+          .clickable(onClick = onCreateProductionClick)
           .padding(
             horizontal = AppTheme.spacingSystem.space24,
             vertical = AppTheme.spacingSystem.space16
@@ -521,8 +526,7 @@ private fun accentColorFor(hint: AccentColorHint): Color =
 private fun ProductionPhase.displayLabel(): String =
   name.replace('_', ' ').lowercase().replaceFirstChar { it.uppercase() }
 
-private fun Genre.displayLabel(): String =
-  name.replace('_', ' ').lowercase().replaceFirstChar { it.uppercase() }
+private fun Genre.displayLabel(): String = name.replace('_', ' ').lowercase().replaceFirstChar { it.uppercase() }
 
 // ── Preview ───────────────────────────────────────────────────────────
 
@@ -530,7 +534,10 @@ private fun Genre.displayLabel(): String =
 @Composable
 private fun ProjectsEmptyPreview() {
   AppTheme(darkTheme = true) {
-    ProjectsContent(state = ProjectsTabState(isLoading = false, productions = emptyList()))
+    ProjectsContent(
+      state = ProjectsTabState(isLoading = false, productions = emptyList()),
+      onCreateProductionClick = {}
+    )
   }
 }
 
@@ -540,6 +547,7 @@ private fun ProjectsEmptyPreview() {
 private fun ProjectsContentPreview() {
   AppTheme(darkTheme = true) {
     ProjectsContent(
+      onCreateProductionClick = {},
       state =
         ProjectsTabState(
           isLoading = false,

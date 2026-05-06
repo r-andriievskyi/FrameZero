@@ -13,6 +13,7 @@ class HomeComponent(
   componentContext: ComponentContext,
   val onNotificationsClick: () -> Unit = {},
   val onSettingsClick: () -> Unit = {},
+  val onCreateProductionClick: () -> Unit = {},
   dashboardViewModelFactory: () -> DashboardTabViewModel,
   projectsViewModelFactory: () -> ProjectsTabViewModel,
   scheduleViewModelFactory: () -> ScheduleTabViewModel
@@ -25,6 +26,7 @@ class HomeComponent(
   val projectsTab =
     ProjectsTabComponent(
       componentContext = childContext(key = "tab-projects"),
+      onCreateProductionClick = onCreateProductionClick,
       viewModelFactory = projectsViewModelFactory
     )
   val scheduleTab =
