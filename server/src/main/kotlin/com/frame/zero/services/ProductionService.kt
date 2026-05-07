@@ -4,7 +4,6 @@ import com.frame.zero.AppError
 import com.frame.zero.AppException
 import com.frame.zero.domain.production.ProductionPhase
 import com.frame.zero.domain.production.ProductionSort
-import com.frame.zero.dto.production.AccentColorHint
 import com.frame.zero.dto.production.AddMemberRequest
 import com.frame.zero.dto.production.CreateProductionRequest
 import com.frame.zero.dto.production.PhaseTransitionRequest
@@ -277,7 +276,6 @@ class ProductionService(
       progressPercent = progress,
       daysLeft = daysLeft,
       membersCount = membersCount,
-      accentColorHint = phase.toAccentHint(),
       updatedAt = updatedAt.toKotlinInstant()
     )
   }
@@ -323,15 +321,6 @@ class ProductionService(
           isCompleted = p.ordinal < current.ordinal,
           isCurrent = p == current
         )
-      }
-
-    fun ProductionPhase.toAccentHint(): AccentColorHint =
-      when (this) {
-        ProductionPhase.DEVELOPMENT -> AccentColorHint.GREEN
-        ProductionPhase.PRE_PRODUCTION -> AccentColorHint.ORANGE
-        ProductionPhase.PRODUCTION -> AccentColorHint.ORANGE
-        ProductionPhase.POST_PRODUCTION -> AccentColorHint.PURPLE
-        ProductionPhase.DISTRIBUTION -> AccentColorHint.GREEN
       }
 
     fun initialsFrom(name: String): String {

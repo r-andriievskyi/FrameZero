@@ -63,7 +63,6 @@ class DashboardService(
         progressPercent = progress,
         daysLeft = daysLeft,
         membersCount = membersCount,
-        accentColorHint = phaseAccent(prod.phase),
         updatedAt = prod.updatedAt.toKotlinInstant()
       )
     }
@@ -111,24 +110,5 @@ class DashboardService(
       return (elapsed * 100 / total).toInt().coerceIn(0, 100)
     }
 
-    fun phaseAccent(
-      phase: com.frame.zero.domain.production.ProductionPhase
-    ): com.frame.zero.dto.production.AccentColorHint =
-      when (phase) {
-        com.frame.zero.domain.production.ProductionPhase.DEVELOPMENT ->
-          com.frame.zero.dto.production.AccentColorHint.GREEN
-
-        com.frame.zero.domain.production.ProductionPhase.PRE_PRODUCTION ->
-          com.frame.zero.dto.production.AccentColorHint.ORANGE
-
-        com.frame.zero.domain.production.ProductionPhase.PRODUCTION ->
-          com.frame.zero.dto.production.AccentColorHint.ORANGE
-
-        com.frame.zero.domain.production.ProductionPhase.POST_PRODUCTION ->
-          com.frame.zero.dto.production.AccentColorHint.PURPLE
-
-        com.frame.zero.domain.production.ProductionPhase.DISTRIBUTION ->
-          com.frame.zero.dto.production.AccentColorHint.GREEN
-      }
   }
 }

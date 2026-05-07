@@ -15,7 +15,6 @@ data class ProductionSummaryDto(
   val progressPercent: Int,
   val daysLeft: Int,
   val membersCount: Int,
-  val accentColorHint: AccentColorHint,
   val updatedAt: Instant
 )
 
