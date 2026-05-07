@@ -16,8 +16,7 @@ fun Route.dashboardRoutes() {
     route("/api/v1") {
       get("/dashboard") {
         val userId = call.userId()
-        val tz =
-          call.request.headers["X-Timezone"]?.let {
+        val tz = call.request.headers["X-Timezone"]?.let {
             runCatching { ZoneId.of(it) }.getOrDefault(ZoneId.of("UTC"))
           } ?: ZoneId.of("UTC")
         call.respond(service.get(userId, tz))
