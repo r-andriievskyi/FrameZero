@@ -14,10 +14,11 @@ import com.frame.zero.production.ProductionRepository
 import com.frame.zero.task.TaskRecord
 import com.frame.zero.task.TaskRepository
 import java.time.ZoneId
+import java.time.temporal.ChronoUnit
 import java.util.UUID
 import kotlin.time.toKotlinInstant
 
-private const val DASHBOARD_LIMIT = 5
+private const val DASHBOARD_PRODUCTIONS_LIMIT = 5
 
 class DashboardService(
   private val users: UserRepository,
@@ -35,25 +36,23 @@ class DashboardService(
     val activeCount = productions.countActiveForUser(userId)
     val openTaskCount = tasks.countOpenForUser(userId)
 
-    val myTasks = tasks.findForUserLimit(userId, DASHBOARD_LIMIT).map { it.toSummaryDto(timezone) }
+    val myTasks = tasks.findForUserLimit(userId, DASHBOARD_PRODUCTIONS_LIMIT).map { it.toSummaryDto(timezone) }
 
-    val (productionItems, _) =
-      productions.findAccessible(
-        userId = userId,
-        phases = emptyList(),
-        query = null,
-        sort = ProductionSort.DUE_DATE,
-        limit = DASHBOARD_LIMIT,
-        cursor = null
-      )
+    val (productionItems, _) = productions.findAccessible(
+      userId = userId,
+      phases = emptyList(),
+      query = null,
+      sort = ProductionSort.DUE_DATE,
+      limit = DASHBOARD_PRODUCTIONS_LIMIT,
+      cursor = null
+    )
 
     val productionStatus = productionItems.map { prod ->
       val today = java.time.LocalDate.now()
       val progress = computeProgress(prod.startDate, prod.wrapDate, today)
-      val daysLeft =
-        java.time.temporal.ChronoUnit.DAYS
-          .between(today, prod.wrapDate)
-          .toInt()
+      val daysLeft = ChronoUnit.DAYS
+        .between(today, prod.wrapDate)
+        .toInt()
       val membersCount = members.countByProduction(prod.id)
       ProductionSummaryDto(
         id = prod.id.toString(),
@@ -100,13 +99,11 @@ class DashboardService(
     ): Int {
       if (!today.isAfter(start)) return 0
       if (!today.isBefore(wrap)) return 100
-      val total =
-        java.time.temporal.ChronoUnit.DAYS
-          .between(start, wrap)
-          .coerceAtLeast(1)
-      val elapsed =
-        java.time.temporal.ChronoUnit.DAYS
-          .between(start, today)
+      val total = ChronoUnit.DAYS
+        .between(start, wrap)
+        .coerceAtLeast(1)
+      val elapsed = ChronoUnit.DAYS
+        .between(start, today)
       return (elapsed * 100 / total).toInt().coerceIn(0, 100)
     }
   }
