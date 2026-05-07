@@ -43,14 +43,14 @@ fun Route.productionRoutes() {
             ?.toIntOrNull()
             ?.coerceIn(1, 100) ?: 20
         val cursor = call.request.queryParameters["cursor"]
-        val (items, nextCursor) = service.list(userId, phases, query, sort, limit, cursor)
+        val (items, nextCursor) = service.listProductions(userId, phases, query, sort, limit, cursor)
         call.respond(PagedResponse(items = items, nextCursor = nextCursor))
       }
 
       post {
         val userId = call.userId()
         val request = call.receive<CreateProductionRequest>()
-        val production = service.create(userId, request)
+        val production = service.createProduction(userId, request)
         call.response.header("Location", "/api/v1/productions/${production.id}")
         call.respond(HttpStatusCode.Created, production)
       }
@@ -59,27 +59,27 @@ fun Route.productionRoutes() {
         get {
           val userId = call.userId()
           val productionId = call.pathUuid("id")
-          call.respond(service.get(userId, productionId))
+          call.respond(service.getProduction(userId, productionId))
         }
 
         patch {
           val userId = call.userId()
           val productionId = call.pathUuid("id")
           val request = call.receive<UpdateProductionRequest>()
-          call.respond(service.update(userId, productionId, request))
+          call.respond(service.updateProduction(userId, productionId, request))
         }
 
         post("/phase") {
           val userId = call.userId()
           val productionId = call.pathUuid("id")
           val request = call.receive<PhaseTransitionRequest>()
-          call.respond(service.transitionPhase(userId, productionId, request))
+          call.respond(service.advancePhase(userId, productionId, request))
         }
 
         delete {
           val userId = call.userId()
           val productionId = call.pathUuid("id")
-          service.delete(userId, productionId)
+          service.deleteProduction(userId, productionId)
           call.respond(HttpStatusCode.NoContent)
         }
 

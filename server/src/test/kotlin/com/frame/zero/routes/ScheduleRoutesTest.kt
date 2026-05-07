@@ -117,7 +117,7 @@ class ScheduleRoutesTest {
       application { env.configure(this) }
       val userId = UUID.randomUUID()
       val token = env.tokenFor(userId)
-      val prod = env.productionService.create(userId, productionRequest)
+      val prod = env.productionService.createProduction(userId, productionRequest)
       val request =
         CreateScheduleEventRequest(
           productionId = prod.id,
@@ -147,7 +147,7 @@ class ScheduleRoutesTest {
       val ownerId = UUID.randomUUID()
       val strangerId = UUID.randomUUID()
       val strangerToken = env.tokenFor(strangerId)
-      val prod = env.productionService.create(ownerId, productionRequest)
+      val prod = env.productionService.createProduction(ownerId, productionRequest)
 
       val response =
         client.post("/api/v1/schedule") {
