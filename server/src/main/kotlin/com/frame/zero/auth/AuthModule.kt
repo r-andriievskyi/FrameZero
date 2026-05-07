@@ -1,10 +1,6 @@
 package com.frame.zero.auth
 
 import com.frame.zero.config.AppConfig
-import com.frame.zero.repository.RefreshTokenRepository
-import com.frame.zero.repository.RefreshTokenRepositoryExposed
-import com.frame.zero.repository.UserRepository
-import com.frame.zero.repository.UserRepositoryExposed
 import org.koin.dsl.module
 
 fun authModule(config: AppConfig) =

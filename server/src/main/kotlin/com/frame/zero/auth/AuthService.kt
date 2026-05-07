@@ -8,9 +8,6 @@ import com.frame.zero.auth.dto.AuthResponse
 import com.frame.zero.auth.dto.RefreshResponse
 import com.frame.zero.auth.dto.UserDto
 import com.frame.zero.config.JwtConfig
-import com.frame.zero.repository.RefreshTokenRepository
-import com.frame.zero.repository.UserRecord
-import com.frame.zero.repository.UserRepository
 import java.time.Instant
 import java.util.UUID
 

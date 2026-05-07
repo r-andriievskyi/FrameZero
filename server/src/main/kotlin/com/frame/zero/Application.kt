@@ -6,11 +6,16 @@ import com.frame.zero.auth.authModule
 import com.frame.zero.auth.authRoutes
 import com.frame.zero.config.AppConfig
 import com.frame.zero.config.DatabaseFactory
-import com.frame.zero.routes.dashboardRoutes
-import com.frame.zero.routes.notificationRoutes
-import com.frame.zero.routes.productionRoutes
-import com.frame.zero.routes.scheduleRoutes
-import com.frame.zero.routes.taskRoutes
+import com.frame.zero.dashboard.dashboardModule
+import com.frame.zero.dashboard.dashboardRoutes
+import com.frame.zero.notification.notificationModule
+import com.frame.zero.notification.notificationRoutes
+import com.frame.zero.production.productionModule
+import com.frame.zero.production.productionRoutes
+import com.frame.zero.schedule.scheduleModule
+import com.frame.zero.schedule.scheduleRoutes
+import com.frame.zero.task.taskModule
+import com.frame.zero.task.taskRoutes
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
@@ -45,7 +50,14 @@ fun main() {
 fun Application.module(config: AppConfig) {
   install(Koin) {
     slf4jLogger()
-    modules(authModule(config), appModule())
+    modules(
+      authModule(config),
+      productionModule(),
+      taskModule(),
+      scheduleModule(),
+      notificationModule(),
+      dashboardModule()
+    )
   }
 
   install(CallId) {
