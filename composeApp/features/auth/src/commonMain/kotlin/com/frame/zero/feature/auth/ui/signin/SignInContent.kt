@@ -17,6 +17,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
@@ -30,7 +31,10 @@ import com.frame.zero.feature.auth.signin.SignInComponent
 import com.frame.zero.feature.auth.signin.SignInIntent
 import com.frame.zero.feature.auth.signin.SignInState
 import framezero.composeapp.features.auth.generated.resources.Res
+import framezero.composeapp.features.auth.generated.resources.ic_eye
+import framezero.composeapp.features.auth.generated.resources.ic_lock
 import framezero.composeapp.features.auth.generated.resources.ic_logo
+import framezero.composeapp.features.auth.generated.resources.ic_mail
 import org.jetbrains.compose.resources.painterResource
 
 @Composable
@@ -98,6 +102,13 @@ private fun SignInContent(
       value = state.email,
       onValueChange = { onIntent(SignInIntent.EmailChanged(it)) },
       placeholder = "you@studio.com",
+      leadingContent = {
+        Image(
+          painter = painterResource(Res.drawable.ic_mail),
+          colorFilter = ColorFilter.tint(AppTheme.colorSystem.textPrimary),
+          contentDescription = null
+        )
+      },
       enabled = !state.isLoading,
       modifier = Modifier.fillMaxWidth()
     )
@@ -112,6 +123,20 @@ private fun SignInContent(
       value = state.password,
       onValueChange = { onIntent(SignInIntent.PasswordChanged(it)) },
       placeholder = "******",
+      leadingContent = {
+        Image(
+          painter = painterResource(Res.drawable.ic_lock),
+          colorFilter = ColorFilter.tint(AppTheme.colorSystem.textPrimary),
+          contentDescription = null
+        )
+      },
+      trailingContent = {
+        Image(
+          painter = painterResource(Res.drawable.ic_eye),
+          colorFilter = ColorFilter.tint(AppTheme.colorSystem.textPrimary),
+          contentDescription = null
+        )
+      },
       visualTransformation = PasswordVisualTransformation(),
       enabled = !state.isLoading,
       modifier = Modifier.fillMaxWidth()
