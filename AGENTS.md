@@ -8,8 +8,9 @@ FrameZero is a Kotlin Multiplatform (KMP) app targeting Android, iOS, Desktop, a
 
 - **Maximise Kotlin sharing.** Default to `commonMain`; use platform source sets only when no multiplatform API exists.
 - **Decompose for navigation:** `RootComponent` in `composeApp/commonMain` owns a `StackNavigation`. Feature components live in `shared/features/<name>/`. Feature UI in `composeApp/features/<name>/` is stateless — all logic stays in `shared`.
-- **Shared wire types:** DTOs and constants used by both client and server are defined once in `shared/commonMain` (e.g. `shared/src/commonMain/kotlin/com/frame/zero/dto/`). The server depends on `shared` for these.
-- **Convention plugins** (`build-logic/`): `crossplatform.kmp.library` and `crossplatform.kmp.library.compose` configure all targets, SDK versions, and code quality tooling. New modules should apply one of these.
+- **Shared wire types:** DTOs and constants used by both client and server are defined once in `shared/commonMain` (e.g. `shared/src/commonMain/kotlin/com/frame/zero/dto/`). The server depends on `shared` for these. DTOs are organised by domain subdirectory (`common/`, `dashboard/`, `production/`, `schedule/`, `notification/`, `task/`).
+- **Convention plugins** (`build-logic/`): `crossplatform.kmp.library`, `crossplatform.kmp.library.compose`, and `crossplatform.code.quality` configure targets, SDK versions, and code quality tooling. New KMP modules should apply one of the first two (they inherit code quality automatically).
+- **Server DB migrations:** Flyway manages schema evolution. Migration files live in `server/src/main/resources/db/migration/` using the naming convention `V<N>__<description>.sql`.
 
 ## Adding a New Feature
 
@@ -24,8 +25,10 @@ FrameZero is a Kotlin Multiplatform (KMP) app targeting Android, iOS, Desktop, a
 ```bash
 ./gradlew :composeApp:run              # Desktop (fastest iteration with hot reload)
 ./gradlew :server:run                  # Ktor server on port 8080
-./gradlew ktfmtFormat                  # Format before committing (Google style, 2-space indent)
-./gradlew check                        # Full CI gate: format check + detekt + tests
+./gradlew ktlintFormat                 # Auto-format all Kotlin source before committing
+./gradlew ktlintCheck                  # Verify formatting (CI)
+./gradlew detekt                       # Static analysis
+./gradlew check                        # Full CI gate: ktlintCheck + detekt + tests
 ```
 
 ## Patterns to Follow
@@ -52,10 +55,22 @@ FrameZero is a Kotlin Multiplatform (KMP) app targeting Android, iOS, Desktop, a
 | What | Where |
 |------|-------|
 | Version catalog | `gradle/libs.versions.toml` |
-| Convention plugins | `build-logic/src/main/` |
+| Convention plugins | `build-logic/src/main/kotlin/` |
 | Domain models | `shared/src/commonMain/kotlin/com/frame/zero/domain/` |
 | Shared DTOs | `shared/src/commonMain/kotlin/com/frame/zero/dto/` |
 | Root navigation | `composeApp/src/commonMain/` (look for `RootComponent`) |
 | Design system tokens | `composeApp/shared/design_system/` |
 | Detekt config | `config/detekt/detekt.yml` |
+| Flyway migrations | `server/src/main/resources/db/migration/` |
+
+## Current Modules
+
+**Features** (shared logic + compose UI):
+`auth`, `home`, `production`
+
+**Repositories** (`shared/repositories/<name>/`):
+`auth`, `user`, `dashboard`, `productions`, `schedule`
+
+**Server domains** (`server/src/main/kotlin/com/frame/zero/`):
+`auth`, `dashboard`, `notification`, `production`, `schedule`, `task`
 

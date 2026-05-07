@@ -42,13 +42,13 @@ A composite build, a native iOS wrapper, and a tree of Gradle modules:
 | Module                             | Purpose |
 |------------------------------------|---------|
 | `build-logic/`                     | Composite build with Gradle convention plugins (not a regular module). |
-| `shared/`                          | Multiplatform business logic; no UI. Holds shared `Constants`, domain models (`User`, `DomainError`, `Outcome`, `UseCase`), the Ktor `HttpClient` setup, and `multiplatform-settings`-backed token storage. |
-| `shared/features/<name>/`          | Per-feature business logic — Decompose `Component` plus its `ViewModel`/state/intent types. Currently `auth` and `home`. |
-| `shared/repositories/<name>/`      | Repository interfaces + implementations consumed by feature modules. Currently `auth` and `user`. |
+| `shared/`                          | Multiplatform business logic; no UI. Holds shared `Constants`, domain models (`User`, `DomainError`, `Outcome`, `UseCase`), shared DTOs, the Ktor `HttpClient` setup, and `multiplatform-settings`-backed token storage. |
+| `shared/features/<name>/`          | Per-feature business logic — Decompose `Component` plus its `ViewModel`/state/intent types. Currently `auth`, `home`, `production`. |
+| `shared/repositories/<name>/`      | Repository interfaces + implementations consumed by feature modules. Currently `auth`, `user`, `dashboard`, `productions`, `schedule`. |
 | `composeApp/`                      | Shared Compose Multiplatform UI host targeting Android, iOS, and JVM Desktop. Owns `App.kt`, the Decompose `RootComponent`, and platform entry points (`androidMain`, `iosMain`, `jvmMain`). |
-| `composeApp/features/<name>/`      | Per-feature Compose UI that renders the matching `shared/features/<name>` component. Currently `auth` and `home`. |
+| `composeApp/features/<name>/`      | Per-feature Compose UI that renders the matching `shared/features/<name>` component. Currently `auth`, `home`, `production`. |
 | `composeApp/shared/design_system/` | Shared Compose Multiplatform design system library consumed by all `composeApp` feature modules. Applies `crossplatform.kmp.library.compose`. |
-| `server/`                          | JVM-only Ktor backend (Netty + Exposed/Postgres + JWT auth via Koin). Depends on `shared` for wire types and constants. |
+| `server/`                          | JVM-only Ktor backend (Netty + Exposed/Postgres + JWT auth via Koin). Organised by feature package: `auth`, `dashboard`, `notification`, `production`, `schedule`, `task`, plus `common` and `config`. Schema managed by Flyway migrations in `server/src/main/resources/db/migration/`. Depends on `shared` for wire types and constants. |
 | `iosApp/`                          | Swift/SwiftUI wrapper that embeds the Compose UI via `UIViewControllerRepresentable`. |
 
 Navigation is **Decompose**: a `RootComponent` (in `composeApp/commonMain`) owns a `StackNavigation` and constructs feature components from `shared/features/*`. Feature UI in `composeApp/features/*` consumes the matching shared component — keep all stateful logic in `shared/features/*`, never in the Compose layer.
@@ -118,17 +118,31 @@ composeApp/src/
 Versions are centralised in `gradle/libs.versions.toml`. Always add new
 dependencies to the version catalog, not directly in a module's build script.
 
-- Kotlin **2.3.21**, Compose Multiplatform **1.10.3**
+- Kotlin **2.3.21**, Compose Multiplatform **1.10.3**, AGP **8.11.2**
 - Ktor **3.4.3** (Netty on server; OkHttp on Android/JVM, Darwin on iOS for the client)
 - Material3 `1.10.0-alpha05`
 - Decompose **3.5.0** for navigation/components
 - Koin **4.2.1** for DI across `shared`, `composeApp`, and `server`
 - `multiplatform-settings` **1.3.0** for client-side key/value storage (auth tokens)
-- Server-side: Exposed **0.56.0** + HikariCP + PostgreSQL **42.7.4**, JWT via `ktor-server-auth-jwt`, password hashing via `at.favre.lib:bcrypt`
+- `kotlinx-datetime` **0.7.1** for shared date/time types in DTOs
+- Server-side: Exposed **1.2.0** + HikariCP **7.0.2** + PostgreSQL **42.7.11**, Flyway **12.5.0** for schema migrations, H2 **2.4.240** for tests, JWT via `ktor-server-auth-jwt`, password hashing via `at.favre.lib:bcrypt`
 - Android minSdk **29**, targetSdk **36**, JVM target **11**
-- Compose Hot Reload plugin (`org.jetbrains.compose.hot-reload 1.0.0`) is
+- Compose Hot Reload plugin (`org.jetbrains.compose.hot-reload 1.1.0`) is
   enabled for desktop development — prefer the Desktop target for fast UI
   iteration.
+- Kover **0.9.8** for coverage reports.
+
+### Server schema & migrations
+
+Database schema is managed by **Flyway**. Versioned migration scripts live in
+`server/src/main/resources/db/migration/` (e.g. `V1__create_users_and_refresh_tokens.sql`).
+When changing schema:
+
+1. Add a new `V<n>__<description>.sql` file — never edit an applied migration.
+2. Update the matching Exposed `Table` definition in the corresponding server
+   feature package.
+3. Tests run against H2 in PostgreSQL compatibility mode; verify migrations
+   apply cleanly there too.
 
 ### Not yet wired up
 
@@ -243,13 +257,25 @@ AppTheme.radiusSystem.button
 
 ## Conventions
 
+- **Readability:** generated code must be readable. Use clear, descriptive
+  names; keep functions small and single-purpose; prefer straightforward
+  control flow over clever one-liners. Future humans (and AI) must be able to
+  understand intent from the code alone.
 - **Async:** `suspend fun` for one-shots, `Flow` for observable streams. Don't
   expose `Deferred` or callbacks across module boundaries.
 - **Errors:** prefer `Result<T>` or sealed error types over throwing across
   layer boundaries. The server should map exceptions to proper HTTP responses
   rather than letting them propagate.
 - **Serialization:** kotlinx.serialization. Annotate shared DTOs with
-  `@Serializable`.
+  `@Serializable`. Shared DTOs live in
+  `shared/src/commonMain/kotlin/com/frame/zero/dto/`, organised by feature
+  (`dashboard/`, `production/`, `schedule/`).
+- **Wire format excludes UI hints:** server DTOs carry only semantic fields
+  (`phase`, `status`, enums). Never add `*Color`, `*Hint`, badge labels, or
+  cosmetic fields to a `@Serializable` DTO. Derive UI hints client-side in
+  the mapper layer (e.g. `ProductionPhase.toAccentColorHint()`).
+- **REST API contract:** documented in `API.md` at the repo root. Update it
+  when adding or changing endpoints.
 - **Resources:** Compose resources live in
   `composeApp/src/commonMain/composeResources/`. Access via the generated
   `Res` class.
