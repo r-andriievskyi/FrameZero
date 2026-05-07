@@ -31,7 +31,6 @@ kotlin {
     }
     androidMain.dependencies {
       implementation(libs.ktor.clientOkHttp)
-      implementation(libs.androidx.security.crypto)
     }
     iosMain.dependencies { implementation(libs.ktor.clientDarwin) }
     jvmMain.dependencies { implementation(libs.ktor.clientOkHttp) }
