@@ -124,7 +124,7 @@ class ProductionRoutesTest {
       application { env.configure(this) }
       val userId = UUID.randomUUID()
       val token = env.tokenFor(userId)
-      val created = env.productionService.create(userId, validRequest)
+      val created = env.productionService.createProduction(userId, validRequest)
 
       val response =
         client.get("/api/v1/productions/${created.id}") {
@@ -142,7 +142,7 @@ class ProductionRoutesTest {
       val env = TestAppEnv()
       application { env.configure(this) }
       val ownerId = UUID.randomUUID()
-      val created = env.productionService.create(ownerId, validRequest)
+      val created = env.productionService.createProduction(ownerId, validRequest)
 
       val response = client.get("/api/v1/productions/${created.id}")
 
@@ -156,7 +156,7 @@ class ProductionRoutesTest {
       application { env.configure(this) }
       val ownerId = UUID.randomUUID()
       val strangerToken = env.tokenFor(UUID.randomUUID())
-      val created = env.productionService.create(ownerId, validRequest)
+      val created = env.productionService.createProduction(ownerId, validRequest)
 
       val response =
         client.get("/api/v1/productions/${created.id}") {
@@ -189,7 +189,7 @@ class ProductionRoutesTest {
       application { env.configure(this) }
       val userId = UUID.randomUUID()
       val token = env.tokenFor(userId)
-      val created = env.productionService.create(userId, validRequest)
+      val created = env.productionService.createProduction(userId, validRequest)
 
       val response =
         client.delete("/api/v1/productions/${created.id}") {
@@ -207,7 +207,7 @@ class ProductionRoutesTest {
       val ownerId = UUID.randomUUID()
       val otherId = UUID.randomUUID()
       val otherToken = env.tokenFor(otherId)
-      val created = env.productionService.create(ownerId, validRequest)
+      val created = env.productionService.createProduction(ownerId, validRequest)
       env.productionMembers.add(created.id, otherId, "Other", "Producer", null)
 
       val response =

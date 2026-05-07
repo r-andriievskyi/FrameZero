@@ -51,7 +51,7 @@ class TaskRoutesTest {
       application { env.configure(this) }
       val userId = UUID.randomUUID()
       val token = env.tokenFor(userId)
-      val prod = env.productionService.create(userId, productionRequest)
+      val prod = env.productionService.createProduction(userId, productionRequest)
       val request = CreateTaskRequest(productionId = prod.id, title = "Lock script")
 
       val response =
@@ -72,7 +72,7 @@ class TaskRoutesTest {
       val env = TestAppEnv()
       application { env.configure(this) }
       val userId = UUID.randomUUID()
-      val prod = env.productionService.create(userId, productionRequest)
+      val prod = env.productionService.createProduction(userId, productionRequest)
 
       val response =
         client.post("/api/v1/tasks") {
@@ -91,7 +91,7 @@ class TaskRoutesTest {
       val ownerId = UUID.randomUUID()
       val strangerId = UUID.randomUUID()
       val strangerToken = env.tokenFor(strangerId)
-      val prod = env.productionService.create(ownerId, productionRequest)
+      val prod = env.productionService.createProduction(ownerId, productionRequest)
 
       val response =
         client.post("/api/v1/tasks") {
@@ -110,7 +110,7 @@ class TaskRoutesTest {
       application { env.configure(this) }
       val userId = UUID.randomUUID()
       val token = env.tokenFor(userId)
-      val prod = env.productionService.create(userId, productionRequest)
+      val prod = env.productionService.createProduction(userId, productionRequest)
 
       val response =
         client.post("/api/v1/tasks") {
@@ -140,7 +140,7 @@ class TaskRoutesTest {
       application { env.configure(this) }
       val userId = UUID.randomUUID()
       val token = env.tokenFor(userId)
-      val prod = env.productionService.create(userId, productionRequest)
+      val prod = env.productionService.createProduction(userId, productionRequest)
       env.taskService.create(
         userId,
         CreateTaskRequest(productionId = prod.id, title = "T1"),
@@ -162,7 +162,7 @@ class TaskRoutesTest {
       application { env.configure(this) }
       val userId = UUID.randomUUID()
       val token = env.tokenFor(userId)
-      val prod = env.productionService.create(userId, productionRequest)
+      val prod = env.productionService.createProduction(userId, productionRequest)
       val task =
         env.taskService.create(
           userId,
