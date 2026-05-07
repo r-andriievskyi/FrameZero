@@ -222,7 +222,7 @@ private fun TaskCard(task: DashboardTask) {
 
 @Composable
 private fun ProductionStatusSection(productions: List<DashboardProduction>) {
-  SectionHeader(title = "Production status", actionLabel = "All projects →")
+  SectionHeader(title = "Production status", actionLabel = "All projects")
   VerticalSpacer(AppTheme.spacingSystem.space8)
   productions.forEach { production ->
     ProductionCard(production = production)
