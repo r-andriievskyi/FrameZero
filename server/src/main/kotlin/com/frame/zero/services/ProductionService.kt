@@ -20,7 +20,9 @@ import com.frame.zero.repository.ProductionRepository
 import com.frame.zero.repository.UserRepository
 import com.frame.zero.util.toKotlin
 import kotlinx.datetime.number
+import java.time.Clock
 import java.time.LocalDate
+import java.time.temporal.ChronoUnit
 import java.util.UUID
 import kotlin.time.toKotlinInstant
 
@@ -28,7 +30,8 @@ class ProductionService(
   private val productions: ProductionRepository,
   private val members: ProductionMemberRepository,
   private val users: UserRepository,
-  private val access: ProductionAccessService
+  private val access: ProductionAccessService,
+  private val clock: Clock = Clock.systemUTC()
 ) {
   suspend fun create(
     userId: UUID,
@@ -67,7 +70,7 @@ class ProductionService(
       )
     }
 
-    return detailDto(production, userId)
+    return detailDto(production)
   }
 
   suspend fun list(
@@ -78,11 +81,13 @@ class ProductionService(
     limit: Int,
     cursor: String?
   ): Pair<List<ProductionSummaryDto>, String?> {
-    val (items, nextCursor) = productions.findAccessible(userId, phases, query, sort, limit, cursor)
-    val summaries = buildList {
-      for (item in items) {
-        add(item.toSummaryDto(members.countByProduction(item.id)))
-      }
+    val clampedLimit = limit.coerceIn(1, MAX_PAGE_SIZE)
+    val (items, nextCursor) = productions.findAccessible(
+      userId, phases, query, sort, clampedLimit, cursor
+    )
+    val today = LocalDate.now(clock)
+    val summaries = items.map { item ->
+      item.toSummaryDto(members.countByProduction(item.id), today)
     }
     return Pair(summaries, nextCursor)
   }
@@ -93,7 +98,7 @@ class ProductionService(
   ): ProductionDetailDto {
     access.requireAccess(userId, productionId, AccessLevel.READ)
     val production = productions.findById(productionId) ?: throw AppException(AppError.NotFound)
-    return detailDto(production, userId)
+    return detailDto(production)
   }
 
   suspend fun update(
@@ -102,17 +107,16 @@ class ProductionService(
     request: UpdateProductionRequest
   ): ProductionDetailDto {
     access.requireAccess(userId, productionId, AccessLevel.WRITE)
-    validate(request)
-    val updated =
-      productions.update(
-        id = productionId,
-        title = request.title?.trim(),
-        logline = request.logline?.trim(),
-        startDate = request.startDate?.toJava(),
-        wrapDate = request.wrapDate?.toJava(),
-        budgetCents = request.budgetCents
-      ) ?: throw AppException(AppError.NotFound)
-    return detailDto(updated, userId)
+    validate(request, productionId)
+    val updated = productions.update(
+      id = productionId,
+      title = request.title?.trim(),
+      logline = request.logline?.trim(),
+      startDate = request.startDate?.toJava(),
+      wrapDate = request.wrapDate?.toJava(),
+      budgetCents = request.budgetCents
+    ) ?: throw AppException(AppError.NotFound)
+    return detailDto(updated)
   }
 
   suspend fun transitionPhase(
@@ -125,9 +129,8 @@ class ProductionService(
     if (!request.phase.isForwardFrom(production.phase)) {
       throw AppException(AppError.InvalidPhaseTransition)
     }
-    val updated =
-      productions.updatePhase(productionId, request.phase) ?: throw AppException(AppError.NotFound)
-    return detailDto(updated, userId)
+    val updated = productions.updatePhase(productionId, request.phase) ?: throw AppException(AppError.NotFound)
+    return detailDto(updated)
   }
 
   suspend fun delete(
@@ -203,45 +206,55 @@ class ProductionService(
     val logline = request.logline
     val budgetCents = request.budgetCents
     if (title.isBlank()) errors["title"] = "Required"
-    if (title.length > 120) errors["title"] = "Max 120 characters"
-    if (logline != null && logline.length > 280) errors["logline"] = "Max 280 characters"
+    if (title.length > MAX_TITLE_LENGTH) errors["title"] = "Max $MAX_TITLE_LENGTH characters"
+    if (logline != null && logline.length > MAX_LOGLINE_LENGTH) {
+      errors["logline"] = "Max $MAX_LOGLINE_LENGTH characters"
+    }
     if (request.wrapDate < request.startDate) errors["wrapDate"] = "Must be on or after startDate"
     if (budgetCents != null && budgetCents < 0) errors["budgetCents"] = "Must be >= 0"
     if (errors.isNotEmpty()) throw AppException(AppError.ValidationError(errors))
   }
 
-  private fun validate(request: UpdateProductionRequest) {
+  private suspend fun validate(request: UpdateProductionRequest, productionId: UUID) {
     val errors = mutableMapOf<String, String>()
     val title = request.title
     val logline = request.logline
     val budgetCents = request.budgetCents
     if (title != null && title.isBlank()) errors["title"] = "Cannot be empty"
-    if (title != null && title.length > 120) errors["title"] = "Max 120 characters"
-    if (logline != null && logline.length > 280) errors["logline"] = "Max 280 characters"
+    if (title != null && title.length > MAX_TITLE_LENGTH) errors["title"] = "Max $MAX_TITLE_LENGTH characters"
+    if (logline != null && logline.length > MAX_LOGLINE_LENGTH) errors["logline"] = "Max $MAX_LOGLINE_LENGTH characters"
     if (budgetCents != null && budgetCents < 0) errors["budgetCents"] = "Must be >= 0"
+
+    // Cross-field date validation: resolve effective start/wrap considering existing record
+    if (request.startDate != null || request.wrapDate != null) {
+      val existing = productions.findById(productionId) ?: throw AppException(AppError.NotFound)
+      val effectiveStart = request.startDate?.toJava() ?: existing.startDate
+      val effectiveWrap = request.wrapDate?.toJava() ?: existing.wrapDate
+      if (effectiveWrap < effectiveStart) {
+        errors["wrapDate"] = "Must be on or after startDate"
+      }
+    }
+
     if (errors.isNotEmpty()) throw AppException(AppError.ValidationError(errors))
   }
 
-  private suspend fun detailDto(
-    production: ProductionRecord,
-    userId: UUID
-  ): ProductionDetailDto {
+  private suspend fun detailDto(production: ProductionRecord): ProductionDetailDto {
     val allMembers = members.findByProduction(production.id)
     val membersCount = allMembers.size
-    val keyCrew = allMembers.sortedWith(rolePriority).take(6).map { it.toDto() }
-    return production.toDetailDto(membersCount = membersCount, keyCrew = keyCrew)
+    val keyCrew = allMembers.sortedWith(rolePriority).take(KEY_CREW_LIMIT).map { it.toDto() }
+    val today = LocalDate.now(clock)
+    return production.toDetailDto(membersCount = membersCount, keyCrew = keyCrew, today = today)
   }
 
   private fun ProductionRecord.toDetailDto(
     membersCount: Int,
-    keyCrew: List<ProductionMemberDto>
+    keyCrew: List<ProductionMemberDto>,
+    today: LocalDate
   ): ProductionDetailDto {
-    val today = LocalDate.now()
     val progress = computeProgress(startDate, wrapDate, today)
-    val daysLeft =
-      java.time.temporal.ChronoUnit.DAYS
-        .between(today, wrapDate)
-        .toInt()
+    val daysLeft = ChronoUnit.DAYS
+      .between(today, wrapDate)
+      .toInt()
     return ProductionDetailDto(
       id = id.toString(),
       title = title,
@@ -261,13 +274,11 @@ class ProductionService(
     )
   }
 
-  private fun ProductionRecord.toSummaryDto(membersCount: Int): ProductionSummaryDto {
-    val today = LocalDate.now()
+  private fun ProductionRecord.toSummaryDto(membersCount: Int, today: LocalDate): ProductionSummaryDto {
     val progress = computeProgress(startDate, wrapDate, today)
-    val daysLeft =
-      java.time.temporal.ChronoUnit.DAYS
-        .between(today, wrapDate)
-        .toInt()
+    val daysLeft = ChronoUnit.DAYS
+      .between(today, wrapDate)
+      .toInt()
     return ProductionSummaryDto(
       id = id.toString(),
       title = title,
@@ -292,6 +303,11 @@ class ProductionService(
     )
 
   private companion object {
+    const val MAX_TITLE_LENGTH = 120
+    const val MAX_LOGLINE_LENGTH = 280
+    const val MAX_PAGE_SIZE = 50
+    const val KEY_CREW_LIMIT = 6
+
     fun computeProgress(
       start: LocalDate,
       wrap: LocalDate,
@@ -299,27 +315,24 @@ class ProductionService(
     ): Int {
       if (!today.isAfter(start)) return 0
       if (!today.isBefore(wrap)) return 100
-      val total =
-        java.time.temporal.ChronoUnit.DAYS
-          .between(start, wrap)
-          .coerceAtLeast(1)
-      val elapsed =
-        java.time.temporal.ChronoUnit.DAYS
-          .between(start, today)
+      val total = ChronoUnit.DAYS
+        .between(start, wrap)
+        .coerceAtLeast(1)
+      val elapsed = ChronoUnit.DAYS
+        .between(start, today)
       return (elapsed * 100 / total).toInt().coerceIn(0, 100)
     }
 
     fun buildPipeline(current: ProductionPhase): List<PipelinePhaseDto> =
-      ProductionPhase.entries.map { p ->
+      ProductionPhase.entries.map { phase ->
         PipelinePhaseDto(
-          phase = p,
-          label =
-            p.name
-              .replace('_', ' ')
-              .lowercase()
-              .replaceFirstChar { it.uppercase() },
-          isCompleted = p.ordinal < current.ordinal,
-          isCurrent = p == current
+          phase = phase,
+          label = phase.name
+            .replace('_', ' ')
+            .lowercase()
+            .replaceFirstChar { it.uppercase() },
+          isCompleted = phase.ordinal < current.ordinal,
+          isCurrent = phase == current
         )
       }
 
@@ -328,20 +341,20 @@ class ProductionService(
       return when {
         parts.size >= 2 ->
           "${parts.first().first().uppercaseChar()}${parts.last().first().uppercaseChar()}"
+
         parts.size == 1 && parts[0].isNotEmpty() -> parts[0].first().uppercaseChar().toString()
         else -> "?"
       }
     }
 
-    val roleOrder =
-      listOf(
-        "Director",
-        "Producer",
-        "DP",
-        "Director of Photography",
-        "1st AD",
-        "Production Designer"
-      )
+    val roleOrder = listOf(
+      "Director",
+      "Producer",
+      "DP",
+      "Director of Photography",
+      "1st AD",
+      "Production Designer"
+    )
 
     val rolePriority: Comparator<ProductionMemberRecord> =
       compareBy { member ->
