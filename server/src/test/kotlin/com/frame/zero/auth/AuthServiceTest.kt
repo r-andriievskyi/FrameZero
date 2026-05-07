@@ -3,8 +3,6 @@ package com.frame.zero.auth
 import com.frame.zero.auth.testing.FakeRefreshTokenRepository
 import com.frame.zero.auth.testing.FakeUserRepository
 import com.frame.zero.config.JwtConfig
-import com.frame.zero.repository.RefreshTokenRepository
-import com.frame.zero.repository.UserRepository
 import kotlinx.coroutines.test.runTest
 import java.util.UUID
 import kotlin.test.Test

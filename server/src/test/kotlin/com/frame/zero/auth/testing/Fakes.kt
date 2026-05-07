@@ -1,9 +1,9 @@
 package com.frame.zero.auth.testing
 
-import com.frame.zero.repository.RefreshTokenRecord
-import com.frame.zero.repository.RefreshTokenRepository
-import com.frame.zero.repository.UserRecord
-import com.frame.zero.repository.UserRepository
+import com.frame.zero.auth.RefreshTokenRecord
+import com.frame.zero.auth.RefreshTokenRepository
+import com.frame.zero.auth.UserRecord
+import com.frame.zero.auth.UserRepository
 import java.time.Instant
 import java.util.UUID
 

@@ -27,7 +27,7 @@ class JwtServiceTest {
     val userId = UUID.randomUUID()
 
     val token = service.createAccessToken(userId, "u@x.com")
-    val decoded = service.verifier.verify(token)
+    val decoded = service.tokenVerifier.verify(token)
 
     assertEquals(userId.toString(), decoded.subject)
     assertEquals("u@x.com", decoded.getClaim(JwtService.EMAIL_CLAIM).asString())
@@ -40,7 +40,7 @@ class JwtServiceTest {
     val signer = JwtService(baseConfig.copy(issuer = "other-issuer"))
     val token = signer.createAccessToken(UUID.randomUUID(), "u@x.com")
 
-    assertFailsWith<JWTVerificationException> { JwtService(baseConfig).verifier.verify(token) }
+    assertFailsWith<JWTVerificationException> { JwtService(baseConfig).tokenVerifier.verify(token) }
   }
 
   @Test
@@ -48,7 +48,7 @@ class JwtServiceTest {
     val signer = JwtService(baseConfig.copy(audience = "other-audience"))
     val token = signer.createAccessToken(UUID.randomUUID(), "u@x.com")
 
-    assertFailsWith<JWTVerificationException> { JwtService(baseConfig).verifier.verify(token) }
+    assertFailsWith<JWTVerificationException> { JwtService(baseConfig).tokenVerifier.verify(token) }
   }
 
   @Test
@@ -56,7 +56,7 @@ class JwtServiceTest {
     val signer = JwtService(baseConfig.copy(secret = "different-secret-also-long-enough"))
     val token = signer.createAccessToken(UUID.randomUUID(), "u@x.com")
 
-    assertFailsWith<JWTVerificationException> { JwtService(baseConfig).verifier.verify(token) }
+    assertFailsWith<JWTVerificationException> { JwtService(baseConfig).tokenVerifier.verify(token) }
   }
 
   @Test
@@ -64,7 +64,7 @@ class JwtServiceTest {
     val service = JwtService(baseConfig.copy(accessTokenTtl = (-10).seconds))
     val token = service.createAccessToken(UUID.randomUUID(), "u@x.com")
 
-    assertFailsWith<JWTVerificationException> { service.verifier.verify(token) }
+    assertFailsWith<JWTVerificationException> { service.tokenVerifier.verify(token) }
   }
 
   @Test
@@ -73,6 +73,6 @@ class JwtServiceTest {
     val token = service.createAccessToken(UUID.randomUUID(), "u@x.com")
     val tampered = token.dropLast(1) + if (token.last() == 'A') 'B' else 'A'
 
-    assertFailsWith<JWTVerificationException> { service.verifier.verify(tampered) }
+    assertFailsWith<JWTVerificationException> { service.tokenVerifier.verify(tampered) }
   }
 }
