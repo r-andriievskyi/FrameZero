@@ -113,7 +113,21 @@ private fun SingleLineInputFieldPlaceholderPreview() {
       SingleLineInputField(
         value = "",
         onValueChange = {},
-        placeholder = "Enter your email"
+        placeholder = "Enter your email",
+        leadingContent = {
+          Text(
+            text = "@",
+            style = AppTheme.typographySystem.bodyLarge,
+            color = AppTheme.colorSystem.textMuted
+          )
+        },
+        trailingContent = {
+          Text(
+            text = "✓",
+            style = AppTheme.typographySystem.bodyLarge,
+            color = AppTheme.colorSystem.accent
+          )
+        }
       )
     }
   }
