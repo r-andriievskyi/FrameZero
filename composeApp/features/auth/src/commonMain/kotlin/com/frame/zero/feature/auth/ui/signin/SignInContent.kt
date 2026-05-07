@@ -15,11 +15,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.discovery.playground.shared.design_system.AppTheme
@@ -32,6 +35,7 @@ import com.frame.zero.feature.auth.signin.SignInIntent
 import com.frame.zero.feature.auth.signin.SignInState
 import framezero.composeapp.features.auth.generated.resources.Res
 import framezero.composeapp.features.auth.generated.resources.ic_eye
+import framezero.composeapp.features.auth.generated.resources.ic_eye_off
 import framezero.composeapp.features.auth.generated.resources.ic_lock
 import framezero.composeapp.features.auth.generated.resources.ic_logo
 import framezero.composeapp.features.auth.generated.resources.ic_mail
@@ -53,6 +57,7 @@ private fun SignInContent(
   onIntent: (SignInIntent) -> Unit,
   onCreateAccountClick: () -> Unit
 ) {
+  var isPasswordVisible by remember { mutableStateOf(false) }
   Column(
     modifier =
       Modifier
@@ -132,12 +137,13 @@ private fun SignInContent(
       },
       trailingContent = {
         Image(
-          painter = painterResource(Res.drawable.ic_eye),
+          modifier = Modifier.clickable { isPasswordVisible = !isPasswordVisible },
+          painter = painterResource(if (isPasswordVisible) Res.drawable.ic_eye_off else Res.drawable.ic_eye),
           colorFilter = ColorFilter.tint(AppTheme.colorSystem.textPrimary),
           contentDescription = null
         )
       },
-      visualTransformation = PasswordVisualTransformation(),
+      visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
       enabled = !state.isLoading,
       modifier = Modifier.fillMaxWidth()
     )
