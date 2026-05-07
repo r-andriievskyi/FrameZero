@@ -11,8 +11,7 @@ fun Modifier.clickableWithRipple(
   bounded: Boolean = false,
   radius: Dp = Dp.Unspecified,
   onClick: () -> Unit
-): Modifier =
-  clickable(
+): Modifier = clickable(
     interactionSource = null,
     indication = ripple(color = color, bounded = bounded, radius = radius),
     onClick = onClick

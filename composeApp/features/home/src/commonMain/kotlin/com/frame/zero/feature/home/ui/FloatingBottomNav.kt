@@ -1,21 +1,32 @@
 package com.frame.zero.feature.home.ui
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.discovery.playground.shared.design_system.AppTheme
+import com.discovery.playground.shared.design_system.modifier.clickableWithRipple
 import com.frame.zero.feature.home.tab.HomeTab
+
+private val Height = 65.dp
 
 /** Stateless. The container owns selection state; this just renders + reports clicks. */
 @Composable
@@ -27,45 +38,68 @@ fun FloatingBottomNav(
 ) {
   val shape = RoundedCornerShape(AppTheme.radiusSystem.radiusMax)
   Row(
-    modifier =
-      modifier
-        .shadow(elevation = AppTheme.spacingSystem.space8, shape = shape)
-        .clip(shape)
-        .background(AppTheme.colorSystem.surfaceElevated)
-        .padding(
-          horizontal = AppTheme.spacingSystem.space8,
-          vertical = AppTheme.spacingSystem.space4
-        ),
-    horizontalArrangement = Arrangement.spacedBy(AppTheme.spacingSystem.space4),
+    modifier = modifier
+      .height(Height)
+      .shadow(elevation = AppTheme.spacingSystem.space8, shape = shape)
+      .clip(shape)
+      .background(AppTheme.colorSystem.surfaceElevated)
+      .padding(AppTheme.spacingSystem.space4),
     verticalAlignment = Alignment.CenterVertically
   ) {
     tabs.forEach { tab ->
-      NavItem(tab = tab, selected = tab == selectedTab, onClick = { onSelect(tab) })
+      NavItem(
+        modifier = Modifier.fillMaxHeight().weight(1f),
+        tab = tab,
+        selected = tab == selectedTab,
+        onClick = { onSelect(tab) })
     }
   }
 }
 
 @Composable
 private fun NavItem(
+  modifier: Modifier = Modifier,
   tab: HomeTab,
   selected: Boolean,
   onClick: () -> Unit
 ) {
-  val colors = AppTheme.colorSystem
-  val background = if (selected) colors.accentSurface else Color.Transparent
-  val textColor = if (selected) colors.accentText else colors.textSecondary
+  val colorSystem = AppTheme.colorSystem
+  val background by animateColorAsState(
+    targetValue = if (selected) colorSystem.accent else Color.Transparent,
+    animationSpec = tween(150)
+  )
+  val textColor by animateColorAsState(
+    targetValue = if (selected) colorSystem.textOnAccent else colorSystem.textSecondary,
+    animationSpec = tween(150)
+  )
   Box(
-    modifier =
-      Modifier
-        .clip(RoundedCornerShape(AppTheme.radiusSystem.radiusMax))
-        .clickable(onClick = onClick)
-        .background(background)
-        .padding(
-          horizontal = AppTheme.spacingSystem.space16,
-          vertical = AppTheme.spacingSystem.space8
-        ),
+    modifier = modifier
+      .clip(RoundedCornerShape(AppTheme.radiusSystem.radiusMax))
+      .clickableWithRipple(
+        color = AppTheme.colorSystem.accentDim,
+        onClick = onClick
+      )
+      .background(color = background)
+      .padding(
+        horizontal = AppTheme.spacingSystem.space16,
+        vertical = AppTheme.spacingSystem.space8
+      ),
     contentAlignment = Alignment.Center
   ) {
     Text(text = tab.title, style = AppTheme.typographySystem.labelMedium, color = textColor)
   }
 }
+
+@Preview(showBackground = true)
+@Composable
+private fun FloatingBottomNavPreview() {
+  AppTheme {
+    var selected by remember { mutableStateOf(HomeTab.DASHBOARD) }
+    FloatingBottomNav(
+      tabs = HomeTab.entries,
+      selectedTab = selected,
+      onSelect = { selected = it }
+    )
+  }
+}
+
