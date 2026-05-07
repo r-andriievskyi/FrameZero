@@ -4,9 +4,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
@@ -53,11 +54,11 @@ fun HomeContent(component: HomeComponent) {
       tabs = tabs,
       selectedTab = activeTab,
       onSelect = { tab -> scope.launch { pagerState.animateScrollToPage(tabs.indexOf(tab)) } },
-      modifier =
-        Modifier
-          .align(Alignment.BottomCenter)
-          .systemBarsPadding()
-          .padding(AppTheme.spacingSystem.space16)
+      modifier = Modifier
+        .align(Alignment.BottomCenter)
+        .fillMaxWidth()
+        .navigationBarsPadding()
+        .padding(AppTheme.spacingSystem.space16)
     )
   }
 }
