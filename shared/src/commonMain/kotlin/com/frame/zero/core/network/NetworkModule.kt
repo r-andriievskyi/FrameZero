@@ -6,15 +6,20 @@ import com.frame.zero.core.session.LogoutSignal
 import com.frame.zero.core.session.TokenStorage
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.plugins.HttpResponseValidator
+import io.ktor.client.plugins.ResponseException
 import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.client.plugins.auth.providers.bearer
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
+import io.ktor.client.plugins.logging.DEFAULT
 import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
@@ -41,6 +46,13 @@ private fun provideHttpClient(
     install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
     install(Logging) { level = LogLevel.INFO }
     defaultRequest { contentType(ContentType.Application.Json) }
+    HttpResponseValidator {
+      handleResponseExceptionWithRequest { exception, _ ->
+        val responseException = exception as? ResponseException ?: return@handleResponseExceptionWithRequest
+        val errorBody = runCatching { responseException.response.bodyAsText() }.getOrNull()
+        Logger.DEFAULT.log("Server error [${responseException.response.status}]: $errorBody")
+      }
+    }
     install(Auth) {
       bearer {
         loadTokens {
