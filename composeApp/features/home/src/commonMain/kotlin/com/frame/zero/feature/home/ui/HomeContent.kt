@@ -17,7 +17,7 @@ import androidx.compose.ui.Modifier
 import com.discovery.playground.shared.design_system.AppTheme
 import com.frame.zero.feature.home.HomeComponent
 import com.frame.zero.feature.home.tab.HomeTab
-import com.frame.zero.feature.home.ui.tab.DashboardTabContent
+import com.frame.zero.feature.home.ui.tab.dashboard.DashboardTabContent
 import com.frame.zero.feature.home.ui.tab.ProjectsTabContent
 import com.frame.zero.feature.home.ui.tab.ScheduleTabContent
 import kotlinx.coroutines.launch
