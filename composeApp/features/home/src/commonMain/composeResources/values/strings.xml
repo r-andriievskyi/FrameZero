@@ -23,7 +23,7 @@
   <string name="production_status_all_projects">All projects</string>
 
   <!-- Stats section -->
-  <string name="stats_active_projects">Active Projects</string>
+  <string name="stats_active_projects">Active Productions</string>
   <string name="stats_open_tasks">Open Tasks</string>
 
   <!-- Projects tab -->
