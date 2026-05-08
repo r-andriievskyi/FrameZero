@@ -6,6 +6,8 @@ data class NetworkConfig(
   val baseUrl: String
 ) {
   companion object {
-    fun localhost(): NetworkConfig = NetworkConfig(baseUrl = "http://10.0.2.2:$SERVER_PORT")
+    fun localhost(): NetworkConfig = NetworkConfig(baseUrl = "http://${localhostHost()}:$SERVER_PORT")
   }
 }
+
+internal expect fun localhostHost(): String
