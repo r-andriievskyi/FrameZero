@@ -30,8 +30,23 @@ import com.frame.zero.feature.auth.register.RegisterComponent
 import com.frame.zero.feature.auth.register.RegisterIntent
 import com.frame.zero.feature.auth.register.RegisterState
 import framezero.composeapp.features.auth.generated.resources.Res
+import framezero.composeapp.features.auth.generated.resources.app_name
+import framezero.composeapp.features.auth.generated.resources.btn_create_account
+import framezero.composeapp.features.auth.generated.resources.btn_sign_in
+import framezero.composeapp.features.auth.generated.resources.field_email
+import framezero.composeapp.features.auth.generated.resources.field_password
 import framezero.composeapp.features.auth.generated.resources.ic_logo
+import framezero.composeapp.features.auth.generated.resources.placeholder_email
+import framezero.composeapp.features.auth.generated.resources.placeholder_password
+import framezero.composeapp.features.auth.generated.resources.register_field_first_name
+import framezero.composeapp.features.auth.generated.resources.register_field_last_name
+import framezero.composeapp.features.auth.generated.resources.register_have_account
+import framezero.composeapp.features.auth.generated.resources.register_placeholder_first_name
+import framezero.composeapp.features.auth.generated.resources.register_placeholder_last_name
+import framezero.composeapp.features.auth.generated.resources.register_subtitle
+import framezero.composeapp.features.auth.generated.resources.register_title
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun RegisterContent(component: RegisterComponent) {
@@ -66,7 +81,7 @@ private fun RegisterContent(
       )
       HorizontalSpacer(AppTheme.spacingSystem.space8)
       Text(
-        text = "FrameZero",
+        text = stringResource(Res.string.app_name),
         color = AppTheme.colorSystem.textPrimary,
         style = AppTheme.typographySystem.displayLarge
       )
@@ -74,7 +89,7 @@ private fun RegisterContent(
     VerticalSpacer(AppTheme.spacingSystem.space24)
     Text(
       modifier = Modifier.fillMaxWidth(),
-      text = "Create account",
+      text = stringResource(Res.string.register_title),
       color = AppTheme.colorSystem.textPrimary,
       style = AppTheme.typographySystem.displayMedium,
       textAlign = TextAlign.Center
@@ -82,14 +97,14 @@ private fun RegisterContent(
     VerticalSpacer(AppTheme.spacingSystem.space8)
     Text(
       modifier = Modifier.fillMaxWidth(),
-      text = "Join your production team",
+      text = stringResource(Res.string.register_subtitle),
       color = AppTheme.colorSystem.textSecondary,
       style = AppTheme.typographySystem.bodyLarge,
       textAlign = TextAlign.Center
     )
     VerticalSpacer(AppTheme.spacingSystem.space24)
     Text(
-      text = "FIRST NAME",
+      text = stringResource(Res.string.register_field_first_name),
       color = AppTheme.colorSystem.textPrimary,
       style = AppTheme.typographySystem.labelSmall
     )
@@ -97,13 +112,13 @@ private fun RegisterContent(
     SingleLineInputField(
       value = state.firstName,
       onValueChange = { onIntent(RegisterIntent.FirstNameChanged(it)) },
-      placeholder = "John",
+      placeholder = stringResource(Res.string.register_placeholder_first_name),
       enabled = !state.isLoading,
       modifier = Modifier.fillMaxWidth()
     )
     VerticalSpacer(AppTheme.spacingSystem.space16)
     Text(
-      text = "LAST NAME",
+      text = stringResource(Res.string.register_field_last_name),
       color = AppTheme.colorSystem.textPrimary,
       style = AppTheme.typographySystem.labelSmall
     )
@@ -111,13 +126,13 @@ private fun RegisterContent(
     SingleLineInputField(
       value = state.lastName,
       onValueChange = { onIntent(RegisterIntent.LastNameChanged(it)) },
-      placeholder = "Doe",
+      placeholder = stringResource(Res.string.register_placeholder_last_name),
       enabled = !state.isLoading,
       modifier = Modifier.fillMaxWidth()
     )
     VerticalSpacer(AppTheme.spacingSystem.space16)
     Text(
-      text = "EMAIL",
+      text = stringResource(Res.string.field_email),
       color = AppTheme.colorSystem.textPrimary,
       style = AppTheme.typographySystem.labelSmall
     )
@@ -125,13 +140,13 @@ private fun RegisterContent(
     SingleLineInputField(
       value = state.email,
       onValueChange = { onIntent(RegisterIntent.EmailChanged(it)) },
-      placeholder = "you@studio.com",
+      placeholder = stringResource(Res.string.placeholder_email),
       enabled = !state.isLoading,
       modifier = Modifier.fillMaxWidth()
     )
     VerticalSpacer(AppTheme.spacingSystem.space16)
     Text(
-      text = "PASSWORD",
+      text = stringResource(Res.string.field_password),
       color = AppTheme.colorSystem.textPrimary,
       style = AppTheme.typographySystem.labelSmall
     )
@@ -139,14 +154,14 @@ private fun RegisterContent(
     SingleLineInputField(
       value = state.password,
       onValueChange = { onIntent(RegisterIntent.PasswordChanged(it)) },
-      placeholder = "******",
+      placeholder = stringResource(Res.string.placeholder_password),
       visualTransformation = PasswordVisualTransformation(),
       enabled = !state.isLoading,
       modifier = Modifier.fillMaxWidth()
     )
     VerticalSpacer(AppTheme.spacingSystem.space24)
     CtaButton(
-      text = "Create account",
+      text = stringResource(Res.string.btn_create_account),
       onClick = { onIntent(RegisterIntent.Submit) },
       modifier = Modifier.fillMaxWidth()
     )
@@ -161,14 +176,14 @@ private fun RegisterContent(
     Spacer(modifier = Modifier.weight(1f))
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
       Text(
-        text = "Already have an account?",
+        text = stringResource(Res.string.register_have_account),
         color = AppTheme.colorSystem.textSecondary,
         style = AppTheme.typographySystem.bodyMedium
       )
       HorizontalSpacer(AppTheme.spacingSystem.space4)
       Text(
         modifier = Modifier.clickable(enabled = !state.isLoading) { onSignInClick() },
-        text = "Sign in",
+        text = stringResource(Res.string.btn_sign_in),
         color = AppTheme.colorSystem.accent,
         style = AppTheme.typographySystem.bodyMedium
       )
