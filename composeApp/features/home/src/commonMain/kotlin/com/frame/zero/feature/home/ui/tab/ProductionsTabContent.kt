@@ -56,19 +56,19 @@ import framezero.composeapp.features.home.generated.resources.projects_filter_pr
 import framezero.composeapp.features.home.generated.resources.projects_filter_production
 import framezero.composeapp.features.home.generated.resources.projects_pipeline_progress
 import framezero.composeapp.features.home.generated.resources.projects_title
+import org.jetbrains.compose.resources.stringResource
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
-import org.jetbrains.compose.resources.stringResource
 
 @Composable
-fun ProjectsTabContent(component: ProjectsTabComponent) {
+fun ProductionsTabContent(component: ProjectsTabComponent) {
   LaunchedEffect(Unit) { component.onAppeared() }
   val state by component.state.collectAsState()
-  ProjectsContent(state = state, onCreateProductionClick = component.onCreateProductionClick)
+  ProductionsContent(state = state, onCreateProductionClick = component.onCreateProductionClick)
 }
 
 @Composable
-private fun ProjectsContent(
+private fun ProductionsContent(
   state: ProjectsTabState,
   onCreateProductionClick: () -> Unit
 ) {
@@ -81,15 +81,14 @@ private fun ProjectsContent(
   }
 
   Column(
-    modifier =
-      Modifier
-        .fillMaxSize()
-        .background(AppTheme.colorSystem.background)
-        .verticalScroll(rememberScrollState())
-        .padding(
-          horizontal = AppTheme.spacingSystem.space16,
-          vertical = AppTheme.spacingSystem.space24
-        )
+    modifier = Modifier
+      .fillMaxSize()
+      .background(AppTheme.colorSystem.background)
+      .verticalScroll(rememberScrollState())
+      .padding(
+        horizontal = AppTheme.spacingSystem.space16,
+        vertical = AppTheme.spacingSystem.space24
+      )
   ) {
     // Header row
     Row(
@@ -545,9 +544,9 @@ private fun Genre.displayLabel(): String = name.replace('_', ' ').lowercase().re
 
 @Preview
 @Composable
-private fun ProjectsEmptyPreview() {
+private fun ProductionsEmptyPreview() {
   AppTheme(darkTheme = true) {
-    ProjectsContent(
+    ProductionsContent(
       state = ProjectsTabState(isLoading = false, productions = emptyList()),
       onCreateProductionClick = {}
     )
@@ -557,9 +556,9 @@ private fun ProjectsEmptyPreview() {
 @OptIn(ExperimentalTime::class)
 @Preview
 @Composable
-private fun ProjectsContentPreview() {
+private fun ProductionsContentPreview() {
   AppTheme(darkTheme = true) {
-    ProjectsContent(
+    ProductionsContent(
       onCreateProductionClick = {},
       state =
         ProjectsTabState(
