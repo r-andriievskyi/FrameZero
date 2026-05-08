@@ -1,6 +1,5 @@
 package com.frame.zero.domain.dashboard
 
-import com.frame.zero.domain.production.toAccentColorHint
 import com.frame.zero.dto.dashboard.DashboardResponse
 import com.frame.zero.dto.dashboard.GreetingDto
 import com.frame.zero.dto.dashboard.StatsDto
@@ -41,6 +40,5 @@ fun ProductionSummaryDto.toDomain(): DashboardProduction =
     phase = phase,
     progressPercent = progressPercent,
     daysLeft = daysLeft,
-    accentColorHint = phase.toAccentColorHint(),
     updatedAt = updatedAt
   )

@@ -23,13 +23,12 @@ import com.discovery.playground.shared.design_system.AppTheme
 import com.discovery.playground.shared.design_system.widgets.VerticalSpacer
 import com.frame.zero.domain.dashboard.DashboardProduction
 import com.frame.zero.domain.production.ProductionPhase
-import com.frame.zero.dto.production.AccentColorHint
 import framezero.composeapp.features.home.generated.resources.Res
 import framezero.composeapp.features.home.generated.resources.days_left
 import framezero.composeapp.features.home.generated.resources.production_status_all_projects
 import framezero.composeapp.features.home.generated.resources.production_status_title
-import kotlin.time.Instant
 import org.jetbrains.compose.resources.stringResource
+import kotlin.time.Instant
 
 @Composable
 internal fun ProductionStatusSection(productions: List<DashboardProduction>) {
@@ -46,7 +45,7 @@ internal fun ProductionStatusSection(productions: List<DashboardProduction>) {
 
 @Composable
 private fun ProductionCard(production: DashboardProduction) {
-  val accentColor = accentColorFor(production.accentColorHint)
+  val accentColor = accentColorFor(production.phase)
   Row(
     modifier = Modifier
       .fillMaxWidth()
@@ -93,11 +92,13 @@ private fun ProductionCard(production: DashboardProduction) {
 }
 
 @Composable
-private fun accentColorFor(hint: AccentColorHint): Color =
-  when (hint) {
-    AccentColorHint.GREEN -> AppTheme.colorSystem.successText
-    AccentColorHint.PURPLE -> AppTheme.colorSystem.accent
-    AccentColorHint.ORANGE -> AppTheme.colorSystem.warningText
+internal fun accentColorFor(phase: ProductionPhase): Color =
+  when (phase) {
+    ProductionPhase.PRODUCTION -> AppTheme.colorSystem.successText
+    ProductionPhase.PRE_PRODUCTION -> AppTheme.colorSystem.accent
+    ProductionPhase.POST_PRODUCTION -> AppTheme.colorSystem.warningText
+    ProductionPhase.DEVELOPMENT -> AppTheme.colorSystem.successText
+    ProductionPhase.DISTRIBUTION -> AppTheme.colorSystem.successText
   }
 
 private fun ProductionPhase.displayLabel(): String =
@@ -120,7 +121,6 @@ private fun ProductionStatusSectionPreview() {
             phase = ProductionPhase.PRODUCTION,
             progressPercent = 68,
             daysLeft = 24,
-            accentColorHint = AccentColorHint.GREEN,
             updatedAt = Instant.fromEpochSeconds(0)
           ),
           DashboardProduction(
@@ -129,7 +129,6 @@ private fun ProductionStatusSectionPreview() {
             phase = ProductionPhase.PRE_PRODUCTION,
             progressPercent = 34,
             daysLeft = 61,
-            accentColorHint = AccentColorHint.PURPLE,
             updatedAt = Instant.fromEpochSeconds(0)
           )
         )
