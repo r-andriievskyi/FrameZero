@@ -27,7 +27,7 @@ import com.discovery.playground.shared.design_system.modifier.clickableWithRippl
 import com.frame.zero.feature.home.tab.HomeTab
 import framezero.composeapp.features.home.generated.resources.Res
 import framezero.composeapp.features.home.generated.resources.tab_dashboard
-import framezero.composeapp.features.home.generated.resources.tab_projects
+import framezero.composeapp.features.home.generated.resources.tab_productions
 import framezero.composeapp.features.home.generated.resources.tab_schedule
 import org.jetbrains.compose.resources.stringResource
 
@@ -36,7 +36,7 @@ private val Height = 65.dp
 @Composable
 private fun HomeTab.label(): String = when (this) {
   HomeTab.DASHBOARD -> stringResource(Res.string.tab_dashboard)
-  HomeTab.PROJECTS -> stringResource(Res.string.tab_projects)
+  HomeTab.PRODUCTIONS -> stringResource(Res.string.tab_productions)
   HomeTab.SCHEDULE -> stringResource(Res.string.tab_schedule)
 }
 

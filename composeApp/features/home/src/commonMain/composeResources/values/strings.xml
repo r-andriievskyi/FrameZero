@@ -2,7 +2,7 @@
 <resources>
   <!-- Bottom nav tabs -->
   <string name="tab_dashboard">Dashboard</string>
-  <string name="tab_projects">Projects</string>
+  <string name="tab_productions">Productions</string>
   <string name="tab_schedule">Schedule</string>
 
   <!-- Toolbar -->
