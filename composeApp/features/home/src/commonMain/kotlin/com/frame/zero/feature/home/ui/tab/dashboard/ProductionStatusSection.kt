@@ -40,21 +40,19 @@ internal fun ProductionStatusSection(productions: List<DashboardProduction>) {
 private fun ProductionCard(production: DashboardProduction) {
   val accentColor = accentColorFor(production.accentColorHint)
   Row(
-    modifier =
-      Modifier
-        .fillMaxWidth()
-        .clip(RoundedCornerShape(AppTheme.radiusSystem.radius16))
-        .background(AppTheme.colorSystem.cardBackground)
-        .padding(AppTheme.spacingSystem.space16),
+    modifier = Modifier
+      .fillMaxWidth()
+      .clip(RoundedCornerShape(AppTheme.radiusSystem.radius16))
+      .background(AppTheme.colorSystem.cardBackground)
+      .padding(AppTheme.spacingSystem.space16),
     verticalAlignment = Alignment.CenterVertically
   ) {
     Box(
-      modifier =
-        Modifier
-          .width(4.dp)
-          .height(40.dp)
-          .clip(RoundedCornerShape(AppTheme.radiusSystem.radius4))
-          .background(accentColor)
+      modifier = Modifier
+        .width(4.dp)
+        .height(40.dp)
+        .clip(RoundedCornerShape(AppTheme.radiusSystem.radius4))
+        .background(accentColor)
     )
     Spacer(modifier = Modifier.width(AppTheme.spacingSystem.space8))
     Column(modifier = Modifier.weight(1f)) {
@@ -102,33 +100,31 @@ private fun ProductionPhase.displayLabel(): String =
 private fun ProductionStatusSectionPreview() {
   AppTheme(darkTheme = true) {
     Column(
-      modifier =
-        Modifier
-          .background(AppTheme.colorSystem.background)
-          .padding(AppTheme.spacingSystem.space16)
+      modifier = Modifier
+        .background(AppTheme.colorSystem.background)
+        .padding(AppTheme.spacingSystem.space16)
     ) {
       ProductionStatusSection(
-        productions =
-          listOf(
-            DashboardProduction(
-              id = "1",
-              title = "Echoes of Silence",
-              phase = ProductionPhase.PRODUCTION,
-              progressPercent = 68,
-              daysLeft = 24,
-              accentColorHint = AccentColorHint.GREEN,
-              updatedAt = Instant.fromEpochSeconds(0)
-            ),
-            DashboardProduction(
-              id = "2",
-              title = "Neon Wolves",
-              phase = ProductionPhase.PRE_PRODUCTION,
-              progressPercent = 34,
-              daysLeft = 61,
-              accentColorHint = AccentColorHint.PURPLE,
-              updatedAt = Instant.fromEpochSeconds(0)
-            )
+        productions = listOf(
+          DashboardProduction(
+            id = "1",
+            title = "Echoes of Silence",
+            phase = ProductionPhase.PRODUCTION,
+            progressPercent = 68,
+            daysLeft = 24,
+            accentColorHint = AccentColorHint.GREEN,
+            updatedAt = Instant.fromEpochSeconds(0)
+          ),
+          DashboardProduction(
+            id = "2",
+            title = "Neon Wolves",
+            phase = ProductionPhase.PRE_PRODUCTION,
+            progressPercent = 34,
+            daysLeft = 61,
+            accentColorHint = AccentColorHint.PURPLE,
+            updatedAt = Instant.fromEpochSeconds(0)
           )
+        )
       )
     }
   }
