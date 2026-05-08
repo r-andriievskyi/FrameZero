@@ -57,13 +57,6 @@ data class PipelinePhaseDto(
 )
 
 @Serializable
-enum class AccentColorHint {
-  GREEN,
-  PURPLE,
-  ORANGE
-}
-
-@Serializable
 data class CreateProductionRequest(
   val title: String,
   val genre: Genre,

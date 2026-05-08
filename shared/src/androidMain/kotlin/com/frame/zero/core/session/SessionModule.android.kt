@@ -33,7 +33,7 @@ private fun getOrCreateSecretKey(): SecretKey {
   }
   val spec = KeyGenParameterSpec.Builder(
     KEYSTORE_ALIAS,
-    KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT,
+    KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
   )
     .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
     .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
@@ -51,7 +51,7 @@ private fun encryptValue(plaintext: String): String {
   val encodedIv = Base64.encodeToString(cipher.iv, Base64.NO_WRAP)
   val encodedCiphertext = Base64.encodeToString(
     cipher.doFinal(plaintext.toByteArray(Charsets.UTF_8)),
-    Base64.NO_WRAP,
+    Base64.NO_WRAP
   )
   return "$encodedIv:$encodedCiphertext"
 }
@@ -66,7 +66,7 @@ private fun decryptValue(stored: String): String? =
     cipher.init(
       Cipher.DECRYPT_MODE,
       getOrCreateSecretKey(),
-      GCMParameterSpec(GCM_TAG_BITS, iv),
+      GCMParameterSpec(GCM_TAG_BITS, iv)
     )
     String(cipher.doFinal(ciphertext), Charsets.UTF_8)
   }.getOrNull()
@@ -76,15 +76,17 @@ private fun decryptValue(stored: String): String? =
  * transparently encrypted/decrypted with an AES-256-GCM key from Android Keystore.
  */
 private class EncryptedStringSettings(
-  private val backing: Settings,
+  private val backing: Settings
 ) : Settings by backing {
+  override fun putString(
+    key: String,
+    value: String
+  ) = backing.putString(key, encryptValue(value))
 
-  override fun putString(key: String, value: String) =
-    backing.putString(key, encryptValue(value))
+  override fun getString(
+    key: String,
+    defaultValue: String
+  ): String = backing.getStringOrNull(key)?.let { decryptValue(it) } ?: defaultValue
 
-  override fun getString(key: String, defaultValue: String): String =
-    backing.getStringOrNull(key)?.let { decryptValue(it) } ?: defaultValue
-
-  override fun getStringOrNull(key: String): String? =
-    backing.getStringOrNull(key)?.let { decryptValue(it) }
+  override fun getStringOrNull(key: String): String? = backing.getStringOrNull(key)?.let { decryptValue(it) }
 }
