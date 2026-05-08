@@ -47,11 +47,10 @@ private fun StatCard(
   label: String
 ) {
   Column(
-    modifier =
-      modifier
-        .clip(RoundedCornerShape(AppTheme.radiusSystem.radius16))
-        .background(AppTheme.colorSystem.cardBackground)
-        .padding(AppTheme.spacingSystem.space16)
+    modifier = modifier
+      .clip(RoundedCornerShape(AppTheme.radiusSystem.radius16))
+      .background(AppTheme.colorSystem.cardBackground)
+      .padding(AppTheme.spacingSystem.space16)
   ) {
     Text(
       text = icon,
@@ -78,10 +77,9 @@ private fun StatCard(
 private fun StatsSectionPreview() {
   AppTheme(darkTheme = true) {
     Column(
-      modifier =
-        Modifier
-          .background(AppTheme.colorSystem.background)
-          .padding(AppTheme.spacingSystem.space16)
+      modifier = Modifier
+        .background(AppTheme.colorSystem.background)
+        .padding(AppTheme.spacingSystem.space16)
     ) {
       StatsRow(stats = DashboardStats(activeProjects = 3, openTasks = 12))
     }
