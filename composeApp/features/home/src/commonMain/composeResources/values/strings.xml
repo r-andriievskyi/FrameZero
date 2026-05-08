@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <!-- Bottom nav tabs -->
+  <string name="tab_dashboard">Dashboard</string>
+  <string name="tab_projects">Projects</string>
+  <string name="tab_schedule">Schedule</string>
+
+  <!-- Toolbar -->
+  <string name="toolbar_logo_cd">Logo</string>
+  <string name="toolbar_notifications_cd">Notifications</string>
+  <string name="toolbar_settings_cd">Settings</string>
+
+  <!-- Dashboard greeting -->
+  <string name="greeting_good_morning">Good morning, %1$s 👋</string>
+  <string name="greeting_stats">%1$d active productions · %2$d open tasks</string>
+
+  <!-- My Tasks section -->
+  <string name="my_tasks_title">My Tasks</string>
+  <string name="my_tasks_see_all">See all</string>
+
+  <!-- Production Status section -->
+  <string name="production_status_title">Production status</string>
+  <string name="production_status_all_projects">All projects</string>
+
+  <!-- Stats section -->
+  <string name="stats_active_projects">Active Projects</string>
+  <string name="stats_open_tasks">Open Tasks</string>
+
+  <!-- Projects tab -->
+  <string name="projects_title">Productions</string>
+  <string name="projects_filter_all">All</string>
+  <string name="projects_filter_pre_production">Pre-Production</string>
+  <string name="projects_filter_production">Production</string>
+  <string name="projects_filter_post_production">Post-Production</string>
+  <string name="projects_empty_title">Start your first production</string>
+  <string name="projects_empty_description">You haven\'t been added to any productions\nyet. Create one to start tracking scenes,\ncrew, and schedule.</string>
+  <string name="projects_create_button">+  Create production</string>
+  <string name="projects_empty_invite">Or ask a producer to invite you to one</string>
+  <string name="projects_pipeline_progress">Pipeline progress</string>
+  <string name="members_count">%1$d members</string>
+  <string name="days_left">%1$dd left</string>
+</resources>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="app_name">FrameZero</string>
+
+  <!-- Shared between screens -->
+  <string name="field_email">EMAIL</string>
+  <string name="field_password">PASSWORD</string>
+  <string name="placeholder_email">you@studio.com</string>
+  <string name="placeholder_password">******</string>
+  <string name="btn_sign_in">Sign in</string>
+  <string name="btn_create_account">Create account</string>
+
+  <!-- Register screen -->
+  <string name="register_title">Create account</string>
+  <string name="register_subtitle">Join your production team</string>
+  <string name="register_field_first_name">FIRST NAME</string>
+  <string name="register_placeholder_first_name">John</string>
+  <string name="register_field_last_name">LAST NAME</string>
+  <string name="register_placeholder_last_name">Doe</string>
+  <string name="register_have_account">Already have an account?</string>
+
+  <!-- Sign-in screen -->
+  <string name="signin_title">Welcome back</string>
+  <string name="signin_subtitle">Sign in to your production workspace</string>
+  <string name="signin_forgot_password">Forgot password?</string>
+  <string name="signin_new_user">New to FrameZero?</string>
+</resources>

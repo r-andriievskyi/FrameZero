@@ -11,6 +11,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import framezero.composeapp.generated.resources.Res
+import framezero.composeapp.generated.resources.app_name
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun SplashContent() {
@@ -19,7 +22,7 @@ fun SplashContent() {
       horizontalAlignment = Alignment.CenterHorizontally,
       verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
-      Text(text = "FrameZero", style = MaterialTheme.typography.displayMedium)
+      Text(text = stringResource(Res.string.app_name), style = MaterialTheme.typography.displayMedium)
       CircularProgressIndicator()
     }
   }

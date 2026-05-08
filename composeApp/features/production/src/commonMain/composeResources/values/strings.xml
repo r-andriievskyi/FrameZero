@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <!-- Top bar -->
+  <string name="create_title">New Production</string>
+  <string name="create_step_indicator">Step %1$d of %2$d</string>
+
+  <!-- Step 1: What are you making? -->
+  <string name="create_step1_title">What are you making?</string>
+  <string name="create_step1_subtitle">Give your production a working title and genre</string>
+  <string name="create_field_production_title">PRODUCTION TITLE</string>
+  <string name="create_placeholder_production_title">e.g. Echoes of Silence</string>
+  <string name="create_field_genre">GENRE</string>
+  <string name="create_field_logline">LOGLINE (OPTIONAL)</string>
+  <string name="create_placeholder_logline">One sentence describing your story…</string>
+
+  <!-- Step 2: Timeline & Phase -->
+  <string name="create_step2_title">Timeline &amp; Phase</string>
+  <string name="create_step2_subtitle">Where are you in the pipeline?</string>
+  <string name="create_field_current_phase">CURRENT PHASE</string>
+  <string name="create_field_start_date">START DATE</string>
+  <string name="create_field_wrap_date">WRAP DATE</string>
+  <string name="create_placeholder_date">DD.MM.YYYY</string>
+  <string name="create_field_budget">TOTAL BUDGET (OPTIONAL)</string>
+
+  <!-- Step 3: Build your team -->
+  <string name="create_step3_title">Build your team</string>
+  <string name="create_step3_subtitle">Add crew members (you can add more later)</string>
+  <string name="create_field_name">NAME</string>
+  <string name="create_placeholder_name">Full name</string>
+  <string name="create_field_role">ROLE</string>
+  <string name="create_crew_empty">No crew added yet</string>
+  <string name="create_crew_owner_note">You\'ll be added as the project owner automatically</string>
+  <string name="create_button_skip_continue">Skip &amp; continue →</string>
+
+  <!-- Step 4: Review & create -->
+  <string name="create_step4_title">Review &amp; create</string>
+  <string name="create_step4_subtitle">Everything look right?</string>
+  <string name="create_crew_label">CREW (%1$d)</string>
+  <string name="create_button_creating">Creating…</string>
+  <string name="create_button_create">Create production</string>
+
+  <!-- Review card -->
+  <string name="create_review_untitled">Untitled</string>
+  <string name="create_review_start">START</string>
+  <string name="create_review_wrap">WRAP</string>
+  <string name="create_review_budget">BUDGET</string>
+  <string name="create_review_crew">CREW</string>
+  <string name="create_review_not_set">Not set</string>
+  <string name="create_review_members_count">%1$d members</string>
+
+  <!-- Shared button -->
+  <string name="create_button_continue">Continue →</string>
+
+  <!-- Phase labels -->
+  <string name="phase_development">Development</string>
+  <string name="phase_pre_production">Pre-Production</string>
+  <string name="phase_production">Production</string>
+  <string name="phase_post_production">Post-Production</string>
+  <string name="phase_distribution">Distribution</string>
+
+  <!-- Crew roles -->
+  <string name="crew_role_director">Director</string>
+  <string name="crew_role_producer">Producer</string>
+  <string name="crew_role_writer">Writer</string>
+  <string name="crew_role_dp">DP</string>
+  <string name="crew_role_editor">Editor</string>
+  <string name="crew_role_sound">Sound</string>
+  <string name="crew_role_art">Art</string>
+  <string name="crew_role_other">Other</string>
+</resources>

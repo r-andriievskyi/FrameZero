@@ -19,12 +19,18 @@ import com.frame.zero.domain.dashboard.DashboardTask
 import com.frame.zero.dto.task.TaskStatus
 import framezero.composeapp.features.home.generated.resources.Res
 import framezero.composeapp.features.home.generated.resources.ic_chevron_right
+import framezero.composeapp.features.home.generated.resources.my_tasks_see_all
+import framezero.composeapp.features.home.generated.resources.my_tasks_title
 import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 internal fun MyTasksSection(tasks: List<DashboardTask>) {
-  SectionHeader(title = "My Tasks", actionLabel = "See all")
+  SectionHeader(
+    title = stringResource(Res.string.my_tasks_title),
+    actionLabel = stringResource(Res.string.my_tasks_see_all)
+  )
   VerticalSpacer(AppTheme.spacingSystem.space8)
   tasks.forEach { task ->
     TaskCard(task = task)

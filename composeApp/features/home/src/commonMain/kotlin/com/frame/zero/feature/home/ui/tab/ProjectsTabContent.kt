@@ -43,8 +43,22 @@ import com.frame.zero.domain.production.ProductionPhase
 import com.frame.zero.dto.production.AccentColorHint
 import com.frame.zero.feature.home.tab.projects.ProjectsTabComponent
 import com.frame.zero.feature.home.tab.projects.ProjectsTabState
+import framezero.composeapp.features.home.generated.resources.Res
+import framezero.composeapp.features.home.generated.resources.days_left
+import framezero.composeapp.features.home.generated.resources.members_count
+import framezero.composeapp.features.home.generated.resources.projects_create_button
+import framezero.composeapp.features.home.generated.resources.projects_empty_description
+import framezero.composeapp.features.home.generated.resources.projects_empty_invite
+import framezero.composeapp.features.home.generated.resources.projects_empty_title
+import framezero.composeapp.features.home.generated.resources.projects_filter_all
+import framezero.composeapp.features.home.generated.resources.projects_filter_post_production
+import framezero.composeapp.features.home.generated.resources.projects_filter_pre_production
+import framezero.composeapp.features.home.generated.resources.projects_filter_production
+import framezero.composeapp.features.home.generated.resources.projects_pipeline_progress
+import framezero.composeapp.features.home.generated.resources.projects_title
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun ProjectsTabContent(component: ProjectsTabComponent) {
@@ -84,7 +98,7 @@ private fun ProjectsContent(
       verticalAlignment = Alignment.CenterVertically
     ) {
       Text(
-        text = "Productions",
+        text = stringResource(Res.string.projects_title),
         style = AppTheme.typographySystem.displayMedium,
         color = AppTheme.colorSystem.textPrimary
       )
@@ -138,7 +152,7 @@ private fun EmptyState(onCreateProductionClick: () -> Unit) {
     VerticalSpacer(AppTheme.spacingSystem.space24)
 
     Text(
-      text = "Start your first production",
+      text = stringResource(Res.string.projects_empty_title),
       style = AppTheme.typographySystem.titleMedium,
       color = AppTheme.colorSystem.textPrimary,
       textAlign = TextAlign.Center
@@ -147,8 +161,7 @@ private fun EmptyState(onCreateProductionClick: () -> Unit) {
     VerticalSpacer(AppTheme.spacingSystem.space8)
 
     Text(
-      text = "You haven't been added to any productions\nyet. Create one to start tracking scenes,\n" +
-        "crew, and schedule.",
+      text = stringResource(Res.string.projects_empty_description),
       style = AppTheme.typographySystem.bodySmall,
       color = AppTheme.colorSystem.textMuted,
       textAlign = TextAlign.Center
@@ -171,7 +184,7 @@ private fun EmptyState(onCreateProductionClick: () -> Unit) {
       contentAlignment = Alignment.Center
     ) {
       Text(
-        text = "+  Create production",
+        text = stringResource(Res.string.projects_create_button),
         style = AppTheme.typographySystem.labelLarge,
         color = AppTheme.colorSystem.textOnAccent
       )
@@ -180,7 +193,7 @@ private fun EmptyState(onCreateProductionClick: () -> Unit) {
     VerticalSpacer(AppTheme.spacingSystem.space16)
 
     Text(
-      text = "Or ask a producer to invite you to one",
+      text = stringResource(Res.string.projects_empty_invite),
       style = AppTheme.typographySystem.bodySmall,
       color = AppTheme.colorSystem.textMuted,
       textAlign = TextAlign.Center
@@ -312,10 +325,10 @@ private fun FilterChipsRow(
   onFilterSelected: (ProductionPhase?) -> Unit
 ) {
   val filters = listOf(
-    null to "All",
-    ProductionPhase.PRE_PRODUCTION to "Pre-Production",
-    ProductionPhase.PRODUCTION to "Production",
-    ProductionPhase.POST_PRODUCTION to "Post-Production"
+    null to stringResource(Res.string.projects_filter_all),
+    ProductionPhase.PRE_PRODUCTION to stringResource(Res.string.projects_filter_pre_production),
+    ProductionPhase.PRODUCTION to stringResource(Res.string.projects_filter_production),
+    ProductionPhase.POST_PRODUCTION to stringResource(Res.string.projects_filter_post_production)
   )
 
   Row(
@@ -406,7 +419,7 @@ private fun ProductionCard(production: Production) {
       verticalAlignment = Alignment.CenterVertically
     ) {
       Text(
-        text = "Pipeline progress",
+        text = stringResource(Res.string.projects_pipeline_progress),
         style = AppTheme.typographySystem.bodySmall,
         color = AppTheme.colorSystem.textMuted
       )
@@ -438,7 +451,7 @@ private fun ProductionCard(production: Production) {
           style = AppTheme.typographySystem.bodySmall
         )
         Text(
-          text = "${production.membersCount} members",
+          text = stringResource(Res.string.members_count, production.membersCount),
           style = AppTheme.typographySystem.bodySmall,
           color = AppTheme.colorSystem.textMuted
         )
@@ -457,7 +470,7 @@ private fun ProductionCard(production: Production) {
           AppTheme.colorSystem.textMuted
         }
         Text(
-          text = "${production.daysLeft}d left",
+          text = stringResource(Res.string.days_left, production.daysLeft),
           style = AppTheme.typographySystem.bodySmall,
           color = daysColor
         )

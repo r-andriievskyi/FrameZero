@@ -25,8 +25,20 @@ import androidx.compose.ui.unit.dp
 import com.discovery.playground.shared.design_system.AppTheme
 import com.discovery.playground.shared.design_system.modifier.clickableWithRipple
 import com.frame.zero.feature.home.tab.HomeTab
+import framezero.composeapp.features.home.generated.resources.Res
+import framezero.composeapp.features.home.generated.resources.tab_dashboard
+import framezero.composeapp.features.home.generated.resources.tab_projects
+import framezero.composeapp.features.home.generated.resources.tab_schedule
+import org.jetbrains.compose.resources.stringResource
 
 private val Height = 65.dp
+
+@Composable
+private fun HomeTab.label(): String = when (this) {
+  HomeTab.DASHBOARD -> stringResource(Res.string.tab_dashboard)
+  HomeTab.PROJECTS -> stringResource(Res.string.tab_projects)
+  HomeTab.SCHEDULE -> stringResource(Res.string.tab_schedule)
+}
 
 /** Stateless. The container owns selection state; this just renders + reports clicks. */
 @Composable
@@ -86,7 +98,7 @@ private fun NavItem(
       ),
     contentAlignment = Alignment.Center
   ) {
-    Text(text = tab.title, style = AppTheme.typographySystem.labelMedium, color = textColor)
+    Text(text = tab.label(), style = AppTheme.typographySystem.labelMedium, color = textColor)
   }
 }
 
@@ -102,4 +114,3 @@ private fun FloatingBottomNavPreview() {
     )
   }
 }
-
