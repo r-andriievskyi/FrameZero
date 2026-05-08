@@ -1,5 +1,6 @@
 package com.frame.zero.feature.home.ui.tab.dashboard
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,7 +17,10 @@ import com.discovery.playground.shared.design_system.AppTheme
 import com.discovery.playground.shared.design_system.widgets.VerticalSpacer
 import com.frame.zero.domain.dashboard.DashboardTask
 import com.frame.zero.dto.task.TaskStatus
+import framezero.composeapp.features.home.generated.resources.Res
+import framezero.composeapp.features.home.generated.resources.ic_chevron_right
 import kotlinx.datetime.LocalDate
+import org.jetbrains.compose.resources.painterResource
 
 @Composable
 internal fun MyTasksSection(tasks: List<DashboardTask>) {
@@ -68,10 +72,9 @@ private fun TaskCard(task: DashboardTask) {
         }
       }
     }
-    Text(
-      text = "›",
-      style = AppTheme.typographySystem.titleLarge,
-      color = AppTheme.colorSystem.textMuted
+    Image(
+      painter = painterResource(Res.drawable.ic_chevron_right),
+      contentDescription = null
     )
   }
 }
