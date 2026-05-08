@@ -39,15 +39,14 @@ fun DashboardTabContent(component: DashboardTabComponent) {
 private fun DashboardContent(state: DashboardTabState) {
   val dashboard = state.dashboard
   Column(
-    modifier =
-      Modifier
-        .fillMaxSize()
-        .background(AppTheme.colorSystem.background)
-        .verticalScroll(rememberScrollState())
-        .padding(
-          horizontal = AppTheme.spacingSystem.space16,
-          vertical = AppTheme.spacingSystem.space24
-        )
+    modifier = Modifier
+      .fillMaxSize()
+      .background(AppTheme.colorSystem.background)
+      .verticalScroll(rememberScrollState())
+      .padding(
+        horizontal = AppTheme.spacingSystem.space16,
+        vertical = AppTheme.spacingSystem.space24
+      )
   ) {
     if (dashboard != null) {
       GreetingSection(greeting = dashboard.greeting)
@@ -72,69 +71,65 @@ private fun DashboardContent(state: DashboardTabState) {
 private fun DashboardContentPreview() {
   AppTheme(darkTheme = true) {
     DashboardContent(
-      state =
-        DashboardTabState(
-          isLoading = false,
-          userName = "Maya",
-          dashboard =
-            Dashboard(
-              greeting =
-                DashboardGreeting(
-                  displayName = "Maya",
-                  activeProductionsCount = 3,
-                  openTasksCount = 12
-                ),
-              stats = DashboardStats(activeProjects = 3, openTasks = 12),
-              myTasks =
-                listOf(
-                  DashboardTask(
-                    id = "1",
-                    title = "Review Scene 12 script revisions",
-                    productionTitle = "Echoes of Silence",
-                    dueDate = LocalDate(2026, 5, 4),
-                    dueLabel = "Today",
-                    status = TaskStatus.OPEN
-                  ),
-                  DashboardTask(
-                    id = "2",
-                    title = "Confirm exterior shooting locations",
-                    productionTitle = "Neon Wolves",
-                    dueDate = LocalDate(2026, 5, 5),
-                    dueLabel = "Tomorrow",
-                    status = TaskStatus.OPEN
-                  ),
-                  DashboardTask(
-                    id = "3",
-                    title = "Approve final color grade",
-                    productionTitle = "The Last Frame",
-                    dueDate = LocalDate(2026, 4, 28),
-                    dueLabel = "Apr 28",
-                    status = TaskStatus.OPEN
-                  )
-                ),
-              productionStatus =
-                listOf(
-                  DashboardProduction(
-                    id = "1",
-                    title = "Echoes of Silence",
-                    phase = ProductionPhase.PRODUCTION,
-                    progressPercent = 68,
-                    daysLeft = 24,
-                    accentColorHint = AccentColorHint.GREEN,
-                    updatedAt = Instant.fromEpochSeconds(0)
-                  ),
-                  DashboardProduction(
-                    id = "2",
-                    title = "Neon Wolves",
-                    phase = ProductionPhase.PRE_PRODUCTION,
-                    progressPercent = 34,
-                    daysLeft = 61,
-                    accentColorHint = AccentColorHint.PURPLE,
-                    updatedAt = Instant.fromEpochSeconds(0)
-                  )
-                )
+      state = DashboardTabState(
+        isLoading = false,
+        userName = "Maya",
+        dashboard =
+          Dashboard(
+            greeting = DashboardGreeting(
+              displayName = "Maya",
+              activeProductionsCount = 3,
+              openTasksCount = 12
+            ),
+            stats = DashboardStats(activeProjects = 3, openTasks = 12),
+            myTasks = listOf(
+              DashboardTask(
+                id = "1",
+                title = "Review Scene 12 script revisions",
+                productionTitle = "Echoes of Silence",
+                dueDate = LocalDate(2026, 5, 4),
+                dueLabel = "Today",
+                status = TaskStatus.OPEN
+              ),
+              DashboardTask(
+                id = "2",
+                title = "Confirm exterior shooting locations",
+                productionTitle = "Neon Wolves",
+                dueDate = LocalDate(2026, 5, 5),
+                dueLabel = "Tomorrow",
+                status = TaskStatus.OPEN
+              ),
+              DashboardTask(
+                id = "3",
+                title = "Approve final color grade",
+                productionTitle = "The Last Frame",
+                dueDate = LocalDate(2026, 4, 28),
+                dueLabel = "Apr 28",
+                status = TaskStatus.OPEN
+              )
+            ),
+            productionStatus = listOf(
+              DashboardProduction(
+                id = "1",
+                title = "Echoes of Silence",
+                phase = ProductionPhase.PRODUCTION,
+                progressPercent = 68,
+                daysLeft = 24,
+                accentColorHint = AccentColorHint.GREEN,
+                updatedAt = Instant.fromEpochSeconds(0)
+              ),
+              DashboardProduction(
+                id = "2",
+                title = "Neon Wolves",
+                phase = ProductionPhase.PRE_PRODUCTION,
+                progressPercent = 34,
+                daysLeft = 61,
+                accentColorHint = AccentColorHint.PURPLE,
+                updatedAt = Instant.fromEpochSeconds(0)
+              )
             )
-        )
+          )
+      )
     )
   }
 }

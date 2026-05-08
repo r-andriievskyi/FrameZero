@@ -20,9 +20,8 @@ internal fun GreetingSection(greeting: DashboardGreeting) {
   )
   VerticalSpacer(AppTheme.spacingSystem.space4)
   Text(
-    text =
-      "${greeting.activeProductionsCount} active productions · " +
-        "${greeting.openTasksCount} open tasks",
+    text = "${greeting.activeProductionsCount} active productions · " +
+      "${greeting.openTasksCount} open tasks",
     style = AppTheme.typographySystem.bodyMedium,
     color = AppTheme.colorSystem.textSecondary
   )
@@ -33,18 +32,16 @@ internal fun GreetingSection(greeting: DashboardGreeting) {
 private fun GreetingSectionPreview() {
   AppTheme(darkTheme = true) {
     Column(
-      modifier =
-        Modifier
-          .background(AppTheme.colorSystem.background)
-          .padding(AppTheme.spacingSystem.space16)
+      modifier = Modifier
+        .background(AppTheme.colorSystem.background)
+        .padding(AppTheme.spacingSystem.space16)
     ) {
       GreetingSection(
-        greeting =
-          DashboardGreeting(
-            displayName = "Maya",
-            activeProductionsCount = 3,
-            openTasksCount = 12
-          )
+        greeting = DashboardGreeting(
+          displayName = "Maya",
+          activeProductionsCount = 3,
+          openTasksCount = 12
+        )
       )
     }
   }

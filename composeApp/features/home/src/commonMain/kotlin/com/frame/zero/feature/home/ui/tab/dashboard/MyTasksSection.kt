@@ -31,12 +31,11 @@ internal fun MyTasksSection(tasks: List<DashboardTask>) {
 @Composable
 private fun TaskCard(task: DashboardTask) {
   Row(
-    modifier =
-      Modifier
-        .fillMaxWidth()
-        .clip(RoundedCornerShape(AppTheme.radiusSystem.radius16))
-        .background(AppTheme.colorSystem.cardBackground)
-        .padding(AppTheme.spacingSystem.space16),
+    modifier = Modifier
+      .fillMaxWidth()
+      .clip(RoundedCornerShape(AppTheme.radiusSystem.radius16))
+      .background(AppTheme.colorSystem.cardBackground)
+      .padding(AppTheme.spacingSystem.space16),
     verticalAlignment = Alignment.CenterVertically
   ) {
     Column(modifier = Modifier.weight(1f)) {
@@ -82,39 +81,37 @@ private fun TaskCard(task: DashboardTask) {
 private fun MyTasksSectionPreview() {
   AppTheme(darkTheme = true) {
     Column(
-      modifier =
-        Modifier
-          .background(AppTheme.colorSystem.background)
-          .padding(AppTheme.spacingSystem.space16)
+      modifier = Modifier
+        .background(AppTheme.colorSystem.background)
+        .padding(AppTheme.spacingSystem.space16)
     ) {
       MyTasksSection(
-        tasks =
-          listOf(
-            DashboardTask(
-              id = "1",
-              title = "Review Scene 12 script revisions",
-              productionTitle = "Echoes of Silence",
-              dueDate = LocalDate(2026, 5, 4),
-              dueLabel = "Today",
-              status = TaskStatus.OPEN
-            ),
-            DashboardTask(
-              id = "2",
-              title = "Confirm exterior shooting locations",
-              productionTitle = "Neon Wolves",
-              dueDate = LocalDate(2026, 5, 5),
-              dueLabel = "Tomorrow",
-              status = TaskStatus.OPEN
-            ),
-            DashboardTask(
-              id = "3",
-              title = "Approve final color grade",
-              productionTitle = "The Last Frame",
-              dueDate = LocalDate(2026, 4, 28),
-              dueLabel = "Apr 28",
-              status = TaskStatus.OPEN
-            )
+        tasks = listOf(
+          DashboardTask(
+            id = "1",
+            title = "Review Scene 12 script revisions",
+            productionTitle = "Echoes of Silence",
+            dueDate = LocalDate(2026, 5, 4),
+            dueLabel = "Today",
+            status = TaskStatus.OPEN
+          ),
+          DashboardTask(
+            id = "2",
+            title = "Confirm exterior shooting locations",
+            productionTitle = "Neon Wolves",
+            dueDate = LocalDate(2026, 5, 5),
+            dueLabel = "Tomorrow",
+            status = TaskStatus.OPEN
+          ),
+          DashboardTask(
+            id = "3",
+            title = "Approve final color grade",
+            productionTitle = "The Last Frame",
+            dueDate = LocalDate(2026, 4, 28),
+            dueLabel = "Apr 28",
+            status = TaskStatus.OPEN
           )
+        )
       )
     }
   }
