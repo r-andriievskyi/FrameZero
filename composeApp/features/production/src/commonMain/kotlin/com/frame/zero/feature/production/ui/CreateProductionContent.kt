@@ -49,7 +49,59 @@ import com.frame.zero.feature.production.CreateProductionComponent
 import com.frame.zero.feature.production.CreateProductionIntent
 import com.frame.zero.feature.production.CreateProductionState
 import com.frame.zero.feature.production.CrewMemberEntry
+import framezero.composeapp.features.production.generated.resources.Res
+import framezero.composeapp.features.production.generated.resources.create_button_continue
+import framezero.composeapp.features.production.generated.resources.create_button_create
+import framezero.composeapp.features.production.generated.resources.create_button_creating
+import framezero.composeapp.features.production.generated.resources.create_button_skip_continue
+import framezero.composeapp.features.production.generated.resources.create_crew_empty
+import framezero.composeapp.features.production.generated.resources.create_crew_label
+import framezero.composeapp.features.production.generated.resources.create_crew_owner_note
+import framezero.composeapp.features.production.generated.resources.create_field_budget
+import framezero.composeapp.features.production.generated.resources.create_field_current_phase
+import framezero.composeapp.features.production.generated.resources.create_field_genre
+import framezero.composeapp.features.production.generated.resources.create_field_logline
+import framezero.composeapp.features.production.generated.resources.create_field_name
+import framezero.composeapp.features.production.generated.resources.create_field_production_title
+import framezero.composeapp.features.production.generated.resources.create_field_role
+import framezero.composeapp.features.production.generated.resources.create_field_start_date
+import framezero.composeapp.features.production.generated.resources.create_field_wrap_date
+import framezero.composeapp.features.production.generated.resources.create_placeholder_date
+import framezero.composeapp.features.production.generated.resources.create_placeholder_logline
+import framezero.composeapp.features.production.generated.resources.create_placeholder_name
+import framezero.composeapp.features.production.generated.resources.create_placeholder_production_title
+import framezero.composeapp.features.production.generated.resources.create_review_budget
+import framezero.composeapp.features.production.generated.resources.create_review_crew
+import framezero.composeapp.features.production.generated.resources.create_review_members_count
+import framezero.composeapp.features.production.generated.resources.create_review_not_set
+import framezero.composeapp.features.production.generated.resources.create_review_start
+import framezero.composeapp.features.production.generated.resources.create_review_untitled
+import framezero.composeapp.features.production.generated.resources.create_review_wrap
+import framezero.composeapp.features.production.generated.resources.create_step1_subtitle
+import framezero.composeapp.features.production.generated.resources.create_step1_title
+import framezero.composeapp.features.production.generated.resources.create_step2_subtitle
+import framezero.composeapp.features.production.generated.resources.create_step2_title
+import framezero.composeapp.features.production.generated.resources.create_step3_subtitle
+import framezero.composeapp.features.production.generated.resources.create_step3_title
+import framezero.composeapp.features.production.generated.resources.create_step4_subtitle
+import framezero.composeapp.features.production.generated.resources.create_step4_title
+import framezero.composeapp.features.production.generated.resources.create_step_indicator
+import framezero.composeapp.features.production.generated.resources.create_title
+import framezero.composeapp.features.production.generated.resources.crew_role_art
+import framezero.composeapp.features.production.generated.resources.crew_role_director
+import framezero.composeapp.features.production.generated.resources.crew_role_dp
+import framezero.composeapp.features.production.generated.resources.crew_role_editor
+import framezero.composeapp.features.production.generated.resources.crew_role_other
+import framezero.composeapp.features.production.generated.resources.crew_role_producer
+import framezero.composeapp.features.production.generated.resources.crew_role_sound
+import framezero.composeapp.features.production.generated.resources.crew_role_writer
+import framezero.composeapp.features.production.generated.resources.phase_development
+import framezero.composeapp.features.production.generated.resources.phase_distribution
+import framezero.composeapp.features.production.generated.resources.phase_post_production
+import framezero.composeapp.features.production.generated.resources.phase_pre_production
+import framezero.composeapp.features.production.generated.resources.phase_production
 import kotlinx.datetime.LocalDate
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun CreateProductionContent(component: CreateProductionComponent) {
@@ -136,12 +188,12 @@ private fun TopBar(step: Int, totalSteps: Int, onBack: () -> Unit) {
     HorizontalSpacer(AppTheme.spacingSystem.space8)
     Column {
       Text(
-        text = "New Production",
+        text = stringResource(Res.string.create_title),
         style = AppTheme.typographySystem.titleMedium,
         color = AppTheme.colorSystem.textPrimary
       )
       Text(
-        text = "Step $step of $totalSteps",
+        text = stringResource(Res.string.create_step_indicator, step, totalSteps),
         style = AppTheme.typographySystem.caption,
         color = AppTheme.colorSystem.textMuted
       )
@@ -191,31 +243,31 @@ private fun Step1Content(
       .padding(horizontal = AppTheme.spacingSystem.space16)
   ) {
     Text(
-      text = "What are you making?",
+      text = stringResource(Res.string.create_step1_title),
       style = AppTheme.typographySystem.displayMedium,
       color = AppTheme.colorSystem.textPrimary
     )
     VerticalSpacer(AppTheme.spacingSystem.space4)
     Text(
-      text = "Give your production a working title and genre",
+      text = stringResource(Res.string.create_step1_subtitle),
       style = AppTheme.typographySystem.bodyMedium,
       color = AppTheme.colorSystem.textSecondary
     )
 
     VerticalSpacer(AppTheme.spacingSystem.space24)
 
-    FieldLabel("PRODUCTION TITLE")
+    FieldLabel(stringResource(Res.string.create_field_production_title))
     VerticalSpacer(AppTheme.spacingSystem.space8)
     SingleLineInputField(
       value = state.title,
       onValueChange = { onIntent(CreateProductionIntent.TitleChanged(it)) },
-      placeholder = "e.g. Echoes of Silence",
+      placeholder = stringResource(Res.string.create_placeholder_production_title),
       enabled = !state.isLoading
     )
 
     VerticalSpacer(AppTheme.spacingSystem.space24)
 
-    FieldLabel("GENRE")
+    FieldLabel(stringResource(Res.string.create_field_genre))
     VerticalSpacer(AppTheme.spacingSystem.space8)
     FlowRow(
       horizontalArrangement = Arrangement.spacedBy(AppTheme.spacingSystem.space8),
@@ -232,12 +284,12 @@ private fun Step1Content(
 
     VerticalSpacer(AppTheme.spacingSystem.space24)
 
-    FieldLabel("LOGLINE (OPTIONAL)")
+    FieldLabel(stringResource(Res.string.create_field_logline))
     VerticalSpacer(AppTheme.spacingSystem.space8)
     SingleLineInputField(
       value = state.logline,
       onValueChange = { onIntent(CreateProductionIntent.LoglineChanged(it)) },
-      placeholder = "One sentence describing your story…",
+      placeholder = stringResource(Res.string.create_placeholder_logline),
       enabled = !state.isLoading
     )
 
@@ -249,7 +301,7 @@ private fun Step1Content(
     VerticalSpacer(AppTheme.spacingSystem.space24)
 
     CtaButton(
-      text = "Continue →",
+      text = stringResource(Res.string.create_button_continue),
       modifier = Modifier.fillMaxWidth(),
       onClick = { onIntent(CreateProductionIntent.NextStep) }
     )
@@ -272,20 +324,20 @@ private fun Step2Content(
       .padding(horizontal = AppTheme.spacingSystem.space16)
   ) {
     Text(
-      text = "Timeline & Phase",
+      text = stringResource(Res.string.create_step2_title),
       style = AppTheme.typographySystem.displayMedium,
       color = AppTheme.colorSystem.textPrimary
     )
     VerticalSpacer(AppTheme.spacingSystem.space4)
     Text(
-      text = "Where are you in the pipeline?",
+      text = stringResource(Res.string.create_step2_subtitle),
       style = AppTheme.typographySystem.bodyMedium,
       color = AppTheme.colorSystem.textSecondary
     )
 
     VerticalSpacer(AppTheme.spacingSystem.space24)
 
-    FieldLabel("CURRENT PHASE")
+    FieldLabel(stringResource(Res.string.create_field_current_phase))
     VerticalSpacer(AppTheme.spacingSystem.space8)
     PhaseSelector(
       selected = state.phase,
@@ -299,21 +351,21 @@ private fun Step2Content(
       horizontalArrangement = Arrangement.spacedBy(AppTheme.spacingSystem.space8)
     ) {
       Column(modifier = Modifier.weight(1f)) {
-        FieldLabel("START DATE")
+        FieldLabel(stringResource(Res.string.create_field_start_date))
         VerticalSpacer(AppTheme.spacingSystem.space8)
         DateInputField(
           value = state.startDate,
-          placeholder = "DD.MM.YYYY",
+          placeholder = stringResource(Res.string.create_placeholder_date),
           enabled = !state.isLoading,
           onDateChange = { onIntent(CreateProductionIntent.StartDateChanged(it)) }
         )
       }
       Column(modifier = Modifier.weight(1f)) {
-        FieldLabel("WRAP DATE")
+        FieldLabel(stringResource(Res.string.create_field_wrap_date))
         VerticalSpacer(AppTheme.spacingSystem.space8)
         DateInputField(
           value = state.wrapDate,
-          placeholder = "DD.MM.YYYY",
+          placeholder = stringResource(Res.string.create_placeholder_date),
           enabled = !state.isLoading,
           onDateChange = { onIntent(CreateProductionIntent.WrapDateChanged(it)) }
         )
@@ -322,7 +374,7 @@ private fun Step2Content(
 
     VerticalSpacer(AppTheme.spacingSystem.space24)
 
-    FieldLabel("TOTAL BUDGET (OPTIONAL)")
+    FieldLabel(stringResource(Res.string.create_field_budget))
     VerticalSpacer(AppTheme.spacingSystem.space8)
     BudgetInputField(
       budgetCents = state.budgetCents,
@@ -338,7 +390,7 @@ private fun Step2Content(
     VerticalSpacer(AppTheme.spacingSystem.space24)
 
     CtaButton(
-      text = "Continue →",
+      text = stringResource(Res.string.create_button_continue),
       modifier = Modifier.fillMaxWidth(),
       onClick = { onIntent(CreateProductionIntent.NextStep) }
     )
@@ -361,13 +413,13 @@ private fun Step3Content(
       .padding(horizontal = AppTheme.spacingSystem.space16)
   ) {
     Text(
-      text = "Build your team",
+      text = stringResource(Res.string.create_step3_title),
       style = AppTheme.typographySystem.displayMedium,
       color = AppTheme.colorSystem.textPrimary
     )
     VerticalSpacer(AppTheme.spacingSystem.space4)
     Text(
-      text = "Add crew members (you can add more later)",
+      text = stringResource(Res.string.create_step3_subtitle),
       style = AppTheme.typographySystem.bodyMedium,
       color = AppTheme.colorSystem.textSecondary
     )
@@ -380,17 +432,17 @@ private fun Step3Content(
       verticalAlignment = Alignment.Bottom
     ) {
       Column(modifier = Modifier.weight(1f)) {
-        FieldLabel("NAME")
+        FieldLabel(stringResource(Res.string.create_field_name))
         VerticalSpacer(AppTheme.spacingSystem.space8)
         SingleLineInputField(
           value = state.crewNameInput,
           onValueChange = { onIntent(CreateProductionIntent.CrewNameChanged(it)) },
-          placeholder = "Full name",
+          placeholder = stringResource(Res.string.create_placeholder_name),
           enabled = !state.isLoading
         )
       }
       Column(modifier = Modifier.weight(1f)) {
-        FieldLabel("ROLE")
+        FieldLabel(stringResource(Res.string.create_field_role))
         VerticalSpacer(AppTheme.spacingSystem.space8)
         RoleDropdown(
           selected = state.crewRoleInput,
@@ -430,7 +482,7 @@ private fun Step3Content(
         )
         VerticalSpacer(AppTheme.spacingSystem.space8)
         Text(
-          text = "No crew added yet",
+          text = stringResource(Res.string.create_crew_empty),
           style = AppTheme.typographySystem.bodyMedium,
           color = AppTheme.colorSystem.textMuted,
           textAlign = TextAlign.Center
@@ -451,7 +503,7 @@ private fun Step3Content(
     VerticalSpacer(AppTheme.spacingSystem.space16)
 
     Text(
-      text = "You'll be added as the project owner automatically",
+      text = stringResource(Res.string.create_crew_owner_note),
       style = AppTheme.typographySystem.bodySmall,
       color = AppTheme.colorSystem.accentText,
       modifier = Modifier.fillMaxWidth(),
@@ -466,7 +518,11 @@ private fun Step3Content(
     VerticalSpacer(AppTheme.spacingSystem.space24)
 
     CtaButton(
-      text = if (state.crewMembers.isEmpty()) "Skip & continue →" else "Continue →",
+      text = if (state.crewMembers.isEmpty()) {
+        stringResource(Res.string.create_button_skip_continue)
+      } else {
+        stringResource(Res.string.create_button_continue)
+      },
       modifier = Modifier.fillMaxWidth(),
       onClick = { onIntent(CreateProductionIntent.NextStep) }
     )
@@ -489,13 +545,13 @@ private fun Step4Content(
       .padding(horizontal = AppTheme.spacingSystem.space16)
   ) {
     Text(
-      text = "Review & create",
+      text = stringResource(Res.string.create_step4_title),
       style = AppTheme.typographySystem.displayMedium,
       color = AppTheme.colorSystem.textPrimary
     )
     VerticalSpacer(AppTheme.spacingSystem.space4)
     Text(
-      text = "Everything look right?",
+      text = stringResource(Res.string.create_step4_subtitle),
       style = AppTheme.typographySystem.bodyMedium,
       color = AppTheme.colorSystem.textSecondary
     )
@@ -507,7 +563,7 @@ private fun Step4Content(
     VerticalSpacer(AppTheme.spacingSystem.space24)
 
     if (state.crewMembers.isNotEmpty()) {
-      FieldLabel("CREW (${state.crewMembers.size})")
+      FieldLabel(stringResource(Res.string.create_crew_label, state.crewMembers.size))
       VerticalSpacer(AppTheme.spacingSystem.space8)
       Row(horizontalArrangement = Arrangement.spacedBy(AppTheme.spacingSystem.space8)) {
         state.crewMembers.forEach { member ->
@@ -523,7 +579,11 @@ private fun Step4Content(
     }
 
     CtaButton(
-      text = if (state.isLoading) "Creating…" else "Create production",
+      text = if (state.isLoading) {
+        stringResource(Res.string.create_button_creating)
+      } else {
+        stringResource(Res.string.create_button_create)
+      },
       modifier = Modifier.fillMaxWidth(),
       onClick = { if (!state.isLoading) onIntent(CreateProductionIntent.Submit) }
     )
@@ -560,7 +620,7 @@ private fun ReviewCard(state: CreateProductionState) {
 
     Column(modifier = Modifier.padding(AppTheme.spacingSystem.space16)) {
       Text(
-        text = state.title.ifBlank { "Untitled" },
+        text = state.title.ifBlank { stringResource(Res.string.create_review_untitled) },
         style = AppTheme.typographySystem.titleLarge,
         color = AppTheme.colorSystem.textPrimary
       )
@@ -577,7 +637,7 @@ private fun ReviewCard(state: CreateProductionState) {
           onClick = {}
         )
         Text(
-          text = state.phase.fullLabel(),
+          text = state.phase.label(),
           style = AppTheme.typographySystem.labelSmall,
           color = phaseColor
         )
@@ -588,24 +648,26 @@ private fun ReviewCard(state: CreateProductionState) {
       Row(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.weight(1f)) {
           Text(
-            text = "START",
+            text = stringResource(Res.string.create_review_start),
             style = AppTheme.typographySystem.caption,
             color = AppTheme.colorSystem.textMuted
           )
           Text(
-            text = state.startDate?.formatDisplay() ?: "Not set",
+            text = state.startDate?.formatDisplay()
+              ?: stringResource(Res.string.create_review_not_set),
             style = AppTheme.typographySystem.bodyMedium,
             color = AppTheme.colorSystem.textPrimary
           )
         }
         Column(modifier = Modifier.weight(1f)) {
           Text(
-            text = "WRAP",
+            text = stringResource(Res.string.create_review_wrap),
             style = AppTheme.typographySystem.caption,
             color = AppTheme.colorSystem.textMuted
           )
           Text(
-            text = state.wrapDate?.formatDisplay() ?: "Not set",
+            text = state.wrapDate?.formatDisplay()
+              ?: stringResource(Res.string.create_review_not_set),
             style = AppTheme.typographySystem.bodyMedium,
             color = AppTheme.colorSystem.textPrimary
           )
@@ -617,24 +679,25 @@ private fun ReviewCard(state: CreateProductionState) {
       Row(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.weight(1f)) {
           Text(
-            text = "BUDGET",
+            text = stringResource(Res.string.create_review_budget),
             style = AppTheme.typographySystem.caption,
             color = AppTheme.colorSystem.textMuted
           )
           Text(
-            text = state.budgetCents?.let { formatBudget(it) } ?: "Not set",
+            text = state.budgetCents?.let { formatBudget(it) }
+              ?: stringResource(Res.string.create_review_not_set),
             style = AppTheme.typographySystem.bodyMedium,
             color = AppTheme.colorSystem.textPrimary
           )
         }
         Column(modifier = Modifier.weight(1f)) {
           Text(
-            text = "CREW",
+            text = stringResource(Res.string.create_review_crew),
             style = AppTheme.typographySystem.caption,
             color = AppTheme.colorSystem.textMuted
           )
           Text(
-            text = "${state.crewMembers.size + 1} members",
+            text = stringResource(Res.string.create_review_members_count, state.crewMembers.size + 1),
             style = AppTheme.typographySystem.bodyMedium,
             color = AppTheme.colorSystem.textPrimary
           )
@@ -691,7 +754,7 @@ private fun PhaseSelector(
           )
           HorizontalSpacer(AppTheme.spacingSystem.space8)
           Text(
-            text = phase.fullLabel(),
+            text = phase.label(),
             style = AppTheme.typographySystem.bodyMedium,
             color = if (isSelected) AppTheme.colorSystem.textPrimary
             else AppTheme.colorSystem.textMuted
@@ -826,14 +889,21 @@ private fun CrewAvatar(member: CrewMemberEntry) {
 
 // ── Role dropdown ────────────────────────────────────────────────────
 
-private val crewRoles =
-  listOf("Director", "Producer", "Writer", "DP", "Editor", "Sound", "Art", "Other")
-
 @Composable
 private fun RoleDropdown(
   selected: String,
   onSelect: (String) -> Unit
 ) {
+  val crewRoles = listOf(
+    stringResource(Res.string.crew_role_director),
+    stringResource(Res.string.crew_role_producer),
+    stringResource(Res.string.crew_role_writer),
+    stringResource(Res.string.crew_role_dp),
+    stringResource(Res.string.crew_role_editor),
+    stringResource(Res.string.crew_role_sound),
+    stringResource(Res.string.crew_role_art),
+    stringResource(Res.string.crew_role_other)
+  )
   var expanded by remember { mutableStateOf(false) }
   val shape = RoundedCornerShape(AppTheme.radiusSystem.radius8)
 
@@ -982,14 +1052,14 @@ private fun ErrorText(error: String) {
 private fun Genre.displayLabel(): String =
   name.replace('_', ' ').lowercase().replaceFirstChar { it.uppercase() }
 
-private fun ProductionPhase.fullLabel(): String =
-  when (this) {
-    ProductionPhase.DEVELOPMENT -> "Development"
-    ProductionPhase.PRE_PRODUCTION -> "Pre-Production"
-    ProductionPhase.PRODUCTION -> "Production"
-    ProductionPhase.POST_PRODUCTION -> "Post-Production"
-    ProductionPhase.DISTRIBUTION -> "Distribution"
-  }
+@Composable
+private fun ProductionPhase.label(): String = when (this) {
+  ProductionPhase.DEVELOPMENT -> stringResource(Res.string.phase_development)
+  ProductionPhase.PRE_PRODUCTION -> stringResource(Res.string.phase_pre_production)
+  ProductionPhase.PRODUCTION -> stringResource(Res.string.phase_production)
+  ProductionPhase.POST_PRODUCTION -> stringResource(Res.string.phase_post_production)
+  ProductionPhase.DISTRIBUTION -> stringResource(Res.string.phase_distribution)
+}
 
 @Composable
 private fun ProductionPhase.dotColor(): Color =

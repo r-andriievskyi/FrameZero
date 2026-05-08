@@ -10,18 +10,25 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.discovery.playground.shared.design_system.AppTheme
 import com.discovery.playground.shared.design_system.widgets.VerticalSpacer
 import com.frame.zero.domain.dashboard.DashboardGreeting
+import framezero.composeapp.features.home.generated.resources.Res
+import framezero.composeapp.features.home.generated.resources.greeting_good_morning
+import framezero.composeapp.features.home.generated.resources.greeting_stats
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 internal fun GreetingSection(greeting: DashboardGreeting) {
   Text(
-    text = "Good morning, ${greeting.displayName} 👋",
+    text = stringResource(Res.string.greeting_good_morning, greeting.displayName),
     style = AppTheme.typographySystem.displayMedium,
     color = AppTheme.colorSystem.textPrimary
   )
   VerticalSpacer(AppTheme.spacingSystem.space4)
   Text(
-    text = "${greeting.activeProductionsCount} active productions · " +
-      "${greeting.openTasksCount} open tasks",
+    text = stringResource(
+      Res.string.greeting_stats,
+      greeting.activeProductionsCount,
+      greeting.openTasksCount
+    ),
     style = AppTheme.typographySystem.bodyMedium,
     color = AppTheme.colorSystem.textSecondary
   )

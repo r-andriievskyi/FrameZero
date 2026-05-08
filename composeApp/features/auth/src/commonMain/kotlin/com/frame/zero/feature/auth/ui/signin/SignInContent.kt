@@ -34,12 +34,24 @@ import com.frame.zero.feature.auth.signin.SignInComponent
 import com.frame.zero.feature.auth.signin.SignInIntent
 import com.frame.zero.feature.auth.signin.SignInState
 import framezero.composeapp.features.auth.generated.resources.Res
+import framezero.composeapp.features.auth.generated.resources.app_name
+import framezero.composeapp.features.auth.generated.resources.btn_create_account
+import framezero.composeapp.features.auth.generated.resources.btn_sign_in
+import framezero.composeapp.features.auth.generated.resources.field_email
+import framezero.composeapp.features.auth.generated.resources.field_password
 import framezero.composeapp.features.auth.generated.resources.ic_eye
 import framezero.composeapp.features.auth.generated.resources.ic_eye_off
 import framezero.composeapp.features.auth.generated.resources.ic_lock
 import framezero.composeapp.features.auth.generated.resources.ic_logo
 import framezero.composeapp.features.auth.generated.resources.ic_mail
+import framezero.composeapp.features.auth.generated.resources.placeholder_email
+import framezero.composeapp.features.auth.generated.resources.placeholder_password
+import framezero.composeapp.features.auth.generated.resources.signin_forgot_password
+import framezero.composeapp.features.auth.generated.resources.signin_new_user
+import framezero.composeapp.features.auth.generated.resources.signin_subtitle
+import framezero.composeapp.features.auth.generated.resources.signin_title
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun SignInContent(component: SignInComponent) {
@@ -75,7 +87,7 @@ private fun SignInContent(
       )
       HorizontalSpacer(AppTheme.spacingSystem.space8)
       Text(
-        text = "FrameZero",
+        text = stringResource(Res.string.app_name),
         color = AppTheme.colorSystem.textPrimary,
         style = AppTheme.typographySystem.displayLarge
       )
@@ -83,7 +95,7 @@ private fun SignInContent(
     VerticalSpacer(AppTheme.spacingSystem.space24)
     Text(
       modifier = Modifier.fillMaxWidth(),
-      text = "Welcome back",
+      text = stringResource(Res.string.signin_title),
       color = AppTheme.colorSystem.textPrimary,
       style = AppTheme.typographySystem.displayMedium,
       textAlign = TextAlign.Center
@@ -91,14 +103,14 @@ private fun SignInContent(
     VerticalSpacer(AppTheme.spacingSystem.space8)
     Text(
       modifier = Modifier.fillMaxWidth(),
-      text = "Sign in to your production workspace",
+      text = stringResource(Res.string.signin_subtitle),
       color = AppTheme.colorSystem.textSecondary,
       style = AppTheme.typographySystem.bodyLarge,
       textAlign = TextAlign.Center
     )
     VerticalSpacer(AppTheme.spacingSystem.space24)
     Text(
-      text = "EMAIL",
+      text = stringResource(Res.string.field_email),
       color = AppTheme.colorSystem.textPrimary,
       style = AppTheme.typographySystem.labelSmall
     )
@@ -106,7 +118,7 @@ private fun SignInContent(
     SingleLineInputField(
       value = state.email,
       onValueChange = { onIntent(SignInIntent.EmailChanged(it)) },
-      placeholder = "you@studio.com",
+      placeholder = stringResource(Res.string.placeholder_email),
       leadingContent = {
         Image(
           painter = painterResource(Res.drawable.ic_mail),
@@ -119,7 +131,7 @@ private fun SignInContent(
     )
     VerticalSpacer(AppTheme.spacingSystem.space16)
     Text(
-      text = "PASSWORD",
+      text = stringResource(Res.string.field_password),
       color = AppTheme.colorSystem.textPrimary,
       style = AppTheme.typographySystem.labelSmall
     )
@@ -127,7 +139,7 @@ private fun SignInContent(
     SingleLineInputField(
       value = state.password,
       onValueChange = { onIntent(SignInIntent.PasswordChanged(it)) },
-      placeholder = "******",
+      placeholder = stringResource(Res.string.placeholder_password),
       leadingContent = {
         Image(
           painter = painterResource(Res.drawable.ic_lock),
@@ -150,14 +162,14 @@ private fun SignInContent(
     VerticalSpacer(AppTheme.spacingSystem.space8)
     Text(
       modifier = Modifier.fillMaxWidth(),
-      text = "Forgot password?",
+      text = stringResource(Res.string.signin_forgot_password),
       color = AppTheme.colorSystem.accent,
       style = AppTheme.typographySystem.bodyMedium,
       textAlign = TextAlign.End
     )
     VerticalSpacer(AppTheme.spacingSystem.space24)
     CtaButton(
-      text = "Sign in",
+      text = stringResource(Res.string.btn_sign_in),
       onClick = { onIntent(SignInIntent.Submit) },
       modifier = Modifier.fillMaxWidth()
     )
@@ -172,14 +184,14 @@ private fun SignInContent(
     Spacer(modifier = Modifier.weight(1f))
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
       Text(
-        text = "New to FrameZero?",
+        text = stringResource(Res.string.signin_new_user),
         color = AppTheme.colorSystem.textSecondary,
         style = AppTheme.typographySystem.bodyMedium
       )
       HorizontalSpacer(AppTheme.spacingSystem.space4)
       Text(
         modifier = Modifier.clickable(enabled = !state.isLoading) { onCreateAccountClick() },
-        text = "Create account",
+        text = stringResource(Res.string.btn_create_account),
         color = AppTheme.colorSystem.accent,
         style = AppTheme.typographySystem.bodyMedium
       )

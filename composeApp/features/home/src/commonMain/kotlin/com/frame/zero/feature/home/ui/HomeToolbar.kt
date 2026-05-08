@@ -20,7 +20,11 @@ import framezero.composeapp.features.home.generated.resources.Res
 import framezero.composeapp.features.home.generated.resources.ic_bell
 import framezero.composeapp.features.home.generated.resources.ic_logo
 import framezero.composeapp.features.home.generated.resources.ic_user
+import framezero.composeapp.features.home.generated.resources.toolbar_logo_cd
+import framezero.composeapp.features.home.generated.resources.toolbar_notifications_cd
+import framezero.composeapp.features.home.generated.resources.toolbar_settings_cd
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun HomeToolbar(
@@ -34,13 +38,13 @@ fun HomeToolbar(
     val buttonsShape = RoundedCornerShape(AppTheme.spacingSystem.space8)
     Image(
       painter = painterResource(Res.drawable.ic_logo),
-      contentDescription = "Logo",
+      contentDescription = stringResource(Res.string.toolbar_logo_cd),
       colorFilter = ColorFilter.tint(AppTheme.colorSystem.accent)
     )
     Spacer(modifier = Modifier.weight(1f))
     Image(
       painter = painterResource(Res.drawable.ic_bell),
-      contentDescription = "Notifications",
+      contentDescription = stringResource(Res.string.toolbar_notifications_cd),
       modifier = Modifier.clip(buttonsShape).clickable(onClick = onNotificationsClick)
         .padding(AppTheme.spacingSystem.space8),
       colorFilter = ColorFilter.tint(AppTheme.colorSystem.textPrimary),
@@ -48,7 +52,7 @@ fun HomeToolbar(
     HorizontalSpacer(AppTheme.spacingSystem.space8)
     Image(
       painter = painterResource(Res.drawable.ic_user),
-      contentDescription = "Settings",
+      contentDescription = stringResource(Res.string.toolbar_settings_cd),
       modifier = Modifier.background(
         color = AppTheme.colorSystem.accent,
         shape = buttonsShape
@@ -65,4 +69,3 @@ private fun HomeToolbarPreview() {
     HomeToolbar(onNotificationsClick = {}, onSettingsClick = {})
   }
 }
-

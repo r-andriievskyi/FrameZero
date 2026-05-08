@@ -24,11 +24,19 @@ import com.discovery.playground.shared.design_system.widgets.VerticalSpacer
 import com.frame.zero.domain.dashboard.DashboardProduction
 import com.frame.zero.domain.production.ProductionPhase
 import com.frame.zero.dto.production.AccentColorHint
+import framezero.composeapp.features.home.generated.resources.Res
+import framezero.composeapp.features.home.generated.resources.days_left
+import framezero.composeapp.features.home.generated.resources.production_status_all_projects
+import framezero.composeapp.features.home.generated.resources.production_status_title
 import kotlin.time.Instant
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 internal fun ProductionStatusSection(productions: List<DashboardProduction>) {
-  SectionHeader(title = "Production status", actionLabel = "All projects")
+  SectionHeader(
+    title = stringResource(Res.string.production_status_title),
+    actionLabel = stringResource(Res.string.production_status_all_projects)
+  )
   VerticalSpacer(AppTheme.spacingSystem.space8)
   productions.forEach { production ->
     ProductionCard(production = production)
@@ -76,7 +84,7 @@ private fun ProductionCard(production: DashboardProduction) {
       )
       VerticalSpacer(AppTheme.spacingSystem.space2)
       Text(
-        text = "${production.daysLeft}d left",
+        text = stringResource(Res.string.days_left, production.daysLeft),
         style = AppTheme.typographySystem.bodySmall,
         color = AppTheme.colorSystem.textMuted
       )

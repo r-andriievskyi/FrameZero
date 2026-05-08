@@ -17,6 +17,10 @@ import androidx.compose.ui.unit.dp
 import com.discovery.playground.shared.design_system.AppTheme
 import com.discovery.playground.shared.design_system.widgets.VerticalSpacer
 import com.frame.zero.domain.dashboard.DashboardStats
+import framezero.composeapp.features.home.generated.resources.Res
+import framezero.composeapp.features.home.generated.resources.stats_active_projects
+import framezero.composeapp.features.home.generated.resources.stats_open_tasks
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 internal fun StatsRow(stats: DashboardStats) {
@@ -28,13 +32,13 @@ internal fun StatsRow(stats: DashboardStats) {
       modifier = Modifier.weight(1f),
       icon = "📊",
       value = stats.activeProjects.toString(),
-      label = "Active Projects"
+      label = stringResource(Res.string.stats_active_projects)
     )
     StatCard(
       modifier = Modifier.weight(1f),
       icon = "✅",
       value = stats.openTasks.toString(),
-      label = "Open Tasks"
+      label = stringResource(Res.string.stats_open_tasks)
     )
   }
 }
