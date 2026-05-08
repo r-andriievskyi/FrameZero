@@ -18,7 +18,7 @@ import com.discovery.playground.shared.design_system.AppTheme
 import com.frame.zero.feature.home.HomeComponent
 import com.frame.zero.feature.home.tab.HomeTab
 import com.frame.zero.feature.home.ui.tab.dashboard.DashboardTabContent
-import com.frame.zero.feature.home.ui.tab.ProjectsTabContent
+import com.frame.zero.feature.home.ui.tab.ProductionsTabContent
 import com.frame.zero.feature.home.ui.tab.ScheduleTabContent
 import kotlinx.coroutines.launch
 
@@ -44,7 +44,7 @@ fun HomeContent(component: HomeComponent) {
       ) { page ->
         when (tabs[page]) {
           HomeTab.DASHBOARD -> DashboardTabContent(component.dashboardTab)
-          HomeTab.PROJECTS -> ProjectsTabContent(component.projectsTab)
+          HomeTab.PRODUCTIONS -> ProductionsTabContent(component.projectsTab)
           HomeTab.SCHEDULE -> ScheduleTabContent(component.scheduleTab)
         }
       }
