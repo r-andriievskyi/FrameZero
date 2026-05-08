@@ -40,9 +40,9 @@ import com.discovery.playground.shared.design_system.widgets.VerticalSpacer
 import com.frame.zero.domain.production.Genre
 import com.frame.zero.domain.production.Production
 import com.frame.zero.domain.production.ProductionPhase
-import com.frame.zero.dto.production.AccentColorHint
 import com.frame.zero.feature.home.tab.projects.ProjectsTabComponent
 import com.frame.zero.feature.home.tab.projects.ProjectsTabState
+import com.frame.zero.feature.home.ui.tab.dashboard.accentColorFor
 import framezero.composeapp.features.home.generated.resources.Res
 import framezero.composeapp.features.home.generated.resources.days_left
 import framezero.composeapp.features.home.generated.resources.members_count
@@ -377,7 +377,7 @@ private fun FilterChip(
 
 @Composable
 private fun ProductionCard(production: Production) {
-  val accentColor = accentColorFor(production.accentColorHint)
+  val accentColor = accentColorFor(production.phase)
 
   Column(
     modifier =
@@ -527,14 +527,6 @@ private fun ProgressBar(
   }
 }
 
-@Composable
-private fun accentColorFor(hint: AccentColorHint): Color =
-  when (hint) {
-    AccentColorHint.GREEN -> AppTheme.colorSystem.successText
-    AccentColorHint.PURPLE -> AppTheme.colorSystem.accent
-    AccentColorHint.ORANGE -> AppTheme.colorSystem.warningText
-  }
-
 private fun ProductionPhase.displayLabel(): String =
   name.replace('_', ' ').lowercase().replaceFirstChar { it.uppercase() }
 
@@ -573,7 +565,6 @@ private fun ProductionsContentPreview() {
                 progressPercent = 68,
                 daysLeft = 24,
                 membersCount = 12,
-                accentColorHint = AccentColorHint.GREEN,
                 updatedAt = Clock.System.now()
               ),
               Production(
@@ -584,7 +575,6 @@ private fun ProductionsContentPreview() {
                 progressPercent = 34,
                 daysLeft = 61,
                 membersCount = 8,
-                accentColorHint = AccentColorHint.PURPLE,
                 updatedAt = Clock.System.now()
               ),
               Production(
@@ -595,7 +585,6 @@ private fun ProductionsContentPreview() {
                 progressPercent = 91,
                 daysLeft = 7,
                 membersCount = 6,
-                accentColorHint = AccentColorHint.ORANGE,
                 updatedAt = Clock.System.now()
               )
             )

@@ -1,7 +1,6 @@
 package com.frame.zero.domain.dashboard
 
 import com.frame.zero.domain.production.ProductionPhase
-import com.frame.zero.dto.production.AccentColorHint
 import com.frame.zero.dto.task.TaskStatus
 import kotlinx.datetime.LocalDate
 import kotlin.time.Instant
@@ -39,6 +38,5 @@ data class DashboardProduction(
   val phase: ProductionPhase,
   val progressPercent: Int,
   val daysLeft: Int,
-  val accentColorHint: AccentColorHint,
   val updatedAt: Instant
 )

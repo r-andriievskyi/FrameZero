@@ -43,6 +43,11 @@ kotlin {
   }
 }
 
+dependencies {
+  "debugImplementation"(libs.chucker.library)
+  "releaseImplementation"(libs.chucker.libraryNoOp)
+}
+
 android {
   namespace = "com.frame.zero.shared"
   compileSdk =

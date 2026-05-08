@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -20,11 +21,13 @@ import com.frame.zero.domain.dashboard.DashboardProduction
 import com.frame.zero.domain.dashboard.DashboardStats
 import com.frame.zero.domain.dashboard.DashboardTask
 import com.frame.zero.domain.production.ProductionPhase
-import com.frame.zero.dto.production.AccentColorHint
 import com.frame.zero.dto.task.TaskStatus
 import com.frame.zero.feature.home.tab.dashboard.DashboardTabComponent
 import com.frame.zero.feature.home.tab.dashboard.DashboardTabState
+import framezero.composeapp.features.home.generated.resources.Res
+import framezero.composeapp.features.home.generated.resources.greeting_good_morning
 import kotlinx.datetime.LocalDate
+import org.jetbrains.compose.resources.stringResource
 import kotlin.time.Instant
 
 @Composable
@@ -48,7 +51,11 @@ private fun DashboardContent(state: DashboardTabState) {
       )
   ) {
     if (dashboard != null) {
-      GreetingSection(greeting = dashboard.greeting)
+      Text(
+        text = stringResource(Res.string.greeting_good_morning, dashboard.greeting.displayName),
+        style = AppTheme.typographySystem.displayMedium,
+        color = AppTheme.colorSystem.textPrimary
+      )
       VerticalSpacer(AppTheme.spacingSystem.space16)
       StatsRow(stats = dashboard.stats)
       VerticalSpacer(AppTheme.spacingSystem.space24)
@@ -108,7 +115,6 @@ private fun DashboardContentPreview() {
                 phase = ProductionPhase.PRODUCTION,
                 progressPercent = 68,
                 daysLeft = 24,
-                accentColorHint = AccentColorHint.GREEN,
                 updatedAt = Instant.fromEpochSeconds(0)
               ),
               DashboardProduction(
@@ -117,7 +123,6 @@ private fun DashboardContentPreview() {
                 phase = ProductionPhase.PRE_PRODUCTION,
                 progressPercent = 34,
                 daysLeft = 61,
-                accentColorHint = AccentColorHint.PURPLE,
                 updatedAt = Instant.fromEpochSeconds(0)
               )
             )

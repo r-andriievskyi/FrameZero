@@ -66,10 +66,9 @@ private fun provideHttpClient(
             handleRefreshFailure(tokenStorage, logoutSignal)
             return@refreshTokens null
           }
-          val response =
-            runCatching {
-              client.post("${config.baseUrl}/auth/refresh") { setBody(RefreshRequest(refresh)) }
-            }.getOrNull()
+          val response = runCatching {
+            client.post("${config.baseUrl}/auth/refresh") { setBody(RefreshRequest(refresh)) }
+          }.getOrNull()
           if (response == null || !response.status.isSuccess()) {
             handleRefreshFailure(tokenStorage, logoutSignal)
             return@refreshTokens null
@@ -83,11 +82,9 @@ private fun provideHttpClient(
           BearerTokens(body.accessToken, body.refreshToken)
         }
         sendWithoutRequest { request ->
-          val path =
-            "/" +
-              request.url.pathSegments
-                .filter { it.isNotEmpty() }
-                .joinToString("/")
+          val path = "/" + request.url.pathSegments
+            .filter { it.isNotEmpty() }
+            .joinToString("/")
           path !in UNAUTHENTICATED_PATHS
         }
       }

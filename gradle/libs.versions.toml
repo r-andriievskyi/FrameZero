@@ -2,6 +2,7 @@
 agp = "8.11.2"
 androidxSecurity = "1.1.0"
 bcrypt = "0.10.2"
+chucker = "4.3.1"
 decompose = "3.5.0"
 detekt = "1.23.8"
 exposed = "1.2.0"
@@ -36,6 +37,8 @@ postgresql = "42.7.11"
 [libraries]
 androidx-security-crypto = { module = "androidx.security:security-crypto", version.ref = "androidxSecurity" }
 bcrypt = { module = "at.favre.lib:bcrypt", version.ref = "bcrypt" }
+chucker-library = { module = "com.github.chuckerteam.chucker:library", version.ref = "chucker" }
+chucker-libraryNoOp = { module = "com.github.chuckerteam.chucker:library-no-op", version.ref = "chucker" }
 decompose = { module = "com.arkivanov.decompose:decompose", version.ref = "decompose" }
 decompose-extensionsCompose = { module = "com.arkivanov.decompose:extensions-compose", version.ref = "decompose" }
 exposed-core = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposed" }
