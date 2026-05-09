@@ -58,6 +58,26 @@ import com.discovery.playground.shared.design_system.tokens.TokenSpace2
 import com.discovery.playground.shared.design_system.tokens.TokenSpace24
 import com.discovery.playground.shared.design_system.tokens.TokenSpace4
 import com.discovery.playground.shared.design_system.tokens.TokenSpace8
+import com.discovery.playground.shared.design_system.tokens.amberSoftD
+import com.discovery.playground.shared.design_system.tokens.amberSoftL
+import com.discovery.playground.shared.design_system.tokens.amberTextD
+import com.discovery.playground.shared.design_system.tokens.amberTextL
+import com.discovery.playground.shared.design_system.tokens.roseSoftD
+import com.discovery.playground.shared.design_system.tokens.roseSoftL
+import com.discovery.playground.shared.design_system.tokens.roseTextD
+import com.discovery.playground.shared.design_system.tokens.roseTextL
+import com.discovery.playground.shared.design_system.tokens.skySoftD
+import com.discovery.playground.shared.design_system.tokens.skySoftL
+import com.discovery.playground.shared.design_system.tokens.skyTextD
+import com.discovery.playground.shared.design_system.tokens.skyTextL
+import com.discovery.playground.shared.design_system.tokens.tealSoftD
+import com.discovery.playground.shared.design_system.tokens.tealSoftL
+import com.discovery.playground.shared.design_system.tokens.tealTextD
+import com.discovery.playground.shared.design_system.tokens.tealTextL
+import com.discovery.playground.shared.design_system.tokens.violetSoftD
+import com.discovery.playground.shared.design_system.tokens.violetSoftL
+import com.discovery.playground.shared.design_system.tokens.violetTextD
+import com.discovery.playground.shared.design_system.tokens.violetTextL
 
 @Immutable
 data class ThemeOptions(
@@ -97,7 +117,17 @@ data class ThemeOptions(
             priorityMedSurface = TokenColorAmberSoftL,
             priorityMedText = TokenColorAmberTextL,
             priorityLowSurface = TokenColorTealSoftL,
-            priorityLowText = TokenColorTealTextL
+            priorityLowText = TokenColorTealTextL,
+            developmentSurface = skySoftL,
+            developmentText = skyTextL,
+            preProductionSurface = amberSoftL,
+            preProductionText = amberTextL,
+            productionSurface = tealSoftL,
+            productionText = tealTextL,
+            postProductionSurface = violetSoftL,
+            postProductionText = violetTextL,
+            distributionSurface = roseSoftL,
+            distributionText = roseTextL
           ),
         typographySystem = sharedTypography(),
         spacingSystem = sharedSpacing(),
@@ -134,7 +164,17 @@ data class ThemeOptions(
             priorityMedSurface = TokenColorAmberSoftD,
             priorityMedText = TokenColorAmberTextD,
             priorityLowSurface = TokenColorTealSoftD,
-            priorityLowText = TokenColorTealTextD
+            priorityLowText = TokenColorTealTextD,
+            developmentSurface = skySoftD,
+            developmentText = skyTextD,
+            preProductionSurface = amberSoftD,
+            preProductionText = amberTextD,
+            productionSurface = tealSoftD,
+            productionText = tealTextD,
+            postProductionSurface = violetSoftD,
+            postProductionText = violetTextD,
+            distributionSurface = roseSoftD,
+            distributionText = roseTextD,
           ),
         typographySystem = sharedTypography(),
         spacingSystem = sharedSpacing(),
