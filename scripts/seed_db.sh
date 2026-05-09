@@ -81,16 +81,16 @@ create_production() {
 PRODUCTION_IDS=()
 
 declare -a PRODUCTIONS=(
-  "Midnight Signal|THRILLER|DEVELOPMENT|A detective uncovers a city-wide conspiracy hidden in plain radio frequencies.|2026-06-01|2027-03-31|75000000"
-  "The Last Cartographer|DRAMA|PRE_PRODUCTION|An aging mapmaker embarks on one final expedition to chart uncharted territory.|2026-05-15|2026-12-15|40000000"
-  "Orbit 7|SCI_FI|PRODUCTION|Seven astronauts must improvise survival on a station with failing AI support.|2026-03-01|2026-11-30|120000000"
-  "Corner Store Blues|COMEDY|POST_PRODUCTION|A family-owned convenience store becomes the unlikely hub of neighbourhood drama.|2025-09-01|2026-04-30|18000000"
-  "The Quiet Epidemic|DOCUMENTARY|DISTRIBUTION|An investigative look at the rise of chronic loneliness in modern cities.|2025-01-01|2025-12-31|5000000"
-  "Hollow Earth|HORROR|DEVELOPMENT|A spelunking team discovers that the caves beneath their town are very much alive.|2026-07-01|2027-06-30|30000000"
-  "Velocity|ACTION|PRE_PRODUCTION|A former rally driver is pulled into a cross-continental heist with no off ramp.|2026-04-01|2027-01-31|95000000"
-  "Paper Crane|ANIMATION|PRODUCTION|A paper crane folded by a grieving child becomes sentient and searches for her.|2026-02-01|2026-10-31|55000000"
-  "Landslide|DRAMA|PRE_PRODUCTION|A small mining town fights for its future after a disaster exposes corporate negligence.|2026-05-01|2027-02-28|62000000"
-  "Neon Requiem|THRILLER|DEVELOPMENT|A jazz musician pieces together one catastrophic night from the memories of strangers.|2026-08-01|2027-07-31|48000000"
+  "Midnight Signal|THRILLER|DEVELOPMENT|A detective uncovers a city-wide conspiracy hidden in plain radio frequencies.|2026-07-01|2027-06-30|75000000"
+  "The Last Cartographer|DRAMA|PRE_PRODUCTION|An aging mapmaker embarks on one final expedition to chart uncharted territory.|2026-04-01|2027-01-31|40000000"
+  "Orbit 7|SCI_FI|PRODUCTION|Seven astronauts must improvise survival on a station with failing AI support.|2026-02-01|2026-12-15|120000000"
+  "Corner Store Blues|COMEDY|POST_PRODUCTION|A family-owned convenience store becomes the unlikely hub of neighbourhood drama.|2025-06-01|2026-03-31|18000000"
+  "The Quiet Epidemic|DOCUMENTARY|DISTRIBUTION|An investigative look at the rise of chronic loneliness in modern cities.|2024-03-01|2025-06-30|5000000"
+  "Hollow Earth|HORROR|DEVELOPMENT|A spelunking team discovers that the caves beneath their town are very much alive.|2026-09-01|2027-08-31|30000000"
+  "Velocity|ACTION|PRE_PRODUCTION|A former rally driver is pulled into a cross-continental heist with no off ramp.|2026-03-15|2027-02-28|95000000"
+  "Paper Crane|ANIMATION|PRODUCTION|A paper crane folded by a grieving child becomes sentient and searches for her.|2026-01-15|2026-11-30|55000000"
+  "Landslide|DRAMA|PRE_PRODUCTION|A small mining town fights for its future after a disaster exposes corporate negligence.|2026-04-15|2027-03-31|62000000"
+  "Neon Requiem|THRILLER|DEVELOPMENT|A jazz musician pieces together one catastrophic night from the memories of strangers.|2026-10-01|2027-09-30|48000000"
 )
 
 for entry in "${PRODUCTIONS[@]}"; do

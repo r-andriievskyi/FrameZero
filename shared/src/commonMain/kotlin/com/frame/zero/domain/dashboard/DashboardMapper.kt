@@ -1,24 +1,16 @@
 package com.frame.zero.domain.dashboard
 
 import com.frame.zero.dto.dashboard.DashboardResponse
-import com.frame.zero.dto.dashboard.GreetingDto
 import com.frame.zero.dto.dashboard.StatsDto
 import com.frame.zero.dto.production.ProductionSummaryDto
 import com.frame.zero.dto.task.TaskSummaryDto
 
 fun DashboardResponse.toDomain(): Dashboard =
   Dashboard(
-    greeting = greeting.toDomain(),
+    displayName = greeting.displayName,
     stats = stats.toDomain(),
     myTasks = myTasks.map { it.toDomain() },
-    productionStatus = productionStatus.map { it.toDomain() }
-  )
-
-fun GreetingDto.toDomain(): DashboardGreeting =
-  DashboardGreeting(
-    displayName = displayName,
-    activeProductionsCount = activeProductionsCount,
-    openTasksCount = openTasksCount
+    productions = productionStatus.map { it.toDomain() }
   )
 
 fun StatsDto.toDomain(): DashboardStats = DashboardStats(activeProjects = activeProjects, openTasks = openTasks)
