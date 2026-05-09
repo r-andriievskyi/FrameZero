@@ -1,4 +1,4 @@
-package com.frame.zero.feature.home.ui.tab
+package com.frame.zero.feature.home.ui.tab.schedule
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import com.discovery.playground.shared.design_system.AppTheme
 import com.frame.zero.feature.home.tab.schedule.ScheduleTabComponent
 
