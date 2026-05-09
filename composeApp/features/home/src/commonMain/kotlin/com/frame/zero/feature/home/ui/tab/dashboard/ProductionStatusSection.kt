@@ -29,6 +29,9 @@ import framezero.composeapp.features.home.generated.resources.production_status_
 import framezero.composeapp.features.home.generated.resources.production_status_title
 import org.jetbrains.compose.resources.stringResource
 
+private val PhaseIndicatorWidth = 4.dp
+private val PhaseIndicatorHeight = 40.dp
+
 @Composable
 internal fun ProductionStatusSection(productions: List<DashboardProductionUi>) {
   SectionHeader(
@@ -55,8 +58,8 @@ private fun ProductionCard(production: DashboardProductionUi) {
   ) {
     Box(
       modifier = Modifier
-        .width(4.dp)
-        .height(40.dp)
+        .width(PhaseIndicatorWidth)
+        .height(PhaseIndicatorHeight)
         .clip(RoundedCornerShape(AppTheme.radiusSystem.radius4))
         .background(accentColor)
     )

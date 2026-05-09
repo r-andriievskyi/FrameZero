@@ -33,6 +33,8 @@ import framezero.composeapp.features.home.generated.resources.projects_pipeline_
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
+private val ProgressBarHeight = 6.dp
+
 @Composable
 internal fun ProductionCard(production: ProductionUi) {
   val accentColor = accentColorFor(production.phase)
@@ -163,14 +165,14 @@ private fun ProgressBar(
   Box(
     modifier = Modifier
       .fillMaxWidth()
-      .height(6.dp)
+      .height(ProgressBarHeight)
       .clip(shape)
       .background(trackColor)
   ) {
     Box(
       modifier = Modifier
         .fillMaxWidth(fraction = progress.coerceIn(0f, 1f))
-        .height(6.dp)
+        .height(ProgressBarHeight)
         .clip(shape)
         .background(color)
     )

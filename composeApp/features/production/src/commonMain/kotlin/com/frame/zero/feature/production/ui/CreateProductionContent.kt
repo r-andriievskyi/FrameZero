@@ -103,6 +103,20 @@ import framezero.composeapp.features.production.generated.resources.phase_produc
 import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.stringResource
 
+private val BackButtonSize = 40.dp
+private val StepIndicatorActiveWidth = 24.dp
+private val StepIndicatorSize = 8.dp
+private val AddCrewButtonSize = 48.dp
+private val ReviewAccentStripHeight = 6.dp
+private val BorderWidth = 1.dp
+private val SelectedBorderWidth = 2.dp
+private val PhaseDotSize = 12.dp
+private val PhaseCheckmarkSize = 24.dp
+private val RemoveButtonSize = 24.dp
+private val CrewAvatarSize = 36.dp
+private val DropdownHeight = 32.dp
+private val DropdownMenuTopPadding = 52.dp
+
 @Composable
 fun CreateProductionContent(component: CreateProductionComponent) {
   val state by component.state.collectAsState()
@@ -173,7 +187,7 @@ private fun TopBar(step: Int, totalSteps: Int, onBack: () -> Unit) {
   ) {
     Box(
       modifier = Modifier
-        .size(40.dp)
+        .size(BackButtonSize)
         .clip(CircleShape)
         .background(AppTheme.colorSystem.cardBackground)
         .clickable(onClick = onBack),
@@ -215,8 +229,8 @@ private fun StepIndicator(currentStep: Int, totalSteps: Int) {
       val shape = RoundedCornerShape(AppTheme.radiusSystem.radiusMax)
       Box(
         modifier = Modifier
-          .width(if (i == currentStep) 24.dp else 8.dp)
-          .height(8.dp)
+          .width(if (i == currentStep) StepIndicatorActiveWidth else StepIndicatorSize)
+          .height(StepIndicatorSize)
           .clip(shape)
           .background(
             if (isActive) AppTheme.colorSystem.accent
@@ -451,7 +465,7 @@ private fun Step3Content(
       }
       Box(
         modifier = Modifier
-          .size(48.dp)
+          .size(AddCrewButtonSize)
           .clip(RoundedCornerShape(AppTheme.radiusSystem.radius8))
           .background(AppTheme.colorSystem.accent)
           .clickable {
@@ -603,14 +617,14 @@ private fun ReviewCard(state: CreateProductionState) {
     modifier = Modifier
       .fillMaxWidth()
       .clip(cardShape)
-      .border(1.dp, AppTheme.colorSystem.cardBorder, cardShape)
+      .border(BorderWidth, AppTheme.colorSystem.cardBorder, cardShape)
       .background(AppTheme.colorSystem.cardBackground)
   ) {
     // Gradient accent strip at top
     Box(
       modifier = Modifier
         .fillMaxWidth()
-        .height(6.dp)
+        .height(ReviewAccentStripHeight)
         .background(
           Brush.horizontalGradient(
             listOf(phaseColor, AppTheme.colorSystem.accent)
@@ -733,7 +747,7 @@ private fun PhaseSelector(
           .clip(shape)
           .background(AppTheme.colorSystem.cardBackground)
           .border(
-            width = if (isSelected) 2.dp else 1.dp,
+            width = if (isSelected) SelectedBorderWidth else BorderWidth,
             color = borderColor,
             shape = shape
           )
@@ -748,7 +762,7 @@ private fun PhaseSelector(
         Row(verticalAlignment = Alignment.CenterVertically) {
           Box(
             modifier = Modifier
-              .size(12.dp)
+              .size(PhaseDotSize)
               .clip(CircleShape)
               .background(phase.dotColor())
           )
@@ -763,7 +777,7 @@ private fun PhaseSelector(
         if (isSelected) {
           Box(
             modifier = Modifier
-              .size(24.dp)
+              .size(PhaseCheckmarkSize)
               .clip(RoundedCornerShape(AppTheme.radiusSystem.radius4))
               .background(phase.dotColor()),
             contentAlignment = Alignment.Center
@@ -797,7 +811,7 @@ private fun GenreChip(
         else AppTheme.colorSystem.cardBackground
       )
       .border(
-        1.dp,
+        BorderWidth,
         if (isSelected) AppTheme.colorSystem.accent else AppTheme.colorSystem.cardBorder,
         shape
       )
@@ -825,7 +839,7 @@ private fun CrewMemberRow(member: CrewMemberEntry, onRemove: () -> Unit) {
     modifier = Modifier
       .fillMaxWidth()
       .clip(shape)
-      .border(1.dp, AppTheme.colorSystem.cardBorder, shape)
+      .border(BorderWidth, AppTheme.colorSystem.cardBorder, shape)
       .padding(AppTheme.spacingSystem.space8),
     verticalAlignment = Alignment.CenterVertically
   ) {
@@ -845,7 +859,7 @@ private fun CrewMemberRow(member: CrewMemberEntry, onRemove: () -> Unit) {
     }
     Box(
       modifier = Modifier
-        .size(24.dp)
+        .size(RemoveButtonSize)
         .clip(CircleShape)
         .clickable(onClick = onRemove),
       contentAlignment = Alignment.Center
@@ -874,7 +888,7 @@ private fun CrewAvatar(member: CrewMemberEntry) {
   }
   Box(
     modifier = Modifier
-      .size(36.dp)
+      .size(CrewAvatarSize)
       .clip(CircleShape)
       .background(AppTheme.colorSystem.accent),
     contentAlignment = Alignment.Center
@@ -913,13 +927,13 @@ private fun RoleDropdown(
         .fillMaxWidth()
         .clip(shape)
         .background(AppTheme.colorSystem.inputBackground)
-        .border(1.dp, AppTheme.colorSystem.border, shape)
+        .border(BorderWidth, AppTheme.colorSystem.border, shape)
         .clickable { expanded = !expanded }
         .padding(
           horizontal = AppTheme.spacingSystem.space16,
           vertical = AppTheme.spacingSystem.space8
         )
-        .height(32.dp),
+        .height(DropdownHeight),
       verticalAlignment = Alignment.CenterVertically,
       horizontalArrangement = Arrangement.SpaceBetween
     ) {
@@ -939,10 +953,10 @@ private fun RoleDropdown(
       Column(
         modifier = Modifier
           .fillMaxWidth()
-          .padding(top = 52.dp)
+          .padding(top = DropdownMenuTopPadding)
           .clip(shape)
           .background(AppTheme.colorSystem.surfaceElevated)
-          .border(1.dp, AppTheme.colorSystem.border, shape)
+          .border(BorderWidth, AppTheme.colorSystem.border, shape)
       ) {
         crewRoles.forEach { role ->
           Text(
