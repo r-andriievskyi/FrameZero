@@ -18,7 +18,7 @@ import java.time.temporal.ChronoUnit
 import java.util.UUID
 import kotlin.time.toKotlinInstant
 
-private const val DASHBOARD_PRODUCTIONS_LIMIT = 5
+private const val DASHBOARD_PRODUCTIONS_LIMIT = 3
 
 class DashboardService(
   private val users: UserRepository,
