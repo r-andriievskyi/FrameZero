@@ -21,8 +21,8 @@ import androidx.compose.ui.unit.dp
 import com.discovery.playground.shared.design_system.AppTheme
 import com.discovery.playground.shared.design_system.widgets.VerticalSpacer
 import com.frame.zero.domain.production.Genre
-import com.frame.zero.domain.production.Production
 import com.frame.zero.domain.production.ProductionPhase
+import com.frame.zero.feature.home.tab.projects.ProductionUi
 import com.frame.zero.feature.home.ui.tab.dashboard.accentColorFor
 import framezero.composeapp.features.home.generated.resources.Res
 import framezero.composeapp.features.home.generated.resources.days_left
@@ -32,11 +32,9 @@ import framezero.composeapp.features.home.generated.resources.members_count
 import framezero.composeapp.features.home.generated.resources.projects_pipeline_progress
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-import kotlin.time.Clock
-import kotlin.time.ExperimentalTime
 
 @Composable
-internal fun ProductionCard(production: Production) {
+internal fun ProductionCard(production: ProductionUi) {
   val accentColor = accentColorFor(production.phase)
 
   Column(
@@ -46,7 +44,6 @@ internal fun ProductionCard(production: Production) {
       .background(AppTheme.colorSystem.cardBackground)
       .padding(AppTheme.spacingSystem.space16)
   ) {
-    // Title row with phase badge
     Row(
       modifier = Modifier.fillMaxWidth(),
       horizontalArrangement = Arrangement.SpaceBetween,
@@ -70,7 +67,6 @@ internal fun ProductionCard(production: Production) {
 
     VerticalSpacer(AppTheme.spacingSystem.space16)
 
-    // Pipeline progress
     Row(
       modifier = Modifier.fillMaxWidth(),
       horizontalArrangement = Arrangement.SpaceBetween,
@@ -90,12 +86,10 @@ internal fun ProductionCard(production: Production) {
 
     VerticalSpacer(AppTheme.spacingSystem.space8)
 
-    // Progress bar
     ProgressBar(progress = production.progressPercent / 100f, color = accentColor)
 
     VerticalSpacer(AppTheme.spacingSystem.space16)
 
-    // Footer: members and days left
     Row(
       horizontalArrangement = Arrangement.spacedBy(AppTheme.spacingSystem.space16),
       verticalAlignment = Alignment.CenterVertically
@@ -186,12 +180,10 @@ private fun ProgressBar(
 internal fun ProductionPhase.displayLabel(): String =
   name.replace('_', ' ').lowercase().replaceFirstChar { it.uppercase() }
 
-internal fun Genre.displayLabel(): String =
-  name.replace('_', ' ').lowercase().replaceFirstChar { it.uppercase() }
+internal fun Genre.displayLabel(): String = name.replace('_', ' ').lowercase().replaceFirstChar { it.uppercase() }
 
 // ── Previews ──────────────────────────────────────────────────────────
 
-@OptIn(ExperimentalTime::class)
 @Preview
 @Composable
 private fun ProductionCardPreview() {
@@ -202,22 +194,20 @@ private fun ProductionCardPreview() {
         .padding(AppTheme.spacingSystem.space16)
     ) {
       ProductionCard(
-        production = Production(
+        production = ProductionUi(
           id = "1",
           title = "Echoes of Silence",
           genre = Genre.DRAMA,
           phase = ProductionPhase.PRODUCTION,
           progressPercent = 68,
           daysLeft = 24,
-          membersCount = 12,
-          updatedAt = Clock.System.now()
+          membersCount = 12
         )
       )
     }
   }
 }
 
-@OptIn(ExperimentalTime::class)
 @Preview
 @Composable
 private fun ProductionCardUrgentPreview() {
@@ -228,18 +218,16 @@ private fun ProductionCardUrgentPreview() {
         .padding(AppTheme.spacingSystem.space16)
     ) {
       ProductionCard(
-        production = Production(
+        production = ProductionUi(
           id = "3",
           title = "The Last Frame",
           genre = Genre.SCI_FI,
           phase = ProductionPhase.POST_PRODUCTION,
           progressPercent = 91,
           daysLeft = 5,
-          membersCount = 6,
-          updatedAt = Clock.System.now()
+          membersCount = 6
         )
       )
     }
   }
 }
-

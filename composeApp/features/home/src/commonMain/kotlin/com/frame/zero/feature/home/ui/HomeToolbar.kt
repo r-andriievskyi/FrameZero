@@ -28,12 +28,16 @@ import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun HomeToolbar(
-  onNotificationsClick: () -> Unit, onSettingsClick: () -> Unit, modifier: Modifier = Modifier
+  onNotificationsClick: () -> Unit,
+  onSettingsClick: () -> Unit,
+  modifier: Modifier = Modifier
 ) {
   Row(
     modifier = modifier.fillMaxWidth().padding(
-      horizontal = AppTheme.spacingSystem.space16, vertical = AppTheme.spacingSystem.space8
-    ), verticalAlignment = Alignment.CenterVertically
+      horizontal = AppTheme.spacingSystem.space16,
+      vertical = AppTheme.spacingSystem.space8
+    ),
+    verticalAlignment = Alignment.CenterVertically
   ) {
     val buttonsShape = RoundedCornerShape(AppTheme.spacingSystem.space8)
     Image(
@@ -47,7 +51,7 @@ fun HomeToolbar(
       contentDescription = stringResource(Res.string.toolbar_notifications_cd),
       modifier = Modifier.clip(buttonsShape).clickable(onClick = onNotificationsClick)
         .padding(AppTheme.spacingSystem.space8),
-      colorFilter = ColorFilter.tint(AppTheme.colorSystem.textPrimary),
+      colorFilter = ColorFilter.tint(AppTheme.colorSystem.textPrimary)
     )
     HorizontalSpacer(AppTheme.spacingSystem.space8)
     Image(
@@ -57,7 +61,7 @@ fun HomeToolbar(
         color = AppTheme.colorSystem.accent,
         shape = buttonsShape
       ).clickable(onClick = onSettingsClick).padding(AppTheme.spacingSystem.space8),
-      colorFilter = ColorFilter.tint(AppTheme.colorSystem.textPrimary),
+      colorFilter = ColorFilter.tint(AppTheme.colorSystem.textPrimary)
     )
   }
 }

@@ -21,17 +21,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.discovery.playground.shared.design_system.AppTheme
 import com.discovery.playground.shared.design_system.widgets.VerticalSpacer
-import com.frame.zero.domain.dashboard.DashboardProduction
 import com.frame.zero.domain.production.ProductionPhase
+import com.frame.zero.feature.home.tab.dashboard.DashboardProductionUi
 import framezero.composeapp.features.home.generated.resources.Res
 import framezero.composeapp.features.home.generated.resources.days_left
 import framezero.composeapp.features.home.generated.resources.production_status_all_projects
 import framezero.composeapp.features.home.generated.resources.production_status_title
 import org.jetbrains.compose.resources.stringResource
-import kotlin.time.Instant
 
 @Composable
-internal fun ProductionStatusSection(productions: List<DashboardProduction>) {
+internal fun ProductionStatusSection(productions: List<DashboardProductionUi>) {
   SectionHeader(
     title = stringResource(Res.string.production_status_title),
     actionLabel = stringResource(Res.string.production_status_all_projects)
@@ -44,7 +43,7 @@ internal fun ProductionStatusSection(productions: List<DashboardProduction>) {
 }
 
 @Composable
-private fun ProductionCard(production: DashboardProduction) {
+private fun ProductionCard(production: DashboardProductionUi) {
   val accentColor = accentColorFor(production.phase)
   Row(
     modifier = Modifier
@@ -115,21 +114,19 @@ private fun ProductionStatusSectionPreview() {
     ) {
       ProductionStatusSection(
         productions = listOf(
-          DashboardProduction(
+          DashboardProductionUi(
             id = "1",
             title = "Echoes of Silence",
             phase = ProductionPhase.PRODUCTION,
             progressPercent = 68,
-            daysLeft = 24,
-            updatedAt = Instant.fromEpochSeconds(0)
+            daysLeft = 24
           ),
-          DashboardProduction(
+          DashboardProductionUi(
             id = "2",
             title = "Neon Wolves",
             phase = ProductionPhase.PRE_PRODUCTION,
             progressPercent = 34,
-            daysLeft = 61,
-            updatedAt = Instant.fromEpochSeconds(0)
+            daysLeft = 61
           )
         )
       )

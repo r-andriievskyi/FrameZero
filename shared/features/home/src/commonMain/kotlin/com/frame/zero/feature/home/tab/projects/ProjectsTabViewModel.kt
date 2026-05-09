@@ -35,7 +35,7 @@ class ProjectsTabViewModel(
       _state.value = _state.value.copy(isLoading = true)
       when (val outcome = getProductionsUseCase()) {
         is Outcome.Success ->
-          _state.value = _state.value.copy(isLoading = false, productions = outcome.data)
+          _state.value = _state.value.copy(isLoading = false, productions = outcome.data.map { it.toUi() })
         is Outcome.Failure -> _state.value = _state.value.copy(isLoading = false)
       }
     }
