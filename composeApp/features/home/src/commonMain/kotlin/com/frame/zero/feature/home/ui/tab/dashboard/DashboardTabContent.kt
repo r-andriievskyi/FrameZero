@@ -15,11 +15,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.discovery.playground.shared.design_system.AppTheme
 import com.discovery.playground.shared.design_system.widgets.VerticalSpacer
-import com.frame.zero.domain.dashboard.Dashboard
-import com.frame.zero.domain.dashboard.DashboardGreeting
 import com.frame.zero.domain.dashboard.DashboardProduction
 import com.frame.zero.domain.dashboard.DashboardStats
 import com.frame.zero.domain.dashboard.DashboardTask
+import com.frame.zero.domain.dashboard.Dashboard
 import com.frame.zero.domain.production.ProductionPhase
 import com.frame.zero.dto.task.TaskStatus
 import com.frame.zero.feature.home.tab.dashboard.DashboardTabComponent
@@ -52,16 +51,18 @@ private fun DashboardContent(state: DashboardTabState) {
   ) {
     if (dashboard != null) {
       Text(
-        text = stringResource(Res.string.greeting_good_morning, dashboard.greeting.displayName),
+        text = stringResource(Res.string.greeting_good_morning, dashboard.displayName),
         style = AppTheme.typographySystem.displayMedium,
         color = AppTheme.colorSystem.textPrimary
       )
       VerticalSpacer(AppTheme.spacingSystem.space16)
       StatsRow(stats = dashboard.stats)
+      if (dashboard.myTasks.isNotEmpty()) {
+        VerticalSpacer(AppTheme.spacingSystem.space24)
+        MyTasksSection(tasks = dashboard.myTasks)
+      }
       VerticalSpacer(AppTheme.spacingSystem.space24)
-      MyTasksSection(tasks = dashboard.myTasks)
-      VerticalSpacer(AppTheme.spacingSystem.space24)
-      ProductionStatusSection(productions = dashboard.productionStatus)
+      ProductionStatusSection(productions = dashboard.productions)
     }
   }
 }
@@ -76,11 +77,7 @@ private fun DashboardContentPreview() {
         userName = "Maya",
         dashboard =
           Dashboard(
-            greeting = DashboardGreeting(
-              displayName = "Maya",
-              activeProductionsCount = 3,
-              openTasksCount = 12
-            ),
+            displayName = "Maya",
             stats = DashboardStats(activeProjects = 3, openTasks = 12),
             myTasks = listOf(
               DashboardTask(
@@ -108,7 +105,7 @@ private fun DashboardContentPreview() {
                 status = TaskStatus.OPEN
               )
             ),
-            productionStatus = listOf(
+            productions = listOf(
               DashboardProduction(
                 id = "1",
                 title = "Echoes of Silence",

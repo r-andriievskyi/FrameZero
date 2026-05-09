@@ -6,16 +6,10 @@ import kotlinx.datetime.LocalDate
 import kotlin.time.Instant
 
 data class Dashboard(
-  val greeting: DashboardGreeting,
+  val displayName: String,
   val stats: DashboardStats,
   val myTasks: List<DashboardTask>,
-  val productionStatus: List<DashboardProduction>
-)
-
-data class DashboardGreeting(
-  val displayName: String,
-  val activeProductionsCount: Int,
-  val openTasksCount: Int
+  val productions: List<DashboardProduction>
 )
 
 data class DashboardStats(
