@@ -1,5 +1,6 @@
 package com.frame.zero.feature.home.ui.tab.productions
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -33,7 +34,9 @@ import com.frame.zero.domain.production.ProductionPhase
 import com.frame.zero.feature.home.tab.projects.ProductionUi
 import com.frame.zero.feature.home.tab.projects.ProjectsTabComponent
 import framezero.composeapp.features.home.generated.resources.Res
+import framezero.composeapp.features.home.generated.resources.ic_plus
 import framezero.composeapp.features.home.generated.resources.projects_title
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -83,15 +86,14 @@ private fun ProductionsContent(
         Box(
           modifier = Modifier
             .size(40.dp)
-            .clip(RoundedCornerShape(AppTheme.radiusSystem.radiusMax))
+            .clip(RoundedCornerShape(AppTheme.radiusSystem.radius8))
             .background(AppTheme.colorSystem.accent)
             .clickable(onClick = onCreateProductionClick),
           contentAlignment = Alignment.Center
         ) {
-          Text(
-            text = "+",
-            style = AppTheme.typographySystem.titleLarge,
-            color = AppTheme.colorSystem.textOnAccent
+          Image(
+            painter = painterResource(Res.drawable.ic_plus),
+            contentDescription = null,
           )
         }
       }
