@@ -15,30 +15,25 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.discovery.playground.shared.design_system.AppTheme
 import com.discovery.playground.shared.design_system.widgets.VerticalSpacer
-import com.frame.zero.domain.dashboard.DashboardProduction
-import com.frame.zero.domain.dashboard.DashboardStats
-import com.frame.zero.domain.dashboard.DashboardTask
-import com.frame.zero.domain.dashboard.Dashboard
 import com.frame.zero.domain.production.ProductionPhase
-import com.frame.zero.dto.task.TaskStatus
+import com.frame.zero.feature.home.tab.dashboard.DashboardProductionUi
+import com.frame.zero.feature.home.tab.dashboard.DashboardStatsUi
 import com.frame.zero.feature.home.tab.dashboard.DashboardTabComponent
-import com.frame.zero.feature.home.tab.dashboard.DashboardTabState
+import com.frame.zero.feature.home.tab.dashboard.DashboardTaskUi
+import com.frame.zero.feature.home.tab.dashboard.DashboardUi
 import framezero.composeapp.features.home.generated.resources.Res
 import framezero.composeapp.features.home.generated.resources.greeting_good_morning
-import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.stringResource
-import kotlin.time.Instant
 
 @Composable
 fun DashboardTabContent(component: DashboardTabComponent) {
   LaunchedEffect(Unit) { component.onAppeared() }
   val state by component.state.collectAsState()
-  DashboardContent(state = state)
+  DashboardContent(dashboard = state.dashboard)
 }
 
 @Composable
-private fun DashboardContent(state: DashboardTabState) {
-  val dashboard = state.dashboard
+private fun DashboardContent(dashboard: DashboardUi?) {
   Column(
     modifier = Modifier
       .fillMaxSize()
@@ -72,58 +67,45 @@ private fun DashboardContent(state: DashboardTabState) {
 private fun DashboardContentPreview() {
   AppTheme(darkTheme = true) {
     DashboardContent(
-      state = DashboardTabState(
-        isLoading = false,
-        userName = "Maya",
-        dashboard =
-          Dashboard(
-            displayName = "Maya",
-            stats = DashboardStats(activeProjects = 3, openTasks = 12),
-            myTasks = listOf(
-              DashboardTask(
-                id = "1",
-                title = "Review Scene 12 script revisions",
-                productionTitle = "Echoes of Silence",
-                dueDate = LocalDate(2026, 5, 4),
-                dueLabel = "Today",
-                status = TaskStatus.OPEN
-              ),
-              DashboardTask(
-                id = "2",
-                title = "Confirm exterior shooting locations",
-                productionTitle = "Neon Wolves",
-                dueDate = LocalDate(2026, 5, 5),
-                dueLabel = "Tomorrow",
-                status = TaskStatus.OPEN
-              ),
-              DashboardTask(
-                id = "3",
-                title = "Approve final color grade",
-                productionTitle = "The Last Frame",
-                dueDate = LocalDate(2026, 4, 28),
-                dueLabel = "Apr 28",
-                status = TaskStatus.OPEN
-              )
-            ),
-            productions = listOf(
-              DashboardProduction(
-                id = "1",
-                title = "Echoes of Silence",
-                phase = ProductionPhase.PRODUCTION,
-                progressPercent = 68,
-                daysLeft = 24,
-                updatedAt = Instant.fromEpochSeconds(0)
-              ),
-              DashboardProduction(
-                id = "2",
-                title = "Neon Wolves",
-                phase = ProductionPhase.PRE_PRODUCTION,
-                progressPercent = 34,
-                daysLeft = 61,
-                updatedAt = Instant.fromEpochSeconds(0)
-              )
-            )
+      dashboard = DashboardUi(
+        displayName = "Maya",
+        stats = DashboardStatsUi(activeProjects = 3, openTasks = 12),
+        myTasks = listOf(
+          DashboardTaskUi(
+            id = "1",
+            title = "Review Scene 12 script revisions",
+            productionTitle = "Echoes of Silence",
+            dueLabel = "Today"
+          ),
+          DashboardTaskUi(
+            id = "2",
+            title = "Confirm exterior shooting locations",
+            productionTitle = "Neon Wolves",
+            dueLabel = "Tomorrow"
+          ),
+          DashboardTaskUi(
+            id = "3",
+            title = "Approve final color grade",
+            productionTitle = "The Last Frame",
+            dueLabel = "Apr 28"
           )
+        ),
+        productions = listOf(
+          DashboardProductionUi(
+            id = "1",
+            title = "Echoes of Silence",
+            phase = ProductionPhase.PRODUCTION,
+            progressPercent = 68,
+            daysLeft = 24
+          ),
+          DashboardProductionUi(
+            id = "2",
+            title = "Neon Wolves",
+            phase = ProductionPhase.PRE_PRODUCTION,
+            progressPercent = 34,
+            daysLeft = 61
+          )
+        )
       )
     )
   }

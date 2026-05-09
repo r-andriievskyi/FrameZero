@@ -40,7 +40,7 @@ class DashboardTabViewModel(
       }
       when (val outcome = getDashboardUseCase()) {
         is Outcome.Success ->
-          _state.value = _state.value.copy(isLoading = false, dashboard = outcome.data)
+          _state.value = _state.value.copy(isLoading = false, dashboard = outcome.data.toUi())
         is Outcome.Failure -> _state.value = _state.value.copy(isLoading = false)
       }
     }

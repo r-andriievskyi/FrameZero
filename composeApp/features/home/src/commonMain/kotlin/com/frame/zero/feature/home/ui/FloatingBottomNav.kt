@@ -34,11 +34,12 @@ import org.jetbrains.compose.resources.stringResource
 private val Height = 65.dp
 
 @Composable
-private fun HomeTab.label(): String = when (this) {
-  HomeTab.DASHBOARD -> stringResource(Res.string.tab_dashboard)
-  HomeTab.PRODUCTIONS -> stringResource(Res.string.tab_productions)
-  HomeTab.SCHEDULE -> stringResource(Res.string.tab_schedule)
-}
+private fun HomeTab.label(): String =
+  when (this) {
+    HomeTab.DASHBOARD -> stringResource(Res.string.tab_dashboard)
+    HomeTab.PRODUCTIONS -> stringResource(Res.string.tab_productions)
+    HomeTab.SCHEDULE -> stringResource(Res.string.tab_schedule)
+  }
 
 /** Stateless. The container owns selection state; this just renders + reports clicks. */
 @Composable
@@ -63,7 +64,8 @@ fun FloatingBottomNav(
         modifier = Modifier.fillMaxHeight().weight(1f),
         tab = tab,
         selected = tab == selectedTab,
-        onClick = { onSelect(tab) })
+        onClick = { onSelect(tab) }
+      )
     }
   }
 }

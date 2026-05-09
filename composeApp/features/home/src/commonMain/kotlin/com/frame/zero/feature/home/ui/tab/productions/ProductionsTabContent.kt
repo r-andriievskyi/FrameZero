@@ -29,34 +29,34 @@ import androidx.compose.ui.unit.dp
 import com.discovery.playground.shared.design_system.AppTheme
 import com.discovery.playground.shared.design_system.widgets.VerticalSpacer
 import com.frame.zero.domain.production.Genre
-import com.frame.zero.domain.production.Production
 import com.frame.zero.domain.production.ProductionPhase
+import com.frame.zero.feature.home.tab.projects.ProductionUi
 import com.frame.zero.feature.home.tab.projects.ProjectsTabComponent
-import com.frame.zero.feature.home.tab.projects.ProjectsTabState
 import framezero.composeapp.features.home.generated.resources.Res
 import framezero.composeapp.features.home.generated.resources.projects_title
 import org.jetbrains.compose.resources.stringResource
-import kotlin.time.Clock
-import kotlin.time.ExperimentalTime
 
 @Composable
 fun ProductionsTabContent(component: ProjectsTabComponent) {
   LaunchedEffect(Unit) { component.onAppeared() }
   val state by component.state.collectAsState()
-  ProductionsContent(state = state, onCreateProductionClick = component.onCreateProductionClick)
+  ProductionsContent(
+    productions = state.productions,
+    onCreateProductionClick = component.onCreateProductionClick
+  )
 }
 
 @Composable
 private fun ProductionsContent(
-  state: ProjectsTabState,
+  productions: List<ProductionUi>,
   onCreateProductionClick: () -> Unit
 ) {
   var selectedFilter by remember { mutableStateOf<ProductionPhase?>(null) }
 
   val filteredProductions = if (selectedFilter == null) {
-    state.productions
+    productions
   } else {
-    state.productions.filter { it.phase == selectedFilter }
+    productions.filter { it.phase == selectedFilter }
   }
 
   Column(
@@ -69,7 +69,6 @@ private fun ProductionsContent(
         vertical = AppTheme.spacingSystem.space24
       )
   ) {
-    // Header row
     Row(
       modifier = Modifier.fillMaxWidth(),
       horizontalArrangement = Arrangement.SpaceBetween,
@@ -100,12 +99,10 @@ private fun ProductionsContent(
 
     VerticalSpacer(AppTheme.spacingSystem.space16)
 
-    // Filter chips
     FilterChipsRow(selectedFilter = selectedFilter, onFilterSelected = { selectedFilter = it })
 
     VerticalSpacer(AppTheme.spacingSystem.space16)
 
-    // Production cards or empty state
     if (filteredProductions.isEmpty()) {
       EmptyState(onCreateProductionClick = onCreateProductionClick)
     } else {
@@ -124,52 +121,45 @@ private fun ProductionsContent(
 private fun ProductionsEmptyPreview() {
   AppTheme(darkTheme = true) {
     ProductionsContent(
-      state = ProjectsTabState(isLoading = false, productions = emptyList()),
+      productions = emptyList(),
       onCreateProductionClick = {}
     )
   }
 }
 
-@OptIn(ExperimentalTime::class)
 @Preview
 @Composable
 private fun ProductionsContentPreview() {
   AppTheme(darkTheme = true) {
     ProductionsContent(
       onCreateProductionClick = {},
-      state = ProjectsTabState(
-        isLoading = false,
-        productions = listOf(
-          Production(
-            id = "1",
-            title = "Echoes of Silence",
-            genre = Genre.DRAMA,
-            phase = ProductionPhase.PRODUCTION,
-            progressPercent = 68,
-            daysLeft = 24,
-            membersCount = 12,
-            updatedAt = Clock.System.now()
-          ),
-          Production(
-            id = "2",
-            title = "Neon Wolves",
-            genre = Genre.THRILLER,
-            phase = ProductionPhase.PRE_PRODUCTION,
-            progressPercent = 34,
-            daysLeft = 61,
-            membersCount = 8,
-            updatedAt = Clock.System.now()
-          ),
-          Production(
-            id = "3",
-            title = "The Last Frame",
-            genre = Genre.SCI_FI,
-            phase = ProductionPhase.POST_PRODUCTION,
-            progressPercent = 91,
-            daysLeft = 7,
-            membersCount = 6,
-            updatedAt = Clock.System.now()
-          )
+      productions = listOf(
+        ProductionUi(
+          id = "1",
+          title = "Echoes of Silence",
+          genre = Genre.DRAMA,
+          phase = ProductionPhase.PRODUCTION,
+          progressPercent = 68,
+          daysLeft = 24,
+          membersCount = 12
+        ),
+        ProductionUi(
+          id = "2",
+          title = "Neon Wolves",
+          genre = Genre.THRILLER,
+          phase = ProductionPhase.PRE_PRODUCTION,
+          progressPercent = 34,
+          daysLeft = 61,
+          membersCount = 8
+        ),
+        ProductionUi(
+          id = "3",
+          title = "The Last Frame",
+          genre = Genre.SCI_FI,
+          phase = ProductionPhase.POST_PRODUCTION,
+          progressPercent = 91,
+          daysLeft = 7,
+          membersCount = 6
         )
       )
     )

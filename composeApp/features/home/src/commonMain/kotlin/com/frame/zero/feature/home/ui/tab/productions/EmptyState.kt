@@ -33,7 +33,10 @@ import framezero.composeapp.features.home.generated.resources.projects_empty_tit
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-internal fun EmptyState(modifier: Modifier = Modifier, onCreateProductionClick: () -> Unit) {
+internal fun EmptyState(
+  modifier: Modifier = Modifier,
+  onCreateProductionClick: () -> Unit
+) {
   Column(
     modifier = modifier.fillMaxWidth().padding(vertical = AppTheme.spacingSystem.space24),
     horizontalAlignment = Alignment.CenterHorizontally
@@ -195,4 +198,3 @@ private fun EmptyStatePreview() {
     }
   }
 }
-
