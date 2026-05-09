@@ -15,12 +15,14 @@ import framezero.composeapp.generated.resources.Res
 import framezero.composeapp.generated.resources.app_name
 import org.jetbrains.compose.resources.stringResource
 
+private val SplashItemSpacing = 24.dp
+
 @Composable
 fun SplashContent() {
   Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
     Column(
       horizontalAlignment = Alignment.CenterHorizontally,
-      verticalArrangement = Arrangement.spacedBy(24.dp)
+      verticalArrangement = Arrangement.spacedBy(SplashItemSpacing)
     ) {
       Text(text = stringResource(Res.string.app_name), style = MaterialTheme.typography.displayMedium)
       CircularProgressIndicator()
