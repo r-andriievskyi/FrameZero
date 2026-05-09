@@ -33,8 +33,8 @@
   <string name="projects_filter_production">Production</string>
   <string name="projects_filter_post_production">Post-Production</string>
   <string name="projects_empty_title">Start your first production</string>
-  <string name="projects_empty_description">You haven\'t been added to any productions\nyet. Create one to start tracking scenes,\ncrew, and schedule.</string>
-  <string name="projects_create_button">+  Create production</string>
+  <string name="projects_empty_description">You haven't been added to any productions\nyet. Create one to start tracking scenes,\ncrew, and schedule.</string>
+  <string name="projects_create_button">Create production</string>
   <string name="projects_empty_invite">Or ask a producer to invite you to one</string>
   <string name="projects_pipeline_progress">Pipeline progress</string>
   <string name="members_count">%1$d members</string>

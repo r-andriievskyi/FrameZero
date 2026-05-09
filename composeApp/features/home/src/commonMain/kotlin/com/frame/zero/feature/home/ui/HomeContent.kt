@@ -18,8 +18,8 @@ import com.discovery.playground.shared.design_system.AppTheme
 import com.frame.zero.feature.home.HomeComponent
 import com.frame.zero.feature.home.tab.HomeTab
 import com.frame.zero.feature.home.ui.tab.dashboard.DashboardTabContent
-import com.frame.zero.feature.home.ui.tab.ProductionsTabContent
-import com.frame.zero.feature.home.ui.tab.ScheduleTabContent
+import com.frame.zero.feature.home.ui.tab.productions.ProductionsTabContent
+import com.frame.zero.feature.home.ui.tab.schedule.ScheduleTabContent
 import kotlinx.coroutines.launch
 
 @Composable

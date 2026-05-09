@@ -150,6 +150,11 @@ When changing schema:
   is currently used for small key/value data (e.g. auth tokens). When a real
   database is needed, confirm the choice before adding it.
 
+### Compose Multiplatform rules
+1. Always add Preview to the newly generated Composables.
+2. Add a default modifier to the custom Composables.
+3. Always place custom db values like size, border width etc. at the top of the file as a variable.
+
 ## Code quality pipeline
 
 Tools: **ktlint** (formatter) + **detekt** (static analysis), both applied via the `crossplatform.code.quality` convention plugin.
