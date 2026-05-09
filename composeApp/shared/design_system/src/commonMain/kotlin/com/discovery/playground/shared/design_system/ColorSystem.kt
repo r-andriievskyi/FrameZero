@@ -31,5 +31,15 @@ data class ColorSystem(
   val priorityMedSurface: Color,
   val priorityMedText: Color,
   val priorityLowSurface: Color,
-  val priorityLowText: Color
+  val priorityLowText: Color,
+  val developmentSurface: Color,
+  val developmentText: Color,
+  val preProductionSurface: Color,
+  val preProductionText: Color,
+  val productionSurface: Color,
+  val productionText: Color,
+  val postProductionSurface: Color,
+  val postProductionText: Color,
+  val distributionSurface: Color,
+  val distributionText: Color
 )
