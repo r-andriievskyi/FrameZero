@@ -39,6 +39,8 @@ import framezero.composeapp.features.home.generated.resources.projects_title
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
+private val AddButtonSize = 40.dp
+
 @Composable
 fun ProductionsTabContent(component: ProjectsTabComponent) {
   LaunchedEffect(Unit) { component.onAppeared() }
@@ -85,7 +87,7 @@ private fun ProductionsContent(
       if (filteredProductions.isNotEmpty()) {
         Box(
           modifier = Modifier
-            .size(40.dp)
+            .size(AddButtonSize)
             .clip(RoundedCornerShape(AppTheme.radiusSystem.radius8))
             .background(AppTheme.colorSystem.accent)
             .clickable(onClick = onCreateProductionClick),

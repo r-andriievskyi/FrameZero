@@ -32,6 +32,21 @@ import framezero.composeapp.features.home.generated.resources.projects_empty_inv
 import framezero.composeapp.features.home.generated.resources.projects_empty_title
 import org.jetbrains.compose.resources.stringResource
 
+private val IllustrationContainerWidth = 220.dp
+private val IllustrationContainerHeight = 160.dp
+private val StackedCardWidth = 180.dp
+private val StackedCardHeight = 100.dp
+private val BackCardOffsetY = 40.dp
+private val MiddleCardOffsetY = 25.dp
+private val CardBorderWidth = 1.dp
+private val IllustrationBarHeight = 4.dp
+private val FrontCardWidth = 200.dp
+private val FrontCardHeight = 70.dp
+private val TitleBarWidth = 80.dp
+private val TitleBarHeight = 8.dp
+private val SubtitleBarWidth = 50.dp
+private val SubtitleBarHeight = 6.dp
+
 @Composable
 internal fun EmptyState(
   modifier: Modifier = Modifier,
@@ -99,29 +114,29 @@ private fun EmptyStateIllustration() {
   val cardShape = RoundedCornerShape(AppTheme.radiusSystem.radius16)
 
   Box(
-    modifier = Modifier.size(width = 220.dp, height = 160.dp),
+    modifier = Modifier.size(width = IllustrationContainerWidth, height = IllustrationContainerHeight),
     contentAlignment = Alignment.BottomCenter
   ) {
     // Back card (rotated left)
     Box(
       modifier = Modifier
-        .size(width = 180.dp, height = 100.dp)
-        .offset(y = (-40).dp)
+        .size(width = StackedCardWidth, height = StackedCardHeight)
+        .offset(y = -BackCardOffsetY)
         .rotate(-5f)
         .clip(cardShape)
         .background(AppTheme.colorSystem.cardBackground)
-        .border(1.dp, AppTheme.colorSystem.cardBorder, cardShape)
+        .border(CardBorderWidth, AppTheme.colorSystem.cardBorder, cardShape)
     )
 
     // Middle card (rotated right)
     Box(
       modifier = Modifier
-        .size(width = 180.dp, height = 100.dp)
-        .offset(y = (-25).dp)
+        .size(width = StackedCardWidth, height = StackedCardHeight)
+        .offset(y = -MiddleCardOffsetY)
         .rotate(3f)
         .clip(cardShape)
         .background(AppTheme.colorSystem.cardBackground)
-        .border(1.dp, AppTheme.colorSystem.cardBorder, cardShape)
+        .border(CardBorderWidth, AppTheme.colorSystem.cardBorder, cardShape)
     ) {
       // Colored progress bars at bottom of middle card
       Row(
@@ -133,7 +148,7 @@ private fun EmptyStateIllustration() {
         Box(
           modifier = Modifier
             .weight(1f)
-            .height(4.dp)
+            .height(IllustrationBarHeight)
             .clip(RoundedCornerShape(AppTheme.radiusSystem.radius4))
             .background(AppTheme.colorSystem.warningText)
         )
@@ -141,7 +156,7 @@ private fun EmptyStateIllustration() {
         Box(
           modifier = Modifier
             .weight(1f)
-            .height(4.dp)
+            .height(IllustrationBarHeight)
             .clip(RoundedCornerShape(AppTheme.radiusSystem.radius4))
             .background(AppTheme.colorSystem.successText)
         )
@@ -149,7 +164,7 @@ private fun EmptyStateIllustration() {
         Box(
           modifier = Modifier
             .weight(0.5f)
-            .height(4.dp)
+            .height(IllustrationBarHeight)
             .clip(RoundedCornerShape(AppTheme.radiusSystem.radius4))
             .background(AppTheme.colorSystem.accent)
         )
@@ -159,24 +174,24 @@ private fun EmptyStateIllustration() {
     // Front card
     Box(
       modifier = Modifier
-        .size(width = 200.dp, height = 70.dp)
+        .size(width = FrontCardWidth, height = FrontCardHeight)
         .clip(cardShape)
         .background(AppTheme.colorSystem.cardBackground)
-        .border(1.dp, AppTheme.colorSystem.cardBorder, cardShape)
+        .border(CardBorderWidth, AppTheme.colorSystem.cardBorder, cardShape)
         .padding(AppTheme.spacingSystem.space8),
       contentAlignment = Alignment.CenterStart
     ) {
       Column {
         Box(
           modifier = Modifier
-            .size(width = 80.dp, height = 8.dp)
+            .size(width = TitleBarWidth, height = TitleBarHeight)
             .clip(RoundedCornerShape(AppTheme.radiusSystem.radius4))
             .background(AppTheme.colorSystem.border)
         )
         VerticalSpacer(AppTheme.spacingSystem.space4)
         Box(
           modifier = Modifier
-            .size(width = 50.dp, height = 6.dp)
+            .size(width = SubtitleBarWidth, height = SubtitleBarHeight)
             .clip(RoundedCornerShape(AppTheme.radiusSystem.radius4))
             .background(AppTheme.colorSystem.border)
         )
