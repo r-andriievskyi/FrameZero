@@ -15,18 +15,16 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import com.discovery.playground.shared.design_system.AppTheme
 import com.discovery.playground.shared.design_system.widgets.VerticalSpacer
-import com.frame.zero.domain.dashboard.DashboardTask
-import com.frame.zero.dto.task.TaskStatus
+import com.frame.zero.feature.home.tab.dashboard.DashboardTaskUi
 import framezero.composeapp.features.home.generated.resources.Res
 import framezero.composeapp.features.home.generated.resources.ic_chevron_right
 import framezero.composeapp.features.home.generated.resources.my_tasks_see_all
 import framezero.composeapp.features.home.generated.resources.my_tasks_title
-import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-internal fun MyTasksSection(tasks: List<DashboardTask>) {
+internal fun MyTasksSection(tasks: List<DashboardTaskUi>) {
   SectionHeader(
     title = stringResource(Res.string.my_tasks_title),
     actionLabel = stringResource(Res.string.my_tasks_see_all)
@@ -39,7 +37,7 @@ internal fun MyTasksSection(tasks: List<DashboardTask>) {
 }
 
 @Composable
-private fun TaskCard(task: DashboardTask) {
+private fun TaskCard(task: DashboardTaskUi) {
   Row(
     modifier = Modifier
       .fillMaxWidth()
@@ -96,29 +94,23 @@ private fun MyTasksSectionPreview() {
     ) {
       MyTasksSection(
         tasks = listOf(
-          DashboardTask(
+          DashboardTaskUi(
             id = "1",
             title = "Review Scene 12 script revisions",
             productionTitle = "Echoes of Silence",
-            dueDate = LocalDate(2026, 5, 4),
-            dueLabel = "Today",
-            status = TaskStatus.OPEN
+            dueLabel = "Today"
           ),
-          DashboardTask(
+          DashboardTaskUi(
             id = "2",
             title = "Confirm exterior shooting locations",
             productionTitle = "Neon Wolves",
-            dueDate = LocalDate(2026, 5, 5),
-            dueLabel = "Tomorrow",
-            status = TaskStatus.OPEN
+            dueLabel = "Tomorrow"
           ),
-          DashboardTask(
+          DashboardTaskUi(
             id = "3",
             title = "Approve final color grade",
             productionTitle = "The Last Frame",
-            dueDate = LocalDate(2026, 4, 28),
-            dueLabel = "Apr 28",
-            status = TaskStatus.OPEN
+            dueLabel = "Apr 28"
           )
         )
       )

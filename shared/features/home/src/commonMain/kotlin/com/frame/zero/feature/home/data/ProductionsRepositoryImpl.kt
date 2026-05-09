@@ -16,11 +16,13 @@ class ProductionsRepositoryImpl(
   private val httpClient: HttpClient,
   private val networkConfig: NetworkConfig
 ) : ProductionsRepository {
-  override suspend fun list(): PagedResponse<ProductionSummaryDto> = httpClient.get(
-    "${networkConfig.baseUrl}/api/v1/productions"
-  ).body()
+  override suspend fun list(): PagedResponse<ProductionSummaryDto> =
+    httpClient.get(
+      "${networkConfig.baseUrl}/api/v1/productions"
+    ).body()
 
-  override suspend fun createProduction(request: CreateProductionRequest): ProductionDetailDto = httpClient.post(
-    "${networkConfig.baseUrl}/api/v1/productions"
-  ) { setBody(request) }.body()
+  override suspend fun createProduction(request: CreateProductionRequest): ProductionDetailDto =
+    httpClient.post(
+      "${networkConfig.baseUrl}/api/v1/productions"
+    ) { setBody(request) }.body()
 }

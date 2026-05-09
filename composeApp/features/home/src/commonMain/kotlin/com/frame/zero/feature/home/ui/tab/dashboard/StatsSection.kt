@@ -16,7 +16,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.tooling.preview.Preview
 import com.discovery.playground.shared.design_system.AppTheme
 import com.discovery.playground.shared.design_system.widgets.VerticalSpacer
-import com.frame.zero.domain.dashboard.DashboardStats
+import com.frame.zero.feature.home.tab.dashboard.DashboardStatsUi
 import framezero.composeapp.features.home.generated.resources.Res
 import framezero.composeapp.features.home.generated.resources.ic_clapper_board
 import framezero.composeapp.features.home.generated.resources.ic_task
@@ -27,7 +27,7 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-internal fun StatsRow(stats: DashboardStats) {
+internal fun StatsRow(stats: DashboardStatsUi) {
   Row(
     modifier = Modifier.fillMaxWidth(),
     horizontalArrangement = Arrangement.spacedBy(AppTheme.spacingSystem.space8)
@@ -89,7 +89,7 @@ private fun StatsSectionPreview() {
         .background(AppTheme.colorSystem.background)
         .padding(AppTheme.spacingSystem.space16)
     ) {
-      StatsRow(stats = DashboardStats(activeProjects = 3, openTasks = 12))
+      StatsRow(stats = DashboardStatsUi(activeProjects = 3, openTasks = 12))
     }
   }
 }
