@@ -52,11 +52,16 @@
   <string name="create_button_continue">Continue</string>
 
   <!-- Phase labels -->
+  <string name="phase_idea">Idea</string>
   <string name="phase_development">Development</string>
+  <string name="phase_financing">Financing</string>
   <string name="phase_pre_production">Pre-Production</string>
   <string name="phase_production">Production</string>
   <string name="phase_post_production">Post-Production</string>
+  <string name="phase_marketing">Marketing</string>
   <string name="phase_distribution">Distribution</string>
+  <string name="phase_release">Release</string>
+  <string name="phase_archived">Archived</string>
 
   <!-- Crew roles -->
   <string name="crew_role_director">Director</string>

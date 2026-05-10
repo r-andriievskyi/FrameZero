@@ -30,8 +30,6 @@ class CreateProductionViewModel(
         _state.update { it.copy(title = intent.title, error = null) }
       is CreateProductionIntent.GenreChanged ->
         _state.update { it.copy(genre = intent.genre) }
-      is CreateProductionIntent.PhaseChanged ->
-        _state.update { it.copy(phase = intent.phase) }
       is CreateProductionIntent.LoglineChanged ->
         _state.update { it.copy(logline = intent.logline) }
       is CreateProductionIntent.StartDateChanged ->
@@ -108,7 +106,6 @@ class CreateProductionViewModel(
       val params = CreateProductionUseCase.Params(
         title = current.title.trim(),
         genre = current.genre,
-        phase = current.phase,
         logline = current.logline.ifBlank { null },
         startDate = start,
         wrapDate = wrap,

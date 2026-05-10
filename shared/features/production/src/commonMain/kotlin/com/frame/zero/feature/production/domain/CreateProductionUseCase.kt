@@ -4,7 +4,6 @@ import com.frame.zero.domain.DomainError
 import com.frame.zero.domain.UseCase
 import com.frame.zero.domain.production.Genre
 import com.frame.zero.domain.production.Production
-import com.frame.zero.domain.production.ProductionPhase
 import com.frame.zero.domain.production.toProduction
 import com.frame.zero.dto.production.CreateCrewMemberDto
 import com.frame.zero.dto.production.CreateProductionRequest
@@ -19,7 +18,6 @@ class CreateProductionUseCase(
   data class Params(
     val title: String,
     val genre: Genre,
-    val phase: ProductionPhase,
     val logline: String?,
     val startDate: LocalDate,
     val wrapDate: LocalDate,
@@ -39,7 +37,6 @@ class CreateProductionUseCase(
       CreateProductionRequest(
         title = params.title,
         genre = params.genre,
-        phase = params.phase,
         logline = params.logline?.ifBlank { null },
         startDate = params.startDate,
         wrapDate = params.wrapDate,

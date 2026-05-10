@@ -2,7 +2,6 @@ package com.frame.zero.schedule
 
 import com.frame.zero.common.testing.TestAppEnv
 import com.frame.zero.domain.production.Genre
-import com.frame.zero.domain.production.ProductionPhase
 import com.frame.zero.domain.schedule.ScheduleEventKind
 import com.frame.zero.dto.production.CreateProductionRequest
 import com.frame.zero.dto.schedule.CreateScheduleEventRequest
@@ -19,7 +18,6 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.server.testing.testApplication
 import kotlinx.datetime.LocalDate
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.koin.core.context.GlobalContext
 import org.koin.core.context.stopKoin
@@ -41,7 +39,6 @@ class ScheduleRoutesTest {
     CreateProductionRequest(
       title = "Film",
       genre = Genre.DRAMA,
-      phase = ProductionPhase.PRODUCTION,
       startDate = LocalDate(2026, 1, 1),
       wrapDate = LocalDate(2026, 12, 31)
     )

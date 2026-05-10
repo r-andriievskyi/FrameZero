@@ -18,14 +18,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.discovery.playground.shared.design_system.AppTheme
 import com.discovery.playground.shared.design_system.widgets.CtaButton
 import com.discovery.playground.shared.design_system.widgets.VerticalSpacer
 import com.frame.zero.domain.production.Genre
-import com.frame.zero.domain.production.ProductionPhase
 import com.frame.zero.feature.production.CreateProductionIntent
 import com.frame.zero.feature.production.CreateProductionState
 import com.frame.zero.feature.production.CrewMemberEntry
@@ -114,7 +112,6 @@ internal fun Step4Content(
 @Composable
 internal fun ReviewCard(state: CreateProductionState, modifier: Modifier = Modifier) {
   val cardShape = RoundedCornerShape(AppTheme.radiusSystem.radius16)
-  val phaseColor = state.phase.dotColor()
 
   Column(
     modifier = modifier
@@ -127,11 +124,7 @@ internal fun ReviewCard(state: CreateProductionState, modifier: Modifier = Modif
       modifier = Modifier
         .fillMaxWidth()
         .height(ReviewAccentStripHeight)
-        .background(
-          Brush.horizontalGradient(
-            listOf(phaseColor, AppTheme.colorSystem.accent),
-          ),
-        ),
+        .background(AppTheme.colorSystem.accent),
     )
 
     Column(modifier = Modifier.padding(AppTheme.spacingSystem.space16)) {
@@ -143,21 +136,11 @@ internal fun ReviewCard(state: CreateProductionState, modifier: Modifier = Modif
 
       VerticalSpacer(AppTheme.spacingSystem.space8)
 
-      Row(
-        horizontalArrangement = Arrangement.spacedBy(AppTheme.spacingSystem.space8),
-        verticalAlignment = Alignment.CenterVertically,
-      ) {
-        GenreChip(
-          label = state.genre.displayLabel(),
-          isSelected = true,
-          onClick = {},
-        )
-        Text(
-          text = state.phase.label(),
-          style = AppTheme.typographySystem.labelSmall,
-          color = phaseColor,
-        )
-      }
+      GenreChip(
+        label = state.genre.displayLabel(),
+        isSelected = true,
+        onClick = {},
+      )
 
       VerticalSpacer(AppTheme.spacingSystem.space16)
 
@@ -236,7 +219,6 @@ private fun Step4ContentPreview() {
       state = CreateProductionState(
         title = "Echoes of Silence",
         genre = Genre.DRAMA,
-        phase = ProductionPhase.PRE_PRODUCTION,
         startDate = LocalDate(2026, 8, 1),
         wrapDate = LocalDate(2026, 12, 15),
         budgetCents = 500_000_00L,
@@ -258,7 +240,6 @@ private fun ReviewCardPreview() {
       state = CreateProductionState(
         title = "Echoes of Silence",
         genre = Genre.DRAMA,
-        phase = ProductionPhase.PRODUCTION,
         startDate = LocalDate(2026, 8, 1),
         wrapDate = LocalDate(2026, 12, 15),
         budgetCents = 150_000_00L,

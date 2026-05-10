@@ -4,11 +4,16 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 enum class ProductionPhase {
+  IDEA,
   DEVELOPMENT,
+  FINANCING,
   PRE_PRODUCTION,
   PRODUCTION,
   POST_PRODUCTION,
-  DISTRIBUTION;
+  MARKETING,
+  DISTRIBUTION,
+  RELEASE,
+  ARCHIVED;
 
   fun isForwardFrom(other: ProductionPhase): Boolean = ordinal > other.ordinal
 }

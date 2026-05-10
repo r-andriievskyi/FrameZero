@@ -38,7 +38,7 @@ class ProductionService(
       title = request.title.trim(),
       genre = request.genre,
       logline = request.logline?.trim(),
-      phase = request.phase,
+      phase = ProductionPhase.IDEA,
       startDate = request.startDate.toJava(),
       wrapDate = request.wrapDate.toJava(),
       budgetCents = request.budgetCents,
