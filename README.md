@@ -47,7 +47,7 @@ in your IDE’s toolbar or run it directly from the terminal:
 ### Build and Run Server
 
 To build and run the development version of the server, use the run configuration from the run widget
-in your IDE’s toolbar or run it directly from the terminal:
+in your IDE's toolbar or run it directly from the terminal:
 - on macOS/Linux
   ```shell
   ./gradlew :server:run
@@ -56,6 +56,29 @@ in your IDE’s toolbar or run it directly from the terminal:
   ```shell
   .\gradlew.bat :server:run
   ```
+
+#### Server Environment Variables
+
+| Variable | Required | Default (dev) | Description |
+|----------|----------|---------------|-------------|
+| `JWT_SECRET` | **Yes** in production | Auto-generated dev secret | HMAC-SHA256 signing key for JWTs. Must be a strong random string in production. |
+| `JWT_ISSUER` | No | `framezero` | JWT issuer claim |
+| `JWT_AUDIENCE` | No | `framezero-api` | JWT audience claim |
+| `JWT_REALM` | No | `framezero` | HTTP auth realm |
+| `DATABASE_URL` | No | `jdbc:postgresql://localhost:5432/framezero` | PostgreSQL JDBC URL |
+| `DATABASE_USER` | No | `framezero` | Database username |
+| `DATABASE_PASSWORD` | No | `framezero` | Database password |
+| `KTOR_ENV` | No | — | Set to `production` to disable dev defaults |
+
+When running locally via `./gradlew :server:run`, the server starts in development mode and uses a built-in dev secret — no extra setup needed.
+
+For production, set `KTOR_ENV=production` and provide `JWT_SECRET`:
+```shell
+export KTOR_ENV=production
+export JWT_SECRET=$(openssl rand -base64 32)
+export DATABASE_URL=jdbc:postgresql://prod-host:5432/framezero
+./gradlew :server:run
+```
 
 ### Build and Run iOS Application
 

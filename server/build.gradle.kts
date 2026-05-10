@@ -13,7 +13,8 @@ version = "1.0.0"
 application {
   mainClass.set("com.frame.zero.ApplicationKt")
 
-  val isDevelopment: Boolean = project.ext.has("development")
+  val isDevelopment: Boolean = project.ext.has("development") ||
+    System.getenv("KTOR_ENV") != "production"
   applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
 }
 
