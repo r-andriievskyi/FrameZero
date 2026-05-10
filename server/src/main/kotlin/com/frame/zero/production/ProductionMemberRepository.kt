@@ -3,7 +3,6 @@ package com.frame.zero.production
 import com.frame.zero.auth.UsersTable
 import com.frame.zero.config.dbQuery
 import org.jetbrains.exposed.v1.core.ResultRow
-import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
@@ -44,11 +43,6 @@ interface ProductionMemberRepository {
   ): ProductionMemberRecord?
 
   suspend fun remove(id: UUID): Boolean
-
-  suspend fun isOwner(
-    userId: UUID,
-    productionId: UUID
-  ): Boolean
 }
 
 class ProductionMemberRepositoryExposed : ProductionMemberRepository {
@@ -150,18 +144,6 @@ class ProductionMemberRepositoryExposed : ProductionMemberRepository {
       ProductionMembersTable.deleteWhere { ProductionMembersTable.id eq id } > 0
     }
 
-  override suspend fun isOwner(
-    userId: UUID,
-    productionId: UUID
-  ): Boolean =
-    dbQuery {
-      ProductionMembersTable
-        .selectAll()
-        .where {
-          (ProductionMembersTable.productionId eq productionId) and
-            (ProductionMembersTable.userId eq userId)
-        }.count() == 0L
-    }
 
   private fun ResultRow.toRecord(): ProductionMemberRecord =
     ProductionMemberRecord(

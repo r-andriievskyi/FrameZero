@@ -167,7 +167,11 @@ class ProductionRepositoryExposed : ProductionRepository {
           }
 
           if (!query.isNullOrBlank()) {
-            cond = cond and (ProductionsTable.title.lowerCase() like "%${query.lowercase()}%")
+            val escaped = query.lowercase()
+              .replace("\\", "\\\\")
+              .replace("%", "\\%")
+              .replace("_", "\\_")
+            cond = cond and (ProductionsTable.title.lowerCase() like "%$escaped%")
           }
 
           if (cursor != null) {
