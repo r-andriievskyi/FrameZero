@@ -2,6 +2,7 @@ package com.frame.zero.auth
 
 import java.security.MessageDigest
 import java.security.SecureRandom
+import java.util.Base64
 
 class TokenHasher {
   private val random = SecureRandom()
@@ -17,11 +18,9 @@ class TokenHasher {
     .digest(token.toByteArray(Charsets.UTF_8))
     .toHexString()
 
-  private fun base64UrlEncode(bytes: ByteArray): String =
-    java.util.Base64
-      .getUrlEncoder()
-      .withoutPadding()
-      .encodeToString(bytes)
+  private fun base64UrlEncode(bytes: ByteArray): String = Base64.getUrlEncoder()
+    .withoutPadding()
+    .encodeToString(bytes)
 
   private companion object {
     const val TOKEN_BYTE_LENGTH = 48
