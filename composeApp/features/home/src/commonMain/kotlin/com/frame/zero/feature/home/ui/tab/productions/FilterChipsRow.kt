@@ -21,9 +21,16 @@ import com.discovery.playground.shared.design_system.AppTheme
 import com.frame.zero.domain.production.ProductionPhase
 import framezero.composeapp.features.home.generated.resources.Res
 import framezero.composeapp.features.home.generated.resources.projects_filter_all
+import framezero.composeapp.features.home.generated.resources.projects_filter_archived
+import framezero.composeapp.features.home.generated.resources.projects_filter_development
+import framezero.composeapp.features.home.generated.resources.projects_filter_distribution
+import framezero.composeapp.features.home.generated.resources.projects_filter_financing
+import framezero.composeapp.features.home.generated.resources.projects_filter_idea
+import framezero.composeapp.features.home.generated.resources.projects_filter_marketing
 import framezero.composeapp.features.home.generated.resources.projects_filter_post_production
 import framezero.composeapp.features.home.generated.resources.projects_filter_pre_production
 import framezero.composeapp.features.home.generated.resources.projects_filter_production
+import framezero.composeapp.features.home.generated.resources.projects_filter_release
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -33,9 +40,16 @@ internal fun FilterChipsRow(
 ) {
   val filters = listOf(
     null to stringResource(Res.string.projects_filter_all),
+    ProductionPhase.IDEA to stringResource(Res.string.projects_filter_idea),
+    ProductionPhase.DEVELOPMENT to stringResource(Res.string.projects_filter_development),
+    ProductionPhase.FINANCING to stringResource(Res.string.projects_filter_financing),
     ProductionPhase.PRE_PRODUCTION to stringResource(Res.string.projects_filter_pre_production),
     ProductionPhase.PRODUCTION to stringResource(Res.string.projects_filter_production),
-    ProductionPhase.POST_PRODUCTION to stringResource(Res.string.projects_filter_post_production)
+    ProductionPhase.POST_PRODUCTION to stringResource(Res.string.projects_filter_post_production),
+    ProductionPhase.MARKETING to stringResource(Res.string.projects_filter_marketing),
+    ProductionPhase.DISTRIBUTION to stringResource(Res.string.projects_filter_distribution),
+    ProductionPhase.RELEASE to stringResource(Res.string.projects_filter_release),
+    ProductionPhase.ARCHIVED to stringResource(Res.string.projects_filter_archived),
   )
 
   Row(

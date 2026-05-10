@@ -76,7 +76,8 @@ internal class FakeProductionRepository : ProductionRepository {
 
   override suspend fun countActiveForUser(userId: UUID): Int =
     productions.count {
-      it.deletedAt == null && it.ownerUserId == userId && it.phase != ProductionPhase.DISTRIBUTION
+      it.deletedAt == null && it.ownerUserId == userId &&
+        it.phase != ProductionPhase.DISTRIBUTION && it.phase != ProductionPhase.ARCHIVED
     }
 
   override suspend fun update(

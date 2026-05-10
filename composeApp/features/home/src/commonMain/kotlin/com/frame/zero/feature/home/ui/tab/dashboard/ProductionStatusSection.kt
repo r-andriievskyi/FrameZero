@@ -96,11 +96,16 @@ private fun ProductionCard(production: DashboardProductionUi) {
 @Composable
 internal fun accentColorFor(phase: ProductionPhase): Color =
   when (phase) {
-    ProductionPhase.PRODUCTION -> AppTheme.colorSystem.productionText
-    ProductionPhase.PRE_PRODUCTION -> AppTheme.colorSystem.preProductionText
-    ProductionPhase.POST_PRODUCTION -> AppTheme.colorSystem.postProductionText
+    ProductionPhase.IDEA -> AppTheme.colorSystem.textMuted
     ProductionPhase.DEVELOPMENT -> AppTheme.colorSystem.developmentText
+    ProductionPhase.FINANCING -> AppTheme.colorSystem.warningText
+    ProductionPhase.PRE_PRODUCTION -> AppTheme.colorSystem.preProductionText
+    ProductionPhase.PRODUCTION -> AppTheme.colorSystem.productionText
+    ProductionPhase.POST_PRODUCTION -> AppTheme.colorSystem.postProductionText
+    ProductionPhase.MARKETING -> AppTheme.colorSystem.accentText
     ProductionPhase.DISTRIBUTION -> AppTheme.colorSystem.distributionText
+    ProductionPhase.RELEASE -> AppTheme.colorSystem.successText
+    ProductionPhase.ARCHIVED -> AppTheme.colorSystem.textMuted
   }
 
 private fun ProductionPhase.displayLabel(): String =

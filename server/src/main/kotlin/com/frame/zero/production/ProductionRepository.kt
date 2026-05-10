@@ -250,6 +250,7 @@ class ProductionRepositoryExposed : ProductionRepository {
             }
           ProductionsTable.deletedAt.isNull() and
             (ProductionsTable.phase neq ProductionPhase.DISTRIBUTION.name) and
+            (ProductionsTable.phase neq ProductionPhase.ARCHIVED.name) and
             accessCond
         }.count()
         .toInt()
