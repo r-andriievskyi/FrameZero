@@ -36,6 +36,7 @@ import io.ktor.server.plugins.ratelimit.RateLimit
 import io.ktor.server.plugins.ratelimit.RateLimitName
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.response.respond
+import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
 import kotlinx.serialization.SerializationException
 import org.koin.ktor.plugin.Koin
@@ -51,7 +52,13 @@ val AUTH_RATE_LIMIT_NAME = RateLimitName("auth")
 fun main() {
   val config = AppConfig.fromEnv()
   DatabaseFactory.init(config.database)
-  embeddedServer(Netty, port = SERVER_PORT, host = "0.0.0.0") { module(config) }.start(wait = true)
+  embeddedServer(
+    Netty,
+    port = SERVER_PORT,
+    host = "0.0.0.0"
+  ) {
+    module(config)
+  }.start(wait = true)
 }
 
 fun Application.module(config: AppConfig) {
@@ -151,6 +158,9 @@ fun Application.module(config: AppConfig) {
   }
 
   routing {
+    get("/health") {
+      call.respond(HttpStatusCode.OK, mapOf("status" to "ok"))
+    }
     authRoutes()
     dashboardRoutes()
     productionRoutes()
