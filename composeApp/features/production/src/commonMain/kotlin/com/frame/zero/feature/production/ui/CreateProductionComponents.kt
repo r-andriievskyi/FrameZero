@@ -1,5 +1,6 @@
 package com.frame.zero.feature.production.ui
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -38,11 +39,12 @@ import framezero.composeapp.features.production.generated.resources.crew_role_ot
 import framezero.composeapp.features.production.generated.resources.crew_role_producer
 import framezero.composeapp.features.production.generated.resources.crew_role_sound
 import framezero.composeapp.features.production.generated.resources.crew_role_writer
+import framezero.composeapp.features.production.generated.resources.ic_calendar_days
 import kotlinx.datetime.LocalDate
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
 private val PhaseDotSize = 12.dp
-private val PhaseCheckmarkSize = 24.dp
 private val RemoveButtonSize = 24.dp
 private val CrewAvatarSize = 36.dp
 private val DropdownHeight = 32.dp
@@ -164,21 +166,6 @@ internal fun PhaseSelector(
             color = if (isSelected) AppTheme.colorSystem.textPrimary
             else AppTheme.colorSystem.textMuted,
           )
-        }
-        if (isSelected) {
-          Box(
-            modifier = Modifier
-              .size(PhaseCheckmarkSize)
-              .clip(RoundedCornerShape(AppTheme.radiusSystem.radius4))
-              .background(phase.dotColor()),
-            contentAlignment = Alignment.Center,
-          ) {
-            Text(
-              text = "✓",
-              style = AppTheme.typographySystem.labelSmall,
-              color = AppTheme.colorSystem.textOnAccent,
-            )
-          }
         }
       }
     }
@@ -397,15 +384,13 @@ internal fun DateInputField(
     enabled = enabled,
     modifier = modifier,
     trailingContent = {
-      Text(
-        text = "📅",
-        style = AppTheme.typographySystem.bodyMedium,
+      Image(
+        painter = painterResource(Res.drawable.ic_calendar_days),
+        contentDescription = null
       )
     },
   )
 }
-
-// ── Previews ─────────────────────────────────────────────────────────
 
 @Preview
 @Composable

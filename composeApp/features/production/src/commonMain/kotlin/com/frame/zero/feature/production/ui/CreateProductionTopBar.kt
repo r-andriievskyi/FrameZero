@@ -1,5 +1,6 @@
 package com.frame.zero.feature.production.ui
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -11,7 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,6 +25,8 @@ import com.discovery.playground.shared.design_system.widgets.HorizontalSpacer
 import framezero.composeapp.features.production.generated.resources.Res
 import framezero.composeapp.features.production.generated.resources.create_step_indicator
 import framezero.composeapp.features.production.generated.resources.create_title
+import framezero.composeapp.features.production.generated.resources.ic_chevron_left
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
 private val BackButtonSize = 40.dp
@@ -52,15 +54,14 @@ internal fun TopBar(
     Box(
       modifier = Modifier
         .size(BackButtonSize)
-        .clip(CircleShape)
+        .clip(RoundedCornerShape(AppTheme.spacingSystem.space8))
         .background(AppTheme.colorSystem.cardBackground)
         .clickable(onClick = onBack),
       contentAlignment = Alignment.Center,
     ) {
-      Text(
-        text = "‹",
-        style = AppTheme.typographySystem.titleLarge,
-        color = AppTheme.colorSystem.textPrimary,
+      Image(
+        painter = painterResource(Res.drawable.ic_chevron_left),
+        contentDescription = null
       )
     }
     HorizontalSpacer(AppTheme.spacingSystem.space8)
