@@ -24,6 +24,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 The Gradle task `embedAndSignAppleFrameworkForXcode` runs as part of the Xcode
 build; don't invoke it manually unless debugging a framework linking issue.
 
+To relink the iOS framework after `shared`/`composeApp/commonMain` changes:
+```bash
+./gradlew :composeApp:linkDebugFrameworkIosSimulatorArm64
+```
+
+**Web (Wasm/JS)**
+```bash
+./gradlew :composeApp:wasmJsBrowserDevelopmentRun   # dev server with hot reload
+./gradlew :composeApp:wasmJsBrowserProductionRun    # optimised production build served locally
+./gradlew :composeApp:wasmJsBrowserDistribution     # produce distributable artifacts in build/dist/
+```
+
 ## Tests
 
 ```bash
@@ -293,9 +305,6 @@ AppTheme.radiusSystem.button
 
 ## Workflow notes
 
-- After changes to `shared` or `composeApp/commonMain`, the iOS framework
-  needs relinking before Xcode picks them up. If the Xcode build is stale,
-  run `./gradlew :composeApp:linkDebugFrameworkIosSimulatorArm64`.
 - For UI iteration, use the **Desktop target** with hot reload — it's the
   fastest feedback loop and exercises the same `commonMain` Compose code as
   Android and iOS.
