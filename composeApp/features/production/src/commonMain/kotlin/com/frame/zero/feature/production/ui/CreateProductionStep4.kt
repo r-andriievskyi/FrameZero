@@ -1,0 +1,278 @@
+package com.frame.zero.feature.production.ui
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.discovery.playground.shared.design_system.AppTheme
+import com.discovery.playground.shared.design_system.widgets.CtaButton
+import com.discovery.playground.shared.design_system.widgets.VerticalSpacer
+import com.frame.zero.domain.production.Genre
+import com.frame.zero.domain.production.ProductionPhase
+import com.frame.zero.feature.production.CreateProductionIntent
+import com.frame.zero.feature.production.CreateProductionState
+import com.frame.zero.feature.production.CrewMemberEntry
+import framezero.composeapp.features.production.generated.resources.Res
+import framezero.composeapp.features.production.generated.resources.create_button_create
+import framezero.composeapp.features.production.generated.resources.create_button_creating
+import framezero.composeapp.features.production.generated.resources.create_crew_label
+import framezero.composeapp.features.production.generated.resources.create_review_budget
+import framezero.composeapp.features.production.generated.resources.create_review_crew
+import framezero.composeapp.features.production.generated.resources.create_review_members_count
+import framezero.composeapp.features.production.generated.resources.create_review_not_set
+import framezero.composeapp.features.production.generated.resources.create_review_start
+import framezero.composeapp.features.production.generated.resources.create_review_untitled
+import framezero.composeapp.features.production.generated.resources.create_review_wrap
+import framezero.composeapp.features.production.generated.resources.create_step4_subtitle
+import framezero.composeapp.features.production.generated.resources.create_step4_title
+import kotlinx.datetime.LocalDate
+import org.jetbrains.compose.resources.stringResource
+
+private val ReviewAccentStripHeight = 6.dp
+
+// ── Step 4: Review & create ──────────────────────────────────────────
+
+@Composable
+internal fun Step4Content(
+  state: CreateProductionState,
+  onIntent: (CreateProductionIntent) -> Unit,
+  modifier: Modifier = Modifier,
+) {
+  Column(
+    modifier = modifier
+      .fillMaxSize()
+      .verticalScroll(rememberScrollState())
+      .padding(horizontal = AppTheme.spacingSystem.space16),
+  ) {
+    Text(
+      text = stringResource(Res.string.create_step4_title),
+      style = AppTheme.typographySystem.displayMedium,
+      color = AppTheme.colorSystem.textPrimary,
+    )
+    VerticalSpacer(AppTheme.spacingSystem.space4)
+    Text(
+      text = stringResource(Res.string.create_step4_subtitle),
+      style = AppTheme.typographySystem.bodyMedium,
+      color = AppTheme.colorSystem.textSecondary,
+    )
+
+    VerticalSpacer(AppTheme.spacingSystem.space24)
+
+    ReviewCard(state = state)
+
+    VerticalSpacer(AppTheme.spacingSystem.space24)
+
+    if (state.crewMembers.isNotEmpty()) {
+      FieldLabel(stringResource(Res.string.create_crew_label, state.crewMembers.size))
+      VerticalSpacer(AppTheme.spacingSystem.space8)
+      Row(horizontalArrangement = Arrangement.spacedBy(AppTheme.spacingSystem.space8)) {
+        state.crewMembers.forEach { member ->
+          CrewAvatar(member)
+        }
+      }
+      VerticalSpacer(AppTheme.spacingSystem.space24)
+    }
+
+    state.error?.let { error ->
+      ErrorText(error)
+      VerticalSpacer(AppTheme.spacingSystem.space16)
+    }
+
+    CtaButton(
+      text = if (state.isLoading) {
+        stringResource(Res.string.create_button_creating)
+      } else {
+        stringResource(Res.string.create_button_create)
+      },
+      modifier = Modifier.fillMaxWidth(),
+      onClick = { if (!state.isLoading) onIntent(CreateProductionIntent.Submit) },
+    )
+
+    VerticalSpacer(AppTheme.spacingSystem.space24)
+  }
+}
+
+// ── Review card ──────────────────────────────────────────────────────
+
+@Composable
+internal fun ReviewCard(state: CreateProductionState, modifier: Modifier = Modifier) {
+  val cardShape = RoundedCornerShape(AppTheme.radiusSystem.radius16)
+  val phaseColor = state.phase.dotColor()
+
+  Column(
+    modifier = modifier
+      .fillMaxWidth()
+      .clip(cardShape)
+      .border(BorderWidth, AppTheme.colorSystem.cardBorder, cardShape)
+      .background(AppTheme.colorSystem.cardBackground),
+  ) {
+    Box(
+      modifier = Modifier
+        .fillMaxWidth()
+        .height(ReviewAccentStripHeight)
+        .background(
+          Brush.horizontalGradient(
+            listOf(phaseColor, AppTheme.colorSystem.accent),
+          ),
+        ),
+    )
+
+    Column(modifier = Modifier.padding(AppTheme.spacingSystem.space16)) {
+      Text(
+        text = state.title.ifBlank { stringResource(Res.string.create_review_untitled) },
+        style = AppTheme.typographySystem.titleLarge,
+        color = AppTheme.colorSystem.textPrimary,
+      )
+
+      VerticalSpacer(AppTheme.spacingSystem.space8)
+
+      Row(
+        horizontalArrangement = Arrangement.spacedBy(AppTheme.spacingSystem.space8),
+        verticalAlignment = Alignment.CenterVertically,
+      ) {
+        GenreChip(
+          label = state.genre.displayLabel(),
+          isSelected = true,
+          onClick = {},
+        )
+        Text(
+          text = state.phase.label(),
+          style = AppTheme.typographySystem.labelSmall,
+          color = phaseColor,
+        )
+      }
+
+      VerticalSpacer(AppTheme.spacingSystem.space16)
+
+      Row(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.weight(1f)) {
+          Text(
+            text = stringResource(Res.string.create_review_start),
+            style = AppTheme.typographySystem.caption,
+            color = AppTheme.colorSystem.textMuted,
+          )
+          Text(
+            text = state.startDate?.formatDisplay()
+              ?: stringResource(Res.string.create_review_not_set),
+            style = AppTheme.typographySystem.bodyMedium,
+            color = AppTheme.colorSystem.textPrimary,
+          )
+        }
+        Column(modifier = Modifier.weight(1f)) {
+          Text(
+            text = stringResource(Res.string.create_review_wrap),
+            style = AppTheme.typographySystem.caption,
+            color = AppTheme.colorSystem.textMuted,
+          )
+          Text(
+            text = state.wrapDate?.formatDisplay()
+              ?: stringResource(Res.string.create_review_not_set),
+            style = AppTheme.typographySystem.bodyMedium,
+            color = AppTheme.colorSystem.textPrimary,
+          )
+        }
+      }
+
+      VerticalSpacer(AppTheme.spacingSystem.space8)
+
+      Row(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.weight(1f)) {
+          Text(
+            text = stringResource(Res.string.create_review_budget),
+            style = AppTheme.typographySystem.caption,
+            color = AppTheme.colorSystem.textMuted,
+          )
+          Text(
+            text = state.budgetCents?.let { formatBudget(it) }
+              ?: stringResource(Res.string.create_review_not_set),
+            style = AppTheme.typographySystem.bodyMedium,
+            color = AppTheme.colorSystem.textPrimary,
+          )
+        }
+        Column(modifier = Modifier.weight(1f)) {
+          Text(
+            text = stringResource(Res.string.create_review_crew),
+            style = AppTheme.typographySystem.caption,
+            color = AppTheme.colorSystem.textMuted,
+          )
+          Text(
+            text = stringResource(
+              Res.string.create_review_members_count,
+              state.crewMembers.size + 1,
+            ),
+            style = AppTheme.typographySystem.bodyMedium,
+            color = AppTheme.colorSystem.textPrimary,
+          )
+        }
+      }
+    }
+  }
+}
+
+// ── Previews ─────────────────────────────────────────────────────────
+
+@Preview
+@Composable
+private fun Step4ContentPreview() {
+  AppTheme(darkTheme = true) {
+    Step4Content(
+      state = CreateProductionState(
+        title = "Echoes of Silence",
+        genre = Genre.DRAMA,
+        phase = ProductionPhase.PRE_PRODUCTION,
+        startDate = LocalDate(2026, 8, 1),
+        wrapDate = LocalDate(2026, 12, 15),
+        budgetCents = 500_000_00L,
+        crewMembers = listOf(
+          CrewMemberEntry("Jane Smith", "Director"),
+          CrewMemberEntry("John Doe", "Producer"),
+        ),
+      ),
+      onIntent = {},
+    )
+  }
+}
+
+@Preview
+@Composable
+private fun ReviewCardPreview() {
+  AppTheme(darkTheme = true) {
+    ReviewCard(
+      state = CreateProductionState(
+        title = "Echoes of Silence",
+        genre = Genre.DRAMA,
+        phase = ProductionPhase.PRODUCTION,
+        startDate = LocalDate(2026, 8, 1),
+        wrapDate = LocalDate(2026, 12, 15),
+        budgetCents = 150_000_00L,
+        crewMembers = listOf(CrewMemberEntry("Jane Smith", "Director")),
+      ),
+    )
+  }
+}
+
+@Preview
+@Composable
+private fun ReviewCardEmptyPreview() {
+  AppTheme(darkTheme = true) {
+    ReviewCard(state = CreateProductionState())
+  }
+}
+
