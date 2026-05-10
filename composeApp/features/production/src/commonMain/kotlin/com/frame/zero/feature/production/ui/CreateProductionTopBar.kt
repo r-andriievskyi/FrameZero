@@ -117,7 +117,7 @@ internal fun StepIndicator(
 @Composable
 private fun TopBarPreview() {
   AppTheme(darkTheme = true) {
-    TopBar(step = 2, totalSteps = 4, onBack = {})
+    TopBar(step = 2, totalSteps = 3, onBack = {})
   }
 }
 
@@ -125,7 +125,7 @@ private fun TopBarPreview() {
 @Composable
 private fun StepIndicatorPreview() {
   AppTheme(darkTheme = true) {
-    StepIndicator(currentStep = 2, totalSteps = 4)
+    StepIndicator(currentStep = 2, totalSteps = 3)
   }
 }
 
