@@ -8,7 +8,6 @@ import com.frame.zero.dto.notification.NotificationsResponse
 import java.util.UUID
 import kotlin.time.toKotlinInstant
 
-private const val DEFAULT_PAGE_SIZE = 20
 
 class NotificationService(
   private val notifications: NotificationRepository

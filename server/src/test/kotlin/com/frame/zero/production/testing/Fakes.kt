@@ -177,12 +177,4 @@ internal class FakeProductionMemberRepository : ProductionMemberRepository {
     members.removeAt(idx)
     return true
   }
-
-  override suspend fun isOwner(
-    userId: UUID,
-    productionId: UUID
-  ): Boolean =
-    members.none {
-      it.productionId == productionId && it.userId == userId
-    }
 }
