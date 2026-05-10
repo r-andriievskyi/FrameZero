@@ -138,6 +138,15 @@ internal class FakeProductionMemberRepository : ProductionMemberRepository {
       it.productionId == productionId
     }
 
+  override suspend fun countByProductions(productionIds: List<UUID>): Map<UUID, Int> =
+    members
+      .filter { it.productionId in productionIds }
+      .groupBy { it.productionId }
+      .mapValues { it.value.size }
+
+  override suspend fun isMember(userId: UUID, productionId: UUID): Boolean =
+    members.any { it.productionId == productionId && it.userId == userId }
+
   override suspend fun add(
     productionId: UUID,
     userId: UUID?,

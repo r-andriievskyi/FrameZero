@@ -3,6 +3,7 @@ package com.frame.zero.schedule
 import com.frame.zero.AppError
 import com.frame.zero.AppException
 import com.frame.zero.common.pathUuid
+import com.frame.zero.common.timezone
 import com.frame.zero.common.userId
 import com.frame.zero.dto.schedule.CreateScheduleEventRequest
 import com.frame.zero.dto.schedule.UpdateScheduleEventRequest
@@ -17,7 +18,6 @@ import io.ktor.server.routing.patch
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import org.koin.ktor.ext.inject
-import java.time.ZoneId
 
 fun Route.scheduleRoutes() {
   val service by inject<ScheduleService>()
@@ -26,10 +26,7 @@ fun Route.scheduleRoutes() {
     route("/api/v1/schedule") {
       get {
         val userId = call.userId()
-        val tz =
-          call.request.headers["X-Timezone"]?.let {
-            runCatching { ZoneId.of(it) }.getOrDefault(ZoneId.of("UTC"))
-          } ?: ZoneId.of("UTC")
+        val tz = call.timezone()
         val view =
           call.request.queryParameters["view"]
             ?: throw AppException(

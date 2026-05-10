@@ -1,6 +1,7 @@
 package com.frame.zero.dashboard
 
 import com.frame.zero.auth.UserRepository
+import com.frame.zero.common.computeProgressPercent
 import com.frame.zero.common.dueLabelFor
 import com.frame.zero.common.toKotlin
 import com.frame.zero.domain.production.ProductionSort
@@ -47,13 +48,15 @@ class DashboardService(
       cursor = null
     )
 
+    val today = java.time.LocalDate.now()
+    val productionIds = productionItems.map { it.id }
+    val membersCounts = members.countByProductions(productionIds)
+
     val productionStatus = productionItems.map { prod ->
-      val today = java.time.LocalDate.now()
-      val progress = computeProgress(prod.startDate, prod.wrapDate, today)
+      val progress = computeProgressPercent(prod.startDate, prod.wrapDate, today)
       val daysLeft = ChronoUnit.DAYS
         .between(today, prod.wrapDate)
         .toInt()
-      val membersCount = members.countByProduction(prod.id)
       ProductionSummaryDto(
         id = prod.id.toString(),
         title = prod.title,
@@ -61,7 +64,7 @@ class DashboardService(
         phase = prod.phase,
         progressPercent = progress,
         daysLeft = daysLeft,
-        membersCount = membersCount,
+        membersCount = membersCounts[prod.id] ?: 0,
         updatedAt = prod.updatedAt.toKotlinInstant()
       )
     }
@@ -89,22 +92,5 @@ class DashboardService(
       dueLabel = label,
       status = status
     )
-  }
-
-  private companion object {
-    fun computeProgress(
-      start: java.time.LocalDate,
-      wrap: java.time.LocalDate,
-      today: java.time.LocalDate
-    ): Int {
-      if (!today.isAfter(start)) return 0
-      if (!today.isBefore(wrap)) return 100
-      val total = ChronoUnit.DAYS
-        .between(start, wrap)
-        .coerceAtLeast(1)
-      val elapsed = ChronoUnit.DAYS
-        .between(start, today)
-      return (elapsed * 100 / total).toInt().coerceIn(0, 100)
-    }
   }
 }

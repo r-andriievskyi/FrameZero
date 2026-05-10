@@ -17,6 +17,7 @@ import com.frame.zero.schedule.scheduleRoutes
 import com.frame.zero.task.taskModule
 import com.frame.zero.task.taskRoutes
 import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
@@ -30,6 +31,9 @@ import io.ktor.server.plugins.callid.CallId
 import io.ktor.server.plugins.callid.callIdMdc
 import io.ktor.server.plugins.calllogging.CallLogging
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.server.plugins.cors.routing.CORS
+import io.ktor.server.plugins.ratelimit.RateLimit
+import io.ktor.server.plugins.ratelimit.RateLimitName
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.response.respond
 import io.ktor.server.routing.routing
@@ -38,8 +42,11 @@ import org.koin.ktor.plugin.Koin
 import org.koin.logger.slf4jLogger
 import org.slf4j.event.Level
 import java.util.UUID
+import kotlin.time.Duration.Companion.minutes
 
 private const val MAX_CALL_ID_LENGTH = 128
+private const val AUTH_RATE_LIMIT = 10
+val AUTH_RATE_LIMIT_NAME = RateLimitName("auth")
 
 fun main() {
   val config = AppConfig.fromEnv()
@@ -72,6 +79,25 @@ fun Application.module(config: AppConfig) {
   }
 
   install(ContentNegotiation) { json() }
+
+  install(CORS) {
+    allowMethod(HttpMethod.Get)
+    allowMethod(HttpMethod.Post)
+    allowMethod(HttpMethod.Patch)
+    allowMethod(HttpMethod.Delete)
+    allowMethod(HttpMethod.Options)
+    allowHeader(HttpHeaders.Authorization)
+    allowHeader(HttpHeaders.ContentType)
+    allowHeader(HttpHeaders.XRequestId)
+    allowHeader("X-Timezone")
+    anyHost() // TODO: restrict to known origins in production
+  }
+
+  install(RateLimit) {
+    register(AUTH_RATE_LIMIT_NAME) {
+      rateLimiter(limit = AUTH_RATE_LIMIT, refillPeriod = 1.minutes)
+    }
+  }
 
   install(Authentication) {
     jwt("auth-jwt") {

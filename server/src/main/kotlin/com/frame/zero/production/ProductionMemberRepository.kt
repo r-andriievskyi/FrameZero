@@ -3,7 +3,9 @@ package com.frame.zero.production
 import com.frame.zero.auth.UsersTable
 import com.frame.zero.config.dbQuery
 import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
@@ -28,6 +30,10 @@ interface ProductionMemberRepository {
   suspend fun findById(id: UUID): ProductionMemberRecord?
 
   suspend fun countByProduction(productionId: UUID): Int
+
+  suspend fun countByProductions(productionIds: List<UUID>): Map<UUID, Int>
+
+  suspend fun isMember(userId: UUID, productionId: UUID): Boolean
 
   suspend fun add(
     productionId: UUID,
@@ -73,6 +79,27 @@ class ProductionMemberRepositoryExposed : ProductionMemberRepository {
         .where { ProductionMembersTable.productionId eq productionId }
         .count()
         .toInt()
+    }
+
+  override suspend fun countByProductions(productionIds: List<UUID>): Map<UUID, Int> =
+    dbQuery {
+      if (productionIds.isEmpty()) return@dbQuery emptyMap()
+      ProductionMembersTable
+        .selectAll()
+        .where { ProductionMembersTable.productionId inList productionIds }
+        .groupBy { it[ProductionMembersTable.productionId] }
+        .mapValues { it.value.size }
+    }
+
+  override suspend fun isMember(userId: UUID, productionId: UUID): Boolean =
+    dbQuery {
+      ProductionMembersTable
+        .selectAll()
+        .where {
+          (ProductionMembersTable.productionId eq productionId) and
+            (ProductionMembersTable.userId eq userId)
+        }.limit(1)
+        .any()
     }
 
   override suspend fun add(
