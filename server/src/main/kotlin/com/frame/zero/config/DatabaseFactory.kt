@@ -15,11 +15,12 @@ object DatabaseFactory {
   }
 
   private fun runFlyway(ds: DataSource) {
+    val isDev = System.getProperty("io.ktor.development")?.toBoolean() == true
     Flyway
       .configure()
       .dataSource(ds)
       .locations("classpath:db/migration")
-      .baselineOnMigrate(true)
+      .baselineOnMigrate(isDev)
       .baselineVersion("0")
       .load()
       .migrate()

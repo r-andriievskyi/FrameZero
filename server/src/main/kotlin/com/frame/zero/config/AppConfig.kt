@@ -5,7 +5,18 @@ data class AppConfig(
   val jwt: JwtConfig
 ) {
   companion object {
-    fun fromEnv(): AppConfig = AppConfig(database = DatabaseConfig.fromEnv(), jwt = JwtConfig.fromEnv())
+    fun fromEnv(): AppConfig {
+      val config = AppConfig(database = DatabaseConfig.fromEnv(), jwt = JwtConfig.fromEnv())
+      config.validate()
+      return config
+    }
+  }
+
+  private fun validate() {
+    require(database.url.startsWith("jdbc:")) {
+      "DATABASE_URL must be a valid JDBC URL (got: '${database.url}')"
+    }
+    require(database.user.isNotBlank()) { "DATABASE_USER must not be blank" }
   }
 }
 

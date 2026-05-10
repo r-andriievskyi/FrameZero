@@ -4,7 +4,7 @@ import com.auth0.jwt.JWT
 import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
 import com.frame.zero.config.JwtConfig
-import java.util.Date
+import java.time.Instant
 import java.util.UUID
 
 class JwtService(
@@ -21,16 +21,16 @@ class JwtService(
     userId: UUID,
     email: String
   ): String {
-    val currentTime = System.currentTimeMillis()
-    val expiresAtMillis = currentTime + jwtConfig.accessTokenTtl.inWholeMilliseconds
+    val now = Instant.now()
+    val expiresAt = now.plusMillis(jwtConfig.accessTokenTtl.inWholeMilliseconds)
     return JWT
       .create()
       .withIssuer(jwtConfig.issuer)
       .withAudience(jwtConfig.audience)
       .withSubject(userId.toString())
       .withClaim(EMAIL_CLAIM, email)
-      .withIssuedAt(Date(currentTime))
-      .withExpiresAt(Date(expiresAtMillis))
+      .withIssuedAt(now)
+      .withExpiresAt(expiresAt)
       .sign(signingAlgorithm)
   }
 

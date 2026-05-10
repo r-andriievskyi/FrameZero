@@ -12,10 +12,10 @@ class TokenHasher {
     return base64UrlEncode(bytes)
   }
 
-  fun sha256(token: String): String {
-    val digest = MessageDigest.getInstance("SHA-256").digest(token.toByteArray(Charsets.UTF_8))
-    return digest.joinToString("") { "%02x".format(it) }
-  }
+  @OptIn(ExperimentalStdlibApi::class)
+  fun sha256(token: String): String = MessageDigest.getInstance("SHA-256")
+    .digest(token.toByteArray(Charsets.UTF_8))
+    .toHexString()
 
   private fun base64UrlEncode(bytes: ByteArray): String =
     java.util.Base64
