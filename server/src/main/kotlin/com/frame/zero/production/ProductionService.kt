@@ -3,6 +3,8 @@ package com.frame.zero.production
 import com.frame.zero.AppError
 import com.frame.zero.AppException
 import com.frame.zero.auth.UserRepository
+import com.frame.zero.common.computeProgressPercent
+import com.frame.zero.common.toJava
 import com.frame.zero.common.toKotlin
 import com.frame.zero.domain.production.ProductionPhase
 import com.frame.zero.domain.production.ProductionSort
@@ -15,7 +17,6 @@ import com.frame.zero.dto.production.ProductionMemberDto
 import com.frame.zero.dto.production.ProductionSummaryDto
 import com.frame.zero.dto.production.UpdateMemberRequest
 import com.frame.zero.dto.production.UpdateProductionRequest
-import kotlinx.datetime.number
 import java.time.Clock
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
@@ -86,8 +87,10 @@ class ProductionService(
       cursor
     )
     val today = LocalDate.now(clock)
+    val productionIds = productions.map { it.id }
+    val membersCounts = productionMemberRepository.countByProductions(productionIds)
     val summaries = productions.map { production ->
-      production.toSummaryDto(productionMemberRepository.countByProduction(production.id), today)
+      production.toSummaryDto(membersCounts[production.id] ?: 0, today)
     }
     return Pair(summaries, nextCursor)
   }
@@ -326,21 +329,6 @@ class ProductionService(
     const val MAX_PAGE_SIZE = 50
     const val KEY_CREW_LIMIT = 6
 
-    fun computeProgressPercent(
-      start: LocalDate,
-      wrap: LocalDate,
-      today: LocalDate
-    ): Int {
-      if (!today.isAfter(start)) return 0
-      if (!today.isBefore(wrap)) return 100
-      val totalDays = ChronoUnit.DAYS
-        .between(start, wrap)
-        .coerceAtLeast(1)
-      val elapsedDays = ChronoUnit.DAYS
-        .between(start, today)
-      return (elapsedDays * 100 / totalDays).toInt().coerceIn(0, 100)
-    }
-
     fun buildPipelinePhases(currentPhase: ProductionPhase): List<PipelinePhaseDto> =
       ProductionPhase.entries.map { phase ->
         PipelinePhaseDto(
@@ -381,7 +369,5 @@ class ProductionService(
         }
         if (index >= 0) index else KEY_CREW_ROLE_ORDER.size
       }
-
-    fun kotlinx.datetime.LocalDate.toJava(): LocalDate = LocalDate.of(year, month.number, day)
   }
 }

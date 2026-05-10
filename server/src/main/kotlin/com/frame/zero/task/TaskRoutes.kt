@@ -3,13 +3,13 @@ package com.frame.zero.task
 import com.frame.zero.AppError
 import com.frame.zero.AppException
 import com.frame.zero.common.pathUuid
+import com.frame.zero.common.timezone
 import com.frame.zero.common.userId
 import com.frame.zero.dto.common.PagedResponse
 import com.frame.zero.dto.task.CreateTaskRequest
 import com.frame.zero.dto.task.TaskStatus
 import com.frame.zero.dto.task.UpdateTaskRequest
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.ApplicationCall
 import io.ktor.server.auth.authenticate
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
@@ -20,7 +20,6 @@ import io.ktor.server.routing.patch
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import org.koin.ktor.ext.inject
-import java.time.ZoneId
 import java.util.UUID
 
 fun Route.taskRoutes() {
@@ -30,7 +29,7 @@ fun Route.taskRoutes() {
     route("/api/v1/tasks") {
       get {
         val userId = call.userId()
-        val tz = call.timezoneHeader()
+        val tz = call.timezone()
         val assigneeMe = call.request.queryParameters["assignee"] == "me"
         val status =
           call.request.queryParameters["status"]?.let {
@@ -60,7 +59,7 @@ fun Route.taskRoutes() {
 
       post {
         val userId = call.userId()
-        val tz = call.timezoneHeader()
+        val tz = call.timezone()
         val request = call.receive<CreateTaskRequest>()
         val task = service.create(userId, request, tz)
         call.respond(HttpStatusCode.Created, task)
@@ -70,14 +69,14 @@ fun Route.taskRoutes() {
         get {
           val userId = call.userId()
           val taskId = call.pathUuid("id")
-          val tz = call.timezoneHeader()
+          val tz = call.timezone()
           call.respond(service.get(userId, taskId, tz))
         }
 
         patch {
           val userId = call.userId()
           val taskId = call.pathUuid("id")
-          val tz = call.timezoneHeader()
+          val tz = call.timezone()
           val request = call.receive<UpdateTaskRequest>()
           call.respond(service.update(userId, taskId, request, tz))
         }
@@ -93,7 +92,3 @@ fun Route.taskRoutes() {
   }
 }
 
-private fun ApplicationCall.timezoneHeader(): ZoneId =
-  request.headers["X-Timezone"]?.let {
-    runCatching { ZoneId.of(it) }.getOrDefault(ZoneId.of("UTC"))
-  } ?: ZoneId.of("UTC")

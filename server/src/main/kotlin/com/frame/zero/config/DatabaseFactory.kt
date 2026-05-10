@@ -2,8 +2,6 @@ package com.frame.zero.config
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
@@ -35,8 +33,9 @@ object DatabaseFactory {
         username = config.user
         password = config.password
         maximumPoolSize = MAX_POOL_SIZE
+        // Exposed manages transactions explicitly via suspendTransaction
         isAutoCommit = false
-        transactionIsolation = "TRANSACTION_REPEATABLE_READ"
+        transactionIsolation = "TRANSACTION_READ_COMMITTED"
         validate()
       }
     )
@@ -44,4 +43,4 @@ object DatabaseFactory {
   private const val MAX_POOL_SIZE = 10
 }
 
-suspend fun <T> dbQuery(block: suspend () -> T): T = withContext(Dispatchers.IO) { suspendTransaction { block() } }
+suspend fun <T> dbQuery(block: suspend () -> T): T = suspendTransaction { block() }

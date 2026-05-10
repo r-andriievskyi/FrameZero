@@ -3,6 +3,7 @@ package com.frame.zero.task
 import com.frame.zero.AppError
 import com.frame.zero.AppException
 import com.frame.zero.common.dueLabelFor
+import com.frame.zero.common.toJava
 import com.frame.zero.common.toKotlin
 import com.frame.zero.dto.task.CreateTaskRequest
 import com.frame.zero.dto.task.TaskDetailDto
@@ -11,7 +12,6 @@ import com.frame.zero.dto.task.TaskSummaryDto
 import com.frame.zero.dto.task.UpdateTaskRequest
 import com.frame.zero.production.AccessLevel
 import com.frame.zero.production.ProductionAccessService
-import kotlinx.datetime.number
 import java.time.ZoneId
 import java.util.UUID
 import kotlin.time.toKotlinInstant
@@ -148,8 +148,4 @@ class TaskService(
       assigneeUserId = assigneeUserId?.toString(),
       createdAt = createdAt.toKotlinInstant()
     )
-
-  private companion object {
-    fun kotlinx.datetime.LocalDate.toJava(): java.time.LocalDate = java.time.LocalDate.of(year, month.number, day)
-  }
 }
