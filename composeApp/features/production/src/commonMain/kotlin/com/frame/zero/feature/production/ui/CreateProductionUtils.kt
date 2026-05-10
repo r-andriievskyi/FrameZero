@@ -7,11 +7,16 @@ import com.discovery.playground.shared.design_system.AppTheme
 import com.frame.zero.domain.production.Genre
 import com.frame.zero.domain.production.ProductionPhase
 import framezero.composeapp.features.production.generated.resources.Res
+import framezero.composeapp.features.production.generated.resources.phase_archived
 import framezero.composeapp.features.production.generated.resources.phase_development
 import framezero.composeapp.features.production.generated.resources.phase_distribution
+import framezero.composeapp.features.production.generated.resources.phase_financing
+import framezero.composeapp.features.production.generated.resources.phase_idea
+import framezero.composeapp.features.production.generated.resources.phase_marketing
 import framezero.composeapp.features.production.generated.resources.phase_post_production
 import framezero.composeapp.features.production.generated.resources.phase_pre_production
 import framezero.composeapp.features.production.generated.resources.phase_production
+import framezero.composeapp.features.production.generated.resources.phase_release
 import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.stringResource
 
@@ -27,20 +32,30 @@ internal fun Genre.displayLabel(): String =
 
 @Composable
 internal fun ProductionPhase.label(): String = when (this) {
+  ProductionPhase.IDEA -> stringResource(Res.string.phase_idea)
   ProductionPhase.DEVELOPMENT -> stringResource(Res.string.phase_development)
+  ProductionPhase.FINANCING -> stringResource(Res.string.phase_financing)
   ProductionPhase.PRE_PRODUCTION -> stringResource(Res.string.phase_pre_production)
   ProductionPhase.PRODUCTION -> stringResource(Res.string.phase_production)
   ProductionPhase.POST_PRODUCTION -> stringResource(Res.string.phase_post_production)
+  ProductionPhase.MARKETING -> stringResource(Res.string.phase_marketing)
   ProductionPhase.DISTRIBUTION -> stringResource(Res.string.phase_distribution)
+  ProductionPhase.RELEASE -> stringResource(Res.string.phase_release)
+  ProductionPhase.ARCHIVED -> stringResource(Res.string.phase_archived)
 }
 
 @Composable
 internal fun ProductionPhase.dotColor(): Color = when (this) {
+  ProductionPhase.IDEA -> Color(0xFF9B9EA4)
   ProductionPhase.DEVELOPMENT -> Color(0xFF5BC0EB)
+  ProductionPhase.FINANCING -> AppTheme.colorSystem.warningText
   ProductionPhase.PRE_PRODUCTION -> AppTheme.colorSystem.warningText
   ProductionPhase.PRODUCTION -> AppTheme.colorSystem.successText
   ProductionPhase.POST_PRODUCTION -> AppTheme.colorSystem.accent
+  ProductionPhase.MARKETING -> Color(0xFF9B59B6)
   ProductionPhase.DISTRIBUTION -> AppTheme.colorSystem.successText
+  ProductionPhase.RELEASE -> AppTheme.colorSystem.successText
+  ProductionPhase.ARCHIVED -> AppTheme.colorSystem.textMuted
 }
 
 internal fun LocalDate.formatDisplay(): String {

@@ -51,10 +51,15 @@ private val DropdownHeight = 32.dp
 private val DropdownMenuTopPadding = 52.dp
 
 private val visiblePhases = listOf(
+  ProductionPhase.IDEA,
   ProductionPhase.DEVELOPMENT,
+  ProductionPhase.FINANCING,
   ProductionPhase.PRE_PRODUCTION,
   ProductionPhase.PRODUCTION,
   ProductionPhase.POST_PRODUCTION,
+  ProductionPhase.MARKETING,
+  ProductionPhase.DISTRIBUTION,
+  ProductionPhase.RELEASE,
 )
 
 // ── Field label ──────────────────────────────────────────────────────

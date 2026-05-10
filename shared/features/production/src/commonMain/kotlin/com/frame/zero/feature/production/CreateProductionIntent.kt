@@ -1,7 +1,6 @@
 package com.frame.zero.feature.production
 
 import com.frame.zero.domain.production.Genre
-import com.frame.zero.domain.production.ProductionPhase
 import kotlinx.datetime.LocalDate
 
 sealed interface CreateProductionIntent {
@@ -11,10 +10,6 @@ sealed interface CreateProductionIntent {
 
   data class GenreChanged(
     val genre: Genre
-  ) : CreateProductionIntent
-
-  data class PhaseChanged(
-    val phase: ProductionPhase
   ) : CreateProductionIntent
 
   data class LoglineChanged(

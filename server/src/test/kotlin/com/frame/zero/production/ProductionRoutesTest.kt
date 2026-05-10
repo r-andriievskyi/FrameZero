@@ -2,7 +2,6 @@ package com.frame.zero.production
 
 import com.frame.zero.common.testing.TestAppEnv
 import com.frame.zero.domain.production.Genre
-import com.frame.zero.domain.production.ProductionPhase
 import com.frame.zero.dto.production.CreateProductionRequest
 import com.frame.zero.dto.production.ProductionDetailDto
 import io.ktor.client.request.delete
@@ -17,7 +16,6 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.server.testing.testApplication
 import kotlinx.datetime.LocalDate
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.koin.core.context.GlobalContext
 import org.koin.core.context.stopKoin
@@ -38,7 +36,6 @@ class ProductionRoutesTest {
     CreateProductionRequest(
       title = "Test Film",
       genre = Genre.DRAMA,
-      phase = ProductionPhase.DEVELOPMENT,
       startDate = LocalDate(2026, 1, 1),
       wrapDate = LocalDate(2026, 6, 30)
     )

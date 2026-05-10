@@ -15,13 +15,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.discovery.playground.shared.design_system.AppTheme
 import com.discovery.playground.shared.design_system.widgets.CtaButton
 import com.discovery.playground.shared.design_system.widgets.VerticalSpacer
-import com.frame.zero.domain.production.ProductionPhase
 import com.frame.zero.feature.production.CreateProductionIntent
 import com.frame.zero.feature.production.CreateProductionState
 import framezero.composeapp.features.production.generated.resources.Res
 import framezero.composeapp.features.production.generated.resources.create_button_continue
 import framezero.composeapp.features.production.generated.resources.create_field_budget
-import framezero.composeapp.features.production.generated.resources.create_field_current_phase
 import framezero.composeapp.features.production.generated.resources.create_field_start_date
 import framezero.composeapp.features.production.generated.resources.create_field_wrap_date
 import framezero.composeapp.features.production.generated.resources.create_placeholder_date
@@ -30,7 +28,7 @@ import framezero.composeapp.features.production.generated.resources.create_step2
 import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.stringResource
 
-// ── Step 2: Timeline & Phase ─────────────────────────────────────────
+// ── Step 2: Timeline ─────────────────────────────────────────────────
 
 @Composable
 internal fun Step2Content(
@@ -54,15 +52,6 @@ internal fun Step2Content(
       text = stringResource(Res.string.create_step2_subtitle),
       style = AppTheme.typographySystem.bodyMedium,
       color = AppTheme.colorSystem.textSecondary,
-    )
-
-    VerticalSpacer(AppTheme.spacingSystem.space24)
-
-    FieldLabel(stringResource(Res.string.create_field_current_phase))
-    VerticalSpacer(AppTheme.spacingSystem.space8)
-    PhaseSelector(
-      selected = state.phase,
-      onSelect = { onIntent(CreateProductionIntent.PhaseChanged(it)) },
     )
 
     VerticalSpacer(AppTheme.spacingSystem.space24)
@@ -128,7 +117,6 @@ private fun Step2ContentPreview() {
   AppTheme(darkTheme = true) {
     Step2Content(
       state = CreateProductionState(
-        phase = ProductionPhase.PRE_PRODUCTION,
         startDate = LocalDate(2026, 8, 1),
         wrapDate = LocalDate(2026, 12, 15),
         budgetCents = 500_000_00L,
@@ -148,5 +136,3 @@ private fun Step2ContentEmptyPreview() {
     )
   }
 }
-
-

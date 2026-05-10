@@ -61,7 +61,6 @@ data class CreateProductionRequest(
   val title: String,
   val genre: Genre,
   val logline: String? = null,
-  val phase: ProductionPhase,
   val startDate: LocalDate,
   val wrapDate: LocalDate,
   val budgetCents: Long? = null,
