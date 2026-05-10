@@ -23,12 +23,10 @@ data class CreateProductionState(
   val error: String? = null,
   val isSuccess: Boolean = false
 ) {
-  val totalSteps: Int get() = 4
+  val totalSteps: Int get() = 3
 
   val canAdvanceStep1: Boolean
-    get() = title.isNotBlank()
-
-  val canAdvanceStep2: Boolean
-    get() = startDate != null && wrapDate != null &&
+    get() = title.isNotBlank() &&
+      startDate != null && wrapDate != null &&
       wrapDate.toEpochDays() > startDate.toEpochDays()
 }

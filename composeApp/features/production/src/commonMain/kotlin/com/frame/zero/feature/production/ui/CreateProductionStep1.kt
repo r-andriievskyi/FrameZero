@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -22,13 +23,16 @@ import com.frame.zero.feature.production.CreateProductionIntent
 import com.frame.zero.feature.production.CreateProductionState
 import framezero.composeapp.features.production.generated.resources.Res
 import framezero.composeapp.features.production.generated.resources.create_button_continue
+import framezero.composeapp.features.production.generated.resources.create_field_budget
 import framezero.composeapp.features.production.generated.resources.create_field_genre
-import framezero.composeapp.features.production.generated.resources.create_field_logline
 import framezero.composeapp.features.production.generated.resources.create_field_production_title
-import framezero.composeapp.features.production.generated.resources.create_placeholder_logline
+import framezero.composeapp.features.production.generated.resources.create_field_start_date
+import framezero.composeapp.features.production.generated.resources.create_field_wrap_date
+import framezero.composeapp.features.production.generated.resources.create_placeholder_date
 import framezero.composeapp.features.production.generated.resources.create_placeholder_production_title
 import framezero.composeapp.features.production.generated.resources.create_step1_subtitle
 import framezero.composeapp.features.production.generated.resources.create_step1_title
+import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.stringResource
 
 // ── Step 1: What are you making? ─────────────────────────────────────
@@ -88,12 +92,39 @@ internal fun Step1Content(
 
     VerticalSpacer(AppTheme.spacingSystem.space24)
 
-    FieldLabel(stringResource(Res.string.create_field_logline))
+    Row(
+      modifier = Modifier.fillMaxWidth(),
+      horizontalArrangement = Arrangement.spacedBy(AppTheme.spacingSystem.space8),
+    ) {
+      Column(modifier = Modifier.weight(1f)) {
+        FieldLabel(stringResource(Res.string.create_field_start_date))
+        VerticalSpacer(AppTheme.spacingSystem.space8)
+        DateInputField(
+          value = state.startDate,
+          placeholder = stringResource(Res.string.create_placeholder_date),
+          enabled = !state.isLoading,
+          onDateChange = { onIntent(CreateProductionIntent.StartDateChanged(it)) },
+        )
+      }
+      Column(modifier = Modifier.weight(1f)) {
+        FieldLabel(stringResource(Res.string.create_field_wrap_date))
+        VerticalSpacer(AppTheme.spacingSystem.space8)
+        DateInputField(
+          value = state.wrapDate,
+          placeholder = stringResource(Res.string.create_placeholder_date),
+          enabled = !state.isLoading,
+          onDateChange = { onIntent(CreateProductionIntent.WrapDateChanged(it)) },
+        )
+      }
+    }
+
+    VerticalSpacer(AppTheme.spacingSystem.space24)
+
+    FieldLabel(stringResource(Res.string.create_field_budget))
     VerticalSpacer(AppTheme.spacingSystem.space8)
-    SingleLineInputField(
-      value = state.logline,
-      onValueChange = { onIntent(CreateProductionIntent.LoglineChanged(it)) },
-      placeholder = stringResource(Res.string.create_placeholder_logline),
+    BudgetInputField(
+      budgetCents = state.budgetCents,
+      onBudgetChange = { onIntent(CreateProductionIntent.BudgetChanged(it)) },
       enabled = !state.isLoading,
     )
 
@@ -124,7 +155,9 @@ private fun Step1ContentPreview() {
       state = CreateProductionState(
         title = "Echoes of Silence",
         genre = Genre.DRAMA,
-        logline = "A story about finding yourself.",
+        startDate = LocalDate(2026, 8, 1),
+        wrapDate = LocalDate(2026, 12, 15),
+        budgetCents = 500_000_00L,
       ),
       onIntent = {},
     )

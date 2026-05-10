@@ -68,9 +68,8 @@ internal fun CreateProductionScreen(
     ) { step ->
       when (step) {
         1 -> Step1Content(state = state, onIntent = onIntent)
-        2 -> Step2Content(state = state, onIntent = onIntent)
-        3 -> Step3Content(state = state, onIntent = onIntent)
-        4 -> Step4Content(state = state, onIntent = onIntent)
+        2 -> Step3Content(state = state, onIntent = onIntent)
+        3 -> Step4Content(state = state, onIntent = onIntent)
       }
     }
   }
@@ -107,19 +106,7 @@ private fun CreateProductionStep2Preview() {
 private fun CreateProductionStep3Preview() {
   AppTheme(darkTheme = true) {
     CreateProductionScreen(
-      state = CreateProductionState(currentStep = 3),
-      onIntent = {},
-      onBack = {},
-    )
-  }
-}
-
-@Preview
-@Composable
-private fun CreateProductionStep4Preview() {
-  AppTheme(darkTheme = true) {
-    CreateProductionScreen(
-      state = CreateProductionState(currentStep = 4, title = "Echoes of Silence", genre = Genre.DRAMA),
+      state = CreateProductionState(currentStep = 3, title = "Echoes of Silence", genre = Genre.DRAMA),
       onIntent = {},
       onBack = {},
     )
