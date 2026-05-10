@@ -28,8 +28,7 @@ class ProductionAccessService(
       AccessLevel.READ,
       AccessLevel.WRITE -> {
         if (production.ownerUserId == userId) return
-        val isMember = members.findByProduction(productionId).any { it.userId == userId }
-        if (!isMember) throw AppException(AppError.Forbidden)
+        if (!members.isMember(userId, productionId)) throw AppException(AppError.Forbidden)
       }
     }
   }

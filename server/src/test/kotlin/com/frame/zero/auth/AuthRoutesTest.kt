@@ -26,6 +26,7 @@ import io.ktor.server.auth.Authentication
 import io.ktor.server.auth.jwt.JWTPrincipal
 import io.ktor.server.auth.jwt.jwt
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.server.plugins.ratelimit.RateLimit
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.response.respond
 import io.ktor.server.routing.routing
@@ -307,6 +308,11 @@ class AuthRoutesTest {
     fun configure(app: Application) {
       app.install(Koin) { modules(module { single { service } }) }
       app.install(ContentNegotiation) { json() }
+      app.install(RateLimit) {
+        register(com.frame.zero.AUTH_RATE_LIMIT_NAME) {
+          rateLimiter(limit = 100, refillPeriod = 1.minutes)
+        }
+      }
       app.install(Authentication) {
         jwt("auth-jwt") {
           realm = jwtConfig.realm
