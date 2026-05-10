@@ -97,7 +97,7 @@ internal fun ErrorText(error: String, modifier: Modifier = Modifier) {
 internal fun GenreChip(
   label: String,
   isSelected: Boolean,
-  onClick: () -> Unit,
+  onClick: () -> Unit = {},
   modifier: Modifier = Modifier,
 ) {
   val shape = RoundedCornerShape(AppTheme.radiusSystem.radiusMax)
