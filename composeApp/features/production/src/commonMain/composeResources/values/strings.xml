@@ -30,7 +30,7 @@
   <string name="create_field_role">ROLE</string>
   <string name="create_crew_empty">No crew added yet</string>
   <string name="create_crew_owner_note">You\'ll be added as the project owner automatically</string>
-  <string name="create_button_skip_continue">Skip &amp; continue →</string>
+  <string name="create_button_skip_continue">Skip &amp; continue</string>
 
   <!-- Step 4: Review & create -->
   <string name="create_step4_title">Review &amp; create</string>
@@ -49,7 +49,7 @@
   <string name="create_review_members_count">%1$d members</string>
 
   <!-- Shared button -->
-  <string name="create_button_continue">Continue →</string>
+  <string name="create_button_continue">Continue</string>
 
   <!-- Phase labels -->
   <string name="phase_development">Development</string>
