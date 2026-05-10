@@ -15,6 +15,8 @@ kotlin {
 
   jvm()
 
+  wasmJs { browser() }
+
   sourceSets {
     commonMain.dependencies {
       api(libs.kotlinx.serialization.json)
@@ -34,6 +36,7 @@ kotlin {
     }
     iosMain.dependencies { implementation(libs.ktor.clientDarwin) }
     jvmMain.dependencies { implementation(libs.ktor.clientOkHttp) }
+    wasmJsMain.dependencies { implementation(libs.ktor.clientJs) }
     commonTest.dependencies {
       implementation(libs.kotlin.test)
       implementation(libs.kotlinx.coroutines.test)
