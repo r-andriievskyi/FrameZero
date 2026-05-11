@@ -2,6 +2,7 @@ package com.frame.zero.feature.home.ui.tab.productions
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,7 +37,10 @@ import org.jetbrains.compose.resources.stringResource
 private val ProgressBarHeight = 6.dp
 
 @Composable
-internal fun ProductionCard(production: ProductionUi) {
+internal fun ProductionCard(
+  production: ProductionUi,
+  onClick: () -> Unit = {}
+) {
   val accentColor = accentColorFor(production.phase)
 
   Column(
@@ -44,6 +48,7 @@ internal fun ProductionCard(production: ProductionUi) {
       .fillMaxWidth()
       .clip(RoundedCornerShape(AppTheme.radiusSystem.radius16))
       .background(AppTheme.colorSystem.cardBackground)
+      .clickable(onClick = onClick)
       .padding(AppTheme.spacingSystem.space16)
   ) {
     Row(

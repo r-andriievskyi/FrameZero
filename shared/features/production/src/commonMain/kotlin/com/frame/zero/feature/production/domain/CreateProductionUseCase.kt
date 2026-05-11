@@ -33,7 +33,7 @@ class CreateProductionUseCase(
     }
 
   override suspend fun execute(params: Params): Production =
-    productionsRepository.createProduction(
+    productionsRepository.create(
       CreateProductionRequest(
         title = params.title,
         genre = params.genre,

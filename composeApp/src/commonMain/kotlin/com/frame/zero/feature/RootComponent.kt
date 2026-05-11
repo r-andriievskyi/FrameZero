@@ -16,6 +16,8 @@ import com.frame.zero.feature.auth.AuthComponent
 import com.frame.zero.feature.home.HomeComponent
 import com.frame.zero.feature.production.CreateProductionComponent
 import com.frame.zero.feature.production.CreateProductionViewModel
+import com.frame.zero.feature.production.details.ProductionDetailsComponent
+import com.frame.zero.feature.production.details.ProductionDetailsViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -26,8 +28,13 @@ class RootComponent(
   componentContext: ComponentContext,
   sessionManager: SessionManager,
   private val authComponentFactory: (ComponentContext) -> AuthComponent,
-  private val homeComponentFactory: (ComponentContext, onCreateProductionClick: () -> Unit) -> HomeComponent,
-  private val createProductionViewModelFactory: () -> CreateProductionViewModel
+  private val homeComponentFactory: (
+    ComponentContext,
+    onCreateProductionClick: () -> Unit,
+    onProductionClick: (productionId: String) -> Unit
+  ) -> HomeComponent,
+  private val createProductionViewModelFactory: () -> CreateProductionViewModel,
+  private val productionDetailsViewModelFactory: (productionId: String) -> ProductionDetailsViewModel
 ) : ComponentContext by componentContext {
   private val navigation = StackNavigation<Config>()
 
@@ -64,10 +71,17 @@ class RootComponent(
       Config.Splash -> Child.Splash
       Config.Auth -> Child.Auth(authComponentFactory(context))
       Config.Home -> Child.Home(
-        homeComponentFactory(context) {
-          @OptIn(DelicateDecomposeApi::class)
-          navigation.push(Config.CreateProduction)
-        }
+        homeComponentFactory(
+          context,
+          {
+            @OptIn(DelicateDecomposeApi::class)
+            navigation.push(Config.CreateProduction)
+          },
+          { productionId ->
+            @OptIn(DelicateDecomposeApi::class)
+            navigation.push(Config.ProductionDetails(productionId))
+          }
+        )
       )
       Config.CreateProduction -> Child.CreateProduction(
         CreateProductionComponent(
@@ -75,6 +89,14 @@ class RootComponent(
           onBack = { navigation.pop() },
           onCreated = { navigation.pop() },
           viewModelFactory = createProductionViewModelFactory
+        )
+      )
+      is Config.ProductionDetails -> Child.ProductionDetails(
+        ProductionDetailsComponent(
+          componentContext = context,
+          productionId = config.productionId,
+          onBack = { navigation.pop() },
+          viewModelFactory = productionDetailsViewModelFactory
         )
       )
     }
@@ -87,6 +109,10 @@ class RootComponent(
     data object Home : Config
 
     data object CreateProduction : Config
+
+    data class ProductionDetails(
+      val productionId: String
+    ) : Config
   }
 
   sealed interface Child {
@@ -102,6 +128,10 @@ class RootComponent(
 
     data class CreateProduction(
       val component: CreateProductionComponent
+    ) : Child
+
+    data class ProductionDetails(
+      val component: ProductionDetailsComponent
     ) : Child
   }
 }

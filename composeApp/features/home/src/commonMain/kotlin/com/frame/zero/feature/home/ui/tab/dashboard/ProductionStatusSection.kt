@@ -1,6 +1,7 @@
 package com.frame.zero.feature.home.ui.tab.dashboard
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -33,26 +34,36 @@ private val PhaseIndicatorWidth = 4.dp
 private val PhaseIndicatorHeight = 40.dp
 
 @Composable
-internal fun ProductionStatusSection(productions: List<DashboardProductionUi>) {
+internal fun ProductionStatusSection(
+  productions: List<DashboardProductionUi>,
+  onProductionClick: (productionId: String) -> Unit = {}
+) {
   SectionHeader(
     title = stringResource(Res.string.production_status_title),
     actionLabel = stringResource(Res.string.production_status_all_projects)
   )
   VerticalSpacer(AppTheme.spacingSystem.space8)
   productions.forEach { production ->
-    ProductionCard(production = production)
+    ProductionCard(
+      production = production,
+      onClick = { onProductionClick(production.id) }
+    )
     VerticalSpacer(AppTheme.spacingSystem.space8)
   }
 }
 
 @Composable
-private fun ProductionCard(production: DashboardProductionUi) {
+private fun ProductionCard(
+  production: DashboardProductionUi,
+  onClick: () -> Unit
+) {
   val accentColor = accentColorFor(production.phase)
   Row(
     modifier = Modifier
       .fillMaxWidth()
       .clip(RoundedCornerShape(AppTheme.radiusSystem.radius16))
       .background(AppTheme.colorSystem.cardBackground)
+      .clickable(onClick = onClick)
       .padding(AppTheme.spacingSystem.space16),
     verticalAlignment = Alignment.CenterVertically
   ) {
