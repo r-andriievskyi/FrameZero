@@ -6,7 +6,9 @@ import com.frame.zero.dto.production.ProductionDetailDto
 import com.frame.zero.dto.production.ProductionSummaryDto
 
 interface ProductionsRepository {
-  suspend fun list(): PagedResponse<ProductionSummaryDto>
+  suspend fun getAll(): PagedResponse<ProductionSummaryDto>
 
-  suspend fun createProduction(request: CreateProductionRequest): ProductionDetailDto
+  suspend fun getDetails(productionId: String): ProductionDetailDto
+
+  suspend fun create(request: CreateProductionRequest): ProductionDetailDto
 }
