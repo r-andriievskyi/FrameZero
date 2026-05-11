@@ -29,6 +29,7 @@ declare -a USERS=(
 )
 
 declare -a ACCESS_TOKENS=()
+declare -a USER_IDS=()
 
 info "Registering 5 users..."
 for entry in "${USERS[@]}"; do
@@ -48,11 +49,18 @@ for entry in "${USERS[@]}"; do
   fi
 
   token=$(echo "$response" | jq -r '.accessToken')
+  user_id=$(echo "$response" | jq -r '.user.id')
   ACCESS_TOKENS+=("$token")
-  info "  $email — token: ${token:0:20}..."
+  USER_IDS+=("$user_id")
+  info "  $email — id: $user_id"
 done
 
 PRIMARY_TOKEN="${ACCESS_TOKENS[0]}"
+ALICE_ID="${USER_IDS[0]}"
+BOB_ID="${USER_IDS[1]}"
+CAROL_ID="${USER_IDS[2]}"
+DAVID_ID="${USER_IDS[3]}"
+EVA_ID="${USER_IDS[4]}"
 info "Primary user token acquired."
 
 # ---------------------------------------------------------------------------
@@ -62,20 +70,33 @@ info "Primary user token acquired."
 info "Creating 10 productions..."
 
 create_production() {
-  local title="$1" genre="$2" phase="$3" logline="$4" start="$5" wrap="$6" budget="$7"
+  local title="$1" genre="$2" logline="$3" start="$4" wrap="$5" budget="$6"
 
-  curl -sf -X POST "$API_URL/productions" \
+  curl -s -X POST "$API_URL/productions" \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer $PRIMARY_TOKEN" \
+    -w "\n%{http_code}" \
     -d "{
       \"title\": \"$title\",
       \"genre\": \"$genre\",
       \"logline\": \"$logline\",
-      \"phase\": \"$phase\",
       \"startDate\": \"$start\",
       \"wrapDate\": \"$wrap\",
       \"budgetCents\": $budget
     }"
+}
+
+# The create endpoint always sets phase=IDEA. Advance to the target phase
+# afterwards via POST /productions/{id}/phase (forward-only, skipping allowed).
+advance_phase() {
+  local prod_id="$1" target="$2"
+  if [[ "$target" == "IDEA" ]]; then
+    return 0
+  fi
+  curl -sf -X POST "$API_URL/productions/$prod_id/phase" \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer $PRIMARY_TOKEN" \
+    -d "{\"phase\":\"$target\"}" >/dev/null
 }
 
 PRODUCTION_IDS=()
@@ -95,9 +116,15 @@ declare -a PRODUCTIONS=(
 
 for entry in "${PRODUCTIONS[@]}"; do
   IFS='|' read -r title genre phase logline start wrap budget <<< "$entry"
-  response=$(create_production "$title" "$genre" "$phase" "$logline" "$start" "$wrap" "$budget")
-  id=$(echo "$response" | jq -r '.id')
+  raw=$(create_production "$title" "$genre" "$logline" "$start" "$wrap" "$budget")
+  status="${raw##*$'\n'}"
+  body="${raw%$'\n'*}"
+  if [[ "$status" != "200" && "$status" != "201" ]]; then
+    error "Production create failed [$status] for '$title': $body"
+  fi
+  id=$(echo "$body" | jq -r '.id')
   PRODUCTION_IDS+=("$id")
+  advance_phase "$id" "$phase"
   info "  Created '$title' ($phase) — id: $id"
 done
 
@@ -120,7 +147,58 @@ add_member "${PRODUCTION_IDS[0]}" "Carol Kim"   "1st AD"                  "carol
 add_member "${PRODUCTION_IDS[1]}" "David Osei"  "Production Designer"     "david.osei@framezero.dev"
 add_member "${PRODUCTION_IDS[1]}" "Eva Muller"  "Costume Designer"        "eva.muller@framezero.dev"
 
+# ---------------------------------------------------------------------------
+# Tasks (all created by alice.wright; mix of self-assigned and assigned to others)
+# ---------------------------------------------------------------------------
+
+info "Creating tasks as alice.wright..."
+
+create_task() {
+  local prod_id="$1" title="$2" description="$3" due="$4" assignee="$5"
+
+  local assignee_json="null"
+  if [[ -n "$assignee" ]]; then
+    assignee_json="\"$assignee\""
+  fi
+  local due_json="null"
+  if [[ -n "$due" ]]; then
+    due_json="\"$due\""
+  fi
+
+  curl -sf -X POST "$API_URL/tasks" \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer $PRIMARY_TOKEN" \
+    -d "{
+      \"productionId\": \"$prod_id\",
+      \"title\": \"$title\",
+      \"description\": \"$description\",
+      \"dueDate\": $due_json,
+      \"assigneeUserId\": $assignee_json
+    }" >/dev/null
+}
+
+# productionId | title | description | dueDate | assigneeUserId
+declare -a TASKS=(
+  "${PRODUCTION_IDS[0]}|Lock shooting script revision 4|Final pass on the radio-frequency reveal in act two before table read.|2026-05-25|${ALICE_ID}"
+  "${PRODUCTION_IDS[0]}|Scout downtown rooftop locations|Need three viable rooftops with clear sightlines to the broadcast tower.|2026-06-10|${BOB_ID}"
+  "${PRODUCTION_IDS[0]}|Build day-out-of-days schedule|Initial pass for stripboard, expecting 42 shooting days.|2026-06-01|${CAROL_ID}"
+  "${PRODUCTION_IDS[0]}|Confirm composer availability|Reach out to shortlist of three composers for development meetings.|2026-07-15|${ALICE_ID}"
+  "${PRODUCTION_IDS[1]}|Finalize cartographer character bible|Backstory, voice references, and expedition timeline.|2026-05-18|${ALICE_ID}"
+  "${PRODUCTION_IDS[1]}|Source period-accurate cartography props|Brass instruments, parchment maps, leather satchels.|2026-06-20|${DAVID_ID}"
+  "${PRODUCTION_IDS[1]}|Costume mood board for expedition crew|Layered wool, weather-beaten textures, era 1880-1900.|2026-06-05|${EVA_ID}"
+  "${PRODUCTION_IDS[2]}|Review VFX vendor bids for station exteriors|Three bids in; need cost vs quality breakdown.|2026-05-30|${ALICE_ID}"
+  "${PRODUCTION_IDS[5]}|Greenlight pitch deck for studio|Slides 1-12 done; need budget summary and comp titles.|2026-06-12|${ALICE_ID}"
+  "${PRODUCTION_IDS[9]}|Option soundtrack jazz standards|List of 8 tracks, request quotes from rights holders.|2026-07-01|${BOB_ID}"
+)
+
+for entry in "${TASKS[@]}"; do
+  IFS='|' read -r prod_id title description due assignee <<< "$entry"
+  create_task "$prod_id" "$title" "$description" "$due" "$assignee"
+  info "  Created task '$title' (assignee: ${assignee:0:8}...)"
+done
+
 info "Done. Summary:"
 info "  Users:       5"
 info "  Productions: ${#PRODUCTION_IDS[@]}"
+info "  Tasks:       ${#TASKS[@]}"
 info "  Server:      $ORIGIN"
