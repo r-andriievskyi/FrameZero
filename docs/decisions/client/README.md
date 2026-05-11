@@ -3,7 +3,6 @@
 Short notes on why the client stack is what it is. One file per choice,
 each ~10 lines. Read top-to-bottom for a stack tour.
 
-- [kotlin-multiplatform](kotlin-multiplatform.md) — share business logic across platforms
 - [compose-multiplatform](compose-multiplatform.md) — share UI across platforms
 - [decompose-navigation](decompose-navigation.md) — navigation & component lifecycle
 - [koin](koin.md) — DI
