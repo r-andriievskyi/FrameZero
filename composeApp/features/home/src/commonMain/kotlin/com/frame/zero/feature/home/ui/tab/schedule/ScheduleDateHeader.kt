@@ -18,55 +18,59 @@ import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.Month
 
-private fun LocalDate.dayOfWeekName(): String = when (dayOfWeek) {
-  DayOfWeek.MONDAY -> "Monday"
-  DayOfWeek.TUESDAY -> "Tuesday"
-  DayOfWeek.WEDNESDAY -> "Wednesday"
-  DayOfWeek.THURSDAY -> "Thursday"
-  DayOfWeek.FRIDAY -> "Friday"
-  DayOfWeek.SATURDAY -> "Saturday"
-  DayOfWeek.SUNDAY -> "Sunday"
-}
+private fun LocalDate.dayOfWeekName(): String =
+  when (dayOfWeek) {
+    DayOfWeek.MONDAY -> "Monday"
+    DayOfWeek.TUESDAY -> "Tuesday"
+    DayOfWeek.WEDNESDAY -> "Wednesday"
+    DayOfWeek.THURSDAY -> "Thursday"
+    DayOfWeek.FRIDAY -> "Friday"
+    DayOfWeek.SATURDAY -> "Saturday"
+    DayOfWeek.SUNDAY -> "Sunday"
+  }
 
-private fun LocalDate.shortDayOfWeekName(): String = when (dayOfWeek) {
-  DayOfWeek.MONDAY -> "Mon"
-  DayOfWeek.TUESDAY -> "Tue"
-  DayOfWeek.WEDNESDAY -> "Wed"
-  DayOfWeek.THURSDAY -> "Thu"
-  DayOfWeek.FRIDAY -> "Fri"
-  DayOfWeek.SATURDAY -> "Sat"
-  DayOfWeek.SUNDAY -> "Sun"
-}
+private fun LocalDate.shortDayOfWeekName(): String =
+  when (dayOfWeek) {
+    DayOfWeek.MONDAY -> "Mon"
+    DayOfWeek.TUESDAY -> "Tue"
+    DayOfWeek.WEDNESDAY -> "Wed"
+    DayOfWeek.THURSDAY -> "Thu"
+    DayOfWeek.FRIDAY -> "Fri"
+    DayOfWeek.SATURDAY -> "Sat"
+    DayOfWeek.SUNDAY -> "Sun"
+  }
 
-internal fun Month.shortName(): String = when (this) {
-  Month.JANUARY -> "Jan"
-  Month.FEBRUARY -> "Feb"
-  Month.MARCH -> "Mar"
-  Month.APRIL -> "Apr"
-  Month.MAY -> "May"
-  Month.JUNE -> "Jun"
-  Month.JULY -> "Jul"
-  Month.AUGUST -> "Aug"
-  Month.SEPTEMBER -> "Sep"
-  Month.OCTOBER -> "Oct"
-  Month.NOVEMBER -> "Nov"
-  Month.DECEMBER -> "Dec"
-}
+internal fun Month.shortName(): String =
+  when (this) {
+    Month.JANUARY -> "Jan"
+    Month.FEBRUARY -> "Feb"
+    Month.MARCH -> "Mar"
+    Month.APRIL -> "Apr"
+    Month.MAY -> "May"
+    Month.JUNE -> "Jun"
+    Month.JULY -> "Jul"
+    Month.AUGUST -> "Aug"
+    Month.SEPTEMBER -> "Sep"
+    Month.OCTOBER -> "Oct"
+    Month.NOVEMBER -> "Nov"
+    Month.DECEMBER -> "Dec"
+  }
 
-internal fun Month.fullName(): String = when (this) {
-  Month.JANUARY -> "January"
-  Month.FEBRUARY -> "February"
-  Month.MARCH -> "March"
-  Month.APRIL -> "April"
-  Month.MAY -> "May"
-  Month.JUNE -> "June"
-  Month.JULY -> "July"
-  Month.AUGUST -> "August"
-  Month.SEPTEMBER -> "September"
-  Month.OCTOBER -> "October"
-  Month.NOVEMBER -> "November"
-  Month.DECEMBER -> "December"
-}
+internal fun Month.fullName(): String =
+  when (this) {
+    Month.JANUARY -> "January"
+    Month.FEBRUARY -> "February"
+    Month.MARCH -> "March"
+    Month.APRIL -> "April"
+    Month.MAY -> "May"
+    Month.JUNE -> "June"
+    Month.JULY -> "July"
+    Month.AUGUST -> "August"
+    Month.SEPTEMBER -> "September"
+    Month.OCTOBER -> "October"
+    Month.NOVEMBER -> "November"
+    Month.DECEMBER -> "December"
+  }
 
 /**
  * Date header row showing "Saturday, Apr 26, 2026 [Today]" for day view
@@ -159,6 +163,3 @@ private fun ScheduleDateHeaderCompactPreview() {
     }
   }
 }
-
-
-

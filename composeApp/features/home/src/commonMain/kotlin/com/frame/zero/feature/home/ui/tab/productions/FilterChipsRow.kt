@@ -49,7 +49,7 @@ internal fun FilterChipsRow(
     ProductionPhase.MARKETING to stringResource(Res.string.projects_filter_marketing),
     ProductionPhase.DISTRIBUTION to stringResource(Res.string.projects_filter_distribution),
     ProductionPhase.RELEASE to stringResource(Res.string.projects_filter_release),
-    ProductionPhase.ARCHIVED to stringResource(Res.string.projects_filter_archived),
+    ProductionPhase.ARCHIVED to stringResource(Res.string.projects_filter_archived)
   )
 
   Row(

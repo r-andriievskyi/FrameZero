@@ -48,24 +48,24 @@ private val AddCrewButtonSize = 48.dp
 internal fun Step3Content(
   state: CreateProductionState,
   onIntent: (CreateProductionIntent) -> Unit,
-  modifier: Modifier = Modifier,
+  modifier: Modifier = Modifier
 ) {
   Column(
     modifier = modifier
       .fillMaxSize()
       .verticalScroll(rememberScrollState())
-      .padding(horizontal = AppTheme.spacingSystem.space16),
+      .padding(horizontal = AppTheme.spacingSystem.space16)
   ) {
     Text(
       text = stringResource(Res.string.create_step3_title),
       style = AppTheme.typographySystem.displayMedium,
-      color = AppTheme.colorSystem.textPrimary,
+      color = AppTheme.colorSystem.textPrimary
     )
     VerticalSpacer(AppTheme.spacingSystem.space4)
     Text(
       text = stringResource(Res.string.create_step3_subtitle),
       style = AppTheme.typographySystem.bodyMedium,
-      color = AppTheme.colorSystem.textSecondary,
+      color = AppTheme.colorSystem.textSecondary
     )
 
     VerticalSpacer(AppTheme.spacingSystem.space24)
@@ -73,7 +73,7 @@ internal fun Step3Content(
     Row(
       modifier = Modifier.fillMaxWidth(),
       horizontalArrangement = Arrangement.spacedBy(AppTheme.spacingSystem.space8),
-      verticalAlignment = Alignment.Bottom,
+      verticalAlignment = Alignment.Bottom
     ) {
       Column(modifier = Modifier.weight(1f)) {
         FieldLabel(stringResource(Res.string.create_field_name))
@@ -82,7 +82,7 @@ internal fun Step3Content(
           value = state.crewNameInput,
           onValueChange = { onIntent(CreateProductionIntent.CrewNameChanged(it)) },
           placeholder = stringResource(Res.string.create_placeholder_name),
-          enabled = !state.isLoading,
+          enabled = !state.isLoading
         )
       }
       Column(modifier = Modifier.weight(1f)) {
@@ -90,7 +90,7 @@ internal fun Step3Content(
         VerticalSpacer(AppTheme.spacingSystem.space8)
         RoleDropdown(
           selected = state.crewRoleInput,
-          onSelect = { onIntent(CreateProductionIntent.CrewRoleChanged(it)) },
+          onSelect = { onIntent(CreateProductionIntent.CrewRoleChanged(it)) }
         )
       }
       Box(
@@ -103,12 +103,12 @@ internal fun Step3Content(
               onIntent(CreateProductionIntent.AddCrewMember)
             }
           },
-        contentAlignment = Alignment.Center,
+        contentAlignment = Alignment.Center
       ) {
         Text(
           text = "+",
           style = AppTheme.typographySystem.titleMedium,
-          color = AppTheme.colorSystem.textOnAccent,
+          color = AppTheme.colorSystem.textOnAccent
         )
       }
     }
@@ -118,25 +118,25 @@ internal fun Step3Content(
     if (state.crewMembers.isEmpty()) {
       Column(
         modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally,
+        horizontalAlignment = Alignment.CenterHorizontally
       ) {
         Text(
           text = "🎬",
-          style = AppTheme.typographySystem.displayLarge,
+          style = AppTheme.typographySystem.displayLarge
         )
         VerticalSpacer(AppTheme.spacingSystem.space8)
         Text(
           text = stringResource(Res.string.create_crew_empty),
           style = AppTheme.typographySystem.bodyMedium,
           color = AppTheme.colorSystem.textMuted,
-          textAlign = TextAlign.Center,
+          textAlign = TextAlign.Center
         )
       }
     } else {
       state.crewMembers.forEachIndexed { index, member ->
         CrewMemberRow(
           member = member,
-          onRemove = { onIntent(CreateProductionIntent.RemoveCrewMember(index)) },
+          onRemove = { onIntent(CreateProductionIntent.RemoveCrewMember(index)) }
         )
         if (index < state.crewMembers.lastIndex) {
           VerticalSpacer(AppTheme.spacingSystem.space8)
@@ -151,7 +151,7 @@ internal fun Step3Content(
       style = AppTheme.typographySystem.bodySmall,
       color = AppTheme.colorSystem.accentText,
       modifier = Modifier.fillMaxWidth(),
-      textAlign = TextAlign.Center,
+      textAlign = TextAlign.Center
     )
 
     state.error?.let { error ->
@@ -168,7 +168,7 @@ internal fun Step3Content(
         stringResource(Res.string.create_button_continue)
       },
       modifier = Modifier.fillMaxWidth(),
-      onClick = { onIntent(CreateProductionIntent.NextStep) },
+      onClick = { onIntent(CreateProductionIntent.NextStep) }
     )
 
     VerticalSpacer(AppTheme.spacingSystem.space24)
@@ -183,7 +183,7 @@ private fun Step3ContentEmptyCrewPreview() {
   AppTheme(darkTheme = true) {
     Step3Content(
       state = CreateProductionState(),
-      onIntent = {},
+      onIntent = {}
     )
   }
 }
@@ -196,11 +196,10 @@ private fun Step3ContentWithCrewPreview() {
       state = CreateProductionState(
         crewMembers = listOf(
           CrewMemberEntry("Jane Smith", "Director"),
-          CrewMemberEntry("John Doe", "Producer"),
-        ),
+          CrewMemberEntry("John Doe", "Producer")
+        )
       ),
-      onIntent = {},
+      onIntent = {}
     )
   }
 }
-

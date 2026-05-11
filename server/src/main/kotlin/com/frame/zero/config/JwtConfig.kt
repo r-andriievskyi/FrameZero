@@ -18,8 +18,11 @@ data class JwtConfig(
     fun fromEnv(): JwtConfig {
       val isDev = System.getProperty("io.ktor.development")?.toBoolean() == true
       val secret = System.getenv("JWT_SECRET")?.takeIf { it.isNotBlank() }
-        ?: if (isDev) DEV_SECRET
-        else error("JWT_SECRET environment variable is required (set io.ktor.development=true for local dev)")
+        ?: if (isDev) {
+          DEV_SECRET
+        } else {
+          error("JWT_SECRET environment variable is required (set io.ktor.development=true for local dev)")
+        }
       return JwtConfig(
         secret = secret,
         issuer = env("JWT_ISSUER", "framezero"),

@@ -64,30 +64,36 @@ private val visiblePhases = listOf(
   ProductionPhase.POST_PRODUCTION,
   ProductionPhase.MARKETING,
   ProductionPhase.DISTRIBUTION,
-  ProductionPhase.RELEASE,
+  ProductionPhase.RELEASE
 )
 
 // ── Field label ──────────────────────────────────────────────────────
 
 @Composable
-internal fun FieldLabel(text: String, modifier: Modifier = Modifier) {
+internal fun FieldLabel(
+  text: String,
+  modifier: Modifier = Modifier
+) {
   Text(
     text = text,
     style = AppTheme.typographySystem.labelSmall,
     color = AppTheme.colorSystem.textSecondary,
-    modifier = modifier,
+    modifier = modifier
   )
 }
 
 // ── Error text ───────────────────────────────────────────────────────
 
 @Composable
-internal fun ErrorText(error: String, modifier: Modifier = Modifier) {
+internal fun ErrorText(
+  error: String,
+  modifier: Modifier = Modifier
+) {
   Text(
     text = error,
     style = AppTheme.typographySystem.bodySmall,
     color = AppTheme.colorSystem.errorText,
-    modifier = modifier,
+    modifier = modifier
   )
 }
 
@@ -98,32 +104,38 @@ internal fun GenreChip(
   label: String,
   isSelected: Boolean,
   onClick: () -> Unit = {},
-  modifier: Modifier = Modifier,
+  modifier: Modifier = Modifier
 ) {
   val shape = RoundedCornerShape(AppTheme.radiusSystem.radiusMax)
   Box(
     modifier = modifier
       .clip(shape)
       .background(
-        if (isSelected) AppTheme.colorSystem.accentSurface
-        else AppTheme.colorSystem.cardBackground,
+        if (isSelected) {
+          AppTheme.colorSystem.accentSurface
+        } else {
+          AppTheme.colorSystem.cardBackground
+        }
       )
       .border(
         BorderWidth,
         if (isSelected) AppTheme.colorSystem.accent else AppTheme.colorSystem.cardBorder,
-        shape,
+        shape
       )
       .clickable(onClick = onClick)
       .padding(
         horizontal = AppTheme.spacingSystem.space16,
-        vertical = AppTheme.spacingSystem.space8,
-      ),
+        vertical = AppTheme.spacingSystem.space8
+      )
   ) {
     Text(
       text = label,
       style = AppTheme.typographySystem.labelSmall,
-      color = if (isSelected) AppTheme.colorSystem.accentText
-      else AppTheme.colorSystem.textSecondary,
+      color = if (isSelected) {
+        AppTheme.colorSystem.accentText
+      } else {
+        AppTheme.colorSystem.textSecondary
+      }
     )
   }
 }
@@ -134,11 +146,11 @@ internal fun GenreChip(
 internal fun PhaseSelector(
   selected: ProductionPhase,
   onSelect: (ProductionPhase) -> Unit,
-  modifier: Modifier = Modifier,
+  modifier: Modifier = Modifier
 ) {
   Column(
     modifier = modifier,
-    verticalArrangement = Arrangement.spacedBy(AppTheme.spacingSystem.space8),
+    verticalArrangement = Arrangement.spacedBy(AppTheme.spacingSystem.space8)
   ) {
     visiblePhases.forEach { phase ->
       val isSelected = phase == selected
@@ -152,29 +164,32 @@ internal fun PhaseSelector(
           .border(
             width = if (isSelected) SelectedBorderWidth else BorderWidth,
             color = borderColor,
-            shape = shape,
+            shape = shape
           )
           .clickable { onSelect(phase) }
           .padding(
             horizontal = AppTheme.spacingSystem.space16,
-            vertical = AppTheme.spacingSystem.space16,
+            vertical = AppTheme.spacingSystem.space16
           ),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween,
+        horizontalArrangement = Arrangement.SpaceBetween
       ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
           Box(
             modifier = Modifier
               .size(PhaseDotSize)
               .clip(CircleShape)
-              .background(phase.dotColor()),
+              .background(phase.dotColor())
           )
           HorizontalSpacer(AppTheme.spacingSystem.space8)
           Text(
             text = phase.label(),
             style = AppTheme.typographySystem.bodyMedium,
-            color = if (isSelected) AppTheme.colorSystem.textPrimary
-            else AppTheme.colorSystem.textMuted,
+            color = if (isSelected) {
+              AppTheme.colorSystem.textPrimary
+            } else {
+              AppTheme.colorSystem.textMuted
+            }
           )
         }
       }
@@ -185,7 +200,10 @@ internal fun PhaseSelector(
 // ── Crew avatar ──────────────────────────────────────────────────────
 
 @Composable
-internal fun CrewAvatar(member: CrewMemberEntry, modifier: Modifier = Modifier) {
+internal fun CrewAvatar(
+  member: CrewMemberEntry,
+  modifier: Modifier = Modifier
+) {
   val initials = member.name.trim().split("\\s+".toRegex()).let { parts ->
     when {
       parts.size >= 2 ->
@@ -200,12 +218,12 @@ internal fun CrewAvatar(member: CrewMemberEntry, modifier: Modifier = Modifier) 
       .size(CrewAvatarSize)
       .clip(CircleShape)
       .background(AppTheme.colorSystem.accent),
-    contentAlignment = Alignment.Center,
+    contentAlignment = Alignment.Center
   ) {
     Text(
       text = initials,
       style = AppTheme.typographySystem.labelSmall,
-      color = AppTheme.colorSystem.textOnAccent,
+      color = AppTheme.colorSystem.textOnAccent
     )
   }
 }
@@ -216,7 +234,7 @@ internal fun CrewAvatar(member: CrewMemberEntry, modifier: Modifier = Modifier) 
 internal fun CrewMemberRow(
   member: CrewMemberEntry,
   onRemove: () -> Unit,
-  modifier: Modifier = Modifier,
+  modifier: Modifier = Modifier
 ) {
   val shape = RoundedCornerShape(AppTheme.radiusSystem.radius8)
   Row(
@@ -225,7 +243,7 @@ internal fun CrewMemberRow(
       .clip(shape)
       .border(BorderWidth, AppTheme.colorSystem.cardBorder, shape)
       .padding(AppTheme.spacingSystem.space8),
-    verticalAlignment = Alignment.CenterVertically,
+    verticalAlignment = Alignment.CenterVertically
   ) {
     CrewAvatar(member)
     HorizontalSpacer(AppTheme.spacingSystem.space8)
@@ -233,12 +251,12 @@ internal fun CrewMemberRow(
       Text(
         text = member.name,
         style = AppTheme.typographySystem.bodyMedium,
-        color = AppTheme.colorSystem.textPrimary,
+        color = AppTheme.colorSystem.textPrimary
       )
       Text(
         text = member.role,
         style = AppTheme.typographySystem.caption,
-        color = AppTheme.colorSystem.textMuted,
+        color = AppTheme.colorSystem.textMuted
       )
     }
     Box(
@@ -246,12 +264,12 @@ internal fun CrewMemberRow(
         .size(RemoveButtonSize)
         .clip(CircleShape)
         .clickable(onClick = onRemove),
-      contentAlignment = Alignment.Center,
+      contentAlignment = Alignment.Center
     ) {
       Text(
         text = "✕",
         style = AppTheme.typographySystem.labelSmall,
-        color = AppTheme.colorSystem.textMuted,
+        color = AppTheme.colorSystem.textMuted
       )
     }
   }
@@ -263,7 +281,7 @@ internal fun CrewMemberRow(
 internal fun RoleDropdown(
   selected: String,
   onSelect: (String) -> Unit,
-  modifier: Modifier = Modifier,
+  modifier: Modifier = Modifier
 ) {
   val crewRoles = listOf(
     stringResource(Res.string.crew_role_director),
@@ -273,7 +291,7 @@ internal fun RoleDropdown(
     stringResource(Res.string.crew_role_editor),
     stringResource(Res.string.crew_role_sound),
     stringResource(Res.string.crew_role_art),
-    stringResource(Res.string.crew_role_other),
+    stringResource(Res.string.crew_role_other)
   )
   var expanded by remember { mutableStateOf(false) }
   val shape = RoundedCornerShape(AppTheme.radiusSystem.radius8)
@@ -288,21 +306,21 @@ internal fun RoleDropdown(
         .clickable { expanded = !expanded }
         .padding(
           horizontal = AppTheme.spacingSystem.space16,
-          vertical = AppTheme.spacingSystem.space8,
+          vertical = AppTheme.spacingSystem.space8
         )
         .height(DropdownHeight),
       verticalAlignment = Alignment.CenterVertically,
-      horizontalArrangement = Arrangement.SpaceBetween,
+      horizontalArrangement = Arrangement.SpaceBetween
     ) {
       Text(
         text = selected,
         style = AppTheme.typographySystem.bodyLarge,
-        color = AppTheme.colorSystem.textPrimary,
+        color = AppTheme.colorSystem.textPrimary
       )
       Text(
         text = "⌄",
         style = AppTheme.typographySystem.bodyLarge,
-        color = AppTheme.colorSystem.textMuted,
+        color = AppTheme.colorSystem.textMuted
       )
     }
 
@@ -313,14 +331,17 @@ internal fun RoleDropdown(
           .padding(top = DropdownMenuTopPadding)
           .clip(shape)
           .background(AppTheme.colorSystem.surfaceElevated)
-          .border(BorderWidth, AppTheme.colorSystem.border, shape),
+          .border(BorderWidth, AppTheme.colorSystem.border, shape)
       ) {
         crewRoles.forEach { role ->
           Text(
             text = role,
             style = AppTheme.typographySystem.bodyMedium,
-            color = if (role == selected) AppTheme.colorSystem.accentText
-            else AppTheme.colorSystem.textPrimary,
+            color = if (role == selected) {
+              AppTheme.colorSystem.accentText
+            } else {
+              AppTheme.colorSystem.textPrimary
+            },
             modifier = Modifier
               .fillMaxWidth()
               .clickable {
@@ -329,8 +350,8 @@ internal fun RoleDropdown(
               }
               .padding(
                 horizontal = AppTheme.spacingSystem.space16,
-                vertical = AppTheme.spacingSystem.space8,
-              ),
+                vertical = AppTheme.spacingSystem.space8
+              )
           )
         }
       }
@@ -345,7 +366,7 @@ internal fun BudgetInputField(
   budgetCents: Long?,
   onBudgetChange: (Long?) -> Unit,
   enabled: Boolean,
-  modifier: Modifier = Modifier,
+  modifier: Modifier = Modifier
 ) {
   val displayValue = budgetCents?.let { (it / 100).toString() } ?: ""
   SingleLineInputField(
@@ -364,9 +385,9 @@ internal fun BudgetInputField(
       Text(
         text = "$",
         style = AppTheme.typographySystem.bodyLarge,
-        color = AppTheme.colorSystem.textMuted,
+        color = AppTheme.colorSystem.textMuted
       )
-    },
+    }
   )
 }
 
@@ -379,7 +400,7 @@ internal fun DateInputField(
   placeholder: String,
   enabled: Boolean,
   onDateChange: (LocalDate) -> Unit,
-  modifier: Modifier = Modifier,
+  modifier: Modifier = Modifier
 ) {
   var showPicker by remember { mutableStateOf(false) }
 
@@ -400,9 +421,9 @@ internal fun DateInputField(
       Image(
         painter = painterResource(Res.drawable.ic_calendar_days),
         contentDescription = null,
-        modifier = Modifier.clickable(enabled = enabled) { showPicker = true },
+        modifier = Modifier.clickable(enabled = enabled) { showPicker = true }
       )
-    },
+    }
   )
 
   if (showPicker) {
@@ -424,7 +445,7 @@ internal fun DateInputField(
         TextButton(onClick = { showPicker = false }) {
           Text("Cancel")
         }
-      },
+      }
     ) {
       DatePicker(state = datePickerState)
     }
@@ -453,7 +474,7 @@ private fun PhaseSelectorPreview() {
   AppTheme(darkTheme = true) {
     PhaseSelector(
       selected = ProductionPhase.PRE_PRODUCTION,
-      onSelect = {},
+      onSelect = {}
     )
   }
 }
@@ -464,7 +485,7 @@ private fun CrewMemberRowPreview() {
   AppTheme(darkTheme = true) {
     CrewMemberRow(
       member = CrewMemberEntry(name = "Jane Smith", role = "Director"),
-      onRemove = {},
+      onRemove = {}
     )
   }
 }
@@ -501,7 +522,7 @@ private fun DateInputFieldPreview() {
       value = LocalDate(2026, 6, 15),
       placeholder = "DD.MM.YYYY",
       enabled = true,
-      onDateChange = {},
+      onDateChange = {}
     )
   }
 }

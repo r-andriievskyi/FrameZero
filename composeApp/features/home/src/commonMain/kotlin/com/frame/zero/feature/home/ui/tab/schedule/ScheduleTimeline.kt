@@ -191,5 +191,3 @@ private fun ScheduleTimelinePreview() {
     }
   }
 }
-
-
