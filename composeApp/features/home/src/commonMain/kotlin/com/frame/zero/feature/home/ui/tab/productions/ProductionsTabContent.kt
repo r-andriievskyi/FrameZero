@@ -47,14 +47,16 @@ fun ProductionsTabContent(component: ProjectsTabComponent) {
   val state by component.state.collectAsState()
   ProductionsContent(
     productions = state.productions,
-    onCreateProductionClick = component.onCreateProductionClick
+    onCreateProductionClick = component.onCreateProductionClick,
+    onProductionClick = component.onProductionClick
   )
 }
 
 @Composable
 private fun ProductionsContent(
   productions: List<ProductionUi>,
-  onCreateProductionClick: () -> Unit
+  onCreateProductionClick: () -> Unit,
+  onProductionClick: (productionId: String) -> Unit = {}
 ) {
   var selectedFilter by remember { mutableStateOf<ProductionPhase?>(null) }
 
@@ -111,7 +113,10 @@ private fun ProductionsContent(
       EmptyState(onCreateProductionClick = onCreateProductionClick)
     } else {
       filteredProductions.forEach { production ->
-        ProductionCard(production = production)
+        ProductionCard(
+          production = production,
+          onClick = { onProductionClick(production.id) }
+        )
         VerticalSpacer(AppTheme.spacingSystem.space16)
       }
     }

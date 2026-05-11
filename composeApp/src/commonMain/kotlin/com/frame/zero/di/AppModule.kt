@@ -4,6 +4,7 @@ import com.frame.zero.core.network.networkModule
 import com.frame.zero.core.session.sessionModule
 import com.frame.zero.feature.auth.authModule
 import com.frame.zero.feature.home.featureHomeModule
+import com.frame.zero.feature.production.details.featureProductionDetailsModule
 import com.frame.zero.feature.production.featureProductionModule
 import org.koin.core.Koin
 import org.koin.core.context.startKoin
@@ -14,7 +15,8 @@ val appModules: List<Module> = listOf(
   sessionModule,
   authModule,
   featureHomeModule,
-  featureProductionModule
+  featureProductionModule,
+  featureProductionDetailsModule
 )
 
 fun initKoin(extraModules: List<Module> = emptyList()): Koin =

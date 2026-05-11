@@ -16,7 +16,9 @@ import com.frame.zero.feature.home.tab.dashboard.DashboardTabViewModel
 import com.frame.zero.feature.home.tab.projects.ProjectsTabViewModel
 import com.frame.zero.feature.home.tab.schedule.ScheduleTabViewModel
 import com.frame.zero.feature.production.CreateProductionViewModel
+import com.frame.zero.feature.production.details.ProductionDetailsViewModel
 import kotlinx.coroutines.launch
+import org.koin.core.parameter.parametersOf
 
 class MainActivity : ComponentActivity() {
   private val sessionManager: SessionManager by lazy { application.koin.get() }
@@ -33,16 +35,20 @@ class MainActivity : ComponentActivity() {
           registerViewModelFactory = { koin.get<RegisterViewModel>() }
         )
       },
-      homeComponentFactory = { ctx, onCreateProductionClick ->
+      homeComponentFactory = { ctx, onCreateProductionClick, onProductionClick ->
         HomeComponent(
           ctx,
           onCreateProductionClick = onCreateProductionClick,
+          onProductionClick = onProductionClick,
           dashboardViewModelFactory = { koin.get<DashboardTabViewModel>() },
           projectsViewModelFactory = { koin.get<ProjectsTabViewModel>() },
           scheduleViewModelFactory = { koin.get<ScheduleTabViewModel>() }
         )
       },
-      createProductionViewModelFactory = { koin.get<CreateProductionViewModel>() }
+      createProductionViewModelFactory = { koin.get<CreateProductionViewModel>() },
+      productionDetailsViewModelFactory = { productionId ->
+        koin.get<ProductionDetailsViewModel> { parametersOf(productionId) }
+      }
     )
   }
 
