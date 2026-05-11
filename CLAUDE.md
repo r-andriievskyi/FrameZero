@@ -17,8 +17,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Server (Ktor)**
 ```bash
-./gradlew :server:run                      # starts on port 8080
+./gradlew :server:run                      # starts on port 8080 in dev mode (built-in JWT secret)
+./scripts/seed_db.sh                       # seed 5 users + 10 productions against http://localhost:8080
 ```
+
+By default `:server:run` boots with `io.ktor.development=true`, which falls back
+to a hardcoded dev JWT secret — no extra setup needed for local work. For a
+production-like run, set `KTOR_ENV=production` and provide `JWT_SECRET`
+(see env-var table below).
 
 **iOS** — open `iosApp/iosApp.xcodeproj` in Xcode and run from there.
 The Gradle task `embedAndSignAppleFrameworkForXcode` runs as part of the Xcode
@@ -54,16 +60,45 @@ A composite build, a native iOS wrapper, and a tree of Gradle modules:
 | Module                             | Purpose |
 |------------------------------------|---------|
 | `build-logic/`                     | Composite build with Gradle convention plugins (not a regular module). |
-| `shared/`                          | Multiplatform business logic; no UI. Holds shared `Constants`, domain models (`User`, `DomainError`, `Outcome`, `UseCase`), shared DTOs, the Ktor `HttpClient` setup, and `multiplatform-settings`-backed token storage. |
-| `shared/features/<name>/`          | Per-feature business logic — Decompose `Component` plus its `ViewModel`/state/intent types. Currently `auth`, `home`, `production`. |
+| `shared/`                          | Multiplatform business logic; no UI. Holds shared `Constants`, domain models (`User`, `DomainError`, `Outcome`, `UseCase`), shared DTOs, DTO ↔ domain mappers, the Ktor `HttpClient` setup (`core/network/`), session state machine (`core/session/`), and `multiplatform-settings`-backed token storage. |
+| `shared/features/<name>/`          | Per-feature business logic — Decompose `Component` plus its `ViewModel`/state/intent types and feature-local `<name>Module` Koin module. Currently `account`, `auth`, `home`, `production`, `production-details`. |
 | `shared/repositories/<name>/`      | Repository interfaces + implementations consumed by feature modules. Currently `auth`, `user`, `dashboard`, `productions`, `schedule`. |
-| `composeApp/`                      | Shared Compose Multiplatform UI host targeting Android, iOS, and JVM Desktop. Owns `App.kt`, the Decompose `RootComponent`, and platform entry points (`androidMain`, `iosMain`, `jvmMain`). |
-| `composeApp/features/<name>/`      | Per-feature Compose UI that renders the matching `shared/features/<name>` component. Currently `auth`, `home`, `production`. |
+| `composeApp/`                      | Shared Compose Multiplatform UI host targeting Android, iOS, JVM Desktop, and Wasm/JS. Owns `App.kt`, the Decompose `RootComponent`, and platform entry points (`androidMain`, `iosMain`, `jvmMain`, `wasmJsMain`). |
+| `composeApp/features/<name>/`      | Per-feature Compose UI that renders the matching `shared/features/<name>` component. Currently `account`, `auth`, `home`, `production`, `production-details`. |
 | `composeApp/shared/design_system/` | Shared Compose Multiplatform design system library consumed by all `composeApp` feature modules. Applies `crossplatform.kmp.library.compose`. |
 | `server/`                          | JVM-only Ktor backend (Netty + Exposed/Postgres + JWT auth via Koin). Organised by feature package: `auth`, `dashboard`, `notification`, `production`, `schedule`, `task`, plus `common` and `config`. Schema managed by Flyway migrations in `server/src/main/resources/db/migration/`. Depends on `shared` for wire types and constants. |
 | `iosApp/`                          | Swift/SwiftUI wrapper that embeds the Compose UI via `UIViewControllerRepresentable`. |
 
 Navigation is **Decompose**: a `RootComponent` (in `composeApp/commonMain`) owns a `StackNavigation` and constructs feature components from `shared/features/*`. Feature UI in `composeApp/features/*` consumes the matching shared component — keep all stateful logic in `shared/features/*`, never in the Compose layer.
+
+`RootComponent` collects `SessionManager.state` and replaces the entire stack
+based on `SessionState` (`Loading` → `Splash`, `LoggedOut` → `Auth`,
+`LoggedIn` → `Home`). Auth-gated screens should react to `SessionManager`
+rather than threading login state through component constructors.
+
+### Decompose component conventions
+
+- A component takes `componentContext: ComponentContext` first, then navigation
+  callbacks (`onBack`, `onCreated`, …), then ViewModel factories. Delegate
+  `ComponentContext` (`: ComponentContext by componentContext`) so child
+  components can reuse it.
+- Sub-navigation uses sibling sealed `Config` and `Child` interfaces, both
+  declared inside the component class. `Config` is what the navigation stack
+  stores; `Child` is what the UI receives.
+- ViewModels are created via Koin `factory { … }` and injected through
+  `(ComponentContext) -> Component` lambdas (or `(arg: T) -> ViewModel` for
+  parameterised ones, e.g. `(productionId: String) -> ProductionDetailsViewModel`).
+  This keeps Koin out of `composeApp/commonMain` constructors.
+
+### Domain ↔ DTO boundary
+
+- Wire DTOs live in `shared/commonMain/com/frame/zero/dto/<feature>/`
+  (e.g. `dto/dashboard/DashboardDto.kt`).
+- Domain types live in `shared/commonMain/com/frame/zero/domain/<feature>/`
+  (e.g. `domain/dashboard/Dashboard.kt`).
+- Mapping is done by a sibling `*Mapper.kt` (e.g. `DashboardMapper.kt`) — UI
+  derivations like accent colors are extension functions on the domain enum,
+  not fields on the DTO.
 
 ### Working principle
 
@@ -99,7 +134,7 @@ and `composeApp/features/<name>` (UI), and register the module in
 
 | Plugin ID | Class | What it does |
 |-----------|-------|--------------|
-| `crossplatform.kmp.library` | `KmpLibraryConventionPlugin` | Applies `com.android.library` + `kotlinMultiplatform`, registers `androidTarget`, `iosArm64`, `iosSimulatorArm64`, `jvm()` targets, sets `compileSdk`/`minSdk`/JVM 11 from the version catalog. |
+| `crossplatform.kmp.library` | `KmpLibraryConventionPlugin` | Applies `com.android.library` + `kotlinMultiplatform`, registers `androidTarget`, `iosArm64`, `iosSimulatorArm64`, `jvm()`, and `wasmJs { browser() }` targets, sets `compileSdk`/`minSdk`/JVM 11 from the version catalog, and applies `crossplatform.code.quality`. |
 | `crossplatform.kmp.library.compose` | `KmpLibraryComposeConventionPlugin` | Applies the base plugin above, then adds `org.jetbrains.compose` + `org.jetbrains.kotlin.plugin.compose` and wires standard Compose Multiplatform dependencies into `commonMain`. |
 
 New KMP library modules should apply one of these instead of configuring targets and SDK versions by hand. The `build-logic/build.gradle.kts` compiles against three `compileOnly` entries in `libs.versions.toml` (`gradle-plugin-android`, `gradle-plugin-kotlin`, `gradle-plugin-compose-multiplatform`).
@@ -122,8 +157,21 @@ composeApp/src/
   androidMain/  # MainActivity
   iosMain/      # MainViewController (returns ComposeUIViewController)
   jvmMain/      # main() — creates a Compose application window
+  wasmJsMain/   # browser entry point
   commonTest/   # shared tests (kotlin.test + JUnit)
 ```
+
+`composeApp` is an `androidApplication`, but its convention plugin is
+`crossplatform.code.quality` only — it configures targets directly because
+it's an app, not a library. New library modules should still go through one
+of the KMP convention plugins.
+
+### Test layout
+
+`commonTest/` uses `kotlin.test` and is multiplatform. The established pattern
+for ViewModel/repository tests is a `testing/Fakes.kt` per feature
+(see `shared/features/auth/.../testing/Fakes.kt`) — do not pull in
+mockito/mockk for shared code.
 
 ## Key Dependencies & Versions
 
@@ -143,6 +191,36 @@ dependencies to the version catalog, not directly in a module's build script.
   enabled for desktop development — prefer the Desktop target for fast UI
   iteration.
 - Kover **0.9.8** for coverage reports.
+
+### Server environment variables
+
+Read by `server/src/main/kotlin/com/frame/zero/config/AppConfig.kt`
+(`fromEnv()`). In dev mode (`./gradlew :server:run` sets
+`io.ktor.development=true`), `JWT_SECRET` falls back to a hardcoded
+`dev-secret-do-not-use-in-production`; outside dev mode the server fails
+fast if it's unset.
+
+| Variable | Required | Default (dev) | Description |
+|----------|----------|---------------|-------------|
+| `JWT_SECRET` | **Yes** outside dev mode | Built-in dev secret | HMAC-SHA256 signing key for JWTs. Must be a strong random string in production. |
+| `JWT_ISSUER` | No | `framezero` | JWT issuer claim |
+| `JWT_AUDIENCE` | No | `framezero-api` | JWT audience claim |
+| `JWT_REALM` | No | `framezero` | HTTP auth realm |
+| `DATABASE_URL` | No | `jdbc:postgresql://localhost:5432/framezero` | PostgreSQL JDBC URL (must start with `jdbc:`) |
+| `DATABASE_USER` | No | `framezero` | Database username (must be non-blank) |
+| `DATABASE_PASSWORD` | No | `framezero` | Database password |
+| `KTOR_ENV` | No | — | Set to `production` to disable dev defaults |
+
+Access-token TTL is 15 min, refresh-token TTL is 30 days, both hardcoded in
+`JwtConfig` — change there if needed.
+
+Production-style boot:
+```bash
+export KTOR_ENV=production
+export JWT_SECRET=$(openssl rand -base64 32)
+export DATABASE_URL=jdbc:postgresql://prod-host:5432/framezero
+./gradlew :server:run
+```
 
 ### Server schema & migrations
 
@@ -280,19 +358,29 @@ AppTheme.radiusSystem.button
   understand intent from the code alone.
 - **Async:** `suspend fun` for one-shots, `Flow` for observable streams. Don't
   expose `Deferred` or callbacks across module boundaries.
-- **Errors:** prefer `Result<T>` or sealed error types over throwing across
-  layer boundaries. The server should map exceptions to proper HTTP responses
-  rather than letting them propagate.
+- **Errors:** the canonical result type is `Outcome<T>` (sealed, in
+  `shared/.../domain/Outcome.kt`). Use it across layer boundaries; reserve
+  `Result<T>` for ad-hoc internal flows. Never throw across modules. The
+  server maps exceptions to proper HTTP responses (see
+  `server/.../AppException.kt`) rather than letting them propagate.
 - **Serialization:** kotlinx.serialization. Annotate shared DTOs with
   `@Serializable`. Shared DTOs live in
   `shared/src/commonMain/kotlin/com/frame/zero/dto/`, organised by feature
-  (`dashboard/`, `production/`, `schedule/`).
+  (`common/`, `dashboard/`, `notification/`, `production/`, `schedule/`,
+  `task/`). Use `kotlinx-datetime` (`Instant`, `LocalDate`) for temporal
+  fields — never `java.time.*`, which doesn't exist on iOS.
 - **Wire format excludes UI hints:** server DTOs carry only semantic fields
   (`phase`, `status`, enums). Never add `*Color`, `*Hint`, badge labels, or
   cosmetic fields to a `@Serializable` DTO. Derive UI hints client-side in
   the mapper layer (e.g. `ProductionPhase.toAccentColorHint()`).
-- **REST API contract:** documented in `API.md` at the repo root. Update it
-  when adding or changing endpoints.
+- **DI:** Each feature exposes a `val <name>Module = module { ... }`
+  (e.g. `authModule`, `featureHomeModule`) and is registered in
+  `composeApp/.../di/AppModule.kt`. ViewModels are `factory`, repositories
+  are `single`. Don't reference `Koin` from `composeApp/commonMain`
+  constructors — inject component factories instead.
+- **HTTP engine:** chosen via `expect/actual` in
+  `shared/.../core/network/HttpClientFactory.kt` — OkHttp on Android/JVM,
+  Darwin on iOS. Don't add an Android- or JVM-only engine to `commonMain`.
 - **Resources:** Compose resources live in
   `composeApp/src/commonMain/composeResources/`. Access via the generated
   `Res` class.
@@ -316,10 +404,16 @@ AppTheme.radiusSystem.button
 - Don't suggest `kapt`. Use `ksp`.
 - Don't add Java-only or Android-only libraries to `shared/commonMain` or
   `composeApp/commonMain`.
+- Don't use `java.time.*` in shared code — use `kotlinx-datetime`.
+- Don't expose Compose UI types from `shared/` — `shared/` is pure logic, no
+  UI dependency. The split exists so iOS/server can consume `shared/` without
+  pulling Compose in.
 - Don't write SwiftUI code unless explicitly asked. The iOS shell exists; the
   goal is to keep it minimal.
 - Don't duplicate request/response models between `server` and clients —
   define them once in `shared`.
+- Don't put domain logic on a DTO. Map DTO → domain in a `*Mapper.kt` and
+  keep the DTO a dumb wire shape.
 
 ## Notes
 
