@@ -40,4 +40,3 @@ fun computeProgressPercent(
     .between(start, today)
   return (elapsedDays * 100 / totalDays).toInt().coerceIn(0, 100)
 }
-

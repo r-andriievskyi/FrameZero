@@ -32,7 +32,7 @@ fun CreateProductionContent(component: CreateProductionComponent) {
       } else {
         component.onBack()
       }
-    },
+    }
   )
 }
 
@@ -41,13 +41,13 @@ internal fun CreateProductionScreen(
   state: CreateProductionState,
   onIntent: (CreateProductionIntent) -> Unit,
   onBack: () -> Unit,
-  modifier: Modifier = Modifier,
+  modifier: Modifier = Modifier
 ) {
   Column(
     modifier = modifier
       .fillMaxSize()
       .background(AppTheme.colorSystem.background)
-      .systemBarsPadding(),
+      .systemBarsPadding()
   ) {
     TopBar(step = state.currentStep, totalSteps = state.totalSteps, onBack = onBack)
 
@@ -64,7 +64,7 @@ internal fun CreateProductionScreen(
           slideInHorizontally { -it } togetherWith slideOutHorizontally { it }
         }
       },
-      modifier = Modifier.weight(1f),
+      modifier = Modifier.weight(1f)
     ) { step ->
       when (step) {
         1 -> Step1Content(state = state, onIntent = onIntent)
@@ -84,7 +84,7 @@ private fun CreateProductionStep1Preview() {
     CreateProductionScreen(
       state = CreateProductionState(currentStep = 1, title = "Echoes of Silence", genre = Genre.DRAMA),
       onIntent = {},
-      onBack = {},
+      onBack = {}
     )
   }
 }
@@ -96,7 +96,7 @@ private fun CreateProductionStep2Preview() {
     CreateProductionScreen(
       state = CreateProductionState(currentStep = 2),
       onIntent = {},
-      onBack = {},
+      onBack = {}
     )
   }
 }
@@ -108,7 +108,7 @@ private fun CreateProductionStep3Preview() {
     CreateProductionScreen(
       state = CreateProductionState(currentStep = 3, title = "Echoes of Silence", genre = Genre.DRAMA),
       onIntent = {},
-      onBack = {},
+      onBack = {}
     )
   }
 }

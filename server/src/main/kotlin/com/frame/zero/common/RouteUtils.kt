@@ -22,4 +22,3 @@ fun ApplicationCall.timezone(): ZoneId =
   request.headers["X-Timezone"]?.let {
     runCatching { ZoneId.of(it) }.getOrDefault(ZoneId.of("UTC"))
   } ?: ZoneId.of("UTC")
-

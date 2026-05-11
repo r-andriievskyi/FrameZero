@@ -14,13 +14,15 @@ class TokenHasher {
   }
 
   @OptIn(ExperimentalStdlibApi::class)
-  fun sha256(token: String): String = MessageDigest.getInstance("SHA-256")
-    .digest(token.toByteArray(Charsets.UTF_8))
-    .toHexString()
+  fun sha256(token: String): String =
+    MessageDigest.getInstance("SHA-256")
+      .digest(token.toByteArray(Charsets.UTF_8))
+      .toHexString()
 
-  private fun base64UrlEncode(bytes: ByteArray): String = Base64.getUrlEncoder()
-    .withoutPadding()
-    .encodeToString(bytes)
+  private fun base64UrlEncode(bytes: ByteArray): String =
+    Base64.getUrlEncoder()
+      .withoutPadding()
+      .encodeToString(bytes)
 
   private companion object {
     const val TOKEN_BYTE_LENGTH = 48

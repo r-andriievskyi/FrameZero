@@ -77,11 +77,12 @@ private fun SegmentTab(
   }
 }
 
-private fun ScheduleView.label(): String = when (this) {
-  ScheduleView.DAY -> "Day"
-  ScheduleView.WEEK -> "Week"
-  ScheduleView.MONTH -> "Month"
-}
+private fun ScheduleView.label(): String =
+  when (this) {
+    ScheduleView.DAY -> "Day"
+    ScheduleView.WEEK -> "Week"
+    ScheduleView.MONTH -> "Month"
+  }
 
 @Preview
 @Composable
@@ -99,4 +100,3 @@ private fun ScheduleViewSelectorPreview() {
     }
   }
 }
-

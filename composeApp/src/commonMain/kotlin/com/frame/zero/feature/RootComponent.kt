@@ -96,6 +96,7 @@ class RootComponent(
           componentContext = context,
           productionId = config.productionId,
           onBack = { navigation.pop() },
+          onDeleted = { navigation.pop() },
           viewModelFactory = productionDetailsViewModelFactory
         )
       )

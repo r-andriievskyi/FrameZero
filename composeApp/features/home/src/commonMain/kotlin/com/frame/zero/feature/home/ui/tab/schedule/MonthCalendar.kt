@@ -192,15 +192,21 @@ private fun MonthDayCell(
           .size(EventDotSize)
           .clip(CircleShape)
           .background(
-            if (isSelected) AppTheme.colorSystem.textOnAccent
-            else AppTheme.colorSystem.accent
+            if (isSelected) {
+              AppTheme.colorSystem.textOnAccent
+            } else {
+              AppTheme.colorSystem.accent
+            }
           )
       )
     }
   }
 }
 
-private fun daysInMonth(year: Int, month: Month): Int {
+private fun daysInMonth(
+  year: Int,
+  month: Month
+): Int {
   val first = LocalDate(year, month, 1)
   val nextMonth = first.plus(1, DateTimeUnit.MONTH)
   return (nextMonth.toEpochDays() - first.toEpochDays()).toInt()
@@ -238,6 +244,3 @@ private fun MonthCalendarPreview() {
     }
   }
 }
-
-
-

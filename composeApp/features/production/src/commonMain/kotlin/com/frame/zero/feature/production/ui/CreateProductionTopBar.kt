@@ -40,16 +40,16 @@ internal fun TopBar(
   step: Int,
   totalSteps: Int,
   onBack: () -> Unit,
-  modifier: Modifier = Modifier,
+  modifier: Modifier = Modifier
 ) {
   Row(
     modifier = modifier
       .fillMaxWidth()
       .padding(
         horizontal = AppTheme.spacingSystem.space16,
-        vertical = AppTheme.spacingSystem.space16,
+        vertical = AppTheme.spacingSystem.space16
       ),
-    verticalAlignment = Alignment.CenterVertically,
+    verticalAlignment = Alignment.CenterVertically
   ) {
     Box(
       modifier = Modifier
@@ -57,7 +57,7 @@ internal fun TopBar(
         .clip(RoundedCornerShape(AppTheme.spacingSystem.space8))
         .background(AppTheme.colorSystem.cardBackground)
         .clickable(onClick = onBack),
-      contentAlignment = Alignment.Center,
+      contentAlignment = Alignment.Center
     ) {
       Image(
         painter = painterResource(Res.drawable.ic_chevron_left),
@@ -69,12 +69,12 @@ internal fun TopBar(
       Text(
         text = stringResource(Res.string.create_title),
         style = AppTheme.typographySystem.titleMedium,
-        color = AppTheme.colorSystem.textPrimary,
+        color = AppTheme.colorSystem.textPrimary
       )
       Text(
         text = stringResource(Res.string.create_step_indicator, step, totalSteps),
         style = AppTheme.typographySystem.caption,
-        color = AppTheme.colorSystem.textMuted,
+        color = AppTheme.colorSystem.textMuted
       )
     }
   }
@@ -86,12 +86,12 @@ internal fun TopBar(
 internal fun StepIndicator(
   currentStep: Int,
   totalSteps: Int,
-  modifier: Modifier = Modifier,
+  modifier: Modifier = Modifier
 ) {
   Row(
     modifier = modifier.fillMaxWidth(),
     horizontalArrangement = Arrangement.Center,
-    verticalAlignment = Alignment.CenterVertically,
+    verticalAlignment = Alignment.CenterVertically
   ) {
     for (i in 1..totalSteps) {
       val isActive = i <= currentStep
@@ -102,9 +102,12 @@ internal fun StepIndicator(
           .height(StepIndicatorSize)
           .clip(shape)
           .background(
-            if (isActive) AppTheme.colorSystem.accent
-            else AppTheme.colorSystem.cardBackground,
-          ),
+            if (isActive) {
+              AppTheme.colorSystem.accent
+            } else {
+              AppTheme.colorSystem.cardBackground
+            }
+          )
       )
       if (i < totalSteps) HorizontalSpacer(AppTheme.spacingSystem.space4)
     }
@@ -128,4 +131,3 @@ private fun StepIndicatorPreview() {
     StepIndicator(currentStep = 2, totalSteps = 3)
   }
 }
-
