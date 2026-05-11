@@ -36,13 +36,20 @@ class ScheduleTabViewModel(
   fun onAppeared() {
     if (hasLoaded) return
     hasLoaded = true
-    load(view = _state.value.view, date = today())
+    val date = today()
+    _state.value = _state.value.copy(selectedDate = date)
+    load(view = _state.value.view, date = date)
   }
 
   fun onViewChanged(view: ScheduleView) {
     if (view == _state.value.view) return
     _state.value = _state.value.copy(view = view)
-    load(view = view, date = today())
+    load(view = view, date = _state.value.selectedDate ?: today())
+  }
+
+  fun onDateSelected(date: LocalDate) {
+    _state.value = _state.value.copy(selectedDate = date)
+    load(view = _state.value.view, date = date)
   }
 
   private fun load(
