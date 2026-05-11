@@ -12,6 +12,7 @@ import com.arkivanov.decompose.value.Value
 import com.arkivanov.essenty.lifecycle.doOnDestroy
 import com.frame.zero.core.session.SessionManager
 import com.frame.zero.core.session.SessionState
+import com.frame.zero.feature.account.AccountComponent
 import com.frame.zero.feature.auth.AuthComponent
 import com.frame.zero.feature.home.HomeComponent
 import com.frame.zero.feature.production.CreateProductionComponent
@@ -31,7 +32,8 @@ class RootComponent(
   private val homeComponentFactory: (
     ComponentContext,
     onCreateProductionClick: () -> Unit,
-    onProductionClick: (productionId: String) -> Unit
+    onProductionClick: (productionId: String) -> Unit,
+    onAccountClick: () -> Unit
   ) -> HomeComponent,
   private val createProductionViewModelFactory: () -> CreateProductionViewModel,
   private val productionDetailsViewModelFactory: (productionId: String) -> ProductionDetailsViewModel
@@ -80,7 +82,17 @@ class RootComponent(
           { productionId ->
             @OptIn(DelicateDecomposeApi::class)
             navigation.push(Config.ProductionDetails(productionId))
+          },
+          {
+            @OptIn(DelicateDecomposeApi::class)
+            navigation.push(Config.Account)
           }
+        )
+      )
+      Config.Account -> Child.Account(
+        AccountComponent(
+          componentContext = context,
+          onBack = { navigation.pop() }
         )
       )
       Config.CreateProduction -> Child.CreateProduction(
@@ -109,6 +121,8 @@ class RootComponent(
 
     data object Home : Config
 
+    data object Account : Config
+
     data object CreateProduction : Config
 
     data class ProductionDetails(
@@ -125,6 +139,10 @@ class RootComponent(
 
     data class Home(
       val component: HomeComponent
+    ) : Child
+
+    data class Account(
+      val component: AccountComponent
     ) : Child
 
     data class CreateProduction(

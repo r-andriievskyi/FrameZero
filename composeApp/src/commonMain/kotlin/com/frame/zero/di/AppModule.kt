@@ -2,6 +2,7 @@ package com.frame.zero.di
 
 import com.frame.zero.core.network.networkModule
 import com.frame.zero.core.session.sessionModule
+import com.frame.zero.feature.account.featureAccountModule
 import com.frame.zero.feature.auth.authModule
 import com.frame.zero.feature.home.featureHomeModule
 import com.frame.zero.feature.production.details.featureProductionDetailsModule
@@ -14,6 +15,7 @@ val appModules: List<Module> = listOf(
   networkModule,
   sessionModule,
   authModule,
+  featureAccountModule,
   featureHomeModule,
   featureProductionModule,
   featureProductionDetailsModule

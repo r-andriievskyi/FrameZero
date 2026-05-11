@@ -37,9 +37,10 @@ fun main() {
         registerViewModelFactory = { koin.get<RegisterViewModel>() }
       )
     },
-    homeComponentFactory = { ctx, onCreateProductionClick, onProductionClick ->
+    homeComponentFactory = { ctx, onCreateProductionClick, onProductionClick, onAccountClick ->
       HomeComponent(
         componentContext = ctx,
+        onAccountClick = onAccountClick,
         onCreateProductionClick = onCreateProductionClick,
         onProductionClick = onProductionClick,
         dashboardViewModelFactory = { koin.get<DashboardTabViewModel>() },

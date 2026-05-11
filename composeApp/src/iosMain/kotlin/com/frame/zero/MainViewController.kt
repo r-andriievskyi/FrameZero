@@ -40,9 +40,10 @@ private val iosRoot: RootComponent by lazy {
         registerViewModelFactory = { koin.get<RegisterViewModel>() }
       )
     },
-    homeComponentFactory = { ctx, onCreateProductionClick, onProductionClick ->
+    homeComponentFactory = { ctx, onCreateProductionClick, onProductionClick, onAccountClick ->
       HomeComponent(
         ctx,
+        onAccountClick = onAccountClick,
         onCreateProductionClick = onCreateProductionClick,
         onProductionClick = onProductionClick,
         dashboardViewModelFactory = { koin.get<DashboardTabViewModel>() },

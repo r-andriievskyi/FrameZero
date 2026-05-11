@@ -12,7 +12,7 @@ import com.frame.zero.feature.home.tab.schedule.ScheduleTabViewModel
 class HomeComponent(
   componentContext: ComponentContext,
   val onNotificationsClick: () -> Unit = {},
-  val onSettingsClick: () -> Unit = {},
+  val onAccountClick: () -> Unit = {},
   val onCreateProductionClick: () -> Unit = {},
   val onProductionClick: (productionId: String) -> Unit = {},
   dashboardViewModelFactory: () -> DashboardTabViewModel,

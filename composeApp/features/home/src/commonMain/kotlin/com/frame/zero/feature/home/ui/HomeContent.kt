@@ -33,7 +33,7 @@ fun HomeContent(component: HomeComponent) {
     Column(modifier = Modifier.fillMaxSize()) {
       HomeToolbar(
         onNotificationsClick = component.onNotificationsClick,
-        onSettingsClick = component.onSettingsClick,
+        onAccountClick = component.onAccountClick,
         modifier = Modifier.statusBarsPadding()
       )
       HorizontalPager(
