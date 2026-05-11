@@ -33,7 +33,10 @@ interface ProductionMemberRepository {
 
   suspend fun countByProductions(productionIds: List<UUID>): Map<UUID, Int>
 
-  suspend fun isMember(userId: UUID, productionId: UUID): Boolean
+  suspend fun isMember(
+    userId: UUID,
+    productionId: UUID
+  ): Boolean
 
   suspend fun add(
     productionId: UUID,
@@ -91,7 +94,10 @@ class ProductionMemberRepositoryExposed : ProductionMemberRepository {
         .mapValues { it.value.size }
     }
 
-  override suspend fun isMember(userId: UUID, productionId: UUID): Boolean =
+  override suspend fun isMember(
+    userId: UUID,
+    productionId: UUID
+  ): Boolean =
     dbQuery {
       ProductionMembersTable
         .selectAll()
@@ -170,7 +176,6 @@ class ProductionMemberRepositoryExposed : ProductionMemberRepository {
     dbQuery {
       ProductionMembersTable.deleteWhere { ProductionMembersTable.id eq id } > 0
     }
-
 
   private fun ResultRow.toRecord(): ProductionMemberRecord =
     ProductionMemberRecord(

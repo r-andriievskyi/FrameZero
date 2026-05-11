@@ -76,8 +76,10 @@ internal class FakeProductionRepository : ProductionRepository {
 
   override suspend fun countActiveForUser(userId: UUID): Int =
     productions.count {
-      it.deletedAt == null && it.ownerUserId == userId &&
-        it.phase != ProductionPhase.DISTRIBUTION && it.phase != ProductionPhase.ARCHIVED
+      it.deletedAt == null &&
+        it.ownerUserId == userId &&
+        it.phase != ProductionPhase.DISTRIBUTION &&
+        it.phase != ProductionPhase.ARCHIVED
     }
 
   override suspend fun update(
@@ -144,8 +146,10 @@ internal class FakeProductionMemberRepository : ProductionMemberRepository {
       .groupBy { it.productionId }
       .mapValues { it.value.size }
 
-  override suspend fun isMember(userId: UUID, productionId: UUID): Boolean =
-    members.any { it.productionId == productionId && it.userId == userId }
+  override suspend fun isMember(
+    userId: UUID,
+    productionId: UUID
+  ): Boolean = members.any { it.productionId == productionId && it.userId == userId }
 
   override suspend fun add(
     productionId: UUID,

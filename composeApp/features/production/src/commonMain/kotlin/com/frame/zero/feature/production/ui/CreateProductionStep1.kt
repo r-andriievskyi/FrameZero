@@ -42,24 +42,24 @@ import org.jetbrains.compose.resources.stringResource
 internal fun Step1Content(
   state: CreateProductionState,
   onIntent: (CreateProductionIntent) -> Unit,
-  modifier: Modifier = Modifier,
+  modifier: Modifier = Modifier
 ) {
   Column(
     modifier = modifier
       .fillMaxSize()
       .verticalScroll(rememberScrollState())
-      .padding(horizontal = AppTheme.spacingSystem.space16),
+      .padding(horizontal = AppTheme.spacingSystem.space16)
   ) {
     Text(
       text = stringResource(Res.string.create_step1_title),
       style = AppTheme.typographySystem.displayMedium,
-      color = AppTheme.colorSystem.textPrimary,
+      color = AppTheme.colorSystem.textPrimary
     )
     VerticalSpacer(AppTheme.spacingSystem.space4)
     Text(
       text = stringResource(Res.string.create_step1_subtitle),
       style = AppTheme.typographySystem.bodyMedium,
-      color = AppTheme.colorSystem.textSecondary,
+      color = AppTheme.colorSystem.textSecondary
     )
 
     VerticalSpacer(AppTheme.spacingSystem.space24)
@@ -70,7 +70,7 @@ internal fun Step1Content(
       value = state.title,
       onValueChange = { onIntent(CreateProductionIntent.TitleChanged(it)) },
       placeholder = stringResource(Res.string.create_placeholder_production_title),
-      enabled = !state.isLoading,
+      enabled = !state.isLoading
     )
 
     VerticalSpacer(AppTheme.spacingSystem.space24)
@@ -79,13 +79,13 @@ internal fun Step1Content(
     VerticalSpacer(AppTheme.spacingSystem.space8)
     FlowRow(
       horizontalArrangement = Arrangement.spacedBy(AppTheme.spacingSystem.space8),
-      verticalArrangement = Arrangement.spacedBy(AppTheme.spacingSystem.space8),
+      verticalArrangement = Arrangement.spacedBy(AppTheme.spacingSystem.space8)
     ) {
       Genre.entries.forEach { genre ->
         GenreChip(
           label = genre.displayLabel(),
           isSelected = genre == state.genre,
-          onClick = { onIntent(CreateProductionIntent.GenreChanged(genre)) },
+          onClick = { onIntent(CreateProductionIntent.GenreChanged(genre)) }
         )
       }
     }
@@ -94,7 +94,7 @@ internal fun Step1Content(
 
     Row(
       modifier = Modifier.fillMaxWidth(),
-      horizontalArrangement = Arrangement.spacedBy(AppTheme.spacingSystem.space8),
+      horizontalArrangement = Arrangement.spacedBy(AppTheme.spacingSystem.space8)
     ) {
       Column(modifier = Modifier.weight(1f)) {
         FieldLabel(stringResource(Res.string.create_field_start_date))
@@ -103,7 +103,7 @@ internal fun Step1Content(
           value = state.startDate,
           placeholder = stringResource(Res.string.create_placeholder_date),
           enabled = !state.isLoading,
-          onDateChange = { onIntent(CreateProductionIntent.StartDateChanged(it)) },
+          onDateChange = { onIntent(CreateProductionIntent.StartDateChanged(it)) }
         )
       }
       Column(modifier = Modifier.weight(1f)) {
@@ -113,7 +113,7 @@ internal fun Step1Content(
           value = state.wrapDate,
           placeholder = stringResource(Res.string.create_placeholder_date),
           enabled = !state.isLoading,
-          onDateChange = { onIntent(CreateProductionIntent.WrapDateChanged(it)) },
+          onDateChange = { onIntent(CreateProductionIntent.WrapDateChanged(it)) }
         )
       }
     }
@@ -125,7 +125,7 @@ internal fun Step1Content(
     BudgetInputField(
       budgetCents = state.budgetCents,
       onBudgetChange = { onIntent(CreateProductionIntent.BudgetChanged(it)) },
-      enabled = !state.isLoading,
+      enabled = !state.isLoading
     )
 
     state.error?.let { error ->
@@ -138,7 +138,7 @@ internal fun Step1Content(
     CtaButton(
       text = stringResource(Res.string.create_button_continue),
       modifier = Modifier.fillMaxWidth(),
-      onClick = { onIntent(CreateProductionIntent.NextStep) },
+      onClick = { onIntent(CreateProductionIntent.NextStep) }
     )
 
     VerticalSpacer(AppTheme.spacingSystem.space24)
@@ -157,9 +157,9 @@ private fun Step1ContentPreview() {
         genre = Genre.DRAMA,
         startDate = LocalDate(2026, 8, 1),
         wrapDate = LocalDate(2026, 12, 15),
-        budgetCents = 500_000_00L,
+        budgetCents = 500_000_00L
       ),
-      onIntent = {},
+      onIntent = {}
     )
   }
 }
@@ -170,9 +170,7 @@ private fun Step1ContentEmptyPreview() {
   AppTheme(darkTheme = true) {
     Step1Content(
       state = CreateProductionState(),
-      onIntent = {},
+      onIntent = {}
     )
   }
 }
-
-

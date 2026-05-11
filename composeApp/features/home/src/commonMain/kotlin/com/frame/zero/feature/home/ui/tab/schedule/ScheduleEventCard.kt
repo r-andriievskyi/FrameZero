@@ -92,19 +92,21 @@ private fun EventKindBadge(
 }
 
 @Composable
-private fun ScheduleEventKind.badgeColors(): Pair<Color, Color> = when (this) {
-  ScheduleEventKind.SHOOT -> AppTheme.colorSystem.accentSurface to AppTheme.colorSystem.accentText
-  ScheduleEventKind.MEETING -> AppTheme.colorSystem.successSurface to AppTheme.colorSystem.successText
-  ScheduleEventKind.REVIEW -> AppTheme.colorSystem.warningSurface to AppTheme.colorSystem.warningText
-  ScheduleEventKind.OTHER -> AppTheme.colorSystem.inputBackground to AppTheme.colorSystem.textSecondary
-}
+private fun ScheduleEventKind.badgeColors(): Pair<Color, Color> =
+  when (this) {
+    ScheduleEventKind.SHOOT -> AppTheme.colorSystem.accentSurface to AppTheme.colorSystem.accentText
+    ScheduleEventKind.MEETING -> AppTheme.colorSystem.successSurface to AppTheme.colorSystem.successText
+    ScheduleEventKind.REVIEW -> AppTheme.colorSystem.warningSurface to AppTheme.colorSystem.warningText
+    ScheduleEventKind.OTHER -> AppTheme.colorSystem.inputBackground to AppTheme.colorSystem.textSecondary
+  }
 
-private fun ScheduleEventKind.displayLabel(): String = when (this) {
-  ScheduleEventKind.SHOOT -> "Shoot"
-  ScheduleEventKind.MEETING -> "Meeting"
-  ScheduleEventKind.REVIEW -> "Review"
-  ScheduleEventKind.OTHER -> "Other"
-}
+private fun ScheduleEventKind.displayLabel(): String =
+  when (this) {
+    ScheduleEventKind.SHOOT -> "Shoot"
+    ScheduleEventKind.MEETING -> "Meeting"
+    ScheduleEventKind.REVIEW -> "Review"
+    ScheduleEventKind.OTHER -> "Other"
+  }
 
 @Preview
 @Composable
@@ -135,4 +137,3 @@ private fun ScheduleEventCardPreview() {
     }
   }
 }
-

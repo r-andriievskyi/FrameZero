@@ -123,8 +123,11 @@ private fun WeekDayCell(
           .size(EventDotSize)
           .clip(CircleShape)
           .background(
-            if (isSelected) AppTheme.colorSystem.textOnAccent
-            else AppTheme.colorSystem.accent
+            if (isSelected) {
+              AppTheme.colorSystem.textOnAccent
+            } else {
+              AppTheme.colorSystem.accent
+            }
           )
       )
     } else {
@@ -134,15 +137,16 @@ private fun WeekDayCell(
   }
 }
 
-private fun LocalDate.shortDayOfWeekLabel(): String = when (dayOfWeek) {
-  DayOfWeek.MONDAY -> "MON"
-  DayOfWeek.TUESDAY -> "TUE"
-  DayOfWeek.WEDNESDAY -> "WED"
-  DayOfWeek.THURSDAY -> "THU"
-  DayOfWeek.FRIDAY -> "FRI"
-  DayOfWeek.SATURDAY -> "SAT"
-  DayOfWeek.SUNDAY -> "SUN"
-}
+private fun LocalDate.shortDayOfWeekLabel(): String =
+  when (dayOfWeek) {
+    DayOfWeek.MONDAY -> "MON"
+    DayOfWeek.TUESDAY -> "TUE"
+    DayOfWeek.WEDNESDAY -> "WED"
+    DayOfWeek.THURSDAY -> "THU"
+    DayOfWeek.FRIDAY -> "FRI"
+    DayOfWeek.SATURDAY -> "SAT"
+    DayOfWeek.SUNDAY -> "SUN"
+  }
 
 /** Returns Monday of the week containing [date]. */
 internal fun weekStartFor(date: LocalDate): LocalDate {
@@ -174,13 +178,3 @@ private fun WeekDayStripPreview() {
     }
   }
 }
-
-
-
-
-
-
-
-
-
-

@@ -97,7 +97,7 @@ private fun ProductionsContent(
         ) {
           Image(
             painter = painterResource(Res.drawable.ic_plus),
-            contentDescription = null,
+            contentDescription = null
           )
         }
       }

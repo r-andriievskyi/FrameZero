@@ -8,7 +8,6 @@ import com.frame.zero.dto.notification.NotificationsResponse
 import java.util.UUID
 import kotlin.time.toKotlinInstant
 
-
 class NotificationService(
   private val notifications: NotificationRepository
 ) {

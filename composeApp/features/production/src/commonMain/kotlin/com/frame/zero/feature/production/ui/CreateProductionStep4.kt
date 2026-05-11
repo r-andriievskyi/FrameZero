@@ -43,24 +43,24 @@ import org.jetbrains.compose.resources.stringResource
 internal fun Step4Content(
   state: CreateProductionState,
   onIntent: (CreateProductionIntent) -> Unit,
-  modifier: Modifier = Modifier,
+  modifier: Modifier = Modifier
 ) {
   Column(
     modifier = modifier
       .fillMaxSize()
       .verticalScroll(rememberScrollState())
-      .padding(horizontal = AppTheme.spacingSystem.space16),
+      .padding(horizontal = AppTheme.spacingSystem.space16)
   ) {
     Text(
       text = stringResource(Res.string.create_step4_title),
       style = AppTheme.typographySystem.displayMedium,
-      color = AppTheme.colorSystem.textPrimary,
+      color = AppTheme.colorSystem.textPrimary
     )
     VerticalSpacer(AppTheme.spacingSystem.space4)
     Text(
       text = stringResource(Res.string.create_step4_subtitle),
       style = AppTheme.typographySystem.bodyMedium,
-      color = AppTheme.colorSystem.textSecondary,
+      color = AppTheme.colorSystem.textSecondary
     )
 
     VerticalSpacer(AppTheme.spacingSystem.space24)
@@ -92,7 +92,7 @@ internal fun Step4Content(
         stringResource(Res.string.create_button_create)
       },
       modifier = Modifier.fillMaxWidth(),
-      onClick = { if (!state.isLoading) onIntent(CreateProductionIntent.Submit) },
+      onClick = { if (!state.isLoading) onIntent(CreateProductionIntent.Submit) }
     )
 
     VerticalSpacer(AppTheme.spacingSystem.space24)
@@ -102,7 +102,10 @@ internal fun Step4Content(
 // ── Review card ──────────────────────────────────────────────────────
 
 @Composable
-internal fun ReviewCard(state: CreateProductionState, modifier: Modifier = Modifier) {
+internal fun ReviewCard(
+  state: CreateProductionState,
+  modifier: Modifier = Modifier
+) {
   val cardShape = RoundedCornerShape(AppTheme.radiusSystem.radius16)
 
   Column(
@@ -110,13 +113,13 @@ internal fun ReviewCard(state: CreateProductionState, modifier: Modifier = Modif
       .fillMaxWidth()
       .clip(cardShape)
       .border(BorderWidth, AppTheme.colorSystem.cardBorder, cardShape)
-      .background(AppTheme.colorSystem.cardBackground),
+      .background(AppTheme.colorSystem.cardBackground)
   ) {
     Column(modifier = Modifier.padding(AppTheme.spacingSystem.space16)) {
       Text(
         text = state.title.ifBlank { stringResource(Res.string.create_review_untitled) },
         style = AppTheme.typographySystem.titleLarge,
-        color = AppTheme.colorSystem.textPrimary,
+        color = AppTheme.colorSystem.textPrimary
       )
 
       VerticalSpacer(AppTheme.spacingSystem.space8)
@@ -133,25 +136,25 @@ internal fun ReviewCard(state: CreateProductionState, modifier: Modifier = Modif
           Text(
             text = stringResource(Res.string.create_review_start),
             style = AppTheme.typographySystem.caption,
-            color = AppTheme.colorSystem.textMuted,
+            color = AppTheme.colorSystem.textMuted
           )
           Text(
             text = state.startDate?.formatDisplay()
               ?: stringResource(Res.string.create_review_not_set),
             style = AppTheme.typographySystem.bodyMedium,
-            color = AppTheme.colorSystem.textPrimary,
+            color = AppTheme.colorSystem.textPrimary
           )
         }
         Column(modifier = Modifier.weight(1f)) {
           Text(
             text = stringResource(Res.string.create_review_wrap),
             style = AppTheme.typographySystem.caption,
-            color = AppTheme.colorSystem.textMuted,
+            color = AppTheme.colorSystem.textMuted
           )
           Text(
             text = state.wrapDate?.formatDisplay() ?: stringResource(Res.string.create_review_not_set),
             style = AppTheme.typographySystem.bodyMedium,
-            color = AppTheme.colorSystem.textPrimary,
+            color = AppTheme.colorSystem.textPrimary
           )
         }
       }
@@ -163,28 +166,28 @@ internal fun ReviewCard(state: CreateProductionState, modifier: Modifier = Modif
           Text(
             text = stringResource(Res.string.create_review_budget),
             style = AppTheme.typographySystem.caption,
-            color = AppTheme.colorSystem.textMuted,
+            color = AppTheme.colorSystem.textMuted
           )
           Text(
             text = state.budgetCents?.let { formatBudget(it) }
               ?: stringResource(Res.string.create_review_not_set),
             style = AppTheme.typographySystem.bodyMedium,
-            color = AppTheme.colorSystem.textPrimary,
+            color = AppTheme.colorSystem.textPrimary
           )
         }
         Column(modifier = Modifier.weight(1f)) {
           Text(
             text = stringResource(Res.string.create_review_crew),
             style = AppTheme.typographySystem.caption,
-            color = AppTheme.colorSystem.textMuted,
+            color = AppTheme.colorSystem.textMuted
           )
           Text(
             text = stringResource(
               Res.string.create_review_members_count,
-              state.crewMembers.size + 1,
+              state.crewMembers.size + 1
             ),
             style = AppTheme.typographySystem.bodyMedium,
-            color = AppTheme.colorSystem.textPrimary,
+            color = AppTheme.colorSystem.textPrimary
           )
         }
       }
@@ -207,10 +210,10 @@ private fun Step4ContentPreview() {
         budgetCents = 500_000_00L,
         crewMembers = listOf(
           CrewMemberEntry("Jane Smith", "Director"),
-          CrewMemberEntry("John Doe", "Producer"),
-        ),
+          CrewMemberEntry("John Doe", "Producer")
+        )
       ),
-      onIntent = {},
+      onIntent = {}
     )
   }
 }
@@ -226,8 +229,8 @@ private fun ReviewCardPreview() {
         startDate = LocalDate(2026, 8, 1),
         wrapDate = LocalDate(2026, 12, 15),
         budgetCents = 150_000_00L,
-        crewMembers = listOf(CrewMemberEntry("Jane Smith", "Director")),
-      ),
+        crewMembers = listOf(CrewMemberEntry("Jane Smith", "Director"))
+      )
     )
   }
 }
@@ -239,4 +242,3 @@ private fun ReviewCardEmptyPreview() {
     ReviewCard(state = CreateProductionState())
   }
 }
-

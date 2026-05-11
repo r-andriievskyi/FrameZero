@@ -27,41 +27,52 @@ internal val SelectedBorderWidth = 2.dp
 
 // ── Extension utilities ───────────────────────────────────────────────
 
-internal fun Genre.displayLabel(): String =
-  name.replace('_', ' ').lowercase().replaceFirstChar { it.uppercase() }
+internal fun Genre.displayLabel(): String = name.replace('_', ' ').lowercase().replaceFirstChar { it.uppercase() }
 
 @Composable
-internal fun ProductionPhase.label(): String = when (this) {
-  ProductionPhase.IDEA -> stringResource(Res.string.phase_idea)
-  ProductionPhase.DEVELOPMENT -> stringResource(Res.string.phase_development)
-  ProductionPhase.FINANCING -> stringResource(Res.string.phase_financing)
-  ProductionPhase.PRE_PRODUCTION -> stringResource(Res.string.phase_pre_production)
-  ProductionPhase.PRODUCTION -> stringResource(Res.string.phase_production)
-  ProductionPhase.POST_PRODUCTION -> stringResource(Res.string.phase_post_production)
-  ProductionPhase.MARKETING -> stringResource(Res.string.phase_marketing)
-  ProductionPhase.DISTRIBUTION -> stringResource(Res.string.phase_distribution)
-  ProductionPhase.RELEASE -> stringResource(Res.string.phase_release)
-  ProductionPhase.ARCHIVED -> stringResource(Res.string.phase_archived)
-}
+internal fun ProductionPhase.label(): String =
+  when (this) {
+    ProductionPhase.IDEA -> stringResource(Res.string.phase_idea)
+    ProductionPhase.DEVELOPMENT -> stringResource(Res.string.phase_development)
+    ProductionPhase.FINANCING -> stringResource(Res.string.phase_financing)
+    ProductionPhase.PRE_PRODUCTION -> stringResource(Res.string.phase_pre_production)
+    ProductionPhase.PRODUCTION -> stringResource(Res.string.phase_production)
+    ProductionPhase.POST_PRODUCTION -> stringResource(Res.string.phase_post_production)
+    ProductionPhase.MARKETING -> stringResource(Res.string.phase_marketing)
+    ProductionPhase.DISTRIBUTION -> stringResource(Res.string.phase_distribution)
+    ProductionPhase.RELEASE -> stringResource(Res.string.phase_release)
+    ProductionPhase.ARCHIVED -> stringResource(Res.string.phase_archived)
+  }
 
 @Composable
-internal fun ProductionPhase.dotColor(): Color = when (this) {
-  ProductionPhase.IDEA -> Color(0xFF9B9EA4)
-  ProductionPhase.DEVELOPMENT -> Color(0xFF5BC0EB)
-  ProductionPhase.FINANCING -> AppTheme.colorSystem.warningText
-  ProductionPhase.PRE_PRODUCTION -> AppTheme.colorSystem.warningText
-  ProductionPhase.PRODUCTION -> AppTheme.colorSystem.successText
-  ProductionPhase.POST_PRODUCTION -> AppTheme.colorSystem.accent
-  ProductionPhase.MARKETING -> Color(0xFF9B59B6)
-  ProductionPhase.DISTRIBUTION -> AppTheme.colorSystem.successText
-  ProductionPhase.RELEASE -> AppTheme.colorSystem.successText
-  ProductionPhase.ARCHIVED -> AppTheme.colorSystem.textMuted
-}
+internal fun ProductionPhase.dotColor(): Color =
+  when (this) {
+    ProductionPhase.IDEA -> Color(0xFF9B9EA4)
+    ProductionPhase.DEVELOPMENT -> Color(0xFF5BC0EB)
+    ProductionPhase.FINANCING -> AppTheme.colorSystem.warningText
+    ProductionPhase.PRE_PRODUCTION -> AppTheme.colorSystem.warningText
+    ProductionPhase.PRODUCTION -> AppTheme.colorSystem.successText
+    ProductionPhase.POST_PRODUCTION -> AppTheme.colorSystem.accent
+    ProductionPhase.MARKETING -> Color(0xFF9B59B6)
+    ProductionPhase.DISTRIBUTION -> AppTheme.colorSystem.successText
+    ProductionPhase.RELEASE -> AppTheme.colorSystem.successText
+    ProductionPhase.ARCHIVED -> AppTheme.colorSystem.textMuted
+  }
 
 internal fun LocalDate.formatDisplay(): String {
   val monthNames = listOf(
-    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec"
   )
   return "${monthNames[month.ordinal]} $day, $year"
 }
@@ -81,4 +92,3 @@ internal fun parseDateInput(raw: String): LocalDate? {
   }
   return runCatching { LocalDate.parse(raw) }.getOrNull()
 }
-

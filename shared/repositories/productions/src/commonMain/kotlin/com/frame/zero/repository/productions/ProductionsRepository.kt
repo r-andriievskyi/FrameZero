@@ -11,4 +11,6 @@ interface ProductionsRepository {
   suspend fun getDetails(productionId: String): ProductionDetailDto
 
   suspend fun create(request: CreateProductionRequest): ProductionDetailDto
+
+  suspend fun delete(productionId: String)
 }
