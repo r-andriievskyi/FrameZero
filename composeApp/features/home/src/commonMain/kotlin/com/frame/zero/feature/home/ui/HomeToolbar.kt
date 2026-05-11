@@ -29,7 +29,7 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 fun HomeToolbar(
   onNotificationsClick: () -> Unit,
-  onSettingsClick: () -> Unit,
+  onAccountClick: () -> Unit,
   modifier: Modifier = Modifier
 ) {
   Row(
@@ -60,7 +60,7 @@ fun HomeToolbar(
       modifier = Modifier.background(
         color = AppTheme.colorSystem.accent,
         shape = buttonsShape
-      ).clickable(onClick = onSettingsClick).padding(AppTheme.spacingSystem.space8),
+      ).clickable(onClick = onAccountClick).padding(AppTheme.spacingSystem.space8),
       colorFilter = ColorFilter.tint(AppTheme.colorSystem.textPrimary)
     )
   }
@@ -70,6 +70,6 @@ fun HomeToolbar(
 @Composable
 private fun HomeToolbarPreview() {
   AppTheme(darkTheme = true) {
-    HomeToolbar(onNotificationsClick = {}, onSettingsClick = {})
+    HomeToolbar(onNotificationsClick = {}, onAccountClick = {})
   }
 }
