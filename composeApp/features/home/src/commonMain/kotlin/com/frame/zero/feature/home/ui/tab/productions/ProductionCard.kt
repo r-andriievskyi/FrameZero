@@ -24,7 +24,6 @@ import com.discovery.playground.shared.design_system.widgets.VerticalSpacer
 import com.frame.zero.domain.production.Genre
 import com.frame.zero.domain.production.ProductionPhase
 import com.frame.zero.feature.home.tab.projects.ProductionUi
-import com.frame.zero.feature.home.ui.tab.dashboard.accentColorFor
 import framezero.composeapp.features.home.generated.resources.Res
 import framezero.composeapp.features.home.generated.resources.days_left
 import framezero.composeapp.features.home.generated.resources.ic_calendar_clock
@@ -183,6 +182,21 @@ private fun ProgressBar(
     )
   }
 }
+
+@Composable
+internal fun accentColorFor(phase: ProductionPhase): Color =
+  when (phase) {
+    ProductionPhase.IDEA -> AppTheme.colorSystem.textMuted
+    ProductionPhase.DEVELOPMENT -> AppTheme.colorSystem.developmentText
+    ProductionPhase.FINANCING -> AppTheme.colorSystem.warningText
+    ProductionPhase.PRE_PRODUCTION -> AppTheme.colorSystem.preProductionText
+    ProductionPhase.PRODUCTION -> AppTheme.colorSystem.productionText
+    ProductionPhase.POST_PRODUCTION -> AppTheme.colorSystem.postProductionText
+    ProductionPhase.MARKETING -> AppTheme.colorSystem.accentText
+    ProductionPhase.DISTRIBUTION -> AppTheme.colorSystem.distributionText
+    ProductionPhase.RELEASE -> AppTheme.colorSystem.successText
+    ProductionPhase.ARCHIVED -> AppTheme.colorSystem.textMuted
+  }
 
 internal fun ProductionPhase.displayLabel(): String =
   name.replace('_', ' ').lowercase().replaceFirstChar { it.uppercase() }

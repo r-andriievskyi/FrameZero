@@ -1,6 +1,5 @@
 package com.frame.zero.dto.dashboard
 
-import com.frame.zero.dto.production.ProductionSummaryDto
 import com.frame.zero.dto.task.TaskSummaryDto
 import kotlinx.serialization.Serializable
 
@@ -8,8 +7,7 @@ import kotlinx.serialization.Serializable
 data class DashboardResponse(
   val greeting: GreetingDto,
   val stats: StatsDto,
-  val myTasks: List<TaskSummaryDto>,
-  val productionStatus: List<ProductionSummaryDto>
+  val myTasks: List<TaskSummaryDto>
 )
 
 @Serializable
