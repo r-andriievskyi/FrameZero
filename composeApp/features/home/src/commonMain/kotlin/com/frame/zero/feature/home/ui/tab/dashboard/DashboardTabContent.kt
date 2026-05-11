@@ -15,8 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.discovery.playground.shared.design_system.AppTheme
 import com.discovery.playground.shared.design_system.widgets.VerticalSpacer
-import com.frame.zero.domain.production.ProductionPhase
-import com.frame.zero.feature.home.tab.dashboard.DashboardProductionUi
 import com.frame.zero.feature.home.tab.dashboard.DashboardStatsUi
 import com.frame.zero.feature.home.tab.dashboard.DashboardTabComponent
 import com.frame.zero.feature.home.tab.dashboard.DashboardTaskUi
@@ -29,17 +27,11 @@ import org.jetbrains.compose.resources.stringResource
 fun DashboardTabContent(component: DashboardTabComponent) {
   LaunchedEffect(Unit) { component.onAppeared() }
   val state by component.state.collectAsState()
-  DashboardContent(
-    dashboard = state.dashboard,
-    onProductionClick = component.onProductionClick
-  )
+  DashboardContent(dashboard = state.dashboard)
 }
 
 @Composable
-private fun DashboardContent(
-  dashboard: DashboardUi?,
-  onProductionClick: (productionId: String) -> Unit = {}
-) {
+private fun DashboardContent(dashboard: DashboardUi?) {
   Column(
     modifier = Modifier
       .fillMaxSize()
@@ -62,11 +54,6 @@ private fun DashboardContent(
         VerticalSpacer(AppTheme.spacingSystem.space24)
         MyTasksSection(tasks = dashboard.myTasks)
       }
-      VerticalSpacer(AppTheme.spacingSystem.space24)
-      ProductionStatusSection(
-        productions = dashboard.productions,
-        onProductionClick = onProductionClick
-      )
     }
   }
 }
@@ -97,22 +84,6 @@ private fun DashboardContentPreview() {
             title = "Approve final color grade",
             productionTitle = "The Last Frame",
             dueLabel = "Apr 28"
-          )
-        ),
-        productions = listOf(
-          DashboardProductionUi(
-            id = "1",
-            title = "Echoes of Silence",
-            phase = ProductionPhase.PRODUCTION,
-            progressPercent = 68,
-            daysLeft = 24
-          ),
-          DashboardProductionUi(
-            id = "2",
-            title = "Neon Wolves",
-            phase = ProductionPhase.PRE_PRODUCTION,
-            progressPercent = 34,
-            daysLeft = 61
           )
         )
       )

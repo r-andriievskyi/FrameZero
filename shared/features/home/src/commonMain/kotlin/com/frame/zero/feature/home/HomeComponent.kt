@@ -22,7 +22,6 @@ class HomeComponent(
   val dashboardTab =
     DashboardTabComponent(
       componentContext = childContext(key = "tab-dashboard"),
-      onProductionClick = onProductionClick,
       viewModelFactory = dashboardViewModelFactory
     )
   val projectsTab =
