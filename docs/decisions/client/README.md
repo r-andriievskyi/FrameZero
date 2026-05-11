@@ -1,0 +1,15 @@
+# Client ADRs
+
+Short notes on why the client stack is what it is. One file per choice,
+each ~10 lines. Read top-to-bottom for a stack tour.
+
+- [kotlin-multiplatform](kotlin-multiplatform.md) — share business logic across platforms
+- [compose-multiplatform](compose-multiplatform.md) — share UI across platforms
+- [decompose-navigation](decompose-navigation.md) — navigation & component lifecycle
+- [koin](koin.md) — DI
+- [ktor-client](ktor-client.md) — HTTP
+- [multiplatform-settings](multiplatform-settings.md) — small key/value storage
+- [custom-design-system](custom-design-system.md) — design tokens vs raw Material3
+- [feature-module-split](feature-module-split.md) — `shared/features` + `composeApp/features`
+- [expect-actual](expect-actual.md) — platform abstractions
+- [no-local-db-yet](no-local-db-yet.md) — deliberately deferred
