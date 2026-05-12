@@ -13,6 +13,7 @@ object ProductionMembersTable : Table("production_members") {
   val role = varchar("role", 100)
   val email = varchar("email", 320).nullable()
   val addedAt = timestamp("added_at")
+  val reportsToMemberId = javaUUID("reports_to_member_id").nullable()
 
   override val primaryKey = PrimaryKey(id)
 }

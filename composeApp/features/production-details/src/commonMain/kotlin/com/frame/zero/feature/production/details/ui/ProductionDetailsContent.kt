@@ -49,6 +49,7 @@ import com.frame.zero.domain.production.ProductionDetail
 import com.frame.zero.domain.production.ProductionMember
 import com.frame.zero.domain.production.ProductionPhase
 import com.frame.zero.domain.production.ProductionPipelinePhase
+import com.frame.zero.domain.production.ViewerCrew
 import com.frame.zero.feature.production.details.ProductionDetailsComponent
 import com.frame.zero.feature.production.details.ProductionDetailsIntent
 import com.frame.zero.feature.production.details.ProductionDetailsState
@@ -277,8 +278,10 @@ private fun DetailBody(
     VerticalSpacer(AppTheme.spacingSystem.space16)
     DateCards(startDate = detail.startDate, wrapDate = detail.wrapDate)
     VerticalSpacer(AppTheme.spacingSystem.space16)
-    KeyCrewCard(crew = detail.keyCrew)
-    VerticalSpacer(AppTheme.spacingSystem.space24)
+    detail.viewerCrew?.let { viewerCrew ->
+      ViewerCrewCard(viewerCrew = viewerCrew)
+      VerticalSpacer(AppTheme.spacingSystem.space24)
+    }
   }
 }
 
@@ -612,14 +615,13 @@ private fun DateCard(
   }
 }
 
-// ── Key Crew Card ───────────────────────────────────────────────────────
+// ── Viewer Crew Card ────────────────────────────────────────────────────
 
 @Composable
-private fun KeyCrewCard(
-  crew: List<ProductionMember>,
+private fun ViewerCrewCard(
+  viewerCrew: ViewerCrew,
   modifier: Modifier = Modifier
 ) {
-  if (crew.isEmpty()) return
   Column(
     modifier = modifier
       .fillMaxWidth()
@@ -633,11 +635,41 @@ private fun KeyCrewCard(
       style = AppTheme.typographySystem.caption,
       color = AppTheme.colorSystem.textMuted
     )
-    VerticalSpacer(AppTheme.spacingSystem.space16)
-    crew.forEachIndexed { index, member ->
+
+    viewerCrew.manager?.let { manager ->
+      VerticalSpacer(AppTheme.spacingSystem.space16)
+      CrewGroup(label = "REPORTS TO", members = listOf(manager))
+    }
+
+    if (viewerCrew.peers.isNotEmpty()) {
+      VerticalSpacer(AppTheme.spacingSystem.space16)
+      CrewGroup(label = "PEERS", members = viewerCrew.peers)
+    }
+
+    if (viewerCrew.reports.isNotEmpty()) {
+      VerticalSpacer(AppTheme.spacingSystem.space16)
+      CrewGroup(label = "REPORTS", members = viewerCrew.reports)
+    }
+  }
+}
+
+@Composable
+private fun CrewGroup(
+  label: String,
+  members: List<ProductionMember>,
+  modifier: Modifier = Modifier
+) {
+  Column(modifier = modifier.fillMaxWidth()) {
+    Text(
+      text = label,
+      style = AppTheme.typographySystem.caption,
+      color = AppTheme.colorSystem.textMuted
+    )
+    VerticalSpacer(AppTheme.spacingSystem.space8)
+    members.forEachIndexed { index, member ->
       CrewRow(member = member)
-      if (index < crew.lastIndex) {
-        VerticalSpacer(AppTheme.spacingSystem.space16)
+      if (index < members.lastIndex) {
+        VerticalSpacer(AppTheme.spacingSystem.space8)
       }
     }
   }
@@ -882,32 +914,7 @@ private fun ProductionDetailsLoadedPreview() {
           wrapDate = LocalDate(2026, 8, 30),
           budgetCents = 240_000_000L,
           membersCount = 12,
-          keyCrew = listOf(
-            ProductionMember(
-              id = "m1", userId = null,
-              name = "Maya Rivera", role = "Director",
-              initials = "MR", avatarColorHex = "#E91E63",
-              addedAt = PreviewInstant
-            ),
-            ProductionMember(
-              id = "m2", userId = null,
-              name = "Tom Ellison", role = "Producer",
-              initials = "TE", avatarColorHex = "#2196F3",
-              addedAt = PreviewInstant
-            ),
-            ProductionMember(
-              id = "m3", userId = null,
-              name = "Sara Lin", role = "DP",
-              initials = "SL", avatarColorHex = "#9C27B0",
-              addedAt = PreviewInstant
-            ),
-            ProductionMember(
-              id = "m4", userId = null,
-              name = "Jake Morse", role = "1st AD",
-              initials = "JM", avatarColorHex = "#009688",
-              addedAt = PreviewInstant
-            )
-          ),
+          keyCrew = emptyList(),
           pipeline = ProductionPhase.entries.map { p ->
             ProductionPipelinePhase(
               phase = p,
@@ -918,7 +925,37 @@ private fun ProductionDetailsLoadedPreview() {
             )
           },
           createdAt = PreviewInstant,
-          updatedAt = PreviewInstant
+          updatedAt = PreviewInstant,
+          viewerCrew = ViewerCrew(
+            viewer = ProductionMember(
+              id = "m2", userId = "u-me",
+              name = "Tom Ellison", role = "Producer",
+              initials = "TE", avatarColorHex = "#2196F3",
+              addedAt = PreviewInstant, reportsToMemberId = "m1"
+            ),
+            manager = ProductionMember(
+              id = "m1", userId = null,
+              name = "Maya Rivera", role = "Director",
+              initials = "MR", avatarColorHex = "#E91E63",
+              addedAt = PreviewInstant, reportsToMemberId = null
+            ),
+            peers = listOf(
+              ProductionMember(
+                id = "m3", userId = null,
+                name = "Sara Lin", role = "DP",
+                initials = "SL", avatarColorHex = "#9C27B0",
+                addedAt = PreviewInstant, reportsToMemberId = "m1"
+              )
+            ),
+            reports = listOf(
+              ProductionMember(
+                id = "m4", userId = null,
+                name = "Jake Morse", role = "1st AD",
+                initials = "JM", avatarColorHex = "#009688",
+                addedAt = PreviewInstant, reportsToMemberId = "m2"
+              )
+            )
+          )
         )
       ),
       onBack = {},

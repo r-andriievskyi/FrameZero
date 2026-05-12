@@ -167,7 +167,8 @@ internal class FakeProductionMemberRepository : ProductionMemberRepository {
         role = role,
         email = email,
         avatarColorHex = null,
-        addedAt = Instant.now()
+        addedAt = Instant.now(),
+        reportsToMemberId = null
       )
     members += record
     return record
@@ -180,6 +181,17 @@ internal class FakeProductionMemberRepository : ProductionMemberRepository {
     val idx = members.indexOfFirst { it.id == id }
     if (idx < 0) return null
     val updated = members[idx].copy(role = role)
+    members[idx] = updated
+    return updated
+  }
+
+  override suspend fun updateReportsTo(
+    id: UUID,
+    reportsToMemberId: UUID?
+  ): ProductionMemberRecord? {
+    val idx = members.indexOfFirst { it.id == id }
+    if (idx < 0) return null
+    val updated = members[idx].copy(reportsToMemberId = reportsToMemberId)
     members[idx] = updated
     return updated
   }
