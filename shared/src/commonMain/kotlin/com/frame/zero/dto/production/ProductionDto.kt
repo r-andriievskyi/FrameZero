@@ -34,7 +34,16 @@ data class ProductionDetailDto(
   val keyCrew: List<ProductionMemberDto>,
   val pipeline: List<PipelinePhaseDto>,
   val createdAt: Instant,
-  val updatedAt: Instant
+  val updatedAt: Instant,
+  val viewerCrew: ViewerCrewDto? = null
+)
+
+@Serializable
+data class ViewerCrewDto(
+  val viewer: ProductionMemberDto,
+  val manager: ProductionMemberDto?,
+  val peers: List<ProductionMemberDto>,
+  val reports: List<ProductionMemberDto>
 )
 
 @Serializable
@@ -45,7 +54,8 @@ data class ProductionMemberDto(
   val role: String,
   val initials: String,
   val avatarColorHex: String?,
-  val addedAt: Instant
+  val addedAt: Instant,
+  val reportsToMemberId: String? = null
 )
 
 @Serializable
@@ -95,5 +105,6 @@ data class AddMemberRequest(
 )
 
 @Serializable data class UpdateMemberRequest(
-  val role: String
+  val role: String? = null,
+  val reportsToMemberId: String? = null
 )

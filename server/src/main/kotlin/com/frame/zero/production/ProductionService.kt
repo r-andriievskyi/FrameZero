@@ -17,6 +17,7 @@ import com.frame.zero.dto.production.ProductionMemberDto
 import com.frame.zero.dto.production.ProductionSummaryDto
 import com.frame.zero.dto.production.UpdateMemberRequest
 import com.frame.zero.dto.production.UpdateProductionRequest
+import com.frame.zero.dto.production.ViewerCrewDto
 import java.time.Clock
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
@@ -66,7 +67,7 @@ class ProductionService(
       )
     }
 
-    return buildDetailDto(production)
+    return buildDetailDto(production, userId)
   }
 
   suspend fun listProductions(
@@ -102,7 +103,7 @@ class ProductionService(
     productionAccessService.requireAccess(userId, productionId, AccessLevel.READ)
     val production = productionRepository.findById(productionId)
       ?: throw AppException(AppError.NotFound)
-    return buildDetailDto(production)
+    return buildDetailDto(production, userId)
   }
 
   suspend fun updateProduction(
@@ -120,7 +121,7 @@ class ProductionService(
       wrapDate = request.wrapDate?.toJava(),
       budgetCents = request.budgetCents
     ) ?: throw AppException(AppError.NotFound)
-    return buildDetailDto(updatedProduction)
+    return buildDetailDto(updatedProduction, userId)
   }
 
   suspend fun advancePhase(
@@ -136,7 +137,7 @@ class ProductionService(
     }
     val updatedProduction = productionRepository.updatePhase(productionId, request.phase)
       ?: throw AppException(AppError.NotFound)
-    return buildDetailDto(updatedProduction)
+    return buildDetailDto(updatedProduction, userId)
   }
 
   suspend fun deleteProduction(
@@ -177,18 +178,57 @@ class ProductionService(
     return record.toDto()
   }
 
-  suspend fun updateMemberRole(
+  suspend fun updateMember(
     userId: UUID,
     productionId: UUID,
     memberId: UUID,
     request: UpdateMemberRequest
   ): ProductionMemberDto {
     productionAccessService.requireAccess(userId, productionId, AccessLevel.WRITE)
-    if (request.role.isBlank()) {
+    val role = request.role
+    val reportsToMemberId = request.reportsToMemberId
+    if (role == null && reportsToMemberId == null) {
+      throw AppException(
+        AppError.ValidationError(mapOf("body" to "Provide role or reportsToMemberId"))
+      )
+    }
+    if (role != null && role.isBlank()) {
       throw AppException(AppError.ValidationError(mapOf("role" to "Required")))
     }
-    return productionMemberRepository.updateRole(memberId, request.role.trim())?.toDto()
+    val parsedReportsTo = reportsToMemberId?.let {
+      runCatching { UUID.fromString(it) }.getOrNull()
+        ?: throw AppException(
+          AppError.ValidationError(mapOf("reportsToMemberId" to "Invalid UUID"))
+        )
+    }
+    if (parsedReportsTo != null && parsedReportsTo == memberId) {
+      throw AppException(
+        AppError.ValidationError(mapOf("reportsToMemberId" to "Cannot report to self"))
+      )
+    }
+    var current = productionMemberRepository.findById(memberId)
       ?: throw AppException(AppError.NotFound)
+    if (current.productionId != productionId) {
+      throw AppException(AppError.NotFound)
+    }
+    if (role != null) {
+      current = productionMemberRepository.updateRole(memberId, role.trim())
+        ?: throw AppException(AppError.NotFound)
+    }
+    if (parsedReportsTo != null) {
+      val target = productionMemberRepository.findById(parsedReportsTo)
+        ?: throw AppException(
+          AppError.ValidationError(mapOf("reportsToMemberId" to "Unknown member"))
+        )
+      if (target.productionId != productionId) {
+        throw AppException(
+          AppError.ValidationError(mapOf("reportsToMemberId" to "Member is on a different production"))
+        )
+      }
+      current = productionMemberRepository.updateReportsTo(memberId, parsedReportsTo)
+        ?: throw AppException(AppError.NotFound)
+    }
+    return current.toDto()
   }
 
   suspend fun removeMember(
@@ -257,16 +297,47 @@ class ProductionService(
 
   // -- DTO mapping ---------------------------------------------------------
 
-  private suspend fun buildDetailDto(production: ProductionRecord): ProductionDetailDto {
+  private suspend fun buildDetailDto(
+    production: ProductionRecord,
+    viewerUserId: UUID
+  ): ProductionDetailDto {
     val allMembers = productionMemberRepository.findByProduction(production.id)
     val keyCrew = allMembers.sortedWith(keyCrewComparator).take(KEY_CREW_LIMIT).map { it.toDto() }
+    val viewerCrew = buildViewerCrew(viewerUserId, allMembers)
     val today = LocalDate.now(clock)
-    return production.toDetailDto(membersCount = allMembers.size, keyCrew = keyCrew, today = today)
+    return production.toDetailDto(
+      membersCount = allMembers.size,
+      keyCrew = keyCrew,
+      viewerCrew = viewerCrew,
+      today = today
+    )
+  }
+
+  private fun buildViewerCrew(
+    viewerUserId: UUID,
+    allMembers: List<ProductionMemberRecord>
+  ): ViewerCrewDto? {
+    val viewer = allMembers.firstOrNull { it.userId == viewerUserId } ?: return null
+    val manager = viewer.reportsToMemberId?.let { managerId ->
+      allMembers.firstOrNull { it.id == managerId }
+    }
+    val peers = viewer.reportsToMemberId?.let { managerId ->
+      allMembers.filter { it.id != viewer.id && it.reportsToMemberId == managerId }
+    }.orEmpty()
+    val reports = allMembers.filter { it.reportsToMemberId == viewer.id }
+    if (manager == null && peers.isEmpty() && reports.isEmpty()) return null
+    return ViewerCrewDto(
+      viewer = viewer.toDto(),
+      manager = manager?.toDto(),
+      peers = peers.map { it.toDto() },
+      reports = reports.map { it.toDto() }
+    )
   }
 
   private fun ProductionRecord.toDetailDto(
     membersCount: Int,
     keyCrew: List<ProductionMemberDto>,
+    viewerCrew: ViewerCrewDto?,
     today: LocalDate
   ): ProductionDetailDto {
     val progressPercent = computeProgressPercent(startDate, wrapDate, today)
@@ -288,7 +359,8 @@ class ProductionService(
       keyCrew = keyCrew,
       pipeline = buildPipelinePhases(phase),
       createdAt = createdAt.toKotlinInstant(),
-      updatedAt = updatedAt.toKotlinInstant()
+      updatedAt = updatedAt.toKotlinInstant(),
+      viewerCrew = viewerCrew
     )
   }
 
@@ -320,7 +392,8 @@ class ProductionService(
       role = role,
       initials = extractInitials(name),
       avatarColorHex = avatarColorHex,
-      addedAt = addedAt.toKotlinInstant()
+      addedAt = addedAt.toKotlinInstant(),
+      reportsToMemberId = reportsToMemberId?.toString()
     )
 
   private companion object {

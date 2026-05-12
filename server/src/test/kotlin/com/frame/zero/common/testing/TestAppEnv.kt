@@ -61,7 +61,7 @@ internal class TestAppEnv {
   val jwtService = JwtService(testJwtConfig)
   val access = ProductionAccessService(productions, productionMembers)
   val productionService = ProductionService(productions, productionMembers, users, access)
-  val dashboardService = DashboardService(users, productions, productionMembers, tasks)
+  val dashboardService = DashboardService(users, productions, tasks)
   val taskService = TaskService(tasks, access)
   val scheduleService = ScheduleService(scheduleEvents, tasks, access)
   val notificationService = NotificationService(notificationsRepo)

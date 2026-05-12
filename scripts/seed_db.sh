@@ -148,6 +148,40 @@ add_member "${PRODUCTION_IDS[1]}" "David Osei"  "Production Designer"     "david
 add_member "${PRODUCTION_IDS[1]}" "Eva Muller"  "Costume Designer"        "eva.muller@framezero.dev"
 
 # ---------------------------------------------------------------------------
+# Wire reporting links: Alice (owner) is the manager; others report to her.
+# Production 0: Bob & Carol report to Alice -> Alice sees them as Reports,
+# Bob & Carol see each other as Peers and Alice as their Manager.
+# Production 1: David & Eva similarly report to Alice.
+# ---------------------------------------------------------------------------
+
+find_member_id() {
+  local prod_id="$1" user_id="$2"
+  curl -sf "$API_URL/productions/$prod_id/members" \
+    -H "Authorization: Bearer $PRIMARY_TOKEN" \
+    | jq -r --arg uid "$user_id" '.[] | select(.userId == $uid) | .id'
+}
+
+set_reports_to() {
+  local prod_id="$1" member_id="$2" manager_member_id="$3"
+  curl -sf -X PATCH "$API_URL/productions/$prod_id/members/$member_id" \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer $PRIMARY_TOKEN" \
+    -d "{\"reportsToMemberId\":\"$manager_member_id\"}" >/dev/null
+}
+
+info "Wiring reports-to links..."
+for prod_idx in 0 1; do
+  prod_id="${PRODUCTION_IDS[$prod_idx]}"
+  alice_member_id=$(find_member_id "$prod_id" "$ALICE_ID")
+  for reporter_user_id in "$BOB_ID" "$CAROL_ID" "$DAVID_ID" "$EVA_ID"; do
+    reporter_member_id=$(find_member_id "$prod_id" "$reporter_user_id")
+    if [[ -n "$reporter_member_id" && "$reporter_member_id" != "null" ]]; then
+      set_reports_to "$prod_id" "$reporter_member_id" "$alice_member_id"
+    fi
+  done
+done
+
+# ---------------------------------------------------------------------------
 # Tasks (all created by alice.wright; mix of self-assigned and assigned to others)
 # ---------------------------------------------------------------------------
 

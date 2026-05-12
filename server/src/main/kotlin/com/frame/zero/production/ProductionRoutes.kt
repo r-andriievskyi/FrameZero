@@ -104,7 +104,7 @@ fun Route.productionRoutes() {
             val productionId = call.pathUuid("id")
             val memberId = call.pathUuid("memberId")
             val request = call.receive<UpdateMemberRequest>()
-            call.respond(service.updateMemberRole(userId, productionId, memberId, request))
+            call.respond(service.updateMember(userId, productionId, memberId, request))
           }
 
           delete("/{memberId}") {
