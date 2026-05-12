@@ -3,6 +3,7 @@ package com.frame.zero.domain.production
 import com.frame.zero.dto.production.PipelinePhaseDto
 import com.frame.zero.dto.production.ProductionDetailDto
 import com.frame.zero.dto.production.ProductionMemberDto
+import com.frame.zero.dto.production.ViewerCrewDto
 import kotlinx.datetime.LocalDate
 import kotlin.time.Instant
 
@@ -21,7 +22,15 @@ data class ProductionDetail(
   val keyCrew: List<ProductionMember>,
   val pipeline: List<ProductionPipelinePhase>,
   val createdAt: Instant,
-  val updatedAt: Instant
+  val updatedAt: Instant,
+  val viewerCrew: ViewerCrew?
+)
+
+data class ViewerCrew(
+  val viewer: ProductionMember,
+  val manager: ProductionMember?,
+  val peers: List<ProductionMember>,
+  val reports: List<ProductionMember>
 )
 
 data class ProductionMember(
@@ -31,7 +40,8 @@ data class ProductionMember(
   val role: String,
   val initials: String,
   val avatarColorHex: String?,
-  val addedAt: Instant
+  val addedAt: Instant,
+  val reportsToMemberId: String?
 )
 
 data class ProductionPipelinePhase(
@@ -57,7 +67,16 @@ fun ProductionDetailDto.toProductionDetail(): ProductionDetail =
     keyCrew = keyCrew.map { it.toProductionMember() },
     pipeline = pipeline.map { it.toProductionPipelinePhase() },
     createdAt = createdAt,
-    updatedAt = updatedAt
+    updatedAt = updatedAt,
+    viewerCrew = viewerCrew?.toViewerCrew()
+  )
+
+fun ViewerCrewDto.toViewerCrew(): ViewerCrew =
+  ViewerCrew(
+    viewer = viewer.toProductionMember(),
+    manager = manager?.toProductionMember(),
+    peers = peers.map { it.toProductionMember() },
+    reports = reports.map { it.toProductionMember() }
   )
 
 fun ProductionMemberDto.toProductionMember(): ProductionMember =
@@ -68,7 +87,8 @@ fun ProductionMemberDto.toProductionMember(): ProductionMember =
     role = role,
     initials = initials,
     avatarColorHex = avatarColorHex,
-    addedAt = addedAt
+    addedAt = addedAt,
+    reportsToMemberId = reportsToMemberId
   )
 
 fun PipelinePhaseDto.toProductionPipelinePhase(): ProductionPipelinePhase =

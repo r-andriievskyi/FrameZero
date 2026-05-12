@@ -21,7 +21,8 @@ data class ProductionMemberRecord(
   val role: String,
   val email: String?,
   val avatarColorHex: String?,
-  val addedAt: Instant
+  val addedAt: Instant,
+  val reportsToMemberId: UUID?
 )
 
 interface ProductionMemberRepository {
@@ -49,6 +50,11 @@ interface ProductionMemberRepository {
   suspend fun updateRole(
     id: UUID,
     role: String
+  ): ProductionMemberRecord?
+
+  suspend fun updateReportsTo(
+    id: UUID,
+    reportsToMemberId: UUID?
   ): ProductionMemberRecord?
 
   suspend fun remove(id: UUID): Boolean
@@ -147,7 +153,8 @@ class ProductionMemberRepositoryExposed : ProductionMemberRepository {
         role = role,
         email = email,
         avatarColorHex = avatarColor,
-        addedAt = now
+        addedAt = now,
+        reportsToMemberId = null
       )
     }
 
@@ -159,6 +166,27 @@ class ProductionMemberRepositoryExposed : ProductionMemberRepository {
       val updated =
         ProductionMembersTable.update({ ProductionMembersTable.id eq id }) {
           it[ProductionMembersTable.role] = role
+        }
+      if (updated == 0) {
+        null
+      } else {
+        ProductionMembersTable
+          .leftJoin(UsersTable)
+          .selectAll()
+          .where { ProductionMembersTable.id eq id }
+          .singleOrNull()
+          ?.toRecord()
+      }
+    }
+
+  override suspend fun updateReportsTo(
+    id: UUID,
+    reportsToMemberId: UUID?
+  ): ProductionMemberRecord? =
+    dbQuery {
+      val updated =
+        ProductionMembersTable.update({ ProductionMembersTable.id eq id }) {
+          it[ProductionMembersTable.reportsToMemberId] = reportsToMemberId
         }
       if (updated == 0) {
         null
@@ -186,6 +214,7 @@ class ProductionMemberRepositoryExposed : ProductionMemberRepository {
       role = this[ProductionMembersTable.role],
       email = this[ProductionMembersTable.email],
       avatarColorHex = this.getOrNull(UsersTable.avatarColorHex),
-      addedAt = this[ProductionMembersTable.addedAt]
+      addedAt = this[ProductionMembersTable.addedAt],
+      reportsToMemberId = this[ProductionMembersTable.reportsToMemberId]
     )
 }
