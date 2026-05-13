@@ -10,6 +10,7 @@ kotlin {
       api(projects.shared.repositories.dashboard)
       api(projects.shared.repositories.productions)
       api(projects.shared.repositories.schedule)
+      api(libs.androidx.paging.common)
       api(libs.decompose)
       implementation(libs.koin.core)
       implementation(libs.kotlinx.coroutines.core)
