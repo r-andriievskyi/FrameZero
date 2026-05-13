@@ -1,7 +1,10 @@
 package com.frame.zero.feature.home.tab.projects
 
+import androidx.paging.PagingData
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.essenty.instancekeeper.getOrCreate
+import com.frame.zero.domain.production.ProductionPhase
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
 class ProjectsTabComponent(
@@ -15,7 +18,8 @@ class ProjectsTabComponent(
   val state: StateFlow<ProjectsTabState>
     get() = viewModel.state
 
-  fun onAppeared() = viewModel.onAppeared()
+  val productions: Flow<PagingData<ProductionUi>>
+    get() = viewModel.productions
 
-  fun onRefresh() = viewModel.onRefresh()
+  fun onFilterSelected(phase: ProductionPhase?) = viewModel.onFilterSelected(phase)
 }

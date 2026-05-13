@@ -1,7 +1,7 @@
 package com.frame.zero.feature.home.tab.projects
 
+import com.frame.zero.domain.production.ProductionPhase
+
 data class ProjectsTabState(
-  val isLoading: Boolean = false,
-  val isRefreshing: Boolean = false,
-  val productions: List<ProductionUi> = emptyList()
+  val selectedFilter: ProductionPhase? = null
 )
