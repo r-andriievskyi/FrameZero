@@ -16,8 +16,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -68,8 +72,19 @@ private fun ProductionsContent(
 ) {
   val refreshState = lazyPagingItems.loadState.refresh
   val appendState = lazyPagingItems.loadState.append
-  val isInitialLoad = refreshState is LoadState.Loading && lazyPagingItems.itemCount == 0
-  val isRefreshing = refreshState is LoadState.Loading && lazyPagingItems.itemCount > 0
+
+  // LazyPagingItems keeps the previous snapshot until the new filter's first page arrives.
+  // Track which filter the visible items belong to so a filter switch renders as initial load,
+  // not as pull-to-refresh on stale data.
+  var snapshotFilter by remember { mutableStateOf(selectedFilter) }
+  LaunchedEffect(refreshState) {
+    if (refreshState is LoadState.NotLoading) snapshotFilter = selectedFilter
+  }
+  val isFilterTransition = snapshotFilter != selectedFilter
+
+  val isLoading = refreshState is LoadState.Loading
+  val isInitialLoad = isLoading && (lazyPagingItems.itemCount == 0 || isFilterTransition)
+  val isRefreshing = isLoading && lazyPagingItems.itemCount > 0 && !isFilterTransition
   val isEmpty = !isInitialLoad && lazyPagingItems.itemCount == 0
 
   Column(
@@ -115,6 +130,7 @@ private fun ProductionsContent(
     VerticalSpacer(AppTheme.spacingSystem.space16)
 
     when {
+      isInitialLoad -> ProductionsSkeleton()
       isEmpty -> EmptyState(onCreateProductionClick = onCreateProductionClick)
       else -> PullToRefreshBox(
         isRefreshing = isRefreshing,
