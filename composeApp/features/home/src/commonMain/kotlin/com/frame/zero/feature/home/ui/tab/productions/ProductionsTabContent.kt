@@ -11,9 +11,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -28,6 +28,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.discovery.playground.shared.design_system.AppTheme
+import com.discovery.playground.shared.design_system.widgets.PullToRefreshBox
 import com.discovery.playground.shared.design_system.widgets.VerticalSpacer
 import com.frame.zero.domain.production.Genre
 import com.frame.zero.domain.production.ProductionPhase
@@ -47,6 +48,8 @@ fun ProductionsTabContent(component: ProjectsTabComponent) {
   val state by component.state.collectAsState()
   ProductionsContent(
     productions = state.productions,
+    isRefreshing = state.isRefreshing,
+    onRefresh = component::onRefresh,
     onCreateProductionClick = component.onCreateProductionClick,
     onProductionClick = component.onProductionClick
   )
@@ -55,6 +58,8 @@ fun ProductionsTabContent(component: ProjectsTabComponent) {
 @Composable
 private fun ProductionsContent(
   productions: List<ProductionUi>,
+  isRefreshing: Boolean,
+  onRefresh: () -> Unit,
   onCreateProductionClick: () -> Unit,
   onProductionClick: (productionId: String) -> Unit = {}
 ) {
@@ -70,7 +75,6 @@ private fun ProductionsContent(
     modifier = Modifier
       .fillMaxSize()
       .background(AppTheme.colorSystem.background)
-      .verticalScroll(rememberScrollState())
       .padding(
         horizontal = AppTheme.spacingSystem.space16,
         vertical = AppTheme.spacingSystem.space24
@@ -112,12 +116,22 @@ private fun ProductionsContent(
     if (filteredProductions.isEmpty()) {
       EmptyState(onCreateProductionClick = onCreateProductionClick)
     } else {
-      filteredProductions.forEach { production ->
-        ProductionCard(
-          production = production,
-          onClick = { onProductionClick(production.id) }
-        )
-        VerticalSpacer(AppTheme.spacingSystem.space16)
+      PullToRefreshBox(
+        isRefreshing = isRefreshing,
+        onRefresh = onRefresh,
+        modifier = Modifier.fillMaxSize()
+      ) {
+        LazyColumn(
+          modifier = Modifier.fillMaxSize(),
+          verticalArrangement = Arrangement.spacedBy(AppTheme.spacingSystem.space16)
+        ) {
+          items(items = filteredProductions, key = { it.id }) { production ->
+            ProductionCard(
+              production = production,
+              onClick = { onProductionClick(production.id) }
+            )
+          }
+        }
       }
     }
   }
@@ -131,6 +145,8 @@ private fun ProductionsEmptyPreview() {
   AppTheme(darkTheme = true) {
     ProductionsContent(
       productions = emptyList(),
+      isRefreshing = false,
+      onRefresh = {},
       onCreateProductionClick = {}
     )
   }
@@ -142,6 +158,8 @@ private fun ProductionsContentPreview() {
   AppTheme(darkTheme = true) {
     ProductionsContent(
       onCreateProductionClick = {},
+      isRefreshing = false,
+      onRefresh = {},
       productions = listOf(
         ProductionUi(
           id = "1",
