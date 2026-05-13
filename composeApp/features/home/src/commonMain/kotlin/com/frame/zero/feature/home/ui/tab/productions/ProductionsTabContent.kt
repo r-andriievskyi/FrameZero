@@ -1,5 +1,10 @@
 package com.frame.zero.feature.home.ui.tab.productions
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -48,6 +53,10 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
 private val AddButtonSize = 40.dp
+private const val ContentFadeInMillis = 220
+private const val ContentFadeOutMillis = 140
+
+private enum class ProductionsContentState { Skeleton, Empty, List }
 
 @Composable
 fun ProductionsTabContent(component: ProjectsTabComponent) {
@@ -129,37 +138,54 @@ private fun ProductionsContent(
 
     VerticalSpacer(AppTheme.spacingSystem.space16)
 
-    when {
-      isInitialLoad -> ProductionsSkeleton()
-      isEmpty -> EmptyState(onCreateProductionClick = onCreateProductionClick)
-      else -> PullToRefreshBox(
-        isRefreshing = isRefreshing,
-        onRefresh = lazyPagingItems::refresh,
-        modifier = Modifier.fillMaxSize()
-      ) {
-        LazyColumn(
-          modifier = Modifier.fillMaxSize(),
-          verticalArrangement = Arrangement.spacedBy(AppTheme.spacingSystem.space16)
+    val contentState = when {
+      isInitialLoad -> ProductionsContentState.Skeleton
+      isEmpty -> ProductionsContentState.Empty
+      else -> ProductionsContentState.List
+    }
+
+    AnimatedContent(
+      targetState = contentState,
+      transitionSpec = {
+        fadeIn(animationSpec = tween(durationMillis = ContentFadeInMillis)) togetherWith
+          fadeOut(animationSpec = tween(durationMillis = ContentFadeOutMillis))
+      },
+      modifier = Modifier.fillMaxSize(),
+      contentKey = { it },
+      label = "ProductionsContent"
+    ) { target ->
+      when (target) {
+        ProductionsContentState.Skeleton -> ProductionsSkeleton()
+        ProductionsContentState.Empty -> EmptyState(onCreateProductionClick = onCreateProductionClick)
+        ProductionsContentState.List -> PullToRefreshBox(
+          isRefreshing = isRefreshing,
+          onRefresh = lazyPagingItems::refresh,
+          modifier = Modifier.fillMaxSize()
         ) {
-          items(
-            count = lazyPagingItems.itemCount,
-            key = lazyPagingItems.itemKey { it.id }
-          ) { index ->
-            val production = lazyPagingItems[index] ?: return@items
-            ProductionCard(
-              production = production,
-              onClick = { onProductionClick(production.id) }
-            )
-          }
-          if (appendState is LoadState.Loading) {
-            item(key = "append-loading") {
-              Box(
-                modifier = Modifier
-                  .fillMaxWidth()
-                  .padding(AppTheme.spacingSystem.space16),
-                contentAlignment = Alignment.Center
-              ) {
-                CircularProgressIndicator(color = AppTheme.colorSystem.accent)
+          LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(AppTheme.spacingSystem.space16)
+          ) {
+            items(
+              count = lazyPagingItems.itemCount,
+              key = lazyPagingItems.itemKey { it.id }
+            ) { index ->
+              val production = lazyPagingItems[index] ?: return@items
+              ProductionCard(
+                production = production,
+                onClick = { onProductionClick(production.id) }
+              )
+            }
+            if (appendState is LoadState.Loading) {
+              item(key = "append-loading") {
+                Box(
+                  modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(AppTheme.spacingSystem.space16),
+                  contentAlignment = Alignment.Center
+                ) {
+                  CircularProgressIndicator(color = AppTheme.colorSystem.accent)
+                }
               }
             }
           }
