@@ -5,6 +5,7 @@ import com.frame.zero.domain.Outcome
 import com.frame.zero.feature.home.usecase.GetProductionsUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,17 +28,32 @@ class ProjectsTabViewModel(
   val state: StateFlow<ProjectsTabState> = _state.asStateFlow()
 
   private var hasLoaded = false
+  private var refreshJob: Job? = null
 
   fun onAppeared() {
     if (hasLoaded) return
     hasLoaded = true
     scope.launch {
       _state.value = _state.value.copy(isLoading = true)
-      when (val outcome = getProductionsUseCase()) {
-        is Outcome.Success ->
-          _state.value = _state.value.copy(isLoading = false, productions = outcome.data.map { it.toUi() })
-        is Outcome.Failure -> _state.value = _state.value.copy(isLoading = false)
-      }
+      load()
+      _state.value = _state.value.copy(isLoading = false)
+    }
+  }
+
+  fun onRefresh() {
+    if (refreshJob?.isActive == true) return
+    refreshJob = scope.launch {
+      _state.value = _state.value.copy(isRefreshing = true)
+      load()
+      _state.value = _state.value.copy(isRefreshing = false)
+    }
+  }
+
+  private suspend fun load() {
+    when (val outcome = getProductionsUseCase()) {
+      is Outcome.Success ->
+        _state.value = _state.value.copy(productions = outcome.data.map { it.toUi() })
+      is Outcome.Failure -> Unit
     }
   }
 

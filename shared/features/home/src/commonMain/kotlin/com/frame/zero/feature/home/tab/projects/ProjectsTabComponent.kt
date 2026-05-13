@@ -16,4 +16,6 @@ class ProjectsTabComponent(
     get() = viewModel.state
 
   fun onAppeared() = viewModel.onAppeared()
+
+  fun onRefresh() = viewModel.onRefresh()
 }
