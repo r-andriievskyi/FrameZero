@@ -12,21 +12,22 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.paging.LoadState
+import androidx.paging.PagingData
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemKey
 import com.discovery.playground.shared.design_system.AppTheme
 import com.discovery.playground.shared.design_system.widgets.PullToRefreshBox
 import com.discovery.playground.shared.design_system.widgets.VerticalSpacer
@@ -37,6 +38,8 @@ import com.frame.zero.feature.home.tab.projects.ProjectsTabComponent
 import framezero.composeapp.features.home.generated.resources.Res
 import framezero.composeapp.features.home.generated.resources.ic_plus
 import framezero.composeapp.features.home.generated.resources.projects_title
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -44,12 +47,12 @@ private val AddButtonSize = 40.dp
 
 @Composable
 fun ProductionsTabContent(component: ProjectsTabComponent) {
-  LaunchedEffect(Unit) { component.onAppeared() }
   val state by component.state.collectAsState()
+  val lazyPagingItems = component.productions.collectAsLazyPagingItems()
   ProductionsContent(
-    productions = state.productions,
-    isRefreshing = state.isRefreshing,
-    onRefresh = component::onRefresh,
+    lazyPagingItems = lazyPagingItems,
+    selectedFilter = state.selectedFilter,
+    onFilterSelected = component::onFilterSelected,
     onCreateProductionClick = component.onCreateProductionClick,
     onProductionClick = component.onProductionClick
   )
@@ -57,19 +60,17 @@ fun ProductionsTabContent(component: ProjectsTabComponent) {
 
 @Composable
 private fun ProductionsContent(
-  productions: List<ProductionUi>,
-  isRefreshing: Boolean,
-  onRefresh: () -> Unit,
+  lazyPagingItems: LazyPagingItems<ProductionUi>,
+  selectedFilter: ProductionPhase?,
+  onFilterSelected: (ProductionPhase?) -> Unit,
   onCreateProductionClick: () -> Unit,
   onProductionClick: (productionId: String) -> Unit = {}
 ) {
-  var selectedFilter by remember { mutableStateOf<ProductionPhase?>(null) }
-
-  val filteredProductions = if (selectedFilter == null) {
-    productions
-  } else {
-    productions.filter { it.phase == selectedFilter }
-  }
+  val refreshState = lazyPagingItems.loadState.refresh
+  val appendState = lazyPagingItems.loadState.append
+  val isInitialLoad = refreshState is LoadState.Loading && lazyPagingItems.itemCount == 0
+  val isRefreshing = refreshState is LoadState.Loading && lazyPagingItems.itemCount > 0
+  val isEmpty = !isInitialLoad && lazyPagingItems.itemCount == 0
 
   Column(
     modifier = Modifier
@@ -90,7 +91,7 @@ private fun ProductionsContent(
         style = AppTheme.typographySystem.displayMedium,
         color = AppTheme.colorSystem.textPrimary
       )
-      if (filteredProductions.isNotEmpty()) {
+      if (!isEmpty) {
         Box(
           modifier = Modifier
             .size(AddButtonSize)
@@ -109,27 +110,42 @@ private fun ProductionsContent(
 
     VerticalSpacer(AppTheme.spacingSystem.space16)
 
-    FilterChipsRow(selectedFilter = selectedFilter, onFilterSelected = { selectedFilter = it })
+    FilterChipsRow(selectedFilter = selectedFilter, onFilterSelected = onFilterSelected)
 
     VerticalSpacer(AppTheme.spacingSystem.space16)
 
-    if (filteredProductions.isEmpty()) {
-      EmptyState(onCreateProductionClick = onCreateProductionClick)
-    } else {
-      PullToRefreshBox(
+    when {
+      isEmpty -> EmptyState(onCreateProductionClick = onCreateProductionClick)
+      else -> PullToRefreshBox(
         isRefreshing = isRefreshing,
-        onRefresh = onRefresh,
+        onRefresh = lazyPagingItems::refresh,
         modifier = Modifier.fillMaxSize()
       ) {
         LazyColumn(
           modifier = Modifier.fillMaxSize(),
           verticalArrangement = Arrangement.spacedBy(AppTheme.spacingSystem.space16)
         ) {
-          items(items = filteredProductions, key = { it.id }) { production ->
+          items(
+            count = lazyPagingItems.itemCount,
+            key = lazyPagingItems.itemKey { it.id }
+          ) { index ->
+            val production = lazyPagingItems[index] ?: return@items
             ProductionCard(
               production = production,
               onClick = { onProductionClick(production.id) }
             )
+          }
+          if (appendState is LoadState.Loading) {
+            item(key = "append-loading") {
+              Box(
+                modifier = Modifier
+                  .fillMaxWidth()
+                  .padding(AppTheme.spacingSystem.space16),
+                contentAlignment = Alignment.Center
+              ) {
+                CircularProgressIndicator(color = AppTheme.colorSystem.accent)
+              }
+            }
           }
         }
       }
@@ -139,14 +155,17 @@ private fun ProductionsContent(
 
 // ── Previews ──────────────────────────────────────────────────────────
 
+private fun previewPagingFlow(items: List<ProductionUi>): Flow<PagingData<ProductionUi>> =
+  flowOf(PagingData.from(items))
+
 @Preview
 @Composable
 private fun ProductionsEmptyPreview() {
   AppTheme(darkTheme = true) {
     ProductionsContent(
-      productions = emptyList(),
-      isRefreshing = false,
-      onRefresh = {},
+      lazyPagingItems = previewPagingFlow(emptyList()).collectAsLazyPagingItems(),
+      selectedFilter = null,
+      onFilterSelected = {},
       onCreateProductionClick = {}
     )
   }
@@ -156,39 +175,41 @@ private fun ProductionsEmptyPreview() {
 @Composable
 private fun ProductionsContentPreview() {
   AppTheme(darkTheme = true) {
-    ProductionsContent(
-      onCreateProductionClick = {},
-      isRefreshing = false,
-      onRefresh = {},
-      productions = listOf(
-        ProductionUi(
-          id = "1",
-          title = "Echoes of Silence",
-          genre = Genre.DRAMA,
-          phase = ProductionPhase.PRODUCTION,
-          progressPercent = 68,
-          daysLeft = 24,
-          membersCount = 12
-        ),
-        ProductionUi(
-          id = "2",
-          title = "Neon Wolves",
-          genre = Genre.THRILLER,
-          phase = ProductionPhase.PRE_PRODUCTION,
-          progressPercent = 34,
-          daysLeft = 61,
-          membersCount = 8
-        ),
-        ProductionUi(
-          id = "3",
-          title = "The Last Frame",
-          genre = Genre.SCI_FI,
-          phase = ProductionPhase.POST_PRODUCTION,
-          progressPercent = 91,
-          daysLeft = 7,
-          membersCount = 6
-        )
+    val items = listOf(
+      ProductionUi(
+        id = "1",
+        title = "Echoes of Silence",
+        genre = Genre.DRAMA,
+        phase = ProductionPhase.PRODUCTION,
+        progressPercent = 68,
+        daysLeft = 24,
+        membersCount = 12
+      ),
+      ProductionUi(
+        id = "2",
+        title = "Neon Wolves",
+        genre = Genre.THRILLER,
+        phase = ProductionPhase.PRE_PRODUCTION,
+        progressPercent = 34,
+        daysLeft = 61,
+        membersCount = 8
+      ),
+      ProductionUi(
+        id = "3",
+        title = "The Last Frame",
+        genre = Genre.SCI_FI,
+        phase = ProductionPhase.POST_PRODUCTION,
+        progressPercent = 91,
+        daysLeft = 7,
+        membersCount = 6
       )
+    )
+    ProductionsContent(
+      lazyPagingItems = previewPagingFlow(items).collectAsLazyPagingItems(),
+      selectedFilter = null,
+      onFilterSelected = {},
+      onCreateProductionClick = {},
+      onProductionClick = {}
     )
   }
 }
