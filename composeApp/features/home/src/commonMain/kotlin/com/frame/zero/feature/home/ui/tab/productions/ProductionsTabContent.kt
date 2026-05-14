@@ -16,30 +16,23 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.itemKey
 import com.discovery.playground.shared.design_system.AppTheme
-import com.discovery.playground.shared.design_system.widgets.PullToRefreshBox
+import com.discovery.playground.shared.design_system.widgets.PagingLazyColumn
 import com.discovery.playground.shared.design_system.widgets.VerticalSpacer
+import com.discovery.playground.shared.design_system.widgets.rememberPagingListUiState
 import com.frame.zero.domain.production.Genre
 import com.frame.zero.domain.production.ProductionPhase
 import com.frame.zero.feature.home.tab.projects.ProductionUi
@@ -79,22 +72,10 @@ private fun ProductionsContent(
   onCreateProductionClick: () -> Unit,
   onProductionClick: (productionId: String) -> Unit = {}
 ) {
-  val refreshState = lazyPagingItems.loadState.refresh
-  val appendState = lazyPagingItems.loadState.append
-
-  // LazyPagingItems keeps the previous snapshot until the new filter's first page arrives.
-  // Track which filter the visible items belong to so a filter switch renders as initial load,
-  // not as pull-to-refresh on stale data.
-  var snapshotFilter by remember { mutableStateOf(selectedFilter) }
-  LaunchedEffect(refreshState) {
-    if (refreshState is LoadState.NotLoading) snapshotFilter = selectedFilter
-  }
-  val isFilterTransition = snapshotFilter != selectedFilter
-
-  val isLoading = refreshState is LoadState.Loading
-  val isInitialLoad = isLoading && (lazyPagingItems.itemCount == 0 || isFilterTransition)
-  val isRefreshing = isLoading && lazyPagingItems.itemCount > 0 && !isFilterTransition
-  val isEmpty = !isInitialLoad && lazyPagingItems.itemCount == 0
+  val pagingState = rememberPagingListUiState(
+    lazyPagingItems = lazyPagingItems,
+    resetKey = selectedFilter
+  )
 
   Column(
     modifier = Modifier
@@ -115,7 +96,7 @@ private fun ProductionsContent(
         style = AppTheme.typographySystem.displayMedium,
         color = AppTheme.colorSystem.textPrimary
       )
-      if (!isEmpty) {
+      if (!pagingState.isEmpty) {
         Box(
           modifier = Modifier
             .size(AddButtonSize)
@@ -139,8 +120,8 @@ private fun ProductionsContent(
     VerticalSpacer(AppTheme.spacingSystem.space16)
 
     val contentState = when {
-      isInitialLoad -> ProductionsContentState.Skeleton
-      isEmpty -> ProductionsContentState.Empty
+      pagingState.isInitialLoad -> ProductionsContentState.Skeleton
+      pagingState.isEmpty -> ProductionsContentState.Empty
       else -> ProductionsContentState.List
     }
 
@@ -157,38 +138,16 @@ private fun ProductionsContent(
       when (target) {
         ProductionsContentState.Skeleton -> ProductionsSkeleton()
         ProductionsContentState.Empty -> EmptyState(onCreateProductionClick = onCreateProductionClick)
-        ProductionsContentState.List -> PullToRefreshBox(
-          isRefreshing = isRefreshing,
-          onRefresh = lazyPagingItems::refresh,
-          modifier = Modifier.fillMaxSize()
-        ) {
-          LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(AppTheme.spacingSystem.space16)
-          ) {
-            items(
-              count = lazyPagingItems.itemCount,
-              key = lazyPagingItems.itemKey { it.id }
-            ) { index ->
-              val production = lazyPagingItems[index] ?: return@items
-              ProductionCard(
-                production = production,
-                onClick = { onProductionClick(production.id) }
-              )
-            }
-            if (appendState is LoadState.Loading) {
-              item(key = "append-loading") {
-                Box(
-                  modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(AppTheme.spacingSystem.space16),
-                  contentAlignment = Alignment.Center
-                ) {
-                  CircularProgressIndicator(color = AppTheme.colorSystem.accent)
-                }
-              }
-            }
-          }
+        ProductionsContentState.List -> PagingLazyColumn(
+          lazyPagingItems = lazyPagingItems,
+          state = pagingState,
+          modifier = Modifier.fillMaxSize(),
+          itemKey = { it.id }
+        ) { production ->
+          ProductionCard(
+            production = production,
+            onClick = { onProductionClick(production.id) }
+          )
         }
       }
     }
