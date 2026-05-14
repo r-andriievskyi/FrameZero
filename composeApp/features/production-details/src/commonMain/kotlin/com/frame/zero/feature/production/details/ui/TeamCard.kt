@@ -20,6 +20,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.discovery.playground.shared.design_system.AppTheme
+import framezero.composeapp.features.production_details.generated.resources.Res
+import framezero.composeapp.features.production_details.generated.resources.team_direct_reports
+import framezero.composeapp.features.production_details.generated.resources.team_header
+import framezero.composeapp.features.production_details.generated.resources.team_peers
+import framezero.composeapp.features.production_details.generated.resources.team_reports_to
+import framezero.composeapp.features.production_details.generated.resources.team_viewer_label
+import org.jetbrains.compose.resources.stringResource
 import com.discovery.playground.shared.design_system.widgets.HorizontalSpacer
 import com.discovery.playground.shared.design_system.widgets.VerticalSpacer
 import com.frame.zero.domain.production.ProductionMember
@@ -51,21 +58,21 @@ internal fun TeamCard(
       verticalAlignment = Alignment.CenterVertically
     ) {
       Text(
-        text = "TEAM",
+        text = stringResource(Res.string.team_header),
         style = AppTheme.typographySystem.caption.copy(
           fontWeight = FontWeight.Bold
         ),
         color = AppTheme.colorSystem.textMuted
       )
       ViewerBadge(
-        label = "You · ${viewerCrew.viewer.role}"
+        label = stringResource(Res.string.team_viewer_label, viewerCrew.viewer.role)
       )
     }
 
     // Reports To section
     viewerCrew.manager?.let { manager ->
       VerticalSpacer(AppTheme.spacingSystem.space16)
-      SectionLabel(label = "REPORTS TO")
+      SectionLabel(label = stringResource(Res.string.team_reports_to))
       VerticalSpacer(AppTheme.spacingSystem.space8)
       CrewRow(member = manager)
       VerticalSpacer(AppTheme.spacingSystem.space16)
@@ -79,7 +86,7 @@ internal fun TeamCard(
     if (viewerCrew.peers.isNotEmpty()) {
       VerticalSpacer(AppTheme.spacingSystem.space16)
       SectionHeader(
-        label = "PEERS",
+        label = stringResource(Res.string.team_peers),
         count = viewerCrew.peers.size
       )
       VerticalSpacer(AppTheme.spacingSystem.space8)
@@ -100,7 +107,7 @@ internal fun TeamCard(
     if (viewerCrew.reports.isNotEmpty()) {
       VerticalSpacer(AppTheme.spacingSystem.space16)
       SectionHeader(
-        label = "DIRECT REPORTS",
+        label = stringResource(Res.string.team_direct_reports),
         count = viewerCrew.reports.size
       )
       VerticalSpacer(AppTheme.spacingSystem.space8)

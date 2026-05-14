@@ -26,6 +26,9 @@ import com.frame.zero.domain.schedule.ScheduleItem
 import com.frame.zero.domain.schedule.ScheduleView
 import com.frame.zero.dto.schedule.ScheduleItemSource
 import com.frame.zero.feature.home.tab.schedule.ScheduleTabComponent
+import framezero.composeapp.features.home.generated.resources.Res
+import framezero.composeapp.features.home.generated.resources.schedule_screen_title
+import org.jetbrains.compose.resources.stringResource
 import com.frame.zero.feature.home.tab.schedule.ScheduleTabState
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
@@ -86,7 +89,7 @@ private fun ScheduleContent(
   ) {
     // Title
     Text(
-      text = "Schedule",
+      text = stringResource(Res.string.schedule_screen_title),
       style = AppTheme.typographySystem.displayMedium,
       color = AppTheme.colorSystem.textPrimary
     )

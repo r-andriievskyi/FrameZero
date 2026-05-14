@@ -21,6 +21,12 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.discovery.playground.shared.design_system.AppTheme
+import framezero.composeapp.features.production_details.generated.resources.Res
+import framezero.composeapp.features.production_details.generated.resources.overall_progress
+import framezero.composeapp.features.production_details.generated.resources.stat_budget
+import framezero.composeapp.features.production_details.generated.resources.stat_days_left
+import framezero.composeapp.features.production_details.generated.resources.stat_members
+import org.jetbrains.compose.resources.stringResource
 import com.discovery.playground.shared.design_system.widgets.VerticalSpacer
 import com.frame.zero.domain.production.ProductionDetail
 import com.frame.zero.domain.production.ProductionPhase
@@ -64,7 +70,7 @@ internal fun LoglineCard(
       verticalAlignment = Alignment.CenterVertically
     ) {
       Text(
-        text = "OVERALL PROGRESS",
+        text = stringResource(Res.string.overall_progress),
         style = AppTheme.typographySystem.caption,
         color = AppTheme.colorSystem.textMuted
       )
@@ -89,17 +95,17 @@ internal fun LoglineCard(
     ) {
       StatItem(
         value = "${detail.membersCount}",
-        label = "Members",
+        label = stringResource(Res.string.stat_members),
         modifier = Modifier.weight(1f)
       )
       StatItem(
         value = "${detail.daysLeft}d",
-        label = "Days left",
+        label = stringResource(Res.string.stat_days_left),
         modifier = Modifier.weight(1f)
       )
       StatItem(
         value = formatBudget(detail.budgetCents),
-        label = "Budget",
+        label = stringResource(Res.string.stat_budget),
         modifier = Modifier.weight(1f)
       )
     }
