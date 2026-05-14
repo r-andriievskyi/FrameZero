@@ -1,0 +1,57 @@
+package com.frame.zero.feature.account.ui
+
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.discovery.playground.shared.design_system.AppTheme
+import com.discovery.playground.shared.design_system.modifier.clickableWithRipple
+
+private val SignOutBorderWidth = 1.dp
+private val SignOutHeight = 52.dp
+
+@Composable
+internal fun SignOutButton(
+  onClick: () -> Unit,
+  modifier: Modifier = Modifier,
+) {
+  val shape = RoundedCornerShape(AppTheme.radiusSystem.radius16)
+  Box(
+    modifier = modifier
+      .fillMaxWidth()
+      .height(SignOutHeight)
+      .clip(shape)
+      .border(SignOutBorderWidth, AppTheme.colorSystem.errorText, shape)
+      .clickableWithRipple(
+        color = AppTheme.colorSystem.errorSurface,
+        bounded = true,
+        onClick = onClick
+      ),
+    contentAlignment = Alignment.Center
+  ) {
+    Text(
+      text = "Sign out",
+      style = AppTheme.typographySystem.bodyMedium,
+      color = AppTheme.colorSystem.errorText,
+      fontWeight = FontWeight.Medium
+    )
+  }
+}
+
+@Preview
+@Composable
+private fun SignOutButtonPreview() {
+  AppTheme(darkTheme = true) {
+    SignOutButton(onClick = {})
+  }
+}
+
