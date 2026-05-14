@@ -10,7 +10,10 @@ compose.resources {
 
 kotlin {
   sourceSets {
-    commonMain.dependencies { implementation(libs.compose.components.resources) }
+    commonMain.dependencies {
+      api(libs.androidx.paging.compose)
+      implementation(libs.compose.components.resources)
+    }
     androidMain.dependencies { implementation(libs.androidx.core.ktx) }
   }
 }
