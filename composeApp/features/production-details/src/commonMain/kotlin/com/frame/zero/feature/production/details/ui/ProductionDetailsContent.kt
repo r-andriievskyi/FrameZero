@@ -17,6 +17,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.discovery.playground.shared.design_system.AppTheme
+import com.discovery.playground.shared.design_system.widgets.OverflowMenu
+import com.discovery.playground.shared.design_system.widgets.OverflowMenuItem
+import com.discovery.playground.shared.design_system.widgets.TopToolbar
 import com.discovery.playground.shared.design_system.widgets.VerticalSpacer
 import com.frame.zero.domain.production.Genre
 import com.frame.zero.domain.production.ProductionDetail
@@ -56,18 +59,26 @@ internal fun ProductionDetailsScreen(
       .systemBarsPadding()
   ) {
     Column(modifier = Modifier.fillMaxSize()) {
-      DetailsTopBar(
+      TopToolbar(
         title = state.detail?.title.orEmpty(),
-        canDelete = state.detail != null && !state.isDeleting,
         onBack = onBack,
-        onDeleteClick = { onIntent(ProductionDetailsIntent.DeleteRequested) }
+        trailingContent = {
+          OverflowMenu(
+            items = listOf(
+              OverflowMenuItem(
+                text = "Delete production",
+                isDestructive = true,
+                onClick = { onIntent(ProductionDetailsIntent.DeleteRequested) }
+              )
+            )
+          )
+        }
       )
 
       val loadError = state.error
       when {
         state.isLoading && state.detail == null -> CenteredProgress()
-        loadError != null && state.detail == null ->
-          CenteredMessage(loadError)
+        loadError != null && state.detail == null -> CenteredMessage(loadError)
         state.detail != null -> DetailBody(detail = state.detail!!)
         else -> Box(modifier = Modifier.fillMaxSize())
       }
