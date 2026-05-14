@@ -30,6 +30,7 @@ import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.discovery.playground.shared.design_system.AppTheme
+import com.discovery.playground.shared.design_system.widgets.DefaultInlineRefreshIndicator
 import com.discovery.playground.shared.design_system.widgets.PagingLazyColumn
 import com.discovery.playground.shared.design_system.widgets.VerticalSpacer
 import com.discovery.playground.shared.design_system.widgets.rememberPagingListUiState
@@ -138,16 +139,27 @@ private fun ProductionsContent(
       when (target) {
         ProductionsContentState.Skeleton -> ProductionsSkeleton()
         ProductionsContentState.Empty -> EmptyState(onCreateProductionClick = onCreateProductionClick)
-        ProductionsContentState.List -> PagingLazyColumn(
-          lazyPagingItems = lazyPagingItems,
-          state = pagingState,
-          modifier = Modifier.fillMaxSize(),
-          itemKey = { it.id }
-        ) { production ->
-          ProductionCard(
-            production = production,
-            onClick = { onProductionClick(production.id) }
-          )
+        ProductionsContentState.List -> {
+          val count = lazyPagingItems.itemCount
+          PagingLazyColumn(
+            lazyPagingItems = lazyPagingItems,
+            state = pagingState,
+            modifier = Modifier.fillMaxSize(),
+            refreshIndicator = { pullState ->
+              DefaultInlineRefreshIndicator(
+                pullState = pullState,
+                refreshingText = "Refreshing productions…",
+                releaseText = "Release to refresh",
+                subtitle = "$count productions"
+              )
+            },
+            itemKey = { it.id }
+          ) { production ->
+            ProductionCard(
+              production = production,
+              onClick = { onProductionClick(production.id) }
+            )
+          }
         }
       }
     }
