@@ -30,8 +30,11 @@ import com.frame.zero.domain.production.ViewerCrew
 import com.frame.zero.feature.production.details.ProductionDetailsComponent
 import com.frame.zero.feature.production.details.ProductionDetailsIntent
 import com.frame.zero.feature.production.details.ProductionDetailsState
+import framezero.composeapp.features.production_details.generated.resources.Res
+import framezero.composeapp.features.production_details.generated.resources.delete_production_menu
 import kotlinx.datetime.LocalDate
 import kotlin.time.Instant
+import org.jetbrains.compose.resources.stringResource
 
 private const val OverlayAlpha = 0.6f
 
@@ -66,7 +69,7 @@ internal fun ProductionDetailsScreen(
           OverflowMenu(
             items = listOf(
               OverflowMenuItem(
-                text = "Delete production",
+                text = stringResource(Res.string.delete_production_menu),
                 isDestructive = true,
                 onClick = { onIntent(ProductionDetailsIntent.DeleteRequested) }
               )

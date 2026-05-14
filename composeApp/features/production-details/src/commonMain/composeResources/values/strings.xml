@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <!-- Pipeline card -->
+  <string name="pipeline_header">PIPELINE</string>
+  <string name="pipeline_phase_progress">Phase %1$d of %2$d</string>
+
+  <!-- Logline / detail card -->
+  <string name="overall_progress">OVERALL PROGRESS</string>
+  <string name="stat_members">Members</string>
+  <string name="stat_days_left">Days left</string>
+  <string name="stat_budget">Budget</string>
+
+  <!-- Team card -->
+  <string name="team_header">TEAM</string>
+  <string name="team_viewer_label">You · %1$s</string>
+  <string name="team_reports_to">REPORTS TO</string>
+  <string name="team_peers">PEERS</string>
+  <string name="team_direct_reports">DIRECT REPORTS</string>
+
+  <!-- Delete dialogs -->
+  <string name="delete_production_title">Delete production?</string>
+  <string name="delete_production_body_named">\"%1$s\" will be removed for all members. This cannot be undone.</string>
+  <string name="delete_production_body_unnamed">This production will be removed for all members. This cannot be undone.</string>
+  <string name="delete_action">Delete</string>
+  <string name="cancel_action">Cancel</string>
+  <string name="couldnt_delete">Couldn\'t delete</string>
+  <string name="ok_action">OK</string>
+
+  <!-- Date cards -->
+  <string name="start_date">START DATE</string>
+  <string name="wrap_date">WRAP DATE</string>
+
+  <!-- Overflow menu -->
+  <string name="delete_production_menu">Delete production</string>
+</resources>

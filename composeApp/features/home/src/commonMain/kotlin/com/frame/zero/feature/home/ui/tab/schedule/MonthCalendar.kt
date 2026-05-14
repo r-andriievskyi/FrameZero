@@ -22,6 +22,27 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.discovery.playground.shared.design_system.AppTheme
+import framezero.composeapp.features.home.generated.resources.Res
+import framezero.composeapp.features.home.generated.resources.cal_day_fri
+import framezero.composeapp.features.home.generated.resources.cal_day_mon
+import framezero.composeapp.features.home.generated.resources.cal_day_sat
+import framezero.composeapp.features.home.generated.resources.cal_day_sun
+import framezero.composeapp.features.home.generated.resources.cal_day_thu
+import framezero.composeapp.features.home.generated.resources.cal_day_tue
+import framezero.composeapp.features.home.generated.resources.cal_day_wed
+import framezero.composeapp.features.home.generated.resources.month_april
+import framezero.composeapp.features.home.generated.resources.month_august
+import framezero.composeapp.features.home.generated.resources.month_december
+import framezero.composeapp.features.home.generated.resources.month_february
+import framezero.composeapp.features.home.generated.resources.month_january
+import framezero.composeapp.features.home.generated.resources.month_july
+import framezero.composeapp.features.home.generated.resources.month_june
+import framezero.composeapp.features.home.generated.resources.month_march
+import framezero.composeapp.features.home.generated.resources.month_may
+import framezero.composeapp.features.home.generated.resources.month_november
+import framezero.composeapp.features.home.generated.resources.month_october
+import framezero.composeapp.features.home.generated.resources.month_september
+import org.jetbrains.compose.resources.stringResource
 import com.discovery.playground.shared.design_system.widgets.VerticalSpacer
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.DayOfWeek
@@ -56,8 +77,24 @@ internal fun MonthCalendar(
       verticalAlignment = Alignment.CenterVertically
     ) {
       MonthNavButton(text = "<", onClick = onPreviousMonth)
+      val monthName = stringResource(
+        when (month) {
+          Month.JANUARY -> Res.string.month_january
+          Month.FEBRUARY -> Res.string.month_february
+          Month.MARCH -> Res.string.month_march
+          Month.APRIL -> Res.string.month_april
+          Month.MAY -> Res.string.month_may
+          Month.JUNE -> Res.string.month_june
+          Month.JULY -> Res.string.month_july
+          Month.AUGUST -> Res.string.month_august
+          Month.SEPTEMBER -> Res.string.month_september
+          Month.OCTOBER -> Res.string.month_october
+          Month.NOVEMBER -> Res.string.month_november
+          Month.DECEMBER -> Res.string.month_december
+        }
+      )
       Text(
-        text = "${month.fullName()} $year",
+        text = "$monthName $year",
         style = AppTheme.typographySystem.titleMedium,
         color = AppTheme.colorSystem.textPrimary,
         textAlign = TextAlign.Center
@@ -68,7 +105,15 @@ internal fun MonthCalendar(
     VerticalSpacer(AppTheme.spacingSystem.space16)
 
     // Day-of-week headers
-    val dayLabels = listOf("M", "T", "W", "T", "F", "S", "S")
+    val dayLabels = listOf(
+      stringResource(Res.string.cal_day_mon),
+      stringResource(Res.string.cal_day_tue),
+      stringResource(Res.string.cal_day_wed),
+      stringResource(Res.string.cal_day_thu),
+      stringResource(Res.string.cal_day_fri),
+      stringResource(Res.string.cal_day_sat),
+      stringResource(Res.string.cal_day_sun),
+    )
     Row(
       modifier = Modifier.fillMaxWidth(),
       horizontalArrangement = Arrangement.SpaceEvenly

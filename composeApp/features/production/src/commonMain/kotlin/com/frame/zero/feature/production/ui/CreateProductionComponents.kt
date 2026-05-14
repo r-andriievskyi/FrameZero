@@ -36,6 +36,7 @@ import com.discovery.playground.shared.design_system.widgets.SingleLineInputFiel
 import com.frame.zero.domain.production.ProductionPhase
 import com.frame.zero.feature.production.CrewMemberEntry
 import framezero.composeapp.features.production.generated.resources.Res
+import framezero.composeapp.features.production.generated.resources.budget_placeholder
 import framezero.composeapp.features.production.generated.resources.crew_role_art
 import framezero.composeapp.features.production.generated.resources.crew_role_director
 import framezero.composeapp.features.production.generated.resources.crew_role_dp
@@ -44,6 +45,8 @@ import framezero.composeapp.features.production.generated.resources.crew_role_ot
 import framezero.composeapp.features.production.generated.resources.crew_role_producer
 import framezero.composeapp.features.production.generated.resources.crew_role_sound
 import framezero.composeapp.features.production.generated.resources.crew_role_writer
+import framezero.composeapp.features.production.generated.resources.date_picker_cancel
+import framezero.composeapp.features.production.generated.resources.date_picker_ok
 import framezero.composeapp.features.production.generated.resources.ic_calendar_days
 import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.painterResource
@@ -378,7 +381,7 @@ internal fun BudgetInputField(
         raw.filter { it.isDigit() }.toLongOrNull()?.let { onBudgetChange(it * 100) }
       }
     },
-    placeholder = "500,000",
+    placeholder = stringResource(Res.string.budget_placeholder),
     enabled = enabled,
     modifier = modifier,
     leadingContent = {
@@ -438,12 +441,12 @@ internal fun DateInputField(
           }
           showPicker = false
         }) {
-          Text("OK")
+          Text(stringResource(Res.string.date_picker_ok))
         }
       },
       dismissButton = {
         TextButton(onClick = { showPicker = false }) {
-          Text("Cancel")
+          Text(stringResource(Res.string.date_picker_cancel))
         }
       }
     ) {
