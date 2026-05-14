@@ -7,18 +7,27 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.discovery.playground.shared.design_system.AppTheme
+import com.discovery.playground.shared.design_system.widgets.TopToolbar
 import com.discovery.playground.shared.design_system.widgets.VerticalSpacer
 import com.frame.zero.domain.production.Genre
 import com.frame.zero.feature.production.CreateProductionComponent
 import com.frame.zero.feature.production.CreateProductionIntent
 import com.frame.zero.feature.production.CreateProductionState
+import framezero.composeapp.features.production.generated.resources.Res
+import framezero.composeapp.features.production.generated.resources.create_step_indicator
+import framezero.composeapp.features.production.generated.resources.create_title
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun CreateProductionContent(component: CreateProductionComponent) {
@@ -49,7 +58,22 @@ internal fun CreateProductionScreen(
       .background(AppTheme.colorSystem.background)
       .systemBarsPadding()
   ) {
-    TopBar(step = state.currentStep, totalSteps = state.totalSteps, onBack = onBack)
+    TopToolbar(
+      title = stringResource(Res.string.create_title),
+      onBack = onBack
+    )
+
+    Text(
+      modifier = Modifier
+        .fillMaxWidth()
+        .padding(horizontal = AppTheme.spacingSystem.space16),
+      text = stringResource(Res.string.create_step_indicator, state.currentStep, state.totalSteps),
+      style = AppTheme.typographySystem.caption,
+      color = AppTheme.colorSystem.textMuted,
+      textAlign = TextAlign.Center
+    )
+
+    VerticalSpacer(AppTheme.spacingSystem.space8)
 
     StepIndicator(currentStep = state.currentStep, totalSteps = state.totalSteps)
 
