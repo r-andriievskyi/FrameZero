@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.discovery.playground.shared.design_system.AppTheme
 import com.discovery.playground.shared.design_system.widgets.HorizontalSpacer
@@ -34,8 +35,6 @@ internal fun PipelineCard(
 ) {
   val currentIndex = pipeline.indexOfFirst { it.isCurrent }
   val totalPhases = pipeline.size
-  val previousPhase = pipeline.getOrNull(currentIndex - 1)
-  val nextPhase = pipeline.getOrNull(currentIndex + 1)
 
   Column(
     modifier = modifier
@@ -71,36 +70,11 @@ internal fun PipelineCard(
           .background(phaseAccentColor(currentPhase))
       )
       HorizontalSpacer(AppTheme.spacingSystem.space8)
-      Column {
-        Text(
-          text = currentPhase.displayLabel(),
-          style = AppTheme.typographySystem.titleMedium,
-          color = AppTheme.colorSystem.textPrimary
-        )
-        Row {
-          if (previousPhase != null) {
-            Text(
-              text = "← ${previousPhase.label}",
-              style = AppTheme.typographySystem.bodySmall,
-              color = AppTheme.colorSystem.textMuted
-            )
-          }
-          if (previousPhase != null && nextPhase != null) {
-            Text(
-              text = " · ",
-              style = AppTheme.typographySystem.bodySmall,
-              color = AppTheme.colorSystem.textMuted
-            )
-          }
-          if (nextPhase != null) {
-            Text(
-              text = "${nextPhase.label} →",
-              style = AppTheme.typographySystem.bodySmall,
-              color = AppTheme.colorSystem.textMuted
-            )
-          }
-        }
-      }
+      Text(
+        text = currentPhase.displayLabel(),
+        style = AppTheme.typographySystem.titleLarge,
+        color = AppTheme.colorSystem.textPrimary
+      )
     }
     VerticalSpacer(AppTheme.spacingSystem.space16)
 
@@ -114,6 +88,7 @@ internal fun PipelineCard(
         val segmentColor = when {
           phase.isCompleted || phase.isCurrent ->
             phaseAccentColor(phase.phase)
+
           else -> AppTheme.colorSystem.border
         }
         Box(
@@ -125,6 +100,43 @@ internal fun PipelineCard(
         )
       }
     }
+  }
+}
+
+@Preview
+@Composable
+private fun PipelineCardPreview() {
+  val pipeline = listOf(
+    ProductionPipelinePhase(
+      phase = ProductionPhase.DEVELOPMENT,
+      label = "Development",
+      isCompleted = true,
+      isCurrent = false
+    ),
+    ProductionPipelinePhase(
+      phase = ProductionPhase.PRE_PRODUCTION,
+      label = "Pre-Production",
+      isCompleted = false,
+      isCurrent = true
+    ),
+    ProductionPipelinePhase(
+      phase = ProductionPhase.PRODUCTION,
+      label = "Production",
+      isCompleted = false,
+      isCurrent = false
+    ),
+    ProductionPipelinePhase(
+      phase = ProductionPhase.POST_PRODUCTION,
+      label = "Post-Production",
+      isCompleted = false,
+      isCurrent = false
+    )
+  )
+  AppTheme {
+    PipelineCard(
+      pipeline = pipeline,
+      currentPhase = ProductionPhase.PRE_PRODUCTION
+    )
   }
 }
 
