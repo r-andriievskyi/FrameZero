@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -23,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.discovery.playground.shared.design_system.AppTheme
 import com.discovery.playground.shared.design_system.widgets.HorizontalSpacer
@@ -34,7 +34,6 @@ private val CardBorderWidth = 1.dp
 @Composable
 internal fun DetailsTopBar(
   title: String,
-  subtitle: String,
   canDelete: Boolean,
   onBack: () -> Unit,
   onDeleteClick: () -> Unit,
@@ -51,22 +50,14 @@ internal fun DetailsTopBar(
   ) {
     BackButton(onClick = onBack)
     HorizontalSpacer(AppTheme.spacingSystem.space8)
-    Column(modifier = Modifier.weight(1f)) {
-      Text(
-        text = title,
-        style = AppTheme.typographySystem.titleMedium,
-        color = AppTheme.colorSystem.textPrimary,
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis
-      )
-      if (subtitle.isNotBlank()) {
-        Text(
-          text = subtitle,
-          style = AppTheme.typographySystem.bodySmall,
-          color = AppTheme.colorSystem.textMuted
-        )
-      }
-    }
+    Text(
+      modifier = Modifier.weight(1f),
+      text = title,
+      style = AppTheme.typographySystem.titleLarge,
+      color = AppTheme.colorSystem.textPrimary,
+      maxLines = 1,
+      overflow = TextOverflow.Ellipsis
+    )
     if (canDelete) {
       OverflowMenuButton(onDeleteClick = onDeleteClick)
     }
@@ -142,3 +133,17 @@ private fun OverflowMenuButton(
     }
   }
 }
+
+@Preview
+@Composable
+private fun DetailsTopBarPreview() {
+  AppTheme(darkTheme = true) {
+    DetailsTopBar(
+      title = "Summer Campaign 2026",
+      canDelete = true,
+      onBack = {},
+      onDeleteClick = {}
+    )
+  }
+}
+
