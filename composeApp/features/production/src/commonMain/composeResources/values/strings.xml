@@ -63,6 +63,13 @@
   <string name="phase_release">Release</string>
   <string name="phase_archived">Archived</string>
 
+  <!-- Date picker buttons -->
+  <string name="date_picker_ok">OK</string>
+  <string name="date_picker_cancel">Cancel</string>
+
+  <!-- Budget input -->
+  <string name="budget_placeholder">500,000</string>
+
   <!-- Crew roles -->
   <string name="crew_role_director">Director</string>
   <string name="crew_role_producer">Producer</string>

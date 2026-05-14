@@ -19,6 +19,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.discovery.playground.shared.design_system.AppTheme
+import framezero.composeapp.features.production_details.generated.resources.Res
+import framezero.composeapp.features.production_details.generated.resources.pipeline_header
+import framezero.composeapp.features.production_details.generated.resources.pipeline_phase_progress
+import org.jetbrains.compose.resources.stringResource
 import com.discovery.playground.shared.design_system.widgets.HorizontalSpacer
 import com.discovery.playground.shared.design_system.widgets.VerticalSpacer
 import com.frame.zero.domain.production.ProductionPhase
@@ -50,12 +54,12 @@ internal fun PipelineCard(
       verticalAlignment = Alignment.CenterVertically
     ) {
       Text(
-        text = "PIPELINE",
+        text = stringResource(Res.string.pipeline_header),
         style = AppTheme.typographySystem.caption,
         color = AppTheme.colorSystem.textMuted
       )
       Text(
-        text = "Phase ${currentIndex + 1} of $totalPhases",
+        text = stringResource(Res.string.pipeline_phase_progress, currentIndex + 1, totalPhases),
         style = AppTheme.typographySystem.bodySmall,
         color = AppTheme.colorSystem.textMuted
       )

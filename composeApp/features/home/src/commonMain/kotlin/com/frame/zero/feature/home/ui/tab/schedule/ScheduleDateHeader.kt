@@ -14,63 +14,38 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import com.discovery.playground.shared.design_system.AppTheme
 import com.discovery.playground.shared.design_system.widgets.HorizontalSpacer
+import framezero.composeapp.features.home.generated.resources.Res
+import framezero.composeapp.features.home.generated.resources.day_friday
+import framezero.composeapp.features.home.generated.resources.day_friday_short
+import framezero.composeapp.features.home.generated.resources.day_monday
+import framezero.composeapp.features.home.generated.resources.day_monday_short
+import framezero.composeapp.features.home.generated.resources.day_saturday
+import framezero.composeapp.features.home.generated.resources.day_saturday_short
+import framezero.composeapp.features.home.generated.resources.day_sunday
+import framezero.composeapp.features.home.generated.resources.day_sunday_short
+import framezero.composeapp.features.home.generated.resources.day_thursday
+import framezero.composeapp.features.home.generated.resources.day_thursday_short
+import framezero.composeapp.features.home.generated.resources.day_tuesday
+import framezero.composeapp.features.home.generated.resources.day_tuesday_short
+import framezero.composeapp.features.home.generated.resources.day_wednesday
+import framezero.composeapp.features.home.generated.resources.day_wednesday_short
+import framezero.composeapp.features.home.generated.resources.month_april_short
+import framezero.composeapp.features.home.generated.resources.month_august_short
+import framezero.composeapp.features.home.generated.resources.month_december_short
+import framezero.composeapp.features.home.generated.resources.month_february_short
+import framezero.composeapp.features.home.generated.resources.month_january_short
+import framezero.composeapp.features.home.generated.resources.month_july_short
+import framezero.composeapp.features.home.generated.resources.month_june_short
+import framezero.composeapp.features.home.generated.resources.month_march_short
+import framezero.composeapp.features.home.generated.resources.month_may_short
+import framezero.composeapp.features.home.generated.resources.month_november_short
+import framezero.composeapp.features.home.generated.resources.month_october_short
+import framezero.composeapp.features.home.generated.resources.month_september_short
+import framezero.composeapp.features.home.generated.resources.today
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.Month
-
-private fun LocalDate.dayOfWeekName(): String =
-  when (dayOfWeek) {
-    DayOfWeek.MONDAY -> "Monday"
-    DayOfWeek.TUESDAY -> "Tuesday"
-    DayOfWeek.WEDNESDAY -> "Wednesday"
-    DayOfWeek.THURSDAY -> "Thursday"
-    DayOfWeek.FRIDAY -> "Friday"
-    DayOfWeek.SATURDAY -> "Saturday"
-    DayOfWeek.SUNDAY -> "Sunday"
-  }
-
-private fun LocalDate.shortDayOfWeekName(): String =
-  when (dayOfWeek) {
-    DayOfWeek.MONDAY -> "Mon"
-    DayOfWeek.TUESDAY -> "Tue"
-    DayOfWeek.WEDNESDAY -> "Wed"
-    DayOfWeek.THURSDAY -> "Thu"
-    DayOfWeek.FRIDAY -> "Fri"
-    DayOfWeek.SATURDAY -> "Sat"
-    DayOfWeek.SUNDAY -> "Sun"
-  }
-
-internal fun Month.shortName(): String =
-  when (this) {
-    Month.JANUARY -> "Jan"
-    Month.FEBRUARY -> "Feb"
-    Month.MARCH -> "Mar"
-    Month.APRIL -> "Apr"
-    Month.MAY -> "May"
-    Month.JUNE -> "Jun"
-    Month.JULY -> "Jul"
-    Month.AUGUST -> "Aug"
-    Month.SEPTEMBER -> "Sep"
-    Month.OCTOBER -> "Oct"
-    Month.NOVEMBER -> "Nov"
-    Month.DECEMBER -> "Dec"
-  }
-
-internal fun Month.fullName(): String =
-  when (this) {
-    Month.JANUARY -> "January"
-    Month.FEBRUARY -> "February"
-    Month.MARCH -> "March"
-    Month.APRIL -> "April"
-    Month.MAY -> "May"
-    Month.JUNE -> "June"
-    Month.JULY -> "July"
-    Month.AUGUST -> "August"
-    Month.SEPTEMBER -> "September"
-    Month.OCTOBER -> "October"
-    Month.NOVEMBER -> "November"
-    Month.DECEMBER -> "December"
-  }
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Date header row showing "Saturday, Apr 26, 2026 [Today]" for day view
@@ -83,14 +58,53 @@ internal fun ScheduleDateHeader(
   compact: Boolean = false,
   modifier: Modifier = Modifier
 ) {
+  val fullDayName = stringResource(
+    when (date.dayOfWeek) {
+      DayOfWeek.MONDAY -> Res.string.day_monday
+      DayOfWeek.TUESDAY -> Res.string.day_tuesday
+      DayOfWeek.WEDNESDAY -> Res.string.day_wednesday
+      DayOfWeek.THURSDAY -> Res.string.day_thursday
+      DayOfWeek.FRIDAY -> Res.string.day_friday
+      DayOfWeek.SATURDAY -> Res.string.day_saturday
+      DayOfWeek.SUNDAY -> Res.string.day_sunday
+    }
+  )
+  val shortDayName = stringResource(
+    when (date.dayOfWeek) {
+      DayOfWeek.MONDAY -> Res.string.day_monday_short
+      DayOfWeek.TUESDAY -> Res.string.day_tuesday_short
+      DayOfWeek.WEDNESDAY -> Res.string.day_wednesday_short
+      DayOfWeek.THURSDAY -> Res.string.day_thursday_short
+      DayOfWeek.FRIDAY -> Res.string.day_friday_short
+      DayOfWeek.SATURDAY -> Res.string.day_saturday_short
+      DayOfWeek.SUNDAY -> Res.string.day_sunday_short
+    }
+  )
+  val shortMonthName = stringResource(
+    when (date.month) {
+      Month.JANUARY -> Res.string.month_january_short
+      Month.FEBRUARY -> Res.string.month_february_short
+      Month.MARCH -> Res.string.month_march_short
+      Month.APRIL -> Res.string.month_april_short
+      Month.MAY -> Res.string.month_may_short
+      Month.JUNE -> Res.string.month_june_short
+      Month.JULY -> Res.string.month_july_short
+      Month.AUGUST -> Res.string.month_august_short
+      Month.SEPTEMBER -> Res.string.month_september_short
+      Month.OCTOBER -> Res.string.month_october_short
+      Month.NOVEMBER -> Res.string.month_november_short
+      Month.DECEMBER -> Res.string.month_december_short
+    }
+  )
+
   Row(
     modifier = modifier,
     verticalAlignment = Alignment.CenterVertically
   ) {
     val dateText = if (compact) {
-      "${date.shortDayOfWeekName()}, ${date.month.shortName()} ${date.day}"
+      "$shortDayName, $shortMonthName ${date.day}"
     } else {
-      "${date.dayOfWeekName()},  ${date.month.shortName()}  ${date.day}, ${date.year}"
+      "$fullDayName,  $shortMonthName  ${date.day}, ${date.year}"
     }
     Text(
       text = dateText,
@@ -122,7 +136,7 @@ internal fun TodayBadge(modifier: Modifier = Modifier) {
     contentAlignment = Alignment.Center
   ) {
     Text(
-      text = "Today",
+      text = stringResource(Res.string.today),
       style = AppTheme.typographySystem.labelSmall,
       color = AppTheme.colorSystem.textPrimary
     )

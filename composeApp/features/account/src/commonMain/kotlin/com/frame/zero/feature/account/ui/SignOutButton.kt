@@ -15,6 +15,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.discovery.playground.shared.design_system.AppTheme
 import com.discovery.playground.shared.design_system.modifier.clickableWithRipple
+import framezero.composeapp.features.account.generated.resources.Res
+import framezero.composeapp.features.account.generated.resources.sign_out
+import org.jetbrains.compose.resources.stringResource
 
 private val SignOutBorderWidth = 1.dp
 private val SignOutHeight = 52.dp
@@ -39,7 +42,7 @@ internal fun SignOutButton(
     contentAlignment = Alignment.Center
   ) {
     Text(
-      text = "Sign out",
+      text = stringResource(Res.string.sign_out),
       style = AppTheme.typographySystem.bodyMedium,
       color = AppTheme.colorSystem.errorText,
       fontWeight = FontWeight.Medium

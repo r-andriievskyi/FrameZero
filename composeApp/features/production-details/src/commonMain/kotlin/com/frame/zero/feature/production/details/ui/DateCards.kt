@@ -12,6 +12,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import com.discovery.playground.shared.design_system.AppTheme
+import framezero.composeapp.features.production_details.generated.resources.Res
+import framezero.composeapp.features.production_details.generated.resources.start_date
+import framezero.composeapp.features.production_details.generated.resources.wrap_date
+import org.jetbrains.compose.resources.stringResource
 import com.discovery.playground.shared.design_system.widgets.VerticalSpacer
 import kotlinx.datetime.LocalDate
 
@@ -30,12 +34,12 @@ internal fun DateCards(
     )
   ) {
     DateCard(
-      label = "START DATE",
+      label = stringResource(Res.string.start_date),
       date = startDate.formatDisplay(),
       modifier = Modifier.weight(1f)
     )
     DateCard(
-      label = "WRAP DATE",
+      label = stringResource(Res.string.wrap_date),
       date = wrapDate.formatDisplay(),
       modifier = Modifier.weight(1f)
     )
