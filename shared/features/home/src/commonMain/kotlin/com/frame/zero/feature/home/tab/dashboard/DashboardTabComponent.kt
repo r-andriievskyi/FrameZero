@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.StateFlow
 
 class DashboardTabComponent(
   componentContext: ComponentContext,
+  val onTaskClick: (taskId: String) -> Unit = {},
   viewModelFactory: () -> DashboardTabViewModel
 ) : ComponentContext by componentContext {
   private val viewModel: DashboardTabViewModel = instanceKeeper.getOrCreate { viewModelFactory() }

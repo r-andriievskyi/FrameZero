@@ -213,31 +213,47 @@ private fun ProductionDetailsLoadedPreview() {
           updatedAt = PreviewInstant,
           viewerCrew = ViewerCrew(
             viewer = ProductionMember(
-              id = "m2", userId = "u-me",
-              name = "Tom Ellison", role = "Producer",
-              initials = "TE", avatarColorHex = "#2196F3",
-              addedAt = PreviewInstant, reportsToMemberId = "m1"
+              id = "m2",
+              userId = "u-me",
+              name = "Tom Ellison",
+              role = "Producer",
+              initials = "TE",
+              avatarColorHex = "#2196F3",
+              addedAt = PreviewInstant,
+              reportsToMemberId = "m1"
             ),
             manager = ProductionMember(
-              id = "m1", userId = null,
-              name = "Maya Rivera", role = "Director",
-              initials = "MR", avatarColorHex = "#E91E63",
-              addedAt = PreviewInstant, reportsToMemberId = null
+              id = "m1",
+              userId = null,
+              name = "Maya Rivera",
+              role = "Director",
+              initials = "MR",
+              avatarColorHex = "#E91E63",
+              addedAt = PreviewInstant,
+              reportsToMemberId = null
             ),
             peers = listOf(
               ProductionMember(
-                id = "m3", userId = null,
-                name = "Sara Lin", role = "DP",
-                initials = "SL", avatarColorHex = "#9C27B0",
-                addedAt = PreviewInstant, reportsToMemberId = "m1"
+                id = "m3",
+                userId = null,
+                name = "Sara Lin",
+                role = "DP",
+                initials = "SL",
+                avatarColorHex = "#9C27B0",
+                addedAt = PreviewInstant,
+                reportsToMemberId = "m1"
               )
             ),
             reports = listOf(
               ProductionMember(
-                id = "m4", userId = null,
-                name = "Jake Morse", role = "1st AD",
-                initials = "JM", avatarColorHex = "#009688",
-                addedAt = PreviewInstant, reportsToMemberId = "m2"
+                id = "m4",
+                userId = null,
+                name = "Jake Morse",
+                role = "1st AD",
+                initials = "JM",
+                avatarColorHex = "#009688",
+                addedAt = PreviewInstant,
+                reportsToMemberId = "m2"
               )
             )
           )

@@ -27,11 +27,14 @@ import org.jetbrains.compose.resources.stringResource
 fun DashboardTabContent(component: DashboardTabComponent) {
   LaunchedEffect(Unit) { component.onAppeared() }
   val state by component.state.collectAsState()
-  DashboardContent(dashboard = state.dashboard)
+  DashboardContent(dashboard = state.dashboard, onTaskClick = component.onTaskClick)
 }
 
 @Composable
-private fun DashboardContent(dashboard: DashboardUi?) {
+private fun DashboardContent(
+  dashboard: DashboardUi?,
+  onTaskClick: (taskId: String) -> Unit
+) {
   Column(
     modifier = Modifier
       .fillMaxSize()
@@ -52,7 +55,7 @@ private fun DashboardContent(dashboard: DashboardUi?) {
       StatsRow(stats = dashboard.stats)
       if (dashboard.myTasks.isNotEmpty()) {
         VerticalSpacer(AppTheme.spacingSystem.space24)
-        MyTasksSection(tasks = dashboard.myTasks)
+        MyTasksSection(tasks = dashboard.myTasks, onTaskClick = onTaskClick)
       }
     }
   }
@@ -63,6 +66,7 @@ private fun DashboardContent(dashboard: DashboardUi?) {
 private fun DashboardContentPreview() {
   AppTheme(darkTheme = true) {
     DashboardContent(
+      onTaskClick = {},
       dashboard = DashboardUi(
         displayName = "Maya",
         stats = DashboardStatsUi(activeProjects = 3, openTasks = 12),
