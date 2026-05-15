@@ -30,7 +30,7 @@ internal fun ProfileCard(
   name: String,
   role: String,
   initials: String,
-  modifier: Modifier = Modifier,
+  modifier: Modifier = Modifier
 ) {
   val shape = RoundedCornerShape(AppTheme.radiusSystem.radius16)
   Row(
@@ -84,4 +84,3 @@ private fun ProfileCardPreview() {
     )
   }
 }
-

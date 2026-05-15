@@ -9,6 +9,7 @@ import com.frame.zero.feature.home.ui.HomeContent
 import com.frame.zero.feature.production.details.ui.ProductionDetailsContent
 import com.frame.zero.feature.production.ui.CreateProductionContent
 import com.frame.zero.feature.splash.SplashContent
+import com.frame.zero.feature.task.details.ui.TaskDetailsContent
 
 @Composable
 fun RootContent(component: RootComponent) {
@@ -20,6 +21,7 @@ fun RootContent(component: RootComponent) {
       is RootComponent.Child.Account -> AccountContent(instance.component)
       is RootComponent.Child.CreateProduction -> CreateProductionContent(instance.component)
       is RootComponent.Child.ProductionDetails -> ProductionDetailsContent(instance.component)
+      is RootComponent.Child.TaskDetails -> TaskDetailsContent(instance.component)
     }
   }
 }

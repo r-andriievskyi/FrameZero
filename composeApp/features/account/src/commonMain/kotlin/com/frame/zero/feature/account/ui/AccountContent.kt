@@ -25,7 +25,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.systemBarsPadding
 
 @Composable
-fun AccountContent(component: AccountComponent, modifier: Modifier = Modifier) {
+fun AccountContent(
+  component: AccountComponent,
+  modifier: Modifier = Modifier
+) {
   Column(
     modifier = modifier
       .fillMaxSize()

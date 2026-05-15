@@ -112,7 +112,7 @@ internal fun MonthCalendar(
       stringResource(Res.string.cal_day_thu),
       stringResource(Res.string.cal_day_fri),
       stringResource(Res.string.cal_day_sat),
-      stringResource(Res.string.cal_day_sun),
+      stringResource(Res.string.cal_day_sun)
     )
     Row(
       modifier = Modifier.fillMaxWidth(),

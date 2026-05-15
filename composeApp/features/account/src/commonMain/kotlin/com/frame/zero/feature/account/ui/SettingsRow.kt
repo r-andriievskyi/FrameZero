@@ -39,7 +39,7 @@ internal fun SettingsRow(
   title: String,
   subtitle: String,
   modifier: Modifier = Modifier,
-  onClick: () -> Unit = {},
+  onClick: () -> Unit = {}
 ) {
   Row(
     modifier = modifier
@@ -104,4 +104,3 @@ private fun SettingsRowPreview() {
     )
   }
 }
-

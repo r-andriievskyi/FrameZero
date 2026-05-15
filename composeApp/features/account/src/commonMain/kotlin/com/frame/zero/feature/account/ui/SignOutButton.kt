@@ -25,7 +25,7 @@ private val SignOutHeight = 52.dp
 @Composable
 internal fun SignOutButton(
   onClick: () -> Unit,
-  modifier: Modifier = Modifier,
+  modifier: Modifier = Modifier
 ) {
   val shape = RoundedCornerShape(AppTheme.radiusSystem.radius16)
   Box(
@@ -57,4 +57,3 @@ private fun SignOutButtonPreview() {
     SignOutButton(onClick = {})
   }
 }
-

@@ -17,6 +17,7 @@ import com.frame.zero.feature.home.tab.projects.ProjectsTabViewModel
 import com.frame.zero.feature.home.tab.schedule.ScheduleTabViewModel
 import com.frame.zero.feature.production.CreateProductionViewModel
 import com.frame.zero.feature.production.details.ProductionDetailsViewModel
+import com.frame.zero.feature.task.details.TaskDetailsViewModel
 import kotlinx.coroutines.launch
 import org.koin.core.parameter.parametersOf
 
@@ -35,12 +36,13 @@ class MainActivity : ComponentActivity() {
           registerViewModelFactory = { koin.get<RegisterViewModel>() }
         )
       },
-      homeComponentFactory = { ctx, onCreateProductionClick, onProductionClick, onAccountClick ->
+      homeComponentFactory = { ctx, onCreateProductionClick, onProductionClick, onAccountClick, onTaskClick ->
         HomeComponent(
           ctx,
           onAccountClick = onAccountClick,
           onCreateProductionClick = onCreateProductionClick,
           onProductionClick = onProductionClick,
+          onTaskClick = onTaskClick,
           dashboardViewModelFactory = { koin.get<DashboardTabViewModel>() },
           projectsViewModelFactory = { koin.get<ProjectsTabViewModel>() },
           scheduleViewModelFactory = { koin.get<ScheduleTabViewModel>() }
@@ -49,6 +51,9 @@ class MainActivity : ComponentActivity() {
       createProductionViewModelFactory = { koin.get<CreateProductionViewModel>() },
       productionDetailsViewModelFactory = { productionId ->
         koin.get<ProductionDetailsViewModel> { parametersOf(productionId) }
+      },
+      taskDetailsViewModelFactory = { taskId ->
+        koin.get<TaskDetailsViewModel> { parametersOf(taskId) }
       }
     )
   }
