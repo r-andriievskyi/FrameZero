@@ -26,7 +26,7 @@ private val SectionBorderWidth = 1.dp
 internal fun SettingsSection(
   title: String,
   modifier: Modifier = Modifier,
-  content: @Composable () -> Unit,
+  content: @Composable () -> Unit
 ) {
   Column(modifier = modifier.fillMaxWidth()) {
     Text(
@@ -80,4 +80,3 @@ private fun SettingsSectionPreview() {
     }
   }
 }
-

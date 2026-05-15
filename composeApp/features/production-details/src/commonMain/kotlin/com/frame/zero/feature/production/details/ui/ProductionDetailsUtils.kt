@@ -35,8 +35,18 @@ internal fun Genre.displayLabel(): String =
 
 internal fun LocalDate.formatDisplay(): String {
   val monthNames = listOf(
-    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec"
   )
   return "${monthNames[month.ordinal]} $day, $year"
 }
@@ -57,4 +67,3 @@ internal fun parseHexColor(hex: String): Color? {
     Color(("FF$cleaned").toLong(16))
   }.getOrNull()
 }
-

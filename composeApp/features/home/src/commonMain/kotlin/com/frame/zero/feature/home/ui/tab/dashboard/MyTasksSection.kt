@@ -2,6 +2,7 @@ package com.frame.zero.feature.home.ui.tab.dashboard
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,24 +25,31 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-internal fun MyTasksSection(tasks: List<DashboardTaskUi>) {
+internal fun MyTasksSection(
+  tasks: List<DashboardTaskUi>,
+  onTaskClick: (taskId: String) -> Unit
+) {
   SectionHeader(
     title = stringResource(Res.string.my_tasks_title),
     actionLabel = stringResource(Res.string.my_tasks_see_all)
   )
   VerticalSpacer(AppTheme.spacingSystem.space8)
   tasks.forEach { task ->
-    TaskCard(task = task)
+    TaskCard(task = task, onClick = { onTaskClick(task.id) })
     VerticalSpacer(AppTheme.spacingSystem.space8)
   }
 }
 
 @Composable
-private fun TaskCard(task: DashboardTaskUi) {
+private fun TaskCard(
+  task: DashboardTaskUi,
+  onClick: () -> Unit
+) {
   Row(
     modifier = Modifier
       .fillMaxWidth()
       .clip(RoundedCornerShape(AppTheme.radiusSystem.radius16))
+      .clickable(onClick = onClick)
       .background(AppTheme.colorSystem.cardBackground)
       .padding(AppTheme.spacingSystem.space16),
     verticalAlignment = Alignment.CenterVertically
@@ -93,6 +101,7 @@ private fun MyTasksSectionPreview() {
         .padding(AppTheme.spacingSystem.space16)
     ) {
       MyTasksSection(
+        onTaskClick = {},
         tasks = listOf(
           DashboardTaskUi(
             id = "1",

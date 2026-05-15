@@ -96,4 +96,3 @@ internal fun DeleteErrorDialog(
     containerColor = AppTheme.colorSystem.surfaceElevated
   )
 }
-

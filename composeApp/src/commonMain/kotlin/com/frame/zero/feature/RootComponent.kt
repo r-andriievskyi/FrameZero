@@ -19,6 +19,8 @@ import com.frame.zero.feature.production.CreateProductionComponent
 import com.frame.zero.feature.production.CreateProductionViewModel
 import com.frame.zero.feature.production.details.ProductionDetailsComponent
 import com.frame.zero.feature.production.details.ProductionDetailsViewModel
+import com.frame.zero.feature.task.details.TaskDetailsComponent
+import com.frame.zero.feature.task.details.TaskDetailsViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -33,10 +35,12 @@ class RootComponent(
     ComponentContext,
     onCreateProductionClick: () -> Unit,
     onProductionClick: (productionId: String) -> Unit,
-    onAccountClick: () -> Unit
+    onAccountClick: () -> Unit,
+    onTaskClick: (taskId: String) -> Unit
   ) -> HomeComponent,
   private val createProductionViewModelFactory: () -> CreateProductionViewModel,
-  private val productionDetailsViewModelFactory: (productionId: String) -> ProductionDetailsViewModel
+  private val productionDetailsViewModelFactory: (productionId: String) -> ProductionDetailsViewModel,
+  private val taskDetailsViewModelFactory: (taskId: String) -> TaskDetailsViewModel
 ) : ComponentContext by componentContext {
   private val navigation = StackNavigation<Config>()
 
@@ -86,6 +90,10 @@ class RootComponent(
           {
             @OptIn(DelicateDecomposeApi::class)
             navigation.push(Config.Account)
+          },
+          { taskId ->
+            @OptIn(DelicateDecomposeApi::class)
+            navigation.push(Config.TaskDetails(taskId))
           }
         )
       )
@@ -112,6 +120,14 @@ class RootComponent(
           viewModelFactory = productionDetailsViewModelFactory
         )
       )
+      is Config.TaskDetails -> Child.TaskDetails(
+        TaskDetailsComponent(
+          componentContext = context,
+          taskId = config.taskId,
+          onBack = { navigation.pop() },
+          viewModelFactory = taskDetailsViewModelFactory
+        )
+      )
     }
 
   sealed interface Config {
@@ -127,6 +143,10 @@ class RootComponent(
 
     data class ProductionDetails(
       val productionId: String
+    ) : Config
+
+    data class TaskDetails(
+      val taskId: String
     ) : Config
   }
 
@@ -151,6 +171,10 @@ class RootComponent(
 
     data class ProductionDetails(
       val component: ProductionDetailsComponent
+    ) : Child
+
+    data class TaskDetails(
+      val component: TaskDetailsComponent
     ) : Child
   }
 }
