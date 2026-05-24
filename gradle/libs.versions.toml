@@ -1,5 +1,5 @@
 [versions]
-agp = "8.11.2"
+agp = "9.2.1"
 androidxPaging = "3.5.0"
 androidxRoom = "2.8.4"
 androidxSqlite = "2.6.2"
