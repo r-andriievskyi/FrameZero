@@ -51,12 +51,11 @@ class TaskRoutesTest {
       val prod = env.productionService.createProduction(userId, productionRequest)
       val request = CreateTaskRequest(productionId = prod.id, title = "Lock script")
 
-      val response =
-        client.post("/api/v1/tasks") {
-          header(HttpHeaders.Authorization, "Bearer $token")
-          contentType(ContentType.Application.Json)
-          setBody(json.encodeToString(request))
-        }
+      val response = client.post("/api/v1/tasks") {
+        header(HttpHeaders.Authorization, "Bearer $token")
+        contentType(ContentType.Application.Json)
+        setBody(json.encodeToString(request))
+      }
 
       assertEquals(HttpStatusCode.Created, response.status)
       val body = json.decodeFromString<TaskDetailDto>(response.bodyAsText())
@@ -71,11 +70,10 @@ class TaskRoutesTest {
       val userId = UUID.randomUUID()
       val prod = env.productionService.createProduction(userId, productionRequest)
 
-      val response =
-        client.post("/api/v1/tasks") {
-          contentType(ContentType.Application.Json)
-          setBody(json.encodeToString(CreateTaskRequest(productionId = prod.id, title = "Task")))
-        }
+      val response = client.post("/api/v1/tasks") {
+        contentType(ContentType.Application.Json)
+        setBody(json.encodeToString(CreateTaskRequest(productionId = prod.id, title = "Task")))
+      }
 
       assertEquals(HttpStatusCode.Unauthorized, response.status)
     }
@@ -90,12 +88,11 @@ class TaskRoutesTest {
       val strangerToken = env.tokenFor(strangerId)
       val prod = env.productionService.createProduction(ownerId, productionRequest)
 
-      val response =
-        client.post("/api/v1/tasks") {
-          header(HttpHeaders.Authorization, "Bearer $strangerToken")
-          contentType(ContentType.Application.Json)
-          setBody(json.encodeToString(CreateTaskRequest(productionId = prod.id, title = "Task")))
-        }
+      val response = client.post("/api/v1/tasks") {
+        header(HttpHeaders.Authorization, "Bearer $strangerToken")
+        contentType(ContentType.Application.Json)
+        setBody(json.encodeToString(CreateTaskRequest(productionId = prod.id, title = "Task")))
+      }
 
       assertEquals(HttpStatusCode.Forbidden, response.status)
     }
@@ -109,12 +106,11 @@ class TaskRoutesTest {
       val token = env.tokenFor(userId)
       val prod = env.productionService.createProduction(userId, productionRequest)
 
-      val response =
-        client.post("/api/v1/tasks") {
-          header(HttpHeaders.Authorization, "Bearer $token")
-          contentType(ContentType.Application.Json)
-          setBody(json.encodeToString(CreateTaskRequest(productionId = prod.id, title = "   ")))
-        }
+      val response = client.post("/api/v1/tasks") {
+        header(HttpHeaders.Authorization, "Bearer $token")
+        contentType(ContentType.Application.Json)
+        setBody(json.encodeToString(CreateTaskRequest(productionId = prod.id, title = "   ")))
+      }
 
       assertEquals(HttpStatusCode.BadRequest, response.status)
     }
@@ -144,10 +140,9 @@ class TaskRoutesTest {
         java.time.ZoneId.of("UTC")
       )
 
-      val response =
-        client.get(
-          "/api/v1/tasks?assignee=me"
-        ) { header(HttpHeaders.Authorization, "Bearer $token") }
+      val response = client.get(
+        "/api/v1/tasks?assignee=me"
+      ) { header(HttpHeaders.Authorization, "Bearer $token") }
 
       assertEquals(HttpStatusCode.OK, response.status)
     }
@@ -160,17 +155,15 @@ class TaskRoutesTest {
       val userId = UUID.randomUUID()
       val token = env.tokenFor(userId)
       val prod = env.productionService.createProduction(userId, productionRequest)
-      val task =
-        env.taskService.create(
-          userId,
-          CreateTaskRequest(productionId = prod.id, title = "T"),
-          java.time.ZoneId.of("UTC")
-        )
+      val task = env.taskService.create(
+        userId,
+        CreateTaskRequest(productionId = prod.id, title = "T"),
+        java.time.ZoneId.of("UTC")
+      )
 
-      val response =
-        client.delete("/api/v1/tasks/${task.id}") {
-          header(HttpHeaders.Authorization, "Bearer $token")
-        }
+      val response = client.delete("/api/v1/tasks/${task.id}") {
+        header(HttpHeaders.Authorization, "Bearer $token")
+      }
 
       assertEquals(HttpStatusCode.NoContent, response.status)
     }

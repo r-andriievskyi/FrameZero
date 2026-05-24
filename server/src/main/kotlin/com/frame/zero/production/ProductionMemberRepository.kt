@@ -60,7 +60,7 @@ interface ProductionMemberRepository {
   suspend fun remove(id: UUID): Boolean
 }
 
-class ProductionMemberRepositoryExposed : ProductionMemberRepository {
+class ProductionMemberRepositoryImpl : ProductionMemberRepository {
   override suspend fun findByProduction(productionId: UUID): List<ProductionMemberRecord> =
     dbQuery {
       ProductionMembersTable

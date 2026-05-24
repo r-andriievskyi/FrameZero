@@ -14,10 +14,10 @@ import io.ktor.client.request.parameter
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 
-class KtorProductionsRemoteApi(
+class ProductionsApiImpl(
   private val httpClient: HttpClient,
   private val networkConfig: NetworkConfig
-) : ProductionsRemoteApi {
+) : ProductionsApi {
   override suspend fun getAll(
     limit: Int,
     cursor: String?,

@@ -4,6 +4,6 @@ import org.koin.dsl.module
 
 fun taskModule() =
   module {
-    single<TaskRepository> { TaskRepositoryExposed() }
+    single<TaskRepository> { TaskRepositoryImpl() }
     single { TaskService(get(), get()) }
   }

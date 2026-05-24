@@ -49,39 +49,38 @@ interface NotificationRepository {
   ): NotificationRecord
 }
 
-class NotificationRepositoryExposed : NotificationRepository {
+class NotificationRepositoryImpl : NotificationRepository {
   override suspend fun findForUser(
     userId: UUID,
     limit: Int,
     cursor: String?
   ): Pair<List<NotificationRecord>, String?> =
     dbQuery {
-      val rows =
-        NotificationsTable
-          .selectAll()
-          .where {
-            var cond = NotificationsTable.userId eq userId
-            if (cursor != null) {
-              val pc = decodeCursor(cursor)
-              if (pc != null) {
-                val cursorTs = Instant.ofEpochMilli(pc.epochMillis)
-                cond =
-                  cond and
+      val rows = NotificationsTable
+        .selectAll()
+        .where {
+          var cond = NotificationsTable.userId eq userId
+          if (cursor != null) {
+            val pc = decodeCursor(cursor)
+            if (pc != null) {
+              val cursorTs = Instant.ofEpochMilli(pc.epochMillis)
+              cond =
+                cond and
                   (
                     (NotificationsTable.createdAt less cursorTs) or
                       (
                         (NotificationsTable.createdAt eq cursorTs) and
                           (NotificationsTable.id less pc.id)
-                      )
-                  )
-              }
+                        )
+                    )
             }
-            cond
-          }.orderBy(
-            NotificationsTable.createdAt to SortOrder.DESC,
-            NotificationsTable.id to SortOrder.DESC
-          ).limit(limit + 1)
-          .map { it.toRecord() }
+          }
+          cond
+        }.orderBy(
+          NotificationsTable.createdAt to SortOrder.DESC,
+          NotificationsTable.id to SortOrder.DESC
+        ).limit(limit + 1)
+        .map { it.toRecord() }
 
       val hasMore = rows.size > limit
       val items = if (hasMore) rows.dropLast(1) else rows
@@ -107,18 +106,17 @@ class NotificationRepositoryExposed : NotificationRepository {
   override suspend fun markRead(
     userId: UUID,
     ids: List<UUID>
-  ): Unit =
-    dbQuery {
-      if (ids.isEmpty()) return@dbQuery
-      val now = Instant.now()
-      NotificationsTable.update({
-        (NotificationsTable.userId eq userId) and
-          (NotificationsTable.id inList ids) and
-          NotificationsTable.readAt.isNull()
-      }) {
-        it[readAt] = now
-      }
+  ): Unit = dbQuery {
+    if (ids.isEmpty()) return@dbQuery
+    val now = Instant.now()
+    NotificationsTable.update({
+      (NotificationsTable.userId eq userId) and
+        (NotificationsTable.id inList ids) and
+        NotificationsTable.readAt.isNull()
+    }) {
+      it[readAt] = now
     }
+  }
 
   override suspend fun markAllRead(userId: UUID): Unit =
     dbQuery {
