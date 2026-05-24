@@ -12,10 +12,10 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-class RefreshTokenRepositoryExposedTest {
+class RefreshTokenRepositoryImplTest {
   private val db = H2TestDatabase()
-  private val users = UserRepositoryExposed()
-  private val refreshTokens = RefreshTokenRepositoryExposed()
+  private val users = UserRepositoryImpl()
+  private val refreshTokens = RefreshTokenRepositoryImpl()
 
   @BeforeTest
   fun setUp() {

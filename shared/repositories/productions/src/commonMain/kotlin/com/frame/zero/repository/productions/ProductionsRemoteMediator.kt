@@ -8,13 +8,13 @@ import com.frame.zero.domain.production.ProductionPhase
 import com.frame.zero.repository.productions.local.ProductionEntity
 import com.frame.zero.repository.productions.local.ProductionsCacheDao
 import com.frame.zero.repository.productions.local.filterKeyFor
-import com.frame.zero.repository.productions.network.ProductionsRemoteApi
+import com.frame.zero.repository.productions.network.ProductionsApi
 import kotlinx.coroutines.CancellationException
 
 @OptIn(ExperimentalPagingApi::class)
 internal class ProductionsRemoteMediator(
   private val phase: ProductionPhase?,
-  private val remoteApi: ProductionsRemoteApi,
+  private val remoteApi: ProductionsApi,
   private val dao: ProductionsCacheDao
 ) : RemoteMediator<Int, ProductionEntity>() {
   private val filter: String = filterKeyFor(phase)
@@ -40,8 +40,7 @@ internal class ProductionsRemoteMediator(
         phase = phase
       )
 
-      val baseOrder: Long =
-        if (loadType == LoadType.REFRESH) 0L else (dao.maxPageOrder(filter) ?: -1L) + 1L
+      val baseOrder = if (loadType == LoadType.REFRESH) 0L else (dao.maxPageOrder(filter) ?: -1L) + 1L
 
       val entities = response.items.mapIndexed { index, dto ->
         ProductionEntity(

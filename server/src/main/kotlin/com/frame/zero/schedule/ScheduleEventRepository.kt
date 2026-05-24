@@ -60,7 +60,7 @@ interface ScheduleEventRepository {
   suspend fun delete(id: UUID): Boolean
 }
 
-class ScheduleEventRepositoryExposed : ScheduleEventRepository {
+class ScheduleEventRepositoryImpl : ScheduleEventRepository {
   override suspend fun findInRangeForUser(
     userId: UUID,
     rangeStart: Instant,

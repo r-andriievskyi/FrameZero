@@ -82,7 +82,7 @@ interface ProductionRepository {
   suspend fun softDelete(id: UUID)
 }
 
-class ProductionRepositoryExposed : ProductionRepository {
+class ProductionRepositoryImpl : ProductionRepository {
   override suspend fun create(
     title: String,
     genre: Genre,
