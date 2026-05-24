@@ -12,9 +12,9 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
-class UserRepositoryExposedTest {
+class UserRepositoryTest {
   private val db = H2TestDatabase()
-  private val repository = UserRepositoryExposed()
+  private val repository = UserRepositoryImpl()
 
   @BeforeTest
   fun setUp() {

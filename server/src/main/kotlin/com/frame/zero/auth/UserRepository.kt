@@ -30,7 +30,7 @@ interface UserRepository {
   ): UserRecord
 }
 
-class UserRepositoryExposed : UserRepository {
+class UserRepositoryImpl : UserRepository {
   override suspend fun findByEmail(email: String): UserRecord? =
     dbQuery {
       UsersTable

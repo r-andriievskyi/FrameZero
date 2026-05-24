@@ -81,7 +81,7 @@ interface TaskRepository {
   suspend fun delete(id: UUID): Boolean
 }
 
-class TaskRepositoryExposed : TaskRepository {
+class TaskRepositoryImpl : TaskRepository {
   override suspend fun create(
     productionId: UUID,
     title: String,

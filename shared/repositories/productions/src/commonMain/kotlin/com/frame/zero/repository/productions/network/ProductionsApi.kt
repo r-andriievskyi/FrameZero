@@ -6,7 +6,7 @@ import com.frame.zero.dto.production.CreateProductionRequest
 import com.frame.zero.dto.production.ProductionDetailDto
 import com.frame.zero.dto.production.ProductionSummaryDto
 
-interface ProductionsRemoteApi {
+interface ProductionsApi {
   suspend fun getAll(
     limit: Int,
     cursor: String?,

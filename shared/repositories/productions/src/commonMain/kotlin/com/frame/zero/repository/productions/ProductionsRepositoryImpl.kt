@@ -12,14 +12,14 @@ import com.frame.zero.dto.production.ProductionDetailDto
 import com.frame.zero.repository.productions.local.FrameZeroDatabase
 import com.frame.zero.repository.productions.local.filterKeyFor
 import com.frame.zero.repository.productions.local.toProduction
-import com.frame.zero.repository.productions.network.ProductionsRemoteApi
+import com.frame.zero.repository.productions.network.ProductionsApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 private const val PageSize = 5
 
-class OfflineFirstProductionsRepository(
-  private val remoteApi: ProductionsRemoteApi,
+class ProductionsRepositoryImpl(
+  private val remoteApi: ProductionsApi,
   private val database: FrameZeroDatabase
 ) : ProductionsRepository {
   @OptIn(ExperimentalPagingApi::class)

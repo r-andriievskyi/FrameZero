@@ -34,7 +34,7 @@ interface RefreshTokenRepository {
   suspend fun revoke(tokenHash: String): Boolean
 }
 
-class RefreshTokenRepositoryExposed : RefreshTokenRepository {
+class RefreshTokenRepositoryImpl : RefreshTokenRepository {
   override suspend fun create(
     userId: UUID,
     tokenHash: String,
