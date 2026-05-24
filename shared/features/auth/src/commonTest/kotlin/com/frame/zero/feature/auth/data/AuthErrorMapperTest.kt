@@ -1,6 +1,7 @@
 package com.frame.zero.feature.auth.data
 
 import com.frame.zero.domain.DomainError
+import com.frame.zero.feature.auth.domain.toDomainError
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
