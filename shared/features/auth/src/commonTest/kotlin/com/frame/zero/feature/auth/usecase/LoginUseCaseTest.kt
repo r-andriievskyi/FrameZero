@@ -29,8 +29,8 @@ class LoginUseCaseTest {
       val repo = FakeAuthRepository(loginUserDto = userDto)
       val session = makeSessionManager()
 
-      val outcome =
-        LoginUseCase(repo, session)(LoginUseCase.Params(email = "u@x.com", password = "p"))
+      val loginUseCase = LoginUseCase(repo, session)
+      val outcome = loginUseCase(LoginUseCase.Params(email = "u@x.com", password = "p"))
 
       val success = assertIs<Outcome.Success<User>>(outcome)
       assertEquals(user, success.data)
