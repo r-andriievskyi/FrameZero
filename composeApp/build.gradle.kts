@@ -22,11 +22,6 @@ kotlin {
 
   jvm()
 
-  wasmJs {
-    browser()
-    binaries.executable()
-  }
-
   sourceSets {
     androidMain.dependencies {
       implementation(libs.compose.uiToolingPreview)

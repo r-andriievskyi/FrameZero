@@ -8,6 +8,7 @@ import com.frame.zero.feature.home.featureHomeModule
 import com.frame.zero.feature.production.details.featureProductionDetailsModule
 import com.frame.zero.feature.production.featureProductionModule
 import com.frame.zero.feature.task.details.featureTaskDetailsModule
+import com.frame.zero.repository.productions.productionsRepositoryModule
 import org.koin.core.Koin
 import org.koin.core.context.startKoin
 import org.koin.core.module.Module
@@ -20,8 +21,11 @@ val appModules: List<Module> = listOf(
   featureHomeModule,
   featureProductionModule,
   featureProductionDetailsModule,
-  featureTaskDetailsModule
+  featureTaskDetailsModule,
+  productionsRepositoryModule
 )
 
 fun initKoin(extraModules: List<Module> = emptyList()): Koin =
-  startKoin { modules(appModules + platformModule() + extraModules) }.koin
+  startKoin {
+    modules(appModules + platformModule() + extraModules)
+  }.koin

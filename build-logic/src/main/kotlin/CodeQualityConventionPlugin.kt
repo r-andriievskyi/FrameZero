@@ -16,7 +16,7 @@ class CodeQualityConventionPlugin : Plugin<Project> {
         outputToConsole.set(true)
         ignoreFailures.set(false)
         filter {
-          exclude("**/generated/**")
+          exclude { entry -> entry.file.absolutePath.contains("/build/") }
           include("**/*.kt")
         }
       }

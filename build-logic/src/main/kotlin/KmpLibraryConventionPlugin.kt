@@ -26,7 +26,6 @@ class KmpLibraryConventionPlugin : Plugin<Project> {
         iosArm64()
         iosSimulatorArm64()
         jvm()
-        wasmJs { browser() }
       }
 
       extensions.configure<LibraryExtension> {
