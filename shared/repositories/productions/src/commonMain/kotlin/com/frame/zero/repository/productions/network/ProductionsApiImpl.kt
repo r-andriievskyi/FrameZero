@@ -2,7 +2,7 @@ package com.frame.zero.repository.productions.network
 
 import com.frame.zero.core.network.NetworkConfig
 import com.frame.zero.domain.production.ProductionPhase
-import com.frame.zero.dto.common.PagedResponse
+import com.frame.zero.dto.common.CursorPagedResponse
 import com.frame.zero.dto.production.CreateProductionRequest
 import com.frame.zero.dto.production.ProductionDetailDto
 import com.frame.zero.dto.production.ProductionSummaryDto
@@ -22,7 +22,7 @@ class ProductionsApiImpl(
     limit: Int,
     cursor: String?,
     phase: ProductionPhase?
-  ): PagedResponse<ProductionSummaryDto> =
+  ): CursorPagedResponse<ProductionSummaryDto> =
     httpClient.get("${networkConfig.baseUrl}/api/v1/productions") {
       parameter("limit", limit)
       if (cursor != null) parameter("cursor", cursor)
