@@ -22,7 +22,10 @@ kotlin {
       implementation(libs.androidx.sqlite.bundled)
     }
 
-    commonTest.dependencies { implementation(libs.kotlin.test) }
+    commonTest.dependencies {
+      implementation(libs.kotlin.test)
+      implementation(libs.kotlinx.coroutines.test)
+    }
   }
 }
 

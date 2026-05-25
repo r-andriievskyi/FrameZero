@@ -6,7 +6,7 @@ import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
 import com.frame.zero.domain.production.ProductionPhase
 import com.frame.zero.repository.productions.local.ProductionEntity
-import com.frame.zero.repository.productions.local.ProductionsCacheDao
+import com.frame.zero.repository.productions.local.ProductionsDao
 import com.frame.zero.repository.productions.local.filterKeyFor
 import com.frame.zero.repository.productions.network.ProductionsApi
 import kotlinx.coroutines.CancellationException
@@ -15,7 +15,7 @@ import kotlinx.coroutines.CancellationException
 internal class ProductionsRemoteMediator(
   private val phase: ProductionPhase?,
   private val remoteApi: ProductionsApi,
-  private val dao: ProductionsCacheDao
+  private val dao: ProductionsDao
 ) : RemoteMediator<Int, ProductionEntity>() {
   private val filter: String = filterKeyFor(phase)
 
