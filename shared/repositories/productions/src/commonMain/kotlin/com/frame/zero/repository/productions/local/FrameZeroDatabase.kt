@@ -12,7 +12,7 @@ import androidx.room.RoomDatabaseConstructor
 )
 @ConstructedBy(FrameZeroDatabaseConstructor::class)
 abstract class FrameZeroDatabase : RoomDatabase() {
-  abstract fun productionsCacheDao(): ProductionsCacheDao
+  abstract fun productionsCacheDao(): ProductionsDao
 }
 
 @Suppress("KotlinNoActualForExpect", "NO_ACTUAL_FOR_EXPECT")

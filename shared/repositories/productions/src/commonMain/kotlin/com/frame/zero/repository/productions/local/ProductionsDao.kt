@@ -8,7 +8,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 
 @Dao
-abstract class ProductionsCacheDao {
+abstract class ProductionsDao {
   @Query("SELECT * FROM productions WHERE phaseFilter = :filter ORDER BY pageOrder ASC")
   abstract fun pagingSource(filter: String): PagingSource<Int, ProductionEntity>
 
