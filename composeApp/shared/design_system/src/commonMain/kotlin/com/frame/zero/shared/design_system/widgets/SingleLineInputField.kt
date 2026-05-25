@@ -1,4 +1,4 @@
-package com.discovery.playground.shared.design_system.widgets
+package com.frame.zero.shared.design_system.widgets
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -29,7 +29,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.discovery.playground.shared.design_system.AppTheme
+import com.frame.zero.shared.design_system.AppTheme
 
 private val MinHeight = 48.dp
 private val BorderWidth = 1.dp
@@ -110,7 +110,7 @@ fun SingleLineInputField(
 @Composable
 private fun SingleLineInputFieldPlaceholderPreview() {
   AppTheme {
-    Column(modifier = Modifier.padding(AppTheme.spacingSystem.space16)) {
+    Column(modifier = Modifier.Companion.padding(AppTheme.spacingSystem.space16)) {
       SingleLineInputField(
         value = "",
         onValueChange = {},

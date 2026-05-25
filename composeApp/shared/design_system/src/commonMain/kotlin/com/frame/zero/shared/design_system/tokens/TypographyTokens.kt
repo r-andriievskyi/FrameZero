@@ -1,4 +1,4 @@
-package com.discovery.playground.shared.design_system.tokens
+package com.frame.zero.shared.design_system.tokens
 
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily

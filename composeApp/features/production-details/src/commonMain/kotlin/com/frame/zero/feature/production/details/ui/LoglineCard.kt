@@ -20,14 +20,14 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.discovery.playground.shared.design_system.AppTheme
+import com.frame.zero.shared.design_system.AppTheme
 import framezero.composeapp.features.production_details.generated.resources.Res
 import framezero.composeapp.features.production_details.generated.resources.overall_progress
 import framezero.composeapp.features.production_details.generated.resources.stat_budget
 import framezero.composeapp.features.production_details.generated.resources.stat_days_left
 import framezero.composeapp.features.production_details.generated.resources.stat_members
 import org.jetbrains.compose.resources.stringResource
-import com.discovery.playground.shared.design_system.widgets.VerticalSpacer
+import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import com.frame.zero.domain.production.ProductionDetail
 import com.frame.zero.domain.production.ProductionPhase
 

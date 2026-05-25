@@ -1,4 +1,4 @@
-package com.discovery.playground.shared.design_system.widgets
+package com.frame.zero.shared.design_system.widgets
 
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.infiniteRepeatable
@@ -47,8 +47,7 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemKey
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.unit.Dp
-import com.discovery.playground.shared.design_system.AppTheme
+import com.frame.zero.shared.design_system.AppTheme
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlin.math.min
 

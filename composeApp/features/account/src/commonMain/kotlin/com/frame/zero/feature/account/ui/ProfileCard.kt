@@ -20,7 +20,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.discovery.playground.shared.design_system.AppTheme
+import com.frame.zero.shared.design_system.AppTheme
 
 private val AvatarSize = 56.dp
 private val BorderWidth = 1.dp

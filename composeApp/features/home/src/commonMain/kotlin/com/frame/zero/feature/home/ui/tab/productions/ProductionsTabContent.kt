@@ -29,11 +29,11 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.discovery.playground.shared.design_system.AppTheme
-import com.discovery.playground.shared.design_system.widgets.DefaultInlineRefreshIndicator
-import com.discovery.playground.shared.design_system.widgets.PagingLazyColumn
-import com.discovery.playground.shared.design_system.widgets.VerticalSpacer
-import com.discovery.playground.shared.design_system.widgets.rememberPagingListUiState
+import com.frame.zero.shared.design_system.AppTheme
+import com.frame.zero.shared.design_system.widgets.DefaultInlineRefreshIndicator
+import com.frame.zero.shared.design_system.widgets.PagingLazyColumn
+import com.frame.zero.shared.design_system.widgets.VerticalSpacer
+import com.frame.zero.shared.design_system.widgets.rememberPagingListUiState
 import com.frame.zero.domain.production.Genre
 import com.frame.zero.domain.production.ProductionPhase
 import com.frame.zero.feature.home.tab.projects.ProductionUi

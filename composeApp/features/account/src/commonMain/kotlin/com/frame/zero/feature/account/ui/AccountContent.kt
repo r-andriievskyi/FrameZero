@@ -11,8 +11,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.discovery.playground.shared.design_system.AppTheme
-import com.discovery.playground.shared.design_system.widgets.TopToolbar
+import com.frame.zero.shared.design_system.AppTheme
+import com.frame.zero.shared.design_system.widgets.TopToolbar
 import com.frame.zero.feature.account.AccountComponent
 import framezero.composeapp.features.account.generated.resources.Res
 import framezero.composeapp.features.account.generated.resources.ic_bell

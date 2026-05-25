@@ -21,10 +21,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.discovery.playground.shared.design_system.AppTheme
-import com.discovery.playground.shared.design_system.widgets.CtaButton
-import com.discovery.playground.shared.design_system.widgets.SingleLineInputField
-import com.discovery.playground.shared.design_system.widgets.VerticalSpacer
+import com.frame.zero.shared.design_system.AppTheme
+import com.frame.zero.shared.design_system.widgets.CtaButton
+import com.frame.zero.shared.design_system.widgets.SingleLineInputField
+import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import com.frame.zero.feature.production.CreateProductionIntent
 import com.frame.zero.feature.production.CreateProductionState
 import com.frame.zero.feature.production.CrewMemberEntry

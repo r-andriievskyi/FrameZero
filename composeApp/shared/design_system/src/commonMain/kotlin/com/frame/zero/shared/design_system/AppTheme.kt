@@ -1,4 +1,4 @@
-package com.discovery.playground.shared.design_system
+package com.frame.zero.shared.design_system
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable

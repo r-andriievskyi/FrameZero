@@ -21,11 +21,11 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import com.discovery.playground.shared.design_system.AppTheme
-import com.discovery.playground.shared.design_system.widgets.CtaButton
-import com.discovery.playground.shared.design_system.widgets.HorizontalSpacer
-import com.discovery.playground.shared.design_system.widgets.SingleLineInputField
-import com.discovery.playground.shared.design_system.widgets.VerticalSpacer
+import com.frame.zero.shared.design_system.AppTheme
+import com.frame.zero.shared.design_system.widgets.CtaButton
+import com.frame.zero.shared.design_system.widgets.HorizontalSpacer
+import com.frame.zero.shared.design_system.widgets.SingleLineInputField
+import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import com.frame.zero.feature.auth.register.RegisterComponent
 import com.frame.zero.feature.auth.register.RegisterIntent
 import com.frame.zero.feature.auth.register.RegisterState
