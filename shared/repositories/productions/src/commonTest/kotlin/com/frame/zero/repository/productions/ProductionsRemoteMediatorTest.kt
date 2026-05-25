@@ -8,7 +8,7 @@ import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
 import com.frame.zero.domain.production.Genre
 import com.frame.zero.domain.production.ProductionPhase
-import com.frame.zero.dto.common.PagedResponse
+import com.frame.zero.dto.common.CursorPagedResponse
 import com.frame.zero.dto.production.CreateProductionRequest
 import com.frame.zero.dto.production.ProductionDetailDto
 import com.frame.zero.dto.production.ProductionSummaryDto
@@ -180,10 +180,10 @@ class ProductionsRemoteMediatorTest {
   private fun pageOf(
     vararg items: ProductionSummaryDto,
     nextCursor: String?
-  ): PagedResponse<ProductionSummaryDto> = PagedResponse(items = items.toList(), nextCursor = nextCursor)
+  ): CursorPagedResponse<ProductionSummaryDto> = CursorPagedResponse(items = items.toList(), nextCursor = nextCursor)
 
   private class FakeProductionsApi(
-    private val page: PagedResponse<ProductionSummaryDto> = PagedResponse(emptyList(), null),
+    private val page: CursorPagedResponse<ProductionSummaryDto> = CursorPagedResponse(emptyList(), null),
     private val error: Throwable? = null
   ) : ProductionsApi {
     data class GetAllCall(val limit: Int, val cursor: String?, val phase: ProductionPhase?)
@@ -194,7 +194,7 @@ class ProductionsRemoteMediatorTest {
       limit: Int,
       cursor: String?,
       phase: ProductionPhase?
-    ): PagedResponse<ProductionSummaryDto> {
+    ): CursorPagedResponse<ProductionSummaryDto> {
       getAllCalls += GetAllCall(limit, cursor, phase)
       error?.let { throw it }
       return page

@@ -1,10 +1,12 @@
 package com.frame.zero.repository.productions.local
 
 import androidx.room.Entity
+import androidx.room.Index
 
 @Entity(
   tableName = "productions",
-  primaryKeys = ["id", "phaseFilter"]
+  primaryKeys = ["id", "phaseFilter"],
+  indices = [Index(value = ["phaseFilter", "pageOrder"])]
 )
 data class ProductionEntity(
   val id: String,

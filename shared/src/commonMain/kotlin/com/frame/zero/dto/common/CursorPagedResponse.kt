@@ -2,7 +2,7 @@ package com.frame.zero.dto.common
 
 import kotlinx.serialization.Serializable
 
-@Serializable data class PagedResponse<T>(
+@Serializable data class CursorPagedResponse<T>(
   val items: List<T>,
   val nextCursor: String? = null
 )

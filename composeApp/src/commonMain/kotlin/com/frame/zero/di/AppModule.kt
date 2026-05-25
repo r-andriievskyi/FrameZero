@@ -13,7 +13,7 @@ import org.koin.core.Koin
 import org.koin.core.context.startKoin
 import org.koin.core.module.Module
 
-val appModules: List<Module> = listOf(
+val appModules = listOf(
   networkModule,
   sessionModule,
   authModule,
