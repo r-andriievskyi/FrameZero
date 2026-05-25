@@ -14,7 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.discovery.playground.shared.design_system.AppTheme
+import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.feature.home.HomeComponent
 import com.frame.zero.feature.home.tab.HomeTab
 import com.frame.zero.feature.home.ui.tab.dashboard.DashboardTabContent

@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "859f623a875a59944418bc42980f3b24",
+    "identityHash": "fb83f25d2f77b25c0125415ccdf4bfa0",
     "entities": [
       {
         "tableName": "productions",
@@ -75,7 +75,19 @@
             "id",
             "phaseFilter"
           ]
-        }
+        },
+        "indices": [
+          {
+            "name": "index_productions_phaseFilter_pageOrder",
+            "unique": false,
+            "columnNames": [
+              "phaseFilter",
+              "pageOrder"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_productions_phaseFilter_pageOrder` ON `${TABLE_NAME}` (`phaseFilter`, `pageOrder`)"
+          }
+        ]
       },
       {
         "tableName": "production_remote_keys",
@@ -103,7 +115,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '859f623a875a59944418bc42980f3b24')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'fb83f25d2f77b25c0125415ccdf4bfa0')"
     ]
   }
 }

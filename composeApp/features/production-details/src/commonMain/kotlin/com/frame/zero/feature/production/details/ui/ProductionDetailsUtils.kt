@@ -2,7 +2,7 @@ package com.frame.zero.feature.production.details.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import com.discovery.playground.shared.design_system.AppTheme
+import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.domain.production.Genre
 import com.frame.zero.domain.production.ProductionPhase
 import kotlinx.datetime.LocalDate

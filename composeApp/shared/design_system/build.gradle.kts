@@ -1,9 +1,9 @@
 plugins { id("crossplatform.kmp.library.compose") }
 
-android { namespace = "com.frame.zero.design_system" }
+android { namespace = "com.frame.zero.shared.design_system" }
 
 compose.resources {
-  packageOfResClass = "com.discovery.playground.shared.design_system.generated.resources"
+  packageOfResClass = "com.frame.zero.shared.design_system.generated.resources"
   publicResClass = false
   generateResClass = always
 }

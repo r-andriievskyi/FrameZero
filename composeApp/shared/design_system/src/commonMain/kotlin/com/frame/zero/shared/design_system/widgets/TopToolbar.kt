@@ -1,4 +1,4 @@
-package com.discovery.playground.shared.design_system.widgets
+package com.frame.zero.shared.design_system.widgets
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -16,8 +16,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.discovery.playground.shared.design_system.AppTheme
-import com.discovery.playground.shared.design_system.modifier.clickableWithRipple
+import com.frame.zero.shared.design_system.AppTheme
+import com.frame.zero.shared.design_system.modifier.clickableWithRipple
 
 private val BackButtonSize = 40.dp
 

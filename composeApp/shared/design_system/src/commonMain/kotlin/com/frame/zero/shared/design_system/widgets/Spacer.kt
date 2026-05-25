@@ -1,4 +1,4 @@
-package com.discovery.playground.shared.design_system.widgets
+package com.frame.zero.shared.design_system.widgets
 
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
