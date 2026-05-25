@@ -5,7 +5,7 @@ import com.frame.zero.AppException
 import com.frame.zero.common.pathUuid
 import com.frame.zero.common.timezone
 import com.frame.zero.common.userId
-import com.frame.zero.dto.common.PagedResponse
+import com.frame.zero.dto.common.CursorPagedResponse
 import com.frame.zero.dto.task.CreateTaskRequest
 import com.frame.zero.dto.task.TaskStatus
 import com.frame.zero.dto.task.UpdateTaskRequest
@@ -54,7 +54,7 @@ fun Route.taskRoutes() {
         val cursor = call.request.queryParameters["cursor"]
         val (items, nextCursor) =
           service.list(userId, assigneeMe, status, productionId, limit, cursor, tz)
-        call.respond(PagedResponse(items = items, nextCursor = nextCursor))
+        call.respond(CursorPagedResponse(items = items, nextCursor = nextCursor))
       }
 
       post {
