@@ -7,7 +7,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.discovery.playground.shared.design_system.AppTheme
+import com.frame.zero.shared.design_system.AppTheme
 
 @Composable
 internal fun SectionHeader(

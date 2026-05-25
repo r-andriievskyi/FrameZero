@@ -21,8 +21,8 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.discovery.playground.shared.design_system.AppTheme
-import com.discovery.playground.shared.design_system.modifier.clickableWithRipple
+import com.frame.zero.shared.design_system.AppTheme
+import com.frame.zero.shared.design_system.modifier.clickableWithRipple
 import framezero.composeapp.features.account.generated.resources.Res
 import framezero.composeapp.features.account.generated.resources.ic_chevron_right
 import framezero.composeapp.features.account.generated.resources.ic_user

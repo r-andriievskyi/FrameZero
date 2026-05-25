@@ -30,9 +30,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.discovery.playground.shared.design_system.AppTheme
-import com.discovery.playground.shared.design_system.widgets.HorizontalSpacer
-import com.discovery.playground.shared.design_system.widgets.SingleLineInputField
+import com.frame.zero.shared.design_system.AppTheme
+import com.frame.zero.shared.design_system.widgets.HorizontalSpacer
+import com.frame.zero.shared.design_system.widgets.SingleLineInputField
 import com.frame.zero.domain.production.ProductionPhase
 import com.frame.zero.feature.production.CrewMemberEntry
 import framezero.composeapp.features.production.generated.resources.Res

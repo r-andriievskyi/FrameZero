@@ -18,13 +18,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.discovery.playground.shared.design_system.AppTheme
+import com.frame.zero.shared.design_system.AppTheme
 import framezero.composeapp.features.production_details.generated.resources.Res
 import framezero.composeapp.features.production_details.generated.resources.pipeline_header
 import framezero.composeapp.features.production_details.generated.resources.pipeline_phase_progress
 import org.jetbrains.compose.resources.stringResource
-import com.discovery.playground.shared.design_system.widgets.HorizontalSpacer
-import com.discovery.playground.shared.design_system.widgets.VerticalSpacer
+import com.frame.zero.shared.design_system.widgets.HorizontalSpacer
+import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import com.frame.zero.domain.production.ProductionPhase
 import com.frame.zero.domain.production.ProductionPipelinePhase
 

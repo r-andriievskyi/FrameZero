@@ -19,7 +19,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.discovery.playground.shared.design_system.AppTheme
+import com.frame.zero.shared.design_system.AppTheme
 import framezero.composeapp.features.production_details.generated.resources.Res
 import framezero.composeapp.features.production_details.generated.resources.team_direct_reports
 import framezero.composeapp.features.production_details.generated.resources.team_header
@@ -27,8 +27,8 @@ import framezero.composeapp.features.production_details.generated.resources.team
 import framezero.composeapp.features.production_details.generated.resources.team_reports_to
 import framezero.composeapp.features.production_details.generated.resources.team_viewer_label
 import org.jetbrains.compose.resources.stringResource
-import com.discovery.playground.shared.design_system.widgets.HorizontalSpacer
-import com.discovery.playground.shared.design_system.widgets.VerticalSpacer
+import com.frame.zero.shared.design_system.widgets.HorizontalSpacer
+import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import com.frame.zero.domain.production.ProductionMember
 import com.frame.zero.domain.production.ViewerCrew
 import kotlin.time.Instant

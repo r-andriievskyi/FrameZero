@@ -13,7 +13,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.discovery.playground.shared.design_system.AppTheme
+import com.frame.zero.shared.design_system.AppTheme
 import framezero.composeapp.features.account.generated.resources.Res
 import framezero.composeapp.features.account.generated.resources.ic_bell
 import framezero.composeapp.features.account.generated.resources.ic_lock

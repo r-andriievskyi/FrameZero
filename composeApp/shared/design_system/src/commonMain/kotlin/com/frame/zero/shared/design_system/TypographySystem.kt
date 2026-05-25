@@ -1,4 +1,4 @@
-package com.discovery.playground.shared.design_system
+package com.frame.zero.shared.design_system
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.text.TextStyle

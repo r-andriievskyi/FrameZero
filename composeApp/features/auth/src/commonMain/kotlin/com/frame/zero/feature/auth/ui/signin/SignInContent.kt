@@ -25,11 +25,11 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import com.discovery.playground.shared.design_system.AppTheme
-import com.discovery.playground.shared.design_system.widgets.CtaButton
-import com.discovery.playground.shared.design_system.widgets.HorizontalSpacer
-import com.discovery.playground.shared.design_system.widgets.SingleLineInputField
-import com.discovery.playground.shared.design_system.widgets.VerticalSpacer
+import com.frame.zero.shared.design_system.AppTheme
+import com.frame.zero.shared.design_system.widgets.CtaButton
+import com.frame.zero.shared.design_system.widgets.HorizontalSpacer
+import com.frame.zero.shared.design_system.widgets.SingleLineInputField
+import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import com.frame.zero.feature.auth.signin.SignInComponent
 import com.frame.zero.feature.auth.signin.SignInIntent
 import com.frame.zero.feature.auth.signin.SignInState

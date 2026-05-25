@@ -1,4 +1,4 @@
-package com.discovery.playground.shared.design_system.modifier
+package com.frame.zero.shared.design_system.modifier
 
 import androidx.compose.foundation.clickable
 import androidx.compose.material3.ripple
