@@ -1,6 +1,8 @@
 package com.frame.zero.shared.design_system.widgets
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -13,13 +15,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.frame.zero.shared.design_system.AppTheme
+import com.frame.zero.shared.design_system.generated.resources.Res
+import com.frame.zero.shared.design_system.generated.resources.ic_chevron_left
 import com.frame.zero.shared.design_system.modifier.clickableWithRipple
+import org.jetbrains.compose.resources.painterResource
 
 private val BackButtonSize = 40.dp
+private val BorderWidth = 1.dp
 
 @Composable
 fun TopToolbar(
@@ -62,6 +69,7 @@ private fun BackButton(
       .size(BackButtonSize)
       .clip(shape)
       .background(AppTheme.colorSystem.cardBackground)
+      .border(width = BorderWidth, color = AppTheme.colorSystem.border, shape = shape)
       .clickableWithRipple(
         color = AppTheme.colorSystem.accentDim,
         bounded = true,
@@ -69,10 +77,10 @@ private fun BackButton(
       ),
     contentAlignment = Alignment.Center
   ) {
-    Text(
-      text = "‹",
-      style = AppTheme.typographySystem.titleLarge,
-      color = AppTheme.colorSystem.textPrimary
+    Image(
+      painter = painterResource(Res.drawable.ic_chevron_left),
+      colorFilter = ColorFilter.tint(AppTheme.colorSystem.textPrimary),
+      contentDescription = null
     )
   }
 }

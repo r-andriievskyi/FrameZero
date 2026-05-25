@@ -2,6 +2,7 @@ package com.frame.zero.feature.home.ui.tab.dashboard
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import com.frame.zero.feature.home.tab.dashboard.DashboardStatsUi
@@ -25,6 +27,8 @@ import framezero.composeapp.features.home.generated.resources.stats_open_tasks
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+
+private val StatCardBorderWidth = 1.dp
 
 @Composable
 internal fun StatsRow(stats: DashboardStatsUi) {
@@ -54,10 +58,12 @@ private fun StatCard(
   value: String,
   label: String
 ) {
+  val shape = RoundedCornerShape(AppTheme.radiusSystem.radius16)
   Column(
     modifier = modifier
-      .clip(RoundedCornerShape(AppTheme.radiusSystem.radius16))
+      .clip(shape)
       .background(AppTheme.colorSystem.cardBackground)
+      .border(StatCardBorderWidth, AppTheme.colorSystem.border, shape)
       .padding(AppTheme.spacingSystem.space16)
   ) {
     Image(
