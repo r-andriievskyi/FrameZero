@@ -2,7 +2,6 @@ package com.frame.zero.feature.home.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,6 +14,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.tooling.preview.Preview
 import com.frame.zero.shared.design_system.AppTheme
+import com.frame.zero.shared.design_system.modifier.clickableWithRipple
 import com.frame.zero.shared.design_system.widgets.HorizontalSpacer
 import framezero.composeapp.features.home.generated.resources.Res
 import framezero.composeapp.features.home.generated.resources.ic_bell
@@ -49,19 +49,25 @@ fun HomeToolbar(
     Image(
       painter = painterResource(Res.drawable.ic_bell),
       contentDescription = stringResource(Res.string.toolbar_notifications_cd),
-      modifier = Modifier.clip(buttonsShape).clickable(onClick = onNotificationsClick)
-        .padding(AppTheme.spacingSystem.space8),
+      modifier = Modifier.clip(buttonsShape).clickableWithRipple(
+        color = AppTheme.colorSystem.accentDim,
+        onClick = onNotificationsClick
+      ).padding(AppTheme.spacingSystem.space8),
       colorFilter = ColorFilter.tint(AppTheme.colorSystem.textPrimary)
     )
     HorizontalSpacer(AppTheme.spacingSystem.space8)
     Image(
       painter = painterResource(Res.drawable.ic_user),
       contentDescription = stringResource(Res.string.toolbar_settings_cd),
-      modifier = Modifier.background(
-        color = AppTheme.colorSystem.accent,
-        shape = buttonsShape
-      ).clickable(onClick = onAccountClick).padding(AppTheme.spacingSystem.space8),
-      colorFilter = ColorFilter.tint(AppTheme.colorSystem.textPrimary)
+      modifier = Modifier.clip(buttonsShape)
+        .background(
+          color = AppTheme.colorSystem.accent,
+          shape = buttonsShape
+        ).clickableWithRipple(
+          color = AppTheme.colorSystem.accentDim,
+          onClick = onAccountClick
+        ).padding(AppTheme.spacingSystem.space8),
+      colorFilter = ColorFilter.tint(AppTheme.colorSystem.textOnAccent)
     )
   }
 }
