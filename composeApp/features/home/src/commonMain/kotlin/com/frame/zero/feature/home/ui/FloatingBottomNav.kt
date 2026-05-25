@@ -1,7 +1,5 @@
 package com.frame.zero.feature.home.ui
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -22,9 +20,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.frame.zero.feature.home.tab.HomeTab
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.modifier.clickableWithRipple
-import com.frame.zero.feature.home.tab.HomeTab
 import framezero.composeapp.features.home.generated.resources.Res
 import framezero.composeapp.features.home.generated.resources.tab_dashboard
 import framezero.composeapp.features.home.generated.resources.tab_productions
@@ -42,7 +40,6 @@ private fun HomeTab.label(): String =
     HomeTab.SCHEDULE -> stringResource(Res.string.tab_schedule)
   }
 
-/** Stateless. The container owns selection state; this just renders + reports clicks. */
 @Composable
 fun FloatingBottomNav(
   tabs: List<HomeTab>,
@@ -50,7 +47,8 @@ fun FloatingBottomNav(
   onSelect: (HomeTab) -> Unit,
   modifier: Modifier = Modifier
 ) {
-  val shape = RoundedCornerShape(AppTheme.radiusSystem.radiusMax)
+  val radius = AppTheme.radiusSystem.radiusMax
+  val shape = remember(radius) { RoundedCornerShape(radius) }
   Row(
     modifier = modifier
       .height(Height)
@@ -79,29 +77,27 @@ private fun NavItem(
   onClick: () -> Unit
 ) {
   val colorSystem = AppTheme.colorSystem
-  val background by animateColorAsState(
-    targetValue = if (selected) colorSystem.accent else Color.Transparent,
-    animationSpec = tween(150)
-  )
-  val textColor by animateColorAsState(
-    targetValue = if (selected) colorSystem.textOnAccent else colorSystem.textSecondary,
-    animationSpec = tween(150)
-  )
+  val itemRadius = AppTheme.radiusSystem.radiusMax
+  val itemShape = remember(itemRadius) { RoundedCornerShape(itemRadius) }
   Box(
     modifier = modifier
-      .clip(RoundedCornerShape(AppTheme.radiusSystem.radiusMax))
+      .clip(itemShape)
       .clickableWithRipple(
         color = AppTheme.colorSystem.accentDim,
         onClick = onClick
       )
-      .background(color = background)
+      .background(color = if (selected) colorSystem.accent else Color.Transparent)
       .padding(
         horizontal = AppTheme.spacingSystem.space16,
         vertical = AppTheme.spacingSystem.space8
       ),
     contentAlignment = Alignment.Center
   ) {
-    Text(text = tab.label(), style = AppTheme.typographySystem.labelMedium, color = textColor)
+    Text(
+      text = tab.label(),
+      style = AppTheme.typographySystem.labelMedium,
+      color = if (selected) colorSystem.textOnAccent else colorSystem.textSecondary,
+    )
   }
 }
 
