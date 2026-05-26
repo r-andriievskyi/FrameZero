@@ -2,7 +2,7 @@ package com.frame.zero.feature.home.ui.tab.productions
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,13 +17,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.frame.zero.shared.design_system.AppTheme
-import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import com.frame.zero.domain.production.Genre
 import com.frame.zero.domain.production.ProductionPhase
 import com.frame.zero.feature.home.tab.projects.ProductionUi
+import com.frame.zero.shared.design_system.AppTheme
+import com.frame.zero.shared.design_system.modifier.clickableWithRipple
+import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import framezero.composeapp.features.home.generated.resources.Res
 import framezero.composeapp.features.home.generated.resources.days_left
 import framezero.composeapp.features.home.generated.resources.ic_calendar_clock
@@ -34,6 +36,7 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
 private val ProgressBarHeight = 6.dp
+private val BorderWidth = 1.dp
 
 @Composable
 internal fun ProductionCard(
@@ -47,7 +50,8 @@ internal fun ProductionCard(
       .fillMaxWidth()
       .clip(RoundedCornerShape(AppTheme.radiusSystem.radius16))
       .background(AppTheme.colorSystem.cardBackground)
-      .clickable(onClick = onClick)
+      .border(BorderWidth, AppTheme.colorSystem.border, RoundedCornerShape(AppTheme.radiusSystem.radius16))
+      .clickableWithRipple(color = AppTheme.colorSystem.accentDim, onClick = onClick)
       .padding(AppTheme.spacingSystem.space16)
   ) {
     Row(
@@ -106,6 +110,7 @@ internal fun ProductionCard(
       ) {
         Image(
           painter = painterResource(Res.drawable.ic_members),
+          colorFilter = ColorFilter.tint(AppTheme.colorSystem.textPrimary),
           contentDescription = null
         )
         Text(
@@ -120,6 +125,7 @@ internal fun ProductionCard(
       ) {
         Image(
           painter = painterResource(Res.drawable.ic_calendar_clock),
+          colorFilter = ColorFilter.tint(AppTheme.colorSystem.textPrimary),
           contentDescription = null
         )
         val daysColor = if (production.daysLeft <= 7) {
