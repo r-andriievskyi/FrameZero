@@ -29,8 +29,11 @@ import framezero.composeapp.features.home.generated.resources.tab_productions
 import framezero.composeapp.features.home.generated.resources.tab_schedule
 import org.jetbrains.compose.resources.stringResource
 
-private val Height = 65.dp
+private val FloatingBottomNavHeight = 65.dp
 private val BorderWidth = 1.dp
+
+internal val FloatingBottomNavOuterPadding = 16.dp
+internal val FloatingBottomNavClearance = FloatingBottomNavHeight + FloatingBottomNavOuterPadding * 2
 
 @Composable
 private fun HomeTab.label(): String =
@@ -51,7 +54,7 @@ fun FloatingBottomNav(
   val shape = remember(radius) { RoundedCornerShape(radius) }
   Row(
     modifier = modifier
-      .height(Height)
+      .height(FloatingBottomNavHeight)
       .border(width = BorderWidth, color = AppTheme.colorSystem.border, shape = shape)
       .clip(shape)
       .background(AppTheme.colorSystem.surfaceElevated)

@@ -11,9 +11,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -38,6 +42,7 @@ import com.frame.zero.domain.production.Genre
 import com.frame.zero.domain.production.ProductionPhase
 import com.frame.zero.feature.home.tab.projects.ProductionUi
 import com.frame.zero.feature.home.tab.projects.ProjectsTabComponent
+import com.frame.zero.feature.home.ui.FloatingBottomNavClearance
 import framezero.composeapp.features.home.generated.resources.Res
 import framezero.composeapp.features.home.generated.resources.ic_plus
 import framezero.composeapp.features.home.generated.resources.projects_title
@@ -78,14 +83,13 @@ private fun ProductionsContent(
     resetKey = selectedFilter
   )
 
+  val navigationBarsBottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
   Column(
     modifier = Modifier
       .fillMaxSize()
       .background(AppTheme.colorSystem.background)
-      .padding(
-        horizontal = AppTheme.spacingSystem.space16,
-        vertical = AppTheme.spacingSystem.space24
-      )
+      .padding(horizontal = AppTheme.spacingSystem.space16)
+      .padding(top = AppTheme.spacingSystem.space24)
   ) {
     Row(
       modifier = Modifier.fillMaxWidth(),
@@ -133,8 +137,7 @@ private fun ProductionsContent(
           fadeOut(animationSpec = tween(durationMillis = ContentFadeOutMillis))
       },
       modifier = Modifier.fillMaxSize(),
-      contentKey = { it },
-      label = "ProductionsContent"
+      contentKey = { it }
     ) { target ->
       when (target) {
         ProductionsContentState.Skeleton -> ProductionsSkeleton()
@@ -145,6 +148,9 @@ private fun ProductionsContent(
             lazyPagingItems = lazyPagingItems,
             state = pagingState,
             modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(
+              bottom = navigationBarsBottom + FloatingBottomNavClearance
+            ),
             refreshIndicator = { pullState ->
               DefaultInlineRefreshIndicator(
                 pullState = pullState,
@@ -165,8 +171,6 @@ private fun ProductionsContent(
     }
   }
 }
-
-// ── Previews ──────────────────────────────────────────────────────────
 
 private fun previewPagingFlow(items: List<ProductionUi>): Flow<PagingData<ProductionUi>> =
   flowOf(PagingData.from(items))
