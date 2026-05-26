@@ -57,6 +57,7 @@ import com.frame.zero.shared.design_system.tokens.TokenRadiusMax
 import com.frame.zero.shared.design_system.tokens.TokenSpace16
 import com.frame.zero.shared.design_system.tokens.TokenSpace2
 import com.frame.zero.shared.design_system.tokens.TokenSpace24
+import com.frame.zero.shared.design_system.tokens.TokenSpace32
 import com.frame.zero.shared.design_system.tokens.TokenSpace4
 import com.frame.zero.shared.design_system.tokens.TokenSpace8
 import com.frame.zero.shared.design_system.tokens.amberSoftD
@@ -200,7 +201,8 @@ data class ThemeOptions(
       space4 = TokenSpace4,
       space8 = TokenSpace8,
       space16 = TokenSpace16,
-      space24 = TokenSpace24
+      space24 = TokenSpace24,
+      space32 = TokenSpace32
     )
 
     private fun sharedRadius() = RadiusSystem(
