@@ -28,21 +28,21 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.frame.zero.shared.design_system.AppTheme
-import com.frame.zero.shared.design_system.widgets.DefaultInlineRefreshIndicator
-import com.frame.zero.shared.design_system.widgets.PagingLazyColumn
-import com.frame.zero.shared.design_system.widgets.VerticalSpacer
-import com.frame.zero.shared.design_system.widgets.rememberPagingListUiState
 import com.frame.zero.domain.production.Genre
 import com.frame.zero.domain.production.ProductionPhase
 import com.frame.zero.feature.home.tab.projects.ProductionUi
 import com.frame.zero.feature.home.tab.projects.ProjectsTabComponent
 import com.frame.zero.feature.home.ui.FloatingBottomNavClearance
+import com.frame.zero.shared.design_system.AppTheme
+import com.frame.zero.shared.design_system.LightDarkPreview
+import com.frame.zero.shared.design_system.widgets.DefaultInlineRefreshIndicator
+import com.frame.zero.shared.design_system.widgets.PagingLazyColumn
+import com.frame.zero.shared.design_system.widgets.VerticalSpacer
+import com.frame.zero.shared.design_system.widgets.rememberPagingListUiState
 import framezero.composeapp.features.home.generated.resources.Res
 import framezero.composeapp.features.home.generated.resources.ic_plus
 import framezero.composeapp.features.home.generated.resources.projects_title
@@ -175,23 +175,10 @@ private fun ProductionsContent(
 private fun previewPagingFlow(items: List<ProductionUi>): Flow<PagingData<ProductionUi>> =
   flowOf(PagingData.from(items))
 
-@Preview
-@Composable
-private fun ProductionsEmptyPreview() {
-  AppTheme(darkTheme = true) {
-    ProductionsContent(
-      lazyPagingItems = previewPagingFlow(emptyList()).collectAsLazyPagingItems(),
-      selectedFilter = null,
-      onFilterSelected = {},
-      onCreateProductionClick = {}
-    )
-  }
-}
-
-@Preview
+@LightDarkPreview
 @Composable
 private fun ProductionsContentPreview() {
-  AppTheme(darkTheme = true) {
+  AppTheme {
     val items = listOf(
       ProductionUi(
         id = "1",
