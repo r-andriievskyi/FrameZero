@@ -21,6 +21,21 @@ import framezero.composeapp.features.account.generated.resources.ic_lock
 import framezero.composeapp.features.account.generated.resources.ic_mail
 import framezero.composeapp.features.account.generated.resources.ic_team
 import framezero.composeapp.features.account.generated.resources.ic_user
+import framezero.composeapp.features.account.generated.resources.account_toolbar_title
+import framezero.composeapp.features.account.generated.resources.section_account
+import framezero.composeapp.features.account.generated.resources.section_app
+import framezero.composeapp.features.account.generated.resources.section_workspace
+import framezero.composeapp.features.account.generated.resources.settings_about
+import framezero.composeapp.features.account.generated.resources.settings_edit_profile
+import framezero.composeapp.features.account.generated.resources.settings_email_address
+import framezero.composeapp.features.account.generated.resources.settings_notifications
+import framezero.composeapp.features.account.generated.resources.settings_notifications_subtitle
+import framezero.composeapp.features.account.generated.resources.settings_password_last_changed
+import framezero.composeapp.features.account.generated.resources.settings_password_security
+import framezero.composeapp.features.account.generated.resources.settings_team_members_count
+import framezero.composeapp.features.account.generated.resources.settings_team_permissions
+import framezero.composeapp.features.account.generated.resources.settings_version
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.systemBarsPadding
 
@@ -35,7 +50,7 @@ fun AccountContent(
       .background(AppTheme.colorSystem.background)
       .systemBarsPadding()
   ) {
-    TopToolbar(title = "Settings", onBack = component.onBack)
+    TopToolbar(title = stringResource(Res.string.account_toolbar_title), onBack = component.onBack)
     Column(
       modifier = Modifier
         .fillMaxSize()
@@ -49,39 +64,39 @@ fun AccountContent(
         initials = "MR"
       )
       Spacer(modifier = Modifier.height(AppTheme.spacingSystem.space24))
-      SettingsSection(title = "ACCOUNT") {
+      SettingsSection(title = stringResource(Res.string.section_account)) {
         SettingsRow(
           icon = Res.drawable.ic_user,
-          title = "Edit profile",
+          title = stringResource(Res.string.settings_edit_profile),
           subtitle = "Maya Rivera"
         )
         SettingsDivider()
         SettingsRow(
           icon = Res.drawable.ic_mail,
-          title = "Email address",
+          title = stringResource(Res.string.settings_email_address),
           subtitle = "maya@studiozero.co"
         )
         SettingsDivider()
         SettingsRow(
           icon = Res.drawable.ic_lock,
-          title = "Password & security",
-          subtitle = "Last changed 3 months ago"
+          title = stringResource(Res.string.settings_password_security),
+          subtitle = stringResource(Res.string.settings_password_last_changed)
         )
       }
       Spacer(modifier = Modifier.height(AppTheme.spacingSystem.space24))
-      SettingsSection(title = "WORKSPACE") {
+      SettingsSection(title = stringResource(Res.string.section_workspace)) {
         SettingsRow(
           icon = Res.drawable.ic_bell,
-          title = "Notifications",
-          subtitle = "All enabled"
+          title = stringResource(Res.string.settings_notifications),
+          subtitle = stringResource(Res.string.settings_notifications_subtitle)
         )
       }
       Spacer(modifier = Modifier.height(AppTheme.spacingSystem.space24))
-      SettingsSection(title = "APP") {
+      SettingsSection(title = stringResource(Res.string.section_app)) {
         SettingsRow(
           icon = Res.drawable.ic_info,
-          title = "About FrameZero",
-          subtitle = "Version 3.0.0"
+          title = stringResource(Res.string.settings_about),
+          subtitle = stringResource(Res.string.settings_version, "3.0.0")
         )
       }
       Spacer(modifier = Modifier.height(AppTheme.spacingSystem.space24))
@@ -100,7 +115,7 @@ private fun AccountContentPreview() {
         .fillMaxSize()
         .background(AppTheme.colorSystem.background)
     ) {
-      TopToolbar(title = "Settings", onBack = {})
+      TopToolbar(title = stringResource(Res.string.account_toolbar_title), onBack = {})
       Column(
         modifier = Modifier
           .fillMaxWidth()
@@ -114,45 +129,45 @@ private fun AccountContentPreview() {
           initials = "MR"
         )
         Spacer(modifier = Modifier.height(AppTheme.spacingSystem.space24))
-        SettingsSection(title = "ACCOUNT") {
+        SettingsSection(title = stringResource(Res.string.section_account)) {
           SettingsRow(
             icon = Res.drawable.ic_user,
-            title = "Edit profile",
+            title = stringResource(Res.string.settings_edit_profile),
             subtitle = "Maya Rivera"
           )
           SettingsDivider()
           SettingsRow(
             icon = Res.drawable.ic_mail,
-            title = "Email address",
+            title = stringResource(Res.string.settings_email_address),
             subtitle = "maya@studiozero.co"
           )
           SettingsDivider()
           SettingsRow(
             icon = Res.drawable.ic_lock,
-            title = "Password & security",
-            subtitle = "Last changed 3 months ago"
+            title = stringResource(Res.string.settings_password_security),
+            subtitle = stringResource(Res.string.settings_password_last_changed)
           )
         }
         Spacer(modifier = Modifier.height(AppTheme.spacingSystem.space24))
-        SettingsSection(title = "WORKSPACE") {
+        SettingsSection(title = stringResource(Res.string.section_workspace)) {
           SettingsRow(
             icon = Res.drawable.ic_bell,
-            title = "Notifications",
-            subtitle = "All enabled"
+            title = stringResource(Res.string.settings_notifications),
+            subtitle = stringResource(Res.string.settings_notifications_subtitle)
           )
           SettingsDivider()
           SettingsRow(
             icon = Res.drawable.ic_team,
-            title = "Team & permissions",
-            subtitle = "12 members"
+            title = stringResource(Res.string.settings_team_permissions),
+            subtitle = stringResource(Res.string.settings_team_members_count, 12)
           )
         }
         Spacer(modifier = Modifier.height(AppTheme.spacingSystem.space24))
-        SettingsSection(title = "APP") {
+        SettingsSection(title = stringResource(Res.string.section_app)) {
           SettingsRow(
             icon = Res.drawable.ic_info,
-            title = "About FrameZero",
-            subtitle = "Version 3.0.0"
+            title = stringResource(Res.string.settings_about),
+            subtitle = stringResource(Res.string.settings_version, "3.0.0")
           )
         }
         Spacer(modifier = Modifier.height(AppTheme.spacingSystem.space24))

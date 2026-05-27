@@ -30,10 +30,8 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.plus
 
 private val EventDotSize = 6.dp
+private val WeekdayBorderWidth = 1.dp
 
-/**
- * Horizontal strip of 7 days for the week view (Mon–Sun).
- */
 @Composable
 internal fun WeekDayStrip(
   weekStart: LocalDate,
@@ -89,7 +87,7 @@ private fun WeekDayCell(
     modifier = modifier
       .clip(shape)
       .border(
-        width = AppTheme.spacingSystem.space2,
+        width = WeekdayBorderWidth,
         color = borderColor,
         shape = shape
       )
