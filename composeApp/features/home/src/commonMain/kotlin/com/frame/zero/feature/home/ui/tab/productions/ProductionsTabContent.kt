@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -55,7 +56,7 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
 private val AddButtonSize = 40.dp
-private const val ContentFadeInMillis = 220
+private const val ContentFadeInMillis = 150
 private const val ContentFadeOutMillis = 140
 
 private enum class ProductionsContentState { Skeleton, Empty, List }
@@ -92,7 +93,7 @@ private fun ProductionsContent(
       .fillMaxSize()
       .background(AppTheme.colorSystem.background)
       .padding(horizontal = AppTheme.spacingSystem.space16)
-      .padding(top = AppTheme.spacingSystem.space24)
+      .padding(top = AppTheme.spacingSystem.space16)
   ) {
     Row(
       modifier = Modifier.fillMaxWidth(),
@@ -104,19 +105,31 @@ private fun ProductionsContent(
         style = AppTheme.typographySystem.displayMedium,
         color = AppTheme.colorSystem.textPrimary
       )
-      if (!pagingState.isEmpty) {
-        Box(
-          modifier = Modifier
-            .size(AddButtonSize)
-            .clip(RoundedCornerShape(AppTheme.radiusSystem.radius8))
-            .background(AppTheme.colorSystem.accent)
-            .clickable(onClick = onCreateProductionClick),
-          contentAlignment = Alignment.Center
-        ) {
-          Image(
-            painter = painterResource(Res.drawable.ic_plus),
-            contentDescription = null
+      AnimatedContent(
+        targetState = pagingState.isEmpty,
+        transitionSpec = {
+          fadeIn(animationSpec = tween(durationMillis = ContentFadeInMillis)) togetherWith
+            fadeOut(animationSpec = tween(durationMillis = ContentFadeOutMillis))
+        }
+      ) { isEmpty ->
+        if (isEmpty) {
+          Spacer(
+            modifier = Modifier.size(AddButtonSize)
           )
+        } else {
+          Box(
+            modifier = Modifier
+              .size(AddButtonSize)
+              .clip(RoundedCornerShape(AppTheme.radiusSystem.radius8))
+              .background(AppTheme.colorSystem.accent)
+              .clickable(onClick = onCreateProductionClick),
+            contentAlignment = Alignment.Center
+          ) {
+            Image(
+              painter = painterResource(Res.drawable.ic_plus),
+              contentDescription = null
+            )
+          }
         }
       }
     }
