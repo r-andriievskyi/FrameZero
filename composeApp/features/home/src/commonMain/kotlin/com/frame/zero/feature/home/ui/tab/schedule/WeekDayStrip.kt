@@ -20,9 +20,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.frame.zero.shared.design_system.AppTheme
+import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.DayOfWeek
@@ -38,14 +38,13 @@ private val EventDotSize = 6.dp
 internal fun WeekDayStrip(
   weekStart: LocalDate,
   selectedDate: LocalDate,
-  today: LocalDate,
   daysWithEvents: Set<LocalDate>,
   onDayClick: (LocalDate) -> Unit,
   modifier: Modifier = Modifier
 ) {
   Row(
     modifier = modifier.fillMaxWidth(),
-    horizontalArrangement = Arrangement.SpaceBetween
+    horizontalArrangement = Arrangement.spacedBy(AppTheme.spacingSystem.space4)
   ) {
     for (offset in 0 until 7) {
       val date = weekStart.plus(offset, DateTimeUnit.DAY)
@@ -148,16 +147,15 @@ private fun LocalDate.shortDayOfWeekLabel(): String =
     DayOfWeek.SUNDAY -> "SUN"
   }
 
-/** Returns Monday of the week containing [date]. */
 internal fun weekStartFor(date: LocalDate): LocalDate {
   val daysFromMonday = (date.dayOfWeek.ordinal - DayOfWeek.MONDAY.ordinal + 7) % 7
   return date.plus(-daysFromMonday, DateTimeUnit.DAY)
 }
 
-@Preview
+@LightDarkPreview
 @Composable
 private fun WeekDayStripPreview() {
-  AppTheme(darkTheme = true) {
+  AppTheme {
     val today = LocalDate(2026, 4, 26)
     Box(
       modifier = Modifier
@@ -167,7 +165,6 @@ private fun WeekDayStripPreview() {
       WeekDayStrip(
         weekStart = weekStartFor(today),
         selectedDate = today,
-        today = today,
         daysWithEvents = setOf(
           LocalDate(2026, 4, 22),
           LocalDate(2026, 4, 24),

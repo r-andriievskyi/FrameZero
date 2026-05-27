@@ -11,6 +11,13 @@ enum class TaskStatus {
 }
 
 @Serializable
+enum class TaskPriority {
+  HIGH,
+  MEDIUM,
+  LOW
+}
+
+@Serializable
 data class TaskSummaryDto(
   val id: String,
   val title: String,
