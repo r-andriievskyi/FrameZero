@@ -212,7 +212,11 @@ create_task() {
 }
 
 # productionId | title | description | dueDate | assigneeUserId
+# NOTE: the task due 2026-05-27 below intentionally lands on the same day as
+# the two events scheduled for 2026-05-27 (see EVENTS array) so the schedule
+# day-view has at least one day populated with both tasks and events.
 declare -a TASKS=(
+  "${PRODUCTION_IDS[0]}|Approve shooting script revision 4|Sign off on the radio-frequency reveal before tomorrow's location scout.|2026-05-27|${ALICE_ID}"
   "${PRODUCTION_IDS[0]}|Lock shooting script revision 4|Final pass on the radio-frequency reveal in act two before table read.|2026-05-25|${ALICE_ID}"
   "${PRODUCTION_IDS[0]}|Scout downtown rooftop locations|Need three viable rooftops with clear sightlines to the broadcast tower.|2026-06-10|${BOB_ID}"
   "${PRODUCTION_IDS[0]}|Build day-out-of-days schedule|Initial pass for stripboard, expecting 42 shooting days.|2026-06-01|${CAROL_ID}"
@@ -231,8 +235,61 @@ for entry in "${TASKS[@]}"; do
   info "  Created task '$title' (assignee: ${assignee:0:8}...)"
 done
 
+# ---------------------------------------------------------------------------
+# Schedule events (created by alice.wright; spread across productions and the
+# next ~3 weeks so the schedule tab has something to render today and ahead).
+# ---------------------------------------------------------------------------
+
+info "Creating schedule events as alice.wright..."
+
+create_event() {
+  local prod_id="$1" title="$2" location="$3" starts_at="$4" ends_at="$5" kind="$6"
+
+  local location_json="null"
+  if [[ -n "$location" ]]; then
+    location_json="\"$location\""
+  fi
+
+  curl -sf -X POST "$API_URL/schedule" \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer $PRIMARY_TOKEN" \
+    -d "{
+      \"productionId\": \"$prod_id\",
+      \"title\": \"$title\",
+      \"location\": $location_json,
+      \"startsAt\": \"$starts_at\",
+      \"endsAt\": \"$ends_at\",
+      \"kind\": \"$kind\"
+    }" >/dev/null
+}
+
+# productionId | title | location | startsAt | endsAt | kind
+declare -a EVENTS=(
+  "${PRODUCTION_IDS[0]}|Writers' room: act two beats|Studio C, Hollywood|2026-05-27T16:00:00Z|2026-05-27T18:00:00Z|MEETING"
+  "${PRODUCTION_IDS[2]}|VFX vendor review|Conference Room A|2026-05-27T21:00:00Z|2026-05-27T22:30:00Z|REVIEW"
+  "${PRODUCTION_IDS[0]}|Location scout: downtown rooftops|Downtown LA|2026-05-28T15:00:00Z|2026-05-28T19:00:00Z|SHOOT"
+  "${PRODUCTION_IDS[1]}|Production design walkthrough|Stage 4|2026-05-28T17:00:00Z|2026-05-28T18:30:00Z|REVIEW"
+  "${PRODUCTION_IDS[2]}|Station exterior plate shoot|Backlot Soundstage 2|2026-05-29T14:00:00Z|2026-05-29T23:00:00Z|SHOOT"
+  "${PRODUCTION_IDS[1]}|Costume fitting: expedition crew|Wardrobe Dept|2026-05-29T18:00:00Z|2026-05-29T20:00:00Z|MEETING"
+  "${PRODUCTION_IDS[0]}|Table read with cast|Studio B|2026-06-01T17:00:00Z|2026-06-01T20:00:00Z|MEETING"
+  "${PRODUCTION_IDS[6]}|Stunt choreography rehearsal|Lot 12 Driveway|2026-06-02T15:00:00Z|2026-06-02T19:00:00Z|SHOOT"
+  "${PRODUCTION_IDS[7]}|Animatic review: act one|Animation Suite|2026-06-03T16:00:00Z|2026-06-03T18:00:00Z|REVIEW"
+  "${PRODUCTION_IDS[9]}|Jazz standards listening session|Music Room|2026-06-03T20:00:00Z|2026-06-03T21:30:00Z|MEETING"
+  "${PRODUCTION_IDS[5]}|Greenlight pitch dry-run|Boardroom|2026-06-04T16:00:00Z|2026-06-04T17:30:00Z|REVIEW"
+  "${PRODUCTION_IDS[2]}|Crew call: airlock sequence|Stage 7|2026-06-05T13:00:00Z|2026-06-05T23:00:00Z|SHOOT"
+  "${PRODUCTION_IDS[1]}|Expedition location recce|Sierra Nevada Foothills|2026-06-08T15:00:00Z|2026-06-08T22:00:00Z|OTHER"
+  "${PRODUCTION_IDS[0]}|Composer shortlist call|Zoom|2026-06-10T18:00:00Z|2026-06-10T19:00:00Z|MEETING"
+)
+
+for entry in "${EVENTS[@]}"; do
+  IFS='|' read -r prod_id title location starts_at ends_at kind <<< "$entry"
+  create_event "$prod_id" "$title" "$location" "$starts_at" "$ends_at" "$kind"
+  info "  Created event '$title' ($kind) on ${starts_at%T*}"
+done
+
 info "Done. Summary:"
 info "  Users:       5"
 info "  Productions: ${#PRODUCTION_IDS[@]}"
 info "  Tasks:       ${#TASKS[@]}"
+info "  Events:      ${#EVENTS[@]}"
 info "  Server:      $ORIGIN"

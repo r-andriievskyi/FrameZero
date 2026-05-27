@@ -16,44 +16,108 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.frame.zero.domain.schedule.ScheduleEvent
+import com.frame.zero.domain.schedule.ScheduleEventKind
+import com.frame.zero.domain.schedule.ScheduleTask
+import com.frame.zero.dto.task.TaskPriority
+import com.frame.zero.dto.task.TaskStatus
 import com.frame.zero.shared.design_system.AppTheme
+import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.widgets.HorizontalSpacer
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer
-import com.frame.zero.domain.schedule.ScheduleEventKind
-import com.frame.zero.domain.schedule.ScheduleItem
-import com.frame.zero.dto.schedule.ScheduleItemSource
+import framezero.composeapp.features.home.generated.resources.Res
+import framezero.composeapp.features.home.generated.resources.ic_calendar_clock
+import framezero.composeapp.features.home.generated.resources.ic_task
+import framezero.composeapp.features.home.generated.resources.schedule_due_today
+import framezero.composeapp.features.home.generated.resources.schedule_events_header
+import framezero.composeapp.features.home.generated.resources.schedule_tasks_due_header
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.compose.resources.stringResource
 import kotlin.time.Instant
 
 private val TimeColumnWidth = 52.dp
 private val TimelineDotSize = 8.dp
+private val TimelineWidth = 1.dp
 
 /**
- * Timeline list of schedule items for a single day — each item has a time
- * label on the left, a dot + connecting line, and the event card on the right.
+ * Schedule timeline that renders both events and tasks in separate sections.
  */
 @Composable
 internal fun ScheduleTimeline(
-  items: List<ScheduleItem>,
+  events: List<ScheduleEvent>,
+  tasks: List<ScheduleTask>,
+  selectedDate: LocalDate?,
   modifier: Modifier = Modifier
 ) {
   Column(modifier = modifier.fillMaxWidth()) {
-    items.forEachIndexed { index, item ->
+    if (events.isNotEmpty()) {
+      ScheduleSectionHeader(
+        icon = Res.drawable.ic_calendar_clock,
+        title = stringResource(Res.string.schedule_events_header),
+        count = events.size
+      )
+      VerticalSpacer(AppTheme.spacingSystem.space16)
+      EventsTimeline(events = events)
+    }
+
+    if (tasks.isNotEmpty()) {
+      if (events.isNotEmpty()) {
+        VerticalSpacer(AppTheme.spacingSystem.space24)
+      }
+      ScheduleSectionHeader(
+        icon = Res.drawable.ic_task,
+        title = stringResource(Res.string.schedule_tasks_due_header),
+        count = tasks.size
+      )
+      VerticalSpacer(AppTheme.spacingSystem.space16)
+      TasksList(tasks = tasks, selectedDate = selectedDate)
+    }
+  }
+}
+
+@Composable
+private fun EventsTimeline(
+  events: List<ScheduleEvent>,
+  modifier: Modifier = Modifier
+) {
+  Column(modifier = modifier.fillMaxWidth()) {
+    events.forEachIndexed { index, event ->
       TimelineRow(
-        timeLabel = item.startsAt.formatTime(),
-        isLast = index == items.lastIndex
+        timeLabel = event.startsAt.formatTime(),
+        isLast = index == events.lastIndex
       ) {
         ScheduleEventCard(
-          title = item.title,
-          location = item.location,
-          eventKind = item.eventKind
+          title = event.title,
+          location = event.location,
+          eventKind = event.kind
         )
       }
-      if (index < items.lastIndex) {
+      if (index < events.lastIndex) {
         VerticalSpacer(AppTheme.spacingSystem.space16)
+      }
+    }
+  }
+}
+
+@Composable
+private fun TasksList(
+  tasks: List<ScheduleTask>,
+  selectedDate: LocalDate?,
+  modifier: Modifier = Modifier
+) {
+  Column(modifier = modifier.fillMaxWidth()) {
+    tasks.forEachIndexed { index, task ->
+      ScheduleTaskCard(
+        title = task.title,
+        dueLabel = task.dueDate.toDueLabel(selectedDate),
+        productionTitle = task.productionTitle,
+        priority = task.priority
+      )
+      if (index < tasks.lastIndex) {
+        VerticalSpacer(AppTheme.spacingSystem.space8)
       }
     }
   }
@@ -73,7 +137,6 @@ private fun TimelineRow(
     modifier = modifier.fillMaxWidth(),
     verticalAlignment = Alignment.Top
   ) {
-    // Time label
     Text(
       text = timeLabel,
       style = AppTheme.typographySystem.monoSmall,
@@ -81,7 +144,6 @@ private fun TimelineRow(
       modifier = Modifier.width(TimeColumnWidth)
     )
 
-    // Dot + vertical line
     Box(
       modifier = Modifier
         .width(AppTheme.spacingSystem.space16)
@@ -92,7 +154,7 @@ private fun TimelineRow(
               color = lineColor,
               start = Offset(centerX, TimelineDotSize.toPx()),
               end = Offset(centerX, size.height + 64.dp.toPx()),
-              strokeWidth = 1.dp.toPx()
+              strokeWidth = TimelineWidth.toPx()
             )
           }
         },
@@ -108,83 +170,96 @@ private fun TimelineRow(
 
     HorizontalSpacer(AppTheme.spacingSystem.space8)
 
-    // Card
     Box(modifier = Modifier.weight(1f)) {
       content()
     }
   }
 }
 
-private fun Instant?.formatTime(): String {
-  if (this == null) return ""
-  val local = this.toLocalDateTime(TimeZone.currentSystemDefault())
+@Composable
+private fun LocalDate.toDueLabel(selectedDate: LocalDate?): String? {
+  if (selectedDate == null) return null
+  return when {
+    this == selectedDate -> stringResource(Res.string.schedule_due_today)
+    else -> {
+      val monthStr = month.name.take(3).lowercase()
+        .replaceFirstChar { it.uppercase() }
+      "$monthStr $dayOfMonth"
+    }
+  }
+}
+
+private fun Instant.formatTime(): String {
+  val local = toLocalDateTime(TimeZone.currentSystemDefault())
   val hour = local.hour.toString().padStart(2, '0')
   val minute = local.minute.toString().padStart(2, '0')
   return "$hour:$minute"
 }
 
-@Preview
+// ── Previews ────────────────────────────────────────────────────────────────
+
+@LightDarkPreview
 @Composable
 private fun ScheduleTimelinePreview() {
-  AppTheme(darkTheme = true) {
+  AppTheme {
     Box(
       modifier = Modifier
         .background(AppTheme.colorSystem.background)
         .padding(AppTheme.spacingSystem.space16)
     ) {
       ScheduleTimeline(
-        items = listOf(
-          ScheduleItem(
+        selectedDate = LocalDate(2026, 4, 26),
+        events = listOf(
+          ScheduleEvent(
             id = "1",
-            source = ScheduleItemSource.EVENT,
             title = "Scene 14 – Interior Office",
             productionId = "p1",
             productionTitle = "Film",
             startsAt = Instant.fromEpochSeconds(1745647200),
-            endsAt = null,
-            dueDate = null,
+            endsAt = Instant.fromEpochSeconds(1745650800),
             location = "Studio A",
-            eventKind = ScheduleEventKind.SHOOT,
-            taskStatus = null
+            kind = ScheduleEventKind.SHOOT
           ),
-          ScheduleItem(
+          ScheduleEvent(
             id = "2",
-            source = ScheduleItemSource.EVENT,
             title = "Cast lunch & script review",
             productionId = "p1",
             productionTitle = "Film",
             startsAt = Instant.fromEpochSeconds(1745663600),
-            endsAt = null,
-            dueDate = null,
+            endsAt = Instant.fromEpochSeconds(1745667200),
             location = "Green Room",
-            eventKind = ScheduleEventKind.MEETING,
-            taskStatus = null
+            kind = ScheduleEventKind.MEETING
           ),
-          ScheduleItem(
+          ScheduleEvent(
             id = "3",
-            source = ScheduleItemSource.EVENT,
             title = "ADR Session – Maya Rivera",
             productionId = "p1",
             productionTitle = "Film",
             startsAt = Instant.fromEpochSeconds(1745672800),
-            endsAt = null,
-            dueDate = null,
+            endsAt = Instant.fromEpochSeconds(1745676400),
             location = "Sound Stage",
-            eventKind = ScheduleEventKind.SHOOT,
-            taskStatus = null
+            kind = ScheduleEventKind.SHOOT
           ),
-          ScheduleItem(
+          ScheduleEvent(
             id = "4",
-            source = ScheduleItemSource.EVENT,
             title = "Director dailies review",
             productionId = "p1",
             productionTitle = "Film",
             startsAt = Instant.fromEpochSeconds(1745681800),
-            endsAt = null,
-            dueDate = null,
+            endsAt = Instant.fromEpochSeconds(1745685400),
             location = "Screening Room",
-            eventKind = ScheduleEventKind.REVIEW,
-            taskStatus = null
+            kind = ScheduleEventKind.REVIEW
+          )
+        ),
+        tasks = listOf(
+          ScheduleTask(
+            id = "5",
+            title = "Review Scene 12 script revisions",
+            productionId = "p2",
+            productionTitle = "Echoes of Silence",
+            dueDate = LocalDate(2026, 4, 26),
+            status = TaskStatus.OPEN,
+            priority = TaskPriority.HIGH
           )
         )
       )
