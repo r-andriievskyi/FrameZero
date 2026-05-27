@@ -4,7 +4,7 @@ android { namespace = "com.frame.zero.shared.design_system" }
 
 compose.resources {
   packageOfResClass = "com.frame.zero.shared.design_system.generated.resources"
-  publicResClass = false
+  publicResClass = true
   generateResClass = always
 }
 

@@ -11,7 +11,7 @@
   <string name="toolbar_settings_cd">Settings</string>
 
   <!-- Dashboard greeting -->
-  <string name="greeting_good_morning">Good morning, %1$s 👋</string>
+  <string name="greeting_good_morning">Good morning, %1$s!</string>
   <string name="greeting_stats">%1$d active productions · %2$d open tasks</string>
 
   <!-- My Tasks section -->
