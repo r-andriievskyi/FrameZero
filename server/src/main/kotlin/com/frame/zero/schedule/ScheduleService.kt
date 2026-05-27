@@ -6,9 +6,8 @@ import com.frame.zero.common.toKotlin
 import com.frame.zero.dto.schedule.CreateScheduleEventRequest
 import com.frame.zero.dto.schedule.ScheduleDayDto
 import com.frame.zero.dto.schedule.ScheduleEventDto
-import com.frame.zero.dto.schedule.ScheduleItemDto
-import com.frame.zero.dto.schedule.ScheduleItemSource
 import com.frame.zero.dto.schedule.ScheduleResponse
+import com.frame.zero.dto.schedule.ScheduleTaskDto
 import com.frame.zero.dto.schedule.UpdateScheduleEventRequest
 import com.frame.zero.production.AccessLevel
 import com.frame.zero.production.ProductionAccessService
@@ -66,12 +65,12 @@ class ScheduleService(
       generateDays(rangeStart, rangeEnd).map { date ->
         val dayStart = date.atStartOfDay(timezone).toInstant()
         val dayEnd = date.plusDays(1).atStartOfDay(timezone).toInstant()
-        val eventItems =
+        val dayEvents =
           eventRecords
             .filter { it.startsAt >= dayStart && it.startsAt < dayEnd }
-            .map { it.toScheduleItem() }
-        val taskItems = taskRecords.filter { it.dueDate == date }.map { it.toScheduleItem() }
-        ScheduleDayDto(date = date.toKotlin(), items = eventItems + taskItems)
+            .map { it.toDto() }
+        val dayTasks = taskRecords.filter { it.dueDate == date }.map { it.toScheduleTaskDto() }
+        ScheduleDayDto(date = date.toKotlin(), events = dayEvents, tasks = dayTasks)
       }
 
     return ScheduleResponse(
@@ -178,27 +177,14 @@ class ScheduleService(
       productionTitle = productionTitle
     )
 
-  private fun ScheduleEventRecord.toScheduleItem(): ScheduleItemDto =
-    ScheduleItemDto(
+  private fun TaskRecord.toScheduleTaskDto(): ScheduleTaskDto =
+    ScheduleTaskDto(
       id = id.toString(),
-      source = ScheduleItemSource.EVENT,
       title = title,
       productionId = productionId.toString(),
       productionTitle = productionTitle,
-      startsAt = startsAt.toKotlinInstant(),
-      endsAt = endsAt.toKotlinInstant(),
-      location = location,
-      eventKind = kind
-    )
-
-  private fun TaskRecord.toScheduleItem(): ScheduleItemDto =
-    ScheduleItemDto(
-      id = id.toString(),
-      source = ScheduleItemSource.TASK,
-      title = title,
-      productionId = productionId.toString(),
-      productionTitle = productionTitle,
-      dueDate = dueDate?.toKotlin(),
-      taskStatus = status
+      dueDate = requireNotNull(dueDate) { "Schedule task must have a due date" }.toKotlin(),
+      status = status,
+      priority = priority
     )
 }

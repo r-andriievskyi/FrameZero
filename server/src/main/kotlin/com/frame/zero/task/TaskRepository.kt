@@ -3,6 +3,7 @@ package com.frame.zero.task
 import com.frame.zero.common.decodeCursor
 import com.frame.zero.common.encodeCursor
 import com.frame.zero.config.dbQuery
+import com.frame.zero.dto.task.TaskPriority
 import com.frame.zero.dto.task.TaskStatus
 import com.frame.zero.production.ProductionMembersTable
 import com.frame.zero.production.ProductionsTable
@@ -32,6 +33,7 @@ data class TaskRecord(
   val description: String?,
   val dueDate: LocalDate?,
   val status: TaskStatus,
+  val priority: TaskPriority,
   val assigneeUserId: UUID?,
   val createdAt: Instant
 )
@@ -116,6 +118,7 @@ class TaskRepositoryImpl : TaskRepository {
         description = description,
         dueDate = dueDate,
         status = TaskStatus.OPEN,
+        priority = TaskPriority.MEDIUM,
         assigneeUserId = assigneeUserId,
         createdAt = now
       )
@@ -266,6 +269,8 @@ class TaskRepositoryImpl : TaskRepository {
       description = this[TasksTable.description],
       dueDate = this[TasksTable.dueDate],
       status = TaskStatus.valueOf(this[TasksTable.status]),
+      priority = runCatching { TaskPriority.valueOf(this[TasksTable.priority]) }
+        .getOrDefault(TaskPriority.MEDIUM),
       assigneeUserId = this[TasksTable.assigneeUserId],
       createdAt = this[TasksTable.createdAt]
     )

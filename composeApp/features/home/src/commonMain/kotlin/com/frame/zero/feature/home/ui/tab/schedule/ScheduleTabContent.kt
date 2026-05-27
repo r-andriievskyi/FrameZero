@@ -18,10 +18,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.frame.zero.domain.schedule.Schedule
 import com.frame.zero.domain.schedule.ScheduleDay
+import com.frame.zero.domain.schedule.ScheduleEvent
 import com.frame.zero.domain.schedule.ScheduleEventKind
-import com.frame.zero.domain.schedule.ScheduleItem
+import com.frame.zero.domain.schedule.ScheduleTask
 import com.frame.zero.domain.schedule.ScheduleView
-import com.frame.zero.dto.schedule.ScheduleItemSource
+import com.frame.zero.dto.task.TaskPriority
+import com.frame.zero.dto.task.TaskStatus
 import com.frame.zero.feature.home.tab.schedule.ScheduleTabComponent
 import com.frame.zero.feature.home.tab.schedule.ScheduleTabState
 import com.frame.zero.shared.design_system.AppTheme
@@ -59,22 +61,19 @@ private fun ScheduleContent(
   var displayMonth by remember(selectedDate) { mutableStateOf(selectedDate.month) }
   var displayYear by remember(selectedDate) { mutableStateOf(selectedDate.year) }
 
-  // Collect dates that have events for dot indicators
-  val daysWithEvents by remember(schedule) {
+  // Dates that have either events or tasks — drives the dot indicators.
+  val daysWithItems by remember(schedule) {
     derivedStateOf {
       schedule?.days
-        ?.filter { it.items.isNotEmpty() }
+        ?.filter { it.events.isNotEmpty() || it.tasks.isNotEmpty() }
         ?.map { it.date }
         ?.toSet()
         .orEmpty()
     }
   }
 
-  // Items for the currently selected date
-  val selectedDayItems by remember(schedule, selectedDate) {
-    derivedStateOf {
-      schedule?.days?.find { it.date == selectedDate }?.items.orEmpty()
-    }
+  val selectedDay by remember(schedule, selectedDate) {
+    derivedStateOf { schedule?.days?.find { it.date == selectedDate } }
   }
 
   Column(
@@ -87,7 +86,6 @@ private fun ScheduleContent(
         vertical = AppTheme.spacingSystem.space24
       )
   ) {
-    // Title
     Text(
       text = stringResource(Res.string.schedule_screen_title),
       style = AppTheme.typographySystem.displayMedium,
@@ -96,7 +94,6 @@ private fun ScheduleContent(
 
     VerticalSpacer(AppTheme.spacingSystem.space16)
 
-    // View selector (Day / Week / Month)
     ScheduleViewSelector(
       selected = state.view,
       onViewSelected = onViewChanged
@@ -116,8 +113,7 @@ private fun ScheduleContent(
         WeekDayStrip(
           weekStart = weekStartFor(selectedDate),
           selectedDate = selectedDate,
-          today = selectedDate,
-          daysWithEvents = daysWithEvents,
+          daysWithEvents = daysWithItems,
           onDayClick = onDateSelected
         )
         VerticalSpacer(AppTheme.spacingSystem.space16)
@@ -134,7 +130,7 @@ private fun ScheduleContent(
           month = displayMonth,
           selectedDate = selectedDate,
           today = selectedDate,
-          daysWithEvents = daysWithEvents,
+          daysWithEvents = daysWithItems,
           onDayClick = onDateSelected,
           onPreviousMonth = {
             val prev = LocalDate(displayYear, displayMonth, 1)
@@ -160,9 +156,13 @@ private fun ScheduleContent(
 
     VerticalSpacer(AppTheme.spacingSystem.space24)
 
-    // Timeline
-    if (selectedDayItems.isNotEmpty()) {
-      ScheduleTimeline(items = selectedDayItems)
+    val day = selectedDay
+    if (day != null && (day.events.isNotEmpty() || day.tasks.isNotEmpty())) {
+      ScheduleTimeline(
+        events = day.events,
+        tasks = day.tasks,
+        selectedDate = selectedDate
+      )
     }
   }
 }
@@ -171,65 +171,67 @@ private fun ScheduleContent(
 
 private val previewDate = LocalDate(2026, 4, 26)
 
-private val previewItems = listOf(
-  ScheduleItem(
+private val previewEvents = listOf(
+  ScheduleEvent(
     id = "1",
-    source = ScheduleItemSource.EVENT,
     title = "Scene 14 – Interior Office",
     productionId = "p1",
     productionTitle = "Film",
     startsAt = Instant.fromEpochSeconds(1745647200),
-    endsAt = null,
-    dueDate = null,
+    endsAt = Instant.fromEpochSeconds(1745650800),
     location = "Studio A",
-    eventKind = ScheduleEventKind.SHOOT,
-    taskStatus = null
+    kind = ScheduleEventKind.SHOOT
   ),
-  ScheduleItem(
+  ScheduleEvent(
     id = "2",
-    source = ScheduleItemSource.EVENT,
     title = "Cast lunch & script review",
     productionId = "p1",
     productionTitle = "Film",
     startsAt = Instant.fromEpochSeconds(1745663600),
-    endsAt = null,
-    dueDate = null,
+    endsAt = Instant.fromEpochSeconds(1745667200),
     location = "Green Room",
-    eventKind = ScheduleEventKind.MEETING,
-    taskStatus = null
+    kind = ScheduleEventKind.MEETING
   ),
-  ScheduleItem(
+  ScheduleEvent(
     id = "3",
-    source = ScheduleItemSource.EVENT,
     title = "ADR Session – Maya Rivera",
     productionId = "p1",
     productionTitle = "Film",
     startsAt = Instant.fromEpochSeconds(1745672800),
-    endsAt = null,
-    dueDate = null,
+    endsAt = Instant.fromEpochSeconds(1745676400),
     location = "Sound Stage",
-    eventKind = ScheduleEventKind.SHOOT,
-    taskStatus = null
+    kind = ScheduleEventKind.SHOOT
   ),
-  ScheduleItem(
+  ScheduleEvent(
     id = "4",
-    source = ScheduleItemSource.EVENT,
     title = "Director dailies review",
     productionId = "p1",
     productionTitle = "Film",
     startsAt = Instant.fromEpochSeconds(1745681800),
-    endsAt = null,
-    dueDate = null,
+    endsAt = Instant.fromEpochSeconds(1745685400),
     location = "Screening Room",
-    eventKind = ScheduleEventKind.REVIEW,
-    taskStatus = null
+    kind = ScheduleEventKind.REVIEW
+  )
+)
+
+private val previewTasks = listOf(
+  ScheduleTask(
+    id = "5",
+    title = "Review Scene 12 script revisions",
+    productionId = "p2",
+    productionTitle = "Echoes of Silence",
+    dueDate = previewDate,
+    status = TaskStatus.OPEN,
+    priority = TaskPriority.HIGH
   )
 )
 
 private val previewSchedule = Schedule(
   rangeStart = previewDate,
   rangeEnd = previewDate,
-  days = listOf(ScheduleDay(date = previewDate, items = previewItems))
+  days = listOf(
+    ScheduleDay(date = previewDate, events = previewEvents, tasks = previewTasks)
+  )
 )
 
 @LightDarkPreview
@@ -260,15 +262,18 @@ private fun ScheduleContentWeekPreview() {
           days = listOf(
             ScheduleDay(
               date = LocalDate(2026, 4, 22),
-              items = listOf(previewItems[1])
+              events = listOf(previewEvents[1]),
+              tasks = emptyList()
             ),
             ScheduleDay(
               date = LocalDate(2026, 4, 24),
-              items = listOf(previewItems[0])
+              events = listOf(previewEvents[0]),
+              tasks = emptyList()
             ),
             ScheduleDay(
               date = previewDate,
-              items = previewItems
+              events = previewEvents,
+              tasks = previewTasks
             )
           )
         )
@@ -289,14 +294,14 @@ private fun ScheduleContentMonthPreview() {
           rangeStart = LocalDate(2026, 4, 1),
           rangeEnd = LocalDate(2026, 4, 30),
           days = listOf(
-            ScheduleDay(LocalDate(2026, 4, 8), listOf(previewItems[0])),
-            ScheduleDay(LocalDate(2026, 4, 14), listOf(previewItems[1])),
-            ScheduleDay(LocalDate(2026, 4, 15), listOf(previewItems[2])),
-            ScheduleDay(LocalDate(2026, 4, 18), listOf(previewItems[0])),
-            ScheduleDay(LocalDate(2026, 4, 22), listOf(previewItems[1])),
-            ScheduleDay(LocalDate(2026, 4, 24), listOf(previewItems[3])),
-            ScheduleDay(previewDate, previewItems),
-            ScheduleDay(LocalDate(2026, 4, 29), listOf(previewItems[2]))
+            ScheduleDay(LocalDate(2026, 4, 8), listOf(previewEvents[0]), emptyList()),
+            ScheduleDay(LocalDate(2026, 4, 14), listOf(previewEvents[1]), emptyList()),
+            ScheduleDay(LocalDate(2026, 4, 15), listOf(previewEvents[2]), emptyList()),
+            ScheduleDay(LocalDate(2026, 4, 18), listOf(previewEvents[0]), emptyList()),
+            ScheduleDay(LocalDate(2026, 4, 22), listOf(previewEvents[1]), emptyList()),
+            ScheduleDay(LocalDate(2026, 4, 24), listOf(previewEvents[3]), emptyList()),
+            ScheduleDay(previewDate, previewEvents, previewTasks),
+            ScheduleDay(LocalDate(2026, 4, 29), listOf(previewEvents[2]), emptyList())
           )
         )
       )

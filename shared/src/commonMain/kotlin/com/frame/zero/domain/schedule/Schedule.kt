@@ -1,9 +1,10 @@
 package com.frame.zero.domain.schedule
 
 import com.frame.zero.dto.schedule.ScheduleDayDto
-import com.frame.zero.dto.schedule.ScheduleItemDto
-import com.frame.zero.dto.schedule.ScheduleItemSource
+import com.frame.zero.dto.schedule.ScheduleEventDto
 import com.frame.zero.dto.schedule.ScheduleResponse
+import com.frame.zero.dto.schedule.ScheduleTaskDto
+import com.frame.zero.dto.task.TaskPriority
 import com.frame.zero.dto.task.TaskStatus
 import kotlinx.datetime.LocalDate
 import kotlin.time.Instant
@@ -22,39 +23,60 @@ data class Schedule(
 
 data class ScheduleDay(
   val date: LocalDate,
-  val items: List<ScheduleItem>
+  val events: List<ScheduleEvent>,
+  val tasks: List<ScheduleTask>
 )
 
-data class ScheduleItem(
+data class ScheduleEvent(
   val id: String,
-  val source: ScheduleItemSource,
   val title: String,
   val productionId: String,
   val productionTitle: String,
-  val startsAt: Instant?,
-  val endsAt: Instant?,
-  val dueDate: LocalDate?,
+  val startsAt: Instant,
+  val endsAt: Instant,
   val location: String?,
-  val eventKind: ScheduleEventKind?,
-  val taskStatus: TaskStatus?
+  val kind: ScheduleEventKind
+)
+
+data class ScheduleTask(
+  val id: String,
+  val title: String,
+  val productionId: String,
+  val productionTitle: String,
+  val dueDate: LocalDate,
+  val status: TaskStatus,
+  val priority: TaskPriority
 )
 
 fun ScheduleResponse.toDomain(): Schedule =
   Schedule(rangeStart = rangeStart, rangeEnd = rangeEnd, days = days.map { it.toDomain() })
 
-fun ScheduleDayDto.toDomain(): ScheduleDay = ScheduleDay(date = date, items = items.map { it.toDomain() })
+fun ScheduleDayDto.toDomain(): ScheduleDay =
+  ScheduleDay(
+    date = date,
+    events = events.map { it.toDomain() },
+    tasks = tasks.map { it.toDomain() }
+  )
 
-fun ScheduleItemDto.toDomain(): ScheduleItem =
-  ScheduleItem(
+fun ScheduleEventDto.toDomain(): ScheduleEvent =
+  ScheduleEvent(
     id = id,
-    source = source,
     title = title,
     productionId = productionId,
     productionTitle = productionTitle,
     startsAt = startsAt,
     endsAt = endsAt,
-    dueDate = dueDate,
     location = location,
-    eventKind = eventKind,
-    taskStatus = taskStatus
+    kind = kind
+  )
+
+fun ScheduleTaskDto.toDomain(): ScheduleTask =
+  ScheduleTask(
+    id = id,
+    title = title,
+    productionId = productionId,
+    productionTitle = productionTitle,
+    dueDate = dueDate,
+    status = status,
+    priority = priority
   )

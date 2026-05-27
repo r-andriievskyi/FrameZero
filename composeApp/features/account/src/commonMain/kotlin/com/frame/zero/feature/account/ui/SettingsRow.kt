@@ -19,16 +19,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.frame.zero.shared.design_system.AppTheme
+import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.generated.resources.ic_chevron_right
 import com.frame.zero.shared.design_system.modifier.clickableWithRipple
 import framezero.composeapp.features.account.generated.resources.Res
-import com.frame.zero.shared.design_system.generated.resources.Res as DesignSystemRes
 import framezero.composeapp.features.account.generated.resources.ic_user
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
+import com.frame.zero.shared.design_system.generated.resources.Res as DesignSystemRes
 
 private val IconContainerSize = 40.dp
 private val IconSize = 20.dp
@@ -94,10 +94,10 @@ internal fun SettingsRow(
   }
 }
 
-@Preview
+@LightDarkPreview
 @Composable
 private fun SettingsRowPreview() {
-  AppTheme(darkTheme = true) {
+  AppTheme {
     SettingsRow(
       icon = Res.drawable.ic_user,
       title = "Edit profile",

@@ -14,6 +14,7 @@ object TasksTable : Table("tasks") {
   val description = text("description").nullable()
   val dueDate = date("due_date").nullable()
   val status = varchar("status", 10)
+  val priority = varchar("priority", 10).default("MEDIUM")
   val assigneeUserId = javaUUID("assignee_user_id").references(UsersTable.id).nullable()
   val createdAt = timestamp("created_at")
 
