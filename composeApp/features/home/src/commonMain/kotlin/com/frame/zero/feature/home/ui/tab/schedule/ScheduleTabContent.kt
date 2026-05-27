@@ -2,7 +2,10 @@ package com.frame.zero.feature.home.ui.tab.schedule
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -26,6 +29,7 @@ import com.frame.zero.dto.task.TaskPriority
 import com.frame.zero.dto.task.TaskStatus
 import com.frame.zero.feature.home.tab.schedule.ScheduleTabComponent
 import com.frame.zero.feature.home.tab.schedule.ScheduleTabState
+import com.frame.zero.feature.home.ui.FloatingBottomNavClearance
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer
@@ -76,14 +80,16 @@ private fun ScheduleContent(
     derivedStateOf { schedule?.days?.find { it.date == selectedDate } }
   }
 
+  val navigationBarsBottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
   Column(
     modifier = Modifier
       .fillMaxSize()
       .background(AppTheme.colorSystem.background)
       .verticalScroll(rememberScrollState())
+      .padding(horizontal = AppTheme.spacingSystem.space16)
       .padding(
-        horizontal = AppTheme.spacingSystem.space16,
-        vertical = AppTheme.spacingSystem.space24
+        top = AppTheme.spacingSystem.space24,
+        bottom = navigationBarsBottom + FloatingBottomNavClearance
       )
   ) {
     Text(
