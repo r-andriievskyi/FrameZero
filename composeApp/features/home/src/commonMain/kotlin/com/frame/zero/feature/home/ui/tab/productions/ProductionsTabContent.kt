@@ -45,6 +45,9 @@ import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import com.frame.zero.shared.design_system.widgets.rememberPagingListUiState
 import framezero.composeapp.features.home.generated.resources.Res
 import framezero.composeapp.features.home.generated.resources.ic_plus
+import framezero.composeapp.features.home.generated.resources.projects_count
+import framezero.composeapp.features.home.generated.resources.projects_refreshing
+import framezero.composeapp.features.home.generated.resources.projects_release_to_refresh
 import framezero.composeapp.features.home.generated.resources.projects_title
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
@@ -154,9 +157,9 @@ private fun ProductionsContent(
             refreshIndicator = { pullState ->
               DefaultInlineRefreshIndicator(
                 pullState = pullState,
-                refreshingText = "Refreshing productions…",
-                releaseText = "Release to refresh",
-                subtitle = "$count productions"
+                refreshingText = stringResource(Res.string.projects_refreshing),
+                releaseText = stringResource(Res.string.projects_release_to_refresh),
+                subtitle = stringResource(Res.string.projects_count, count)
               )
             },
             itemKey = { it.id }

@@ -15,14 +15,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
-import com.frame.zero.shared.design_system.AppTheme
-import com.frame.zero.shared.design_system.widgets.VerticalSpacer
+import androidx.compose.ui.unit.dp
 import com.frame.zero.domain.schedule.ScheduleEventKind
+import com.frame.zero.shared.design_system.AppTheme
+import com.frame.zero.shared.design_system.LightDarkPreview
+import com.frame.zero.shared.design_system.widgets.VerticalSpacer
+import framezero.composeapp.features.home.generated.resources.Res
+import framezero.composeapp.features.home.generated.resources.event_kind_meeting
+import framezero.composeapp.features.home.generated.resources.event_kind_other
+import framezero.composeapp.features.home.generated.resources.event_kind_review
+import framezero.composeapp.features.home.generated.resources.event_kind_shoot
+import org.jetbrains.compose.resources.stringResource
 
-/**
- * A single schedule event card displayed in the timeline.
- */
+private val BorderWidth = 1.dp
+
 @Composable
 internal fun ScheduleEventCard(
   title: String,
@@ -36,8 +42,8 @@ internal fun ScheduleEventCard(
       .fillMaxWidth()
       .clip(shape)
       .border(
-        width = AppTheme.spacingSystem.space2,
-        color = AppTheme.colorSystem.cardBorder,
+        width = BorderWidth,
+        color = AppTheme.colorSystem.border,
         shape = shape
       )
       .background(AppTheme.colorSystem.cardBackground)
@@ -100,18 +106,19 @@ private fun ScheduleEventKind.badgeColors(): Pair<Color, Color> =
     ScheduleEventKind.OTHER -> AppTheme.colorSystem.inputBackground to AppTheme.colorSystem.textSecondary
   }
 
+@Composable
 private fun ScheduleEventKind.displayLabel(): String =
   when (this) {
-    ScheduleEventKind.SHOOT -> "Shoot"
-    ScheduleEventKind.MEETING -> "Meeting"
-    ScheduleEventKind.REVIEW -> "Review"
-    ScheduleEventKind.OTHER -> "Other"
+    ScheduleEventKind.SHOOT -> stringResource(Res.string.event_kind_shoot)
+    ScheduleEventKind.MEETING -> stringResource(Res.string.event_kind_meeting)
+    ScheduleEventKind.REVIEW -> stringResource(Res.string.event_kind_review)
+    ScheduleEventKind.OTHER -> stringResource(Res.string.event_kind_other)
   }
 
-@Preview
+@LightDarkPreview
 @Composable
 private fun ScheduleEventCardPreview() {
-  AppTheme(darkTheme = true) {
+  AppTheme {
     Column(
       modifier = Modifier
         .background(AppTheme.colorSystem.background)

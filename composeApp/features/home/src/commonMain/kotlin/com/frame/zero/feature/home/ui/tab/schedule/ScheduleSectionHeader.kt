@@ -5,13 +5,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.runtime.Composable
 import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.unit.dp
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.widgets.HorizontalSpacer
@@ -24,11 +22,6 @@ import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
-private val IconSize = 20.dp
-
-/**
- * Section header for the schedule timeline, showing an icon, section title, and item count.
- */
 @Composable
 internal fun ScheduleSectionHeader(
   icon: DrawableResource,
@@ -43,7 +36,6 @@ internal fun ScheduleSectionHeader(
     Image(
       painter = painterResource(icon),
       contentDescription = null,
-      modifier = Modifier.size(IconSize),
       colorFilter = ColorFilter.tint(AppTheme.colorSystem.accent)
     )
     HorizontalSpacer(AppTheme.spacingSystem.space8)
