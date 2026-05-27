@@ -12,7 +12,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.frame.zero.shared.design_system.AppTheme
+import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.widgets.HorizontalSpacer
 import framezero.composeapp.features.home.generated.resources.Res
 import framezero.composeapp.features.home.generated.resources.day_friday
@@ -47,10 +49,8 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.Month
 import org.jetbrains.compose.resources.stringResource
 
-/**
- * Date header row showing "Saturday, Apr 26, 2026 [Today]" for day view
- * or "Sat, Apr 26 [Today]" for week view, or "Apr 26 [Today]" for month view.
- */
+private val TodayBadgeBorderWidth = 1.dp
+
 @Composable
 internal fun ScheduleDateHeader(
   date: LocalDate,
@@ -125,13 +125,13 @@ internal fun TodayBadge(modifier: Modifier = Modifier) {
     modifier = modifier
       .clip(shape)
       .border(
-        width = AppTheme.spacingSystem.space2,
-        color = AppTheme.colorSystem.textSecondary,
+        width = TodayBadgeBorderWidth,
+        color = AppTheme.colorSystem.border,
         shape = shape
       )
       .padding(
         horizontal = AppTheme.spacingSystem.space8,
-        vertical = AppTheme.spacingSystem.space2
+        vertical = AppTheme.spacingSystem.space4
       ),
     contentAlignment = Alignment.Center
   ) {
@@ -143,10 +143,10 @@ internal fun TodayBadge(modifier: Modifier = Modifier) {
   }
 }
 
-@Preview
+@LightDarkPreview
 @Composable
 private fun ScheduleDateHeaderPreview() {
-  AppTheme(darkTheme = true) {
+  AppTheme {
     Box(
       modifier = Modifier
         .background(AppTheme.colorSystem.background)
@@ -160,10 +160,10 @@ private fun ScheduleDateHeaderPreview() {
   }
 }
 
-@Preview
+@LightDarkPreview
 @Composable
 private fun ScheduleDateHeaderCompactPreview() {
-  AppTheme(darkTheme = true) {
+  AppTheme {
     Box(
       modifier = Modifier
         .background(AppTheme.colorSystem.background)

@@ -22,9 +22,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.frame.zero.shared.design_system.AppTheme
+import com.frame.zero.shared.design_system.generated.resources.ic_chevron_right
 import com.frame.zero.shared.design_system.modifier.clickableWithRipple
 import framezero.composeapp.features.account.generated.resources.Res
-import framezero.composeapp.features.account.generated.resources.ic_chevron_right
+import com.frame.zero.shared.design_system.generated.resources.Res as DesignSystemRes
 import framezero.composeapp.features.account.generated.resources.ic_user
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
@@ -85,7 +86,7 @@ internal fun SettingsRow(
       )
     }
     Image(
-      painter = painterResource(Res.drawable.ic_chevron_right),
+      painter = painterResource(DesignSystemRes.drawable.ic_chevron_right),
       contentDescription = null,
       colorFilter = ColorFilter.tint(AppTheme.colorSystem.textMuted),
       modifier = Modifier.size(ChevronSize)
