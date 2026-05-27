@@ -1,6 +1,8 @@
 package com.frame.zero.feature.home.ui.tab.schedule
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -18,10 +20,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.frame.zero.shared.design_system.AppTheme
+import com.frame.zero.shared.design_system.LightDarkPreview
+import com.frame.zero.shared.design_system.generated.resources.ic_chevron_left
+import com.frame.zero.shared.design_system.generated.resources.ic_chevron_right
+import com.frame.zero.shared.design_system.modifier.clickableWithRipple
+import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import framezero.composeapp.features.home.generated.resources.Res
 import framezero.composeapp.features.home.generated.resources.cal_day_fri
 import framezero.composeapp.features.home.generated.resources.cal_day_mon
@@ -42,21 +49,21 @@ import framezero.composeapp.features.home.generated.resources.month_may
 import framezero.composeapp.features.home.generated.resources.month_november
 import framezero.composeapp.features.home.generated.resources.month_october
 import framezero.composeapp.features.home.generated.resources.month_september
-import org.jetbrains.compose.resources.stringResource
-import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.Month
 import kotlinx.datetime.plus
+import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
+import com.frame.zero.shared.design_system.generated.resources.Res as DesignSystemRes
 
 private val EventDotSize = 6.dp
 private val DayCellSize = 44.dp
 private val NavButtonSize = 36.dp
+private val MonthNavButtonBorderWidth = 1.dp
 
-/**
- * Full month calendar grid with prev/next navigation arrows.
- */
 @Composable
 internal fun MonthCalendar(
   year: Int,
@@ -70,13 +77,12 @@ internal fun MonthCalendar(
   modifier: Modifier = Modifier
 ) {
   Column(modifier = modifier.fillMaxWidth()) {
-    // Month header with navigation
     Row(
       modifier = Modifier.fillMaxWidth(),
       horizontalArrangement = Arrangement.SpaceBetween,
       verticalAlignment = Alignment.CenterVertically
     ) {
-      MonthNavButton(text = "<", onClick = onPreviousMonth)
+      MonthNavButton(iconRes = DesignSystemRes.drawable.ic_chevron_left, onClick = onPreviousMonth)
       val monthName = stringResource(
         when (month) {
           Month.JANUARY -> Res.string.month_january
@@ -99,12 +105,11 @@ internal fun MonthCalendar(
         color = AppTheme.colorSystem.textPrimary,
         textAlign = TextAlign.Center
       )
-      MonthNavButton(text = ">", onClick = onNextMonth)
+      MonthNavButton(iconRes = DesignSystemRes.drawable.ic_chevron_right, onClick = onNextMonth)
     }
 
     VerticalSpacer(AppTheme.spacingSystem.space16)
 
-    // Day-of-week headers
     val dayLabels = listOf(
       stringResource(Res.string.cal_day_mon),
       stringResource(Res.string.cal_day_tue),
@@ -135,7 +140,6 @@ internal fun MonthCalendar(
 
     VerticalSpacer(AppTheme.spacingSystem.space4)
 
-    // Calendar grid
     val firstDay = LocalDate(year, month, 1)
     val startOffset = (firstDay.dayOfWeek.ordinal - DayOfWeek.MONDAY.ordinal + 7) % 7
     val daysInMonth = daysInMonth(year, month)
@@ -170,7 +174,7 @@ internal fun MonthCalendar(
 
 @Composable
 private fun MonthNavButton(
-  text: String,
+  iconRes: DrawableResource,
   onClick: () -> Unit,
   modifier: Modifier = Modifier
 ) {
@@ -179,14 +183,15 @@ private fun MonthNavButton(
     modifier = modifier
       .size(NavButtonSize)
       .clip(shape)
-      .background(AppTheme.colorSystem.inputBackground)
-      .clickable(onClick = onClick),
+      .background(color = AppTheme.colorSystem.inputBackground, shape = shape)
+      .border(width = MonthNavButtonBorderWidth, color = AppTheme.colorSystem.border, shape = shape)
+      .clickableWithRipple(color = AppTheme.colorSystem.accentDim, onClick = onClick),
     contentAlignment = Alignment.Center
   ) {
-    Text(
-      text = text,
-      style = AppTheme.typographySystem.titleSmall,
-      color = AppTheme.colorSystem.textPrimary
+    Image(
+      painter = painterResource(iconRes),
+      colorFilter = ColorFilter.tint(AppTheme.colorSystem.textPrimary),
+      contentDescription = null
     )
   }
 }
@@ -257,10 +262,10 @@ private fun daysInMonth(
   return (nextMonth.toEpochDays() - first.toEpochDays()).toInt()
 }
 
-@Preview
+@LightDarkPreview
 @Composable
 private fun MonthCalendarPreview() {
-  AppTheme(darkTheme = true) {
+  AppTheme {
     val today = LocalDate(2026, 4, 26)
     Box(
       modifier = Modifier

@@ -16,9 +16,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.frame.zero.shared.design_system.AppTheme
-import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import com.frame.zero.domain.schedule.Schedule
 import com.frame.zero.domain.schedule.ScheduleDay
 import com.frame.zero.domain.schedule.ScheduleEventKind
@@ -26,13 +23,16 @@ import com.frame.zero.domain.schedule.ScheduleItem
 import com.frame.zero.domain.schedule.ScheduleView
 import com.frame.zero.dto.schedule.ScheduleItemSource
 import com.frame.zero.feature.home.tab.schedule.ScheduleTabComponent
+import com.frame.zero.feature.home.tab.schedule.ScheduleTabState
+import com.frame.zero.shared.design_system.AppTheme
+import com.frame.zero.shared.design_system.LightDarkPreview
+import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import framezero.composeapp.features.home.generated.resources.Res
 import framezero.composeapp.features.home.generated.resources.schedule_screen_title
-import org.jetbrains.compose.resources.stringResource
-import com.frame.zero.feature.home.tab.schedule.ScheduleTabState
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.plus
+import org.jetbrains.compose.resources.stringResource
 import kotlin.time.Instant
 
 @Composable
@@ -104,7 +104,6 @@ private fun ScheduleContent(
 
     VerticalSpacer(AppTheme.spacingSystem.space16)
 
-    // View-specific calendar / day strip
     when (state.view) {
       ScheduleView.DAY -> {
         ScheduleDateHeader(
@@ -233,10 +232,10 @@ private val previewSchedule = Schedule(
   days = listOf(ScheduleDay(date = previewDate, items = previewItems))
 )
 
-@Preview
+@LightDarkPreview
 @Composable
 private fun ScheduleContentDayPreview() {
-  AppTheme(darkTheme = true) {
+  AppTheme {
     ScheduleContent(
       state = ScheduleTabState(
         view = ScheduleView.DAY,
@@ -247,10 +246,10 @@ private fun ScheduleContentDayPreview() {
   }
 }
 
-@Preview
+@LightDarkPreview
 @Composable
 private fun ScheduleContentWeekPreview() {
-  AppTheme(darkTheme = true) {
+  AppTheme {
     ScheduleContent(
       state = ScheduleTabState(
         view = ScheduleView.WEEK,
@@ -278,10 +277,10 @@ private fun ScheduleContentWeekPreview() {
   }
 }
 
-@Preview
+@LightDarkPreview
 @Composable
 private fun ScheduleContentMonthPreview() {
-  AppTheme(darkTheme = true) {
+  AppTheme {
     ScheduleContent(
       state = ScheduleTabState(
         view = ScheduleView.MONTH,
