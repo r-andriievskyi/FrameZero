@@ -6,17 +6,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.unit.dp
 import com.frame.zero.domain.schedule.ScheduleEvent
 import com.frame.zero.domain.schedule.ScheduleEventKind
 import com.frame.zero.domain.schedule.ScheduleTask
@@ -38,13 +31,6 @@ import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
 import kotlin.time.Instant
 
-private val TimeColumnWidth = 52.dp
-private val TimelineDotSize = 8.dp
-private val TimelineWidth = 1.dp
-
-/**
- * Schedule timeline that renders both events and tasks in separate sections.
- */
 @Composable
 internal fun ScheduleTimeline(
   events: List<ScheduleEvent>,
@@ -86,8 +72,7 @@ private fun EventsTimeline(
   Column(modifier = modifier.fillMaxWidth()) {
     events.forEachIndexed { index, event ->
       TimelineRow(
-        timeLabel = event.startsAt.formatTime(),
-        isLast = index == events.lastIndex
+        timeLabel = event.startsAt.formatTime()
       ) {
         ScheduleEventCard(
           title = event.title,
@@ -126,49 +111,20 @@ private fun TasksList(
 @Composable
 private fun TimelineRow(
   timeLabel: String,
-  isLast: Boolean,
   modifier: Modifier = Modifier,
   content: @Composable () -> Unit
 ) {
-  val lineColor = AppTheme.colorSystem.cardBorder
-  val dotColor = AppTheme.colorSystem.accent
-
   Row(
     modifier = modifier.fillMaxWidth(),
-    verticalAlignment = Alignment.Top
+    verticalAlignment = Alignment.CenterVertically
   ) {
     Text(
       text = timeLabel,
       style = AppTheme.typographySystem.monoSmall,
-      color = AppTheme.colorSystem.textMuted,
-      modifier = Modifier.width(TimeColumnWidth)
+      color = AppTheme.colorSystem.textMuted
     )
 
-    Box(
-      modifier = Modifier
-        .width(AppTheme.spacingSystem.space16)
-        .drawBehind {
-          if (!isLast) {
-            val centerX = size.width / 2
-            drawLine(
-              color = lineColor,
-              start = Offset(centerX, TimelineDotSize.toPx()),
-              end = Offset(centerX, size.height + 64.dp.toPx()),
-              strokeWidth = TimelineWidth.toPx()
-            )
-          }
-        },
-      contentAlignment = Alignment.TopCenter
-    ) {
-      Box(
-        modifier = Modifier
-          .size(TimelineDotSize)
-          .clip(CircleShape)
-          .background(dotColor)
-      )
-    }
-
-    HorizontalSpacer(AppTheme.spacingSystem.space8)
+    HorizontalSpacer(AppTheme.spacingSystem.space16)
 
     Box(modifier = Modifier.weight(1f)) {
       content()
@@ -184,7 +140,7 @@ private fun LocalDate.toDueLabel(selectedDate: LocalDate?): String? {
     else -> {
       val monthStr = month.name.take(3).lowercase()
         .replaceFirstChar { it.uppercase() }
-      "$monthStr $dayOfMonth"
+      "$monthStr $day"
     }
   }
 }

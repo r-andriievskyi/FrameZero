@@ -2,14 +2,11 @@ package com.frame.zero.feature.home.ui.tab.schedule
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -17,7 +14,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import com.frame.zero.dto.task.TaskPriority
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
@@ -29,15 +25,6 @@ import framezero.composeapp.features.home.generated.resources.schedule_priority_
 import framezero.composeapp.features.home.generated.resources.schedule_priority_medium
 import org.jetbrains.compose.resources.stringResource
 
-private val CheckboxSize = 20.dp
-private val CheckboxBorderWidth = 2.dp
-private val PriorityBarWidth = 4.dp
-private val PriorityBarHeight = 40.dp
-
-/**
- * A task card for the schedule timeline, showing a checkbox indicator,
- * priority accent bar, title, subtitle, and priority badge.
- */
 @Composable
 internal fun ScheduleTaskCard(
   title: String,
@@ -60,56 +47,28 @@ internal fun ScheduleTaskCard(
       .padding(AppTheme.spacingSystem.space16),
     verticalAlignment = Alignment.CenterVertically
   ) {
-    // Priority accent bar
-    val barColor = priority.accentColor()
-    Box(
-      modifier = Modifier
-        .size(width = PriorityBarWidth, height = PriorityBarHeight)
-        .clip(RoundedCornerShape(AppTheme.radiusSystem.radius4))
-        .background(barColor)
-    )
-
-    HorizontalSpacer(AppTheme.spacingSystem.space8)
-
-    // Checkbox placeholder (unfilled circle)
-    Box(
-      modifier = Modifier
-        .size(CheckboxSize)
-        .border(CheckboxBorderWidth, AppTheme.colorSystem.cardBorder, CircleShape)
-    )
-
-    HorizontalSpacer(AppTheme.spacingSystem.space8)
-
-    // Title + subtitle
     Column(modifier = Modifier.weight(1f)) {
       Text(
         text = title,
-        style = AppTheme.typographySystem.titleSmall,
+        style = AppTheme.typographySystem.titleMedium,
         color = AppTheme.colorSystem.textPrimary
       )
       VerticalSpacer(AppTheme.spacingSystem.space4)
-      Row {
-        if (dueLabel != null) {
-          Text(
-            text = dueLabel,
-            style = AppTheme.typographySystem.bodySmall,
-            color = AppTheme.colorSystem.textMuted
-          )
-          Text(
-            text = "  •  ",
-            style = AppTheme.typographySystem.bodySmall,
-            color = AppTheme.colorSystem.textMuted
-          )
-        }
+      if (dueLabel != null) {
         Text(
-          text = productionTitle,
+          text = dueLabel,
           style = AppTheme.typographySystem.bodySmall,
           color = AppTheme.colorSystem.textMuted
         )
+        VerticalSpacer(AppTheme.spacingSystem.space4)
       }
+      Text(
+        text = productionTitle,
+        style = AppTheme.typographySystem.bodySmall,
+        color = AppTheme.colorSystem.textMuted
+      )
     }
 
-    // Priority badge
     if (priority != null) {
       HorizontalSpacer(AppTheme.spacingSystem.space8)
       PriorityBadge(priority = priority)
@@ -127,7 +86,7 @@ private fun PriorityBadge(
   Box(
     modifier = modifier
       .clip(shape)
-      .background(colors.first)
+      .background(colors.background)
       .padding(
         horizontal = AppTheme.spacingSystem.space8,
         vertical = AppTheme.spacingSystem.space4
@@ -137,26 +96,17 @@ private fun PriorityBadge(
     Text(
       text = priority.displayLabel(),
       style = AppTheme.typographySystem.labelSmall,
-      color = colors.second
+      color = colors.text
     )
   }
 }
 
 @Composable
-private fun TaskPriority.badgeColors(): Pair<Color, Color> =
+private fun TaskPriority.badgeColors(): BadgeColors =
   when (this) {
-    TaskPriority.HIGH -> AppTheme.colorSystem.priorityHighSurface to AppTheme.colorSystem.priorityHighText
-    TaskPriority.MEDIUM -> AppTheme.colorSystem.priorityMedSurface to AppTheme.colorSystem.priorityMedText
-    TaskPriority.LOW -> AppTheme.colorSystem.priorityLowSurface to AppTheme.colorSystem.priorityLowText
-  }
-
-@Composable
-private fun TaskPriority?.accentColor(): Color =
-  when (this) {
-    TaskPriority.HIGH -> AppTheme.colorSystem.priorityHighText
-    TaskPriority.MEDIUM -> AppTheme.colorSystem.priorityMedText
-    TaskPriority.LOW -> AppTheme.colorSystem.priorityLowText
-    null -> AppTheme.colorSystem.textMuted
+    TaskPriority.HIGH -> BadgeColors(AppTheme.colorSystem.priorityHighSurface, AppTheme.colorSystem.priorityHighText)
+    TaskPriority.MEDIUM -> BadgeColors(AppTheme.colorSystem.priorityMedSurface, AppTheme.colorSystem.priorityMedText)
+    TaskPriority.LOW -> BadgeColors(AppTheme.colorSystem.priorityLowSurface, AppTheme.colorSystem.priorityLowText)
   }
 
 @Composable
@@ -166,6 +116,8 @@ private fun TaskPriority.displayLabel(): String =
     TaskPriority.MEDIUM -> stringResource(Res.string.schedule_priority_medium)
     TaskPriority.LOW -> stringResource(Res.string.schedule_priority_low)
   }
+
+private data class BadgeColors(val background: Color, val text: Color)
 
 @LightDarkPreview
 @Composable

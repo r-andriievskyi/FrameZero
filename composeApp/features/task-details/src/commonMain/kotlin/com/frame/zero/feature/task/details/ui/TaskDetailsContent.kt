@@ -14,6 +14,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.feature.task.details.TaskDetailsComponent
 import com.frame.zero.feature.task.details.TaskDetailsState
+import framezero.composeapp.features.task_details.generated.resources.Res
+import framezero.composeapp.features.task_details.generated.resources.task_details_title
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun TaskDetailsContent(component: TaskDetailsComponent) {
@@ -38,7 +41,7 @@ internal fun TaskDetailsScreen(
     contentAlignment = Alignment.Center
   ) {
     Text(
-      text = "Task Details",
+      text = stringResource(Res.string.task_details_title),
       style = AppTheme.typographySystem.titleLarge,
       color = AppTheme.colorSystem.textPrimary
     )

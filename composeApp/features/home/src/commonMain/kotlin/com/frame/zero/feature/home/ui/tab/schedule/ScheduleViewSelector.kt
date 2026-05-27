@@ -15,9 +15,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
-import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.domain.schedule.ScheduleView
+import com.frame.zero.shared.design_system.AppTheme
+import com.frame.zero.shared.design_system.LightDarkPreview
+import framezero.composeapp.features.home.generated.resources.Res
+import framezero.composeapp.features.home.generated.resources.schedule_view_day
+import framezero.composeapp.features.home.generated.resources.schedule_view_month
+import framezero.composeapp.features.home.generated.resources.schedule_view_week
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 internal fun ScheduleViewSelector(
@@ -77,17 +82,18 @@ private fun SegmentTab(
   }
 }
 
+@Composable
 private fun ScheduleView.label(): String =
   when (this) {
-    ScheduleView.DAY -> "Day"
-    ScheduleView.WEEK -> "Week"
-    ScheduleView.MONTH -> "Month"
+    ScheduleView.DAY -> stringResource(Res.string.schedule_view_day)
+    ScheduleView.WEEK -> stringResource(Res.string.schedule_view_week)
+    ScheduleView.MONTH -> stringResource(Res.string.schedule_view_month)
   }
 
-@Preview
+@LightDarkPreview
 @Composable
 private fun ScheduleViewSelectorPreview() {
-  AppTheme(darkTheme = true) {
+  AppTheme {
     Box(
       modifier = Modifier
         .background(AppTheme.colorSystem.background)

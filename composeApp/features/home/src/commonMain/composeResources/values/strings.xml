@@ -46,9 +46,15 @@
   <string name="projects_pipeline_progress">Pipeline progress</string>
   <string name="members_count">%1$d members</string>
   <string name="days_left">%1$dd left</string>
+  <string name="projects_refreshing">Refreshing productions…</string>
+  <string name="projects_release_to_refresh">Release to refresh</string>
+  <string name="projects_count">%1$d productions</string>
 
   <!-- Schedule screen -->
   <string name="schedule_screen_title">Schedule</string>
+  <string name="schedule_view_day">Day</string>
+  <string name="schedule_view_week">Week</string>
+  <string name="schedule_view_month">Month</string>
   <string name="today">Today</string>
   <string name="schedule_events_header">EVENTS</string>
   <string name="schedule_tasks_due_header">TASKS DUE</string>
@@ -57,6 +63,12 @@
   <string name="schedule_priority_high">High</string>
   <string name="schedule_priority_medium">Medium</string>
   <string name="schedule_priority_low">Low</string>
+
+  <!-- Event kind labels -->
+  <string name="event_kind_shoot">Shoot</string>
+  <string name="event_kind_meeting">Meeting</string>
+  <string name="event_kind_review">Review</string>
+  <string name="event_kind_other">Other</string>
 
   <!-- Day of week full names -->
   <string name="day_monday">Monday</string>
