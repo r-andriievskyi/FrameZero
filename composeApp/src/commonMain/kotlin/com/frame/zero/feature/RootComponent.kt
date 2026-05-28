@@ -13,6 +13,7 @@ import com.arkivanov.essenty.lifecycle.doOnDestroy
 import com.frame.zero.core.session.SessionManager
 import com.frame.zero.core.session.SessionState
 import com.frame.zero.feature.account.AccountComponent
+import com.frame.zero.feature.account.AccountViewModel
 import com.frame.zero.feature.auth.AuthComponent
 import com.frame.zero.feature.home.HomeComponent
 import com.frame.zero.feature.production.CreateProductionComponent
@@ -40,7 +41,8 @@ class RootComponent(
   ) -> HomeComponent,
   private val createProductionViewModelFactory: () -> CreateProductionViewModel,
   private val productionDetailsViewModelFactory: (productionId: String) -> ProductionDetailsViewModel,
-  private val taskDetailsViewModelFactory: (taskId: String) -> TaskDetailsViewModel
+  private val taskDetailsViewModelFactory: (taskId: String) -> TaskDetailsViewModel,
+  private val accountViewModelFactory: () -> AccountViewModel
 ) : ComponentContext by componentContext {
   private val navigation = StackNavigation<Config>()
 
@@ -100,7 +102,8 @@ class RootComponent(
       Config.Account -> Child.Account(
         AccountComponent(
           componentContext = context,
-          onBack = { navigation.pop() }
+          onBack = { navigation.pop() },
+          viewModelFactory = accountViewModelFactory
         )
       )
 
