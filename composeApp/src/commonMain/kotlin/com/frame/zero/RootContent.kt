@@ -2,6 +2,7 @@ package com.frame.zero
 
 import androidx.compose.runtime.Composable
 import com.arkivanov.decompose.extensions.compose.stack.Children
+import com.arkivanov.decompose.extensions.compose.stack.animation.stackAnimation
 import com.frame.zero.feature.RootComponent
 import com.frame.zero.feature.account.ui.AccountContent
 import com.frame.zero.feature.auth.ui.AuthContent
@@ -13,7 +14,10 @@ import com.frame.zero.feature.task.details.ui.TaskDetailsContent
 
 @Composable
 fun RootContent(component: RootComponent) {
-  Children(stack = component.stack) { child ->
+  Children(
+    stack = component.stack,
+    animation = stackAnimation()
+  ) { child ->
     when (val instance = child.instance) {
       RootComponent.Child.Splash -> SplashContent()
       is RootComponent.Child.Auth -> AuthContent(instance.component)
