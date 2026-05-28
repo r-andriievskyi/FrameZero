@@ -10,25 +10,25 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.feature.task.details.TaskDetailsComponent
 import com.frame.zero.feature.task.details.TaskDetailsState
+import com.frame.zero.shared.design_system.AppTheme
+import com.frame.zero.shared.design_system.LightDarkPreview
 import framezero.composeapp.features.task_details.generated.resources.Res
 import framezero.composeapp.features.task_details.generated.resources.task_details_title
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-fun TaskDetailsContent(component: TaskDetailsComponent) {
+fun TaskDetailsScreen(component: TaskDetailsComponent) {
   val state by component.state.collectAsState()
-  TaskDetailsScreen(
+  TaskDetailsContent(
     state = state,
     onBack = component.onBack
   )
 }
 
 @Composable
-internal fun TaskDetailsScreen(
+internal fun TaskDetailsContent(
   state: TaskDetailsState,
   onBack: () -> Unit,
   modifier: Modifier = Modifier
@@ -48,11 +48,11 @@ internal fun TaskDetailsScreen(
   }
 }
 
-@Preview
+@LightDarkPreview
 @Composable
 private fun TaskDetailsScreenPreview() {
-  AppTheme(darkTheme = true) {
-    TaskDetailsScreen(
+  AppTheme {
+    TaskDetailsContent(
       state = TaskDetailsState(taskId = "preview-task-id"),
       onBack = {}
     )
