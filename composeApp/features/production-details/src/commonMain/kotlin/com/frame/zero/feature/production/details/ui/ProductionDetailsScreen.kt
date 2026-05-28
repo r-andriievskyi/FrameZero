@@ -15,12 +15,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.frame.zero.shared.design_system.AppTheme
-import com.frame.zero.shared.design_system.widgets.OverflowMenu
-import com.frame.zero.shared.design_system.widgets.OverflowMenuItem
-import com.frame.zero.shared.design_system.widgets.TopToolbar
-import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import com.frame.zero.domain.production.Genre
 import com.frame.zero.domain.production.ProductionDetail
 import com.frame.zero.domain.production.ProductionMember
@@ -30,18 +24,24 @@ import com.frame.zero.domain.production.ViewerCrew
 import com.frame.zero.feature.production.details.ProductionDetailsComponent
 import com.frame.zero.feature.production.details.ProductionDetailsIntent
 import com.frame.zero.feature.production.details.ProductionDetailsState
+import com.frame.zero.shared.design_system.AppTheme
+import com.frame.zero.shared.design_system.LightDarkPreview
+import com.frame.zero.shared.design_system.widgets.OverflowMenu
+import com.frame.zero.shared.design_system.widgets.OverflowMenuItem
+import com.frame.zero.shared.design_system.widgets.TopToolbar
+import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import framezero.composeapp.features.production_details.generated.resources.Res
 import framezero.composeapp.features.production_details.generated.resources.delete_production_menu
 import kotlinx.datetime.LocalDate
-import kotlin.time.Instant
 import org.jetbrains.compose.resources.stringResource
+import kotlin.time.Instant
 
 private const val OverlayAlpha = 0.6f
 
 @Composable
-fun ProductionDetailsContent(component: ProductionDetailsComponent) {
+fun ProductionDetailsScreen(component: ProductionDetailsComponent) {
   val state by component.state.collectAsState()
-  ProductionDetailsScreen(
+  ProductionDetailsContent(
     state = state,
     onBack = component.onBack,
     onIntent = component::onIntent
@@ -49,7 +49,7 @@ fun ProductionDetailsContent(component: ProductionDetailsComponent) {
 }
 
 @Composable
-internal fun ProductionDetailsScreen(
+private fun ProductionDetailsContent(
   state: ProductionDetailsState,
   onBack: () -> Unit,
   onIntent: (ProductionDetailsIntent) -> Unit,
@@ -145,8 +145,6 @@ private fun DetailBody(
   }
 }
 
-// ── Shared helpers ──────────────────────────────────────────────────────
-
 @Composable
 private fun CenteredProgress(modifier: Modifier = Modifier) {
   Box(
@@ -176,15 +174,13 @@ private fun CenteredMessage(
   }
 }
 
-// ── Previews ────────────────────────────────────────────────────────────
-
 private val PreviewInstant = Instant.fromEpochMilliseconds(0L)
 
-@Preview
+@LightDarkPreview
 @Composable
 private fun ProductionDetailsLoadedPreview() {
-  AppTheme(darkTheme = true) {
-    ProductionDetailsScreen(
+  AppTheme {
+    ProductionDetailsContent(
       state = ProductionDetailsState(
         detail = ProductionDetail(
           id = "1",
@@ -265,11 +261,11 @@ private fun ProductionDetailsLoadedPreview() {
   }
 }
 
-@Preview
+@LightDarkPreview
 @Composable
 private fun ProductionDetailsLoadingPreview() {
-  AppTheme(darkTheme = true) {
-    ProductionDetailsScreen(
+  AppTheme {
+    ProductionDetailsContent(
       state = ProductionDetailsState(isLoading = true),
       onBack = {},
       onIntent = {}

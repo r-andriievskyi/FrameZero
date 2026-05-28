@@ -7,7 +7,7 @@ import com.frame.zero.feature.RootComponent
 import com.frame.zero.feature.account.ui.AccountScreen
 import com.frame.zero.feature.auth.ui.AuthContent
 import com.frame.zero.feature.home.ui.HomeContent
-import com.frame.zero.feature.production.details.ui.ProductionDetailsContent
+import com.frame.zero.feature.production.details.ui.ProductionDetailsScreen
 import com.frame.zero.feature.production.ui.CreateProductionScreen
 import com.frame.zero.feature.splash.SplashContent
 import com.frame.zero.feature.task.details.ui.TaskDetailsContent
@@ -24,7 +24,7 @@ fun RootContent(component: RootComponent) {
       is RootComponent.Child.Home -> HomeContent(instance.component)
       is RootComponent.Child.Account -> AccountScreen(instance.component)
       is RootComponent.Child.CreateProduction -> CreateProductionScreen(instance.component)
-      is RootComponent.Child.ProductionDetails -> ProductionDetailsContent(instance.component)
+      is RootComponent.Child.ProductionDetails -> ProductionDetailsScreen(instance.component)
       is RootComponent.Child.TaskDetails -> TaskDetailsContent(instance.component)
     }
   }

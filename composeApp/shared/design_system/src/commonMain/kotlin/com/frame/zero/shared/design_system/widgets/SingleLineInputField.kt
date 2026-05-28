@@ -32,7 +32,6 @@ import androidx.compose.ui.unit.dp
 import com.frame.zero.shared.design_system.AppTheme
 
 private val MinHeight = 48.dp
-private val BorderWidth = 1.dp
 
 @Composable
 fun SingleLineInputField(
@@ -77,7 +76,7 @@ fun SingleLineInputField(
           Modifier
             .clip(shape)
             .background(colors.inputBackground, shape)
-            .border(width = BorderWidth, color = colors.border, shape = shape)
+            .border(width = AppTheme.borderSystem.hairline, color = colors.border, shape = shape)
             .padding(horizontal = spacing.space16, vertical = spacing.space8),
         verticalAlignment = Alignment.CenterVertically
       ) {

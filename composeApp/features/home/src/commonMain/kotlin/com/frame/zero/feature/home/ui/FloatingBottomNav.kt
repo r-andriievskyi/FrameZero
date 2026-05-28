@@ -30,8 +30,6 @@ import framezero.composeapp.features.home.generated.resources.tab_schedule
 import org.jetbrains.compose.resources.stringResource
 
 private val FloatingBottomNavHeight = 65.dp
-private val BorderWidth = 1.dp
-
 internal val FloatingBottomNavOuterPadding = 16.dp
 internal val FloatingBottomNavClearance = FloatingBottomNavHeight + FloatingBottomNavOuterPadding * 2
 
@@ -55,7 +53,7 @@ fun FloatingBottomNav(
   Row(
     modifier = modifier
       .height(FloatingBottomNavHeight)
-      .border(width = BorderWidth, color = AppTheme.colorSystem.border, shape = shape)
+      .border(width = AppTheme.borderSystem.hairline, color = AppTheme.colorSystem.border, shape = shape)
       .clip(shape)
       .background(AppTheme.colorSystem.surfaceElevated)
       .padding(AppTheme.spacingSystem.space4),
@@ -99,7 +97,7 @@ private fun NavItem(
     Text(
       text = tab.label(),
       style = AppTheme.typographySystem.labelMedium,
-      color = if (selected) colorSystem.textOnAccent else colorSystem.textSecondary,
+      color = if (selected) colorSystem.textOnAccent else colorSystem.textSecondary
     )
   }
 }

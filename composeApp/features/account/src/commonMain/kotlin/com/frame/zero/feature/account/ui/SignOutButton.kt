@@ -19,7 +19,6 @@ import framezero.composeapp.features.account.generated.resources.Res
 import framezero.composeapp.features.account.generated.resources.sign_out
 import org.jetbrains.compose.resources.stringResource
 
-private val SignOutBorderWidth = 1.dp
 private val SignOutHeight = 52.dp
 
 @Composable
@@ -33,7 +32,7 @@ internal fun SignOutButton(
       .fillMaxWidth()
       .height(SignOutHeight)
       .clip(shape)
-      .border(SignOutBorderWidth, AppTheme.colorSystem.errorText, shape)
+      .border(AppTheme.borderSystem.hairline, AppTheme.colorSystem.errorText, shape)
       .clickableWithRipple(
         color = AppTheme.colorSystem.errorSurface,
         bounded = true,

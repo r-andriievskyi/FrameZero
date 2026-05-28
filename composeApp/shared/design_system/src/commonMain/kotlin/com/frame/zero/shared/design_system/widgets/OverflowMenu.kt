@@ -25,7 +25,6 @@ import com.frame.zero.shared.design_system.modifier.clickableWithRipple
 
 private val TriggerSize = 40.dp
 private val MenuWidth = 200.dp
-private val TriggerBorderWidth = 1.dp
 
 @Immutable
 data class OverflowMenuItem(
@@ -50,7 +49,7 @@ fun OverflowMenu(
         .size(TriggerSize)
         .clip(shape)
         .border(
-          width = TriggerBorderWidth,
+          width = AppTheme.borderSystem.hairline,
           color = AppTheme.colorSystem.cardBorder,
           shape = shape
         )

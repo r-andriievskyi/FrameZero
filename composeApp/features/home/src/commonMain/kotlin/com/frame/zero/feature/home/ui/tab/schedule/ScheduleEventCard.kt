@@ -15,7 +15,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import com.frame.zero.domain.schedule.ScheduleEventKind
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
@@ -26,8 +25,6 @@ import framezero.composeapp.features.home.generated.resources.event_kind_other
 import framezero.composeapp.features.home.generated.resources.event_kind_review
 import framezero.composeapp.features.home.generated.resources.event_kind_shoot
 import org.jetbrains.compose.resources.stringResource
-
-private val BorderWidth = 1.dp
 
 @Composable
 internal fun ScheduleEventCard(
@@ -42,7 +39,7 @@ internal fun ScheduleEventCard(
       .fillMaxWidth()
       .clip(shape)
       .border(
-        width = BorderWidth,
+        width = AppTheme.borderSystem.hairline,
         color = AppTheme.colorSystem.border,
         shape = shape
       )

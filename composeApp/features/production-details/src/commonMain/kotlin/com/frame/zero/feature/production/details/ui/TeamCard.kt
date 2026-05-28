@@ -34,7 +34,6 @@ import com.frame.zero.domain.production.ViewerCrew
 import kotlin.time.Instant
 
 private val AvatarSize = 44.dp
-private val CardBorderWidth = 1.dp
 private val CountBadgePaddingHorizontal = 6.dp
 private val CountBadgePaddingVertical = 2.dp
 
@@ -77,7 +76,7 @@ internal fun TeamCard(
       CrewRow(member = manager)
       VerticalSpacer(AppTheme.spacingSystem.space16)
       HorizontalDivider(
-        thickness = CardBorderWidth,
+        thickness = AppTheme.borderSystem.hairline,
         color = AppTheme.colorSystem.border
       )
     }
@@ -98,7 +97,7 @@ internal fun TeamCard(
       }
       VerticalSpacer(AppTheme.spacingSystem.space16)
       HorizontalDivider(
-        thickness = CardBorderWidth,
+        thickness = AppTheme.borderSystem.hairline,
         color = AppTheme.colorSystem.border
       )
     }

@@ -27,6 +27,7 @@ data class CreateProductionState(
 
   val canAdvanceStep1: Boolean
     get() = title.isNotBlank() &&
-      startDate != null && wrapDate != null &&
+      startDate != null &&
+      wrapDate != null &&
       wrapDate.toEpochDays() > startDate.toEpochDays()
 }

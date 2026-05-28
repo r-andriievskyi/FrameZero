@@ -11,7 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.unit.dp
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.widgets.HorizontalSpacer
@@ -47,8 +46,6 @@ import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.Month
 import org.jetbrains.compose.resources.stringResource
-
-private val TodayBadgeBorderWidth = 1.dp
 
 @Composable
 internal fun ScheduleDateHeader(
@@ -124,7 +121,7 @@ internal fun TodayBadge(modifier: Modifier = Modifier) {
     modifier = modifier
       .clip(shape)
       .border(
-        width = TodayBadgeBorderWidth,
+        width = AppTheme.borderSystem.hairline,
         color = AppTheme.colorSystem.border,
         shape = shape
       )

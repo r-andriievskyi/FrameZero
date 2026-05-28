@@ -26,7 +26,6 @@ import com.frame.zero.shared.design_system.modifier.clickableWithRipple
 import org.jetbrains.compose.resources.painterResource
 
 private val BackButtonSize = 40.dp
-private val BorderWidth = 1.dp
 
 @Composable
 fun TopToolbar(
@@ -69,7 +68,7 @@ private fun BackButton(
       .size(BackButtonSize)
       .clip(shape)
       .background(AppTheme.colorSystem.cardBackground)
-      .border(width = BorderWidth, color = AppTheme.colorSystem.border, shape = shape)
+      .border(width = AppTheme.borderSystem.hairline, color = AppTheme.colorSystem.border, shape = shape)
       .clickableWithRipple(
         color = AppTheme.colorSystem.accentDim,
         bounded = true,
