@@ -122,12 +122,6 @@ private fun ScheduleContent(
           daysWithEvents = daysWithItems,
           onDayClick = onDateSelected
         )
-        VerticalSpacer(AppTheme.spacingSystem.space16)
-        ScheduleDateHeader(
-          date = selectedDate,
-          isToday = true,
-          compact = true
-        )
       }
 
       ScheduleView.MONTH -> {
@@ -150,12 +144,6 @@ private fun ScheduleContent(
             displayYear = next.year
             displayMonth = next.month
           }
-        )
-        VerticalSpacer(AppTheme.spacingSystem.space16)
-        ScheduleDateHeader(
-          date = selectedDate,
-          isToday = true,
-          compact = true
         )
       }
     }

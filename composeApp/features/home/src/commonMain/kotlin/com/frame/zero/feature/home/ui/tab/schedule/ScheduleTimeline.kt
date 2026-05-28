@@ -72,7 +72,7 @@ private fun EventsTimeline(
   Column(modifier = modifier.fillMaxWidth()) {
     events.forEachIndexed { index, event ->
       TimelineRow(
-        timeLabel = event.startsAt.formatTime()
+        timeLabel = event.timeRangeLabel()
       ) {
         ScheduleEventCard(
           title = event.title,
@@ -144,6 +144,9 @@ private fun LocalDate.toDueLabel(selectedDate: LocalDate?): String? {
     }
   }
 }
+
+private fun ScheduleEvent.timeRangeLabel(): String =
+  "${startsAt.formatTime()} – ${endsAt.formatTime()}"
 
 private fun Instant.formatTime(): String {
   val local = toLocalDateTime(TimeZone.currentSystemDefault())
