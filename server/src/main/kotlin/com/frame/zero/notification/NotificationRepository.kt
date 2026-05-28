@@ -66,13 +66,13 @@ class NotificationRepositoryImpl : NotificationRepository {
               val cursorTs = Instant.ofEpochMilli(pc.epochMillis)
               cond =
                 cond and
-                  (
-                    (NotificationsTable.createdAt less cursorTs) or
-                      (
-                        (NotificationsTable.createdAt eq cursorTs) and
-                          (NotificationsTable.id less pc.id)
-                        )
+                (
+                  (NotificationsTable.createdAt less cursorTs) or
+                    (
+                      (NotificationsTable.createdAt eq cursorTs) and
+                        (NotificationsTable.id less pc.id)
                     )
+                )
             }
           }
           cond
@@ -106,17 +106,18 @@ class NotificationRepositoryImpl : NotificationRepository {
   override suspend fun markRead(
     userId: UUID,
     ids: List<UUID>
-  ): Unit = dbQuery {
-    if (ids.isEmpty()) return@dbQuery
-    val now = Instant.now()
-    NotificationsTable.update({
-      (NotificationsTable.userId eq userId) and
-        (NotificationsTable.id inList ids) and
-        NotificationsTable.readAt.isNull()
-    }) {
-      it[readAt] = now
+  ): Unit =
+    dbQuery {
+      if (ids.isEmpty()) return@dbQuery
+      val now = Instant.now()
+      NotificationsTable.update({
+        (NotificationsTable.userId eq userId) and
+          (NotificationsTable.id inList ids) and
+          NotificationsTable.readAt.isNull()
+      }) {
+        it[readAt] = now
+      }
     }
-  }
 
   override suspend fun markAllRead(userId: UUID): Unit =
     dbQuery {

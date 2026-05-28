@@ -36,7 +36,6 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
 private val ProgressBarHeight = 6.dp
-private val BorderWidth = 1.dp
 
 @Composable
 internal fun ProductionCard(
@@ -50,7 +49,11 @@ internal fun ProductionCard(
       .fillMaxWidth()
       .clip(RoundedCornerShape(AppTheme.radiusSystem.radius16))
       .background(AppTheme.colorSystem.cardBackground)
-      .border(BorderWidth, AppTheme.colorSystem.border, RoundedCornerShape(AppTheme.radiusSystem.radius16))
+      .border(
+        AppTheme.borderSystem.hairline,
+        AppTheme.colorSystem.border,
+        RoundedCornerShape(AppTheme.radiusSystem.radius16)
+      )
       .clickableWithRipple(color = AppTheme.colorSystem.accentDim, onClick = onClick)
       .padding(AppTheme.spacingSystem.space16)
   ) {

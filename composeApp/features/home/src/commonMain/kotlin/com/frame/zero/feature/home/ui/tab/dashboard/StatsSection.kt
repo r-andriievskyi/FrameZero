@@ -15,7 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import com.frame.zero.feature.home.tab.dashboard.DashboardStatsUi
@@ -27,8 +26,6 @@ import framezero.composeapp.features.home.generated.resources.stats_open_tasks
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-
-private val StatCardBorderWidth = 1.dp
 
 @Composable
 internal fun StatsRow(stats: DashboardStatsUi) {
@@ -63,7 +60,7 @@ private fun StatCard(
     modifier = modifier
       .clip(shape)
       .background(AppTheme.colorSystem.cardBackground)
-      .border(StatCardBorderWidth, AppTheme.colorSystem.border, shape)
+      .border(AppTheme.borderSystem.hairline, AppTheme.colorSystem.border, shape)
       .padding(AppTheme.spacingSystem.space16)
   ) {
     Image(

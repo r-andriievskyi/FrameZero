@@ -11,6 +11,7 @@ FrameZero is a Kotlin Multiplatform (KMP) app targeting Android, iOS, Desktop, a
 - **Shared wire types:** DTOs and constants used by both client and server are defined once in `shared/commonMain` (e.g. `shared/src/commonMain/kotlin/com/frame/zero/dto/`). The server depends on `shared` for these. DTOs are organised by domain subdirectory (`common/`, `dashboard/`, `production/`, `schedule/`, `notification/`, `task/`).
 - **Convention plugins** (`build-logic/`): `crossplatform.kmp.library`, `crossplatform.kmp.library.compose`, and `crossplatform.code.quality` configure targets, SDK versions, and code quality tooling. New KMP modules should apply one of the first two (they inherit code quality automatically).
 - **Server DB migrations:** Flyway manages schema evolution. Migration files live in `server/src/main/resources/db/migration/` using the naming convention `V<N>__<description>.sql`.
+- **Offline-first repositories:** Paginated lists use Room (KMP) + Paging 3 `RemoteMediator`. `shared/repositories/productions/` is the reference impl. The repo returns `Flow<PagingData<DomainType>>`; UI observes Room, never the network directly. Room modules apply `libs.plugins.ksp` + `libs.plugins.androidxRoom` and register `ksp` configs for all targets.
 
 ## Adding a New Feature
 
@@ -36,7 +37,9 @@ FrameZero is a Kotlin Multiplatform (KMP) app targeting Android, iOS, Desktop, a
 - **Koin DI:** Each feature exposes a `val <name>Module = module { ... }` (see `authModule` in `AuthModule.kt`). ViewModels are `factory`, repositories are `single`.
 - **Decompose components:** Accept `ComponentContext` + ViewModel factories via constructor. Use sealed `Config`/`Child` interfaces for sub-navigation (see `AuthComponent.kt`).
 - **Expect/Actual:** When adding one, implement all three actuals (`androidMain`, `iosMain`, `jvmMain`) in the same change.
-- **Design system:** Use `AppTheme.colorSystem.*`, `AppTheme.spacingSystem.*`, `AppTheme.radiusSystem.*`, `AppTheme.typographySystem.*`. Never use `MaterialTheme` or hardcoded `Color`/`dp` values in feature UI.
+- **Design system:** Use `AppTheme.colorSystem.*`, `AppTheme.spacingSystem.*`, `AppTheme.radiusSystem.*`, `AppTheme.typographySystem.*`. Never use `MaterialTheme` or hardcoded `Color`/`dp` values in feature UI. Use `spacingSystem` tokens only for spacing (padding, gaps) — never for size, width, or border-width values.
+- **Spacers:** Use `VerticalSpacer(AppTheme.spacingSystem.spaceN)` and `HorizontalSpacer(AppTheme.spacingSystem.spaceN)` from the design system (`com.frame.zero.shared.design_system.widgets`). Never use a raw `Spacer(Modifier.height/width(...))`.
+- **Previews:** Always use `@LightDarkPreview` (from `com.frame.zero.shared.design_system`) instead of a plain `@Preview`. This generates both light and dark previews automatically.
 - **Errors:** Use `Outcome<T>` (sealed type in `shared/.../domain/Outcome.kt`) or `Result<T>` across layer boundaries; don't throw.
 - **Serialization:** `kotlinx.serialization` with `@Serializable` on shared DTOs.
 - **Dependencies:** Always add to `gradle/libs.versions.toml`, never inline in build scripts.
@@ -48,7 +51,7 @@ FrameZero is a Kotlin Multiplatform (KMP) app targeting Android, iOS, Desktop, a
 - No `LocalContext.current` in shared Compose code.
 - No duplicated request/response models between `server` and clients.
 - No SwiftUI code unless explicitly requested.
-- No Room/SQLDelight yet — `multiplatform-settings` covers current needs.
+- No SQLDelight or Realm — Room KMP is the local DB; `multiplatform-settings` for small k/v storage.
 
 ## Key File Locations
 
@@ -66,7 +69,7 @@ FrameZero is a Kotlin Multiplatform (KMP) app targeting Android, iOS, Desktop, a
 ## Current Modules
 
 **Features** (shared logic + compose UI):
-`auth`, `home`, `production`
+`account`, `auth`, `home`, `production`, `production-details`, `task-details`
 
 **Repositories** (`shared/repositories/<name>/`):
 `auth`, `user`, `dashboard`, `productions`, `schedule`

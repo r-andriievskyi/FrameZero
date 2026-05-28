@@ -38,7 +38,6 @@ private val StackedCardWidth = 180.dp
 private val StackedCardHeight = 100.dp
 private val BackCardOffsetY = 40.dp
 private val MiddleCardOffsetY = 25.dp
-private val CardBorderWidth = 1.dp
 private val IllustrationBarHeight = 4.dp
 private val FrontCardWidth = 200.dp
 private val FrontCardHeight = 70.dp
@@ -125,7 +124,7 @@ private fun EmptyStateIllustration() {
         .rotate(-5f)
         .clip(cardShape)
         .background(AppTheme.colorSystem.cardBackground)
-        .border(CardBorderWidth, AppTheme.colorSystem.cardBorder, cardShape)
+        .border(AppTheme.borderSystem.hairline, AppTheme.colorSystem.cardBorder, cardShape)
     )
 
     // Middle card (rotated right)
@@ -136,7 +135,7 @@ private fun EmptyStateIllustration() {
         .rotate(3f)
         .clip(cardShape)
         .background(AppTheme.colorSystem.cardBackground)
-        .border(CardBorderWidth, AppTheme.colorSystem.cardBorder, cardShape)
+        .border(AppTheme.borderSystem.hairline, AppTheme.colorSystem.cardBorder, cardShape)
     ) {
       // Colored progress bars at bottom of middle card
       Row(
@@ -177,7 +176,7 @@ private fun EmptyStateIllustration() {
         .size(width = FrontCardWidth, height = FrontCardHeight)
         .clip(cardShape)
         .background(AppTheme.colorSystem.cardBackground)
-        .border(CardBorderWidth, AppTheme.colorSystem.cardBorder, cardShape)
+        .border(AppTheme.borderSystem.hairline, AppTheme.colorSystem.cardBorder, cardShape)
         .padding(AppTheme.spacingSystem.space8),
       contentAlignment = Alignment.CenterStart
     ) {

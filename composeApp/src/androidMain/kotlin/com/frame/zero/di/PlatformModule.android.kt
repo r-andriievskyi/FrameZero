@@ -6,8 +6,9 @@ import com.frame.zero.repository.productions.local.DatabaseBuilderFactory
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
-actual fun platformModule(): Module = module {
-  single<DatabaseBuilderFactory> { AndroidDatabaseBuilderFactory(get()) }
-}
+actual fun platformModule(): Module =
+  module {
+    single<DatabaseBuilderFactory> { AndroidDatabaseBuilderFactory(get()) }
+  }
 
 fun androidContextModule(context: Context): Module = module { single<Context> { context } }

@@ -5,6 +5,7 @@ import com.frame.zero.repository.productions.local.JvmDatabaseBuilderFactory
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
-actual fun platformModule(): Module = module {
-  single<DatabaseBuilderFactory> { JvmDatabaseBuilderFactory() }
-}
+actual fun platformModule(): Module =
+  module {
+    single<DatabaseBuilderFactory> { JvmDatabaseBuilderFactory() }
+  }

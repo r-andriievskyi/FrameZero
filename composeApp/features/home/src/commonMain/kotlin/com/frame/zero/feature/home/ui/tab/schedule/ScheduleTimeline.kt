@@ -145,8 +145,7 @@ private fun LocalDate.toDueLabel(selectedDate: LocalDate?): String? {
   }
 }
 
-private fun ScheduleEvent.timeRangeLabel(): String =
-  "${startsAt.formatTime()} – ${endsAt.formatTime()}"
+private fun ScheduleEvent.timeRangeLabel(): String = "${startsAt.formatTime()} – ${endsAt.formatTime()}"
 
 private fun Instant.formatTime(): String {
   val local = toLocalDateTime(TimeZone.currentSystemDefault())

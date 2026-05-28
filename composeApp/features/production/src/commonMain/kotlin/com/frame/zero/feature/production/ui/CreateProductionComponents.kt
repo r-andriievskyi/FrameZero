@@ -121,7 +121,7 @@ internal fun GenreChip(
         }
       )
       .border(
-        BorderWidth,
+        AppTheme.borderSystem.hairline,
         if (isSelected) AppTheme.colorSystem.accent else AppTheme.colorSystem.cardBorder,
         shape
       )
@@ -165,7 +165,7 @@ internal fun PhaseSelector(
           .clip(shape)
           .background(AppTheme.colorSystem.cardBackground)
           .border(
-            width = if (isSelected) SelectedBorderWidth else BorderWidth,
+            width = if (isSelected) SelectedBorderWidth else AppTheme.borderSystem.hairline,
             color = borderColor,
             shape = shape
           )
@@ -244,7 +244,7 @@ internal fun CrewMemberRow(
     modifier = modifier
       .fillMaxWidth()
       .clip(shape)
-      .border(BorderWidth, AppTheme.colorSystem.cardBorder, shape)
+      .border(AppTheme.borderSystem.hairline, AppTheme.colorSystem.cardBorder, shape)
       .padding(AppTheme.spacingSystem.space8),
     verticalAlignment = Alignment.CenterVertically
   ) {
@@ -305,7 +305,7 @@ internal fun RoleDropdown(
         .fillMaxWidth()
         .clip(shape)
         .background(AppTheme.colorSystem.inputBackground)
-        .border(BorderWidth, AppTheme.colorSystem.border, shape)
+        .border(AppTheme.borderSystem.hairline, AppTheme.colorSystem.border, shape)
         .clickable { expanded = !expanded }
         .padding(
           horizontal = AppTheme.spacingSystem.space16,
@@ -334,7 +334,7 @@ internal fun RoleDropdown(
           .padding(top = DropdownMenuTopPadding)
           .clip(shape)
           .background(AppTheme.colorSystem.surfaceElevated)
-          .border(BorderWidth, AppTheme.colorSystem.border, shape)
+          .border(AppTheme.borderSystem.hairline, AppTheme.colorSystem.border, shape)
       ) {
         crewRoles.forEach { role ->
           Text(
