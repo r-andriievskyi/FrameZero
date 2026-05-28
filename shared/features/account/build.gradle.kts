@@ -8,6 +8,7 @@ kotlin {
       api(projects.shared)
       api(libs.decompose)
       implementation(libs.koin.core)
+      implementation(libs.kotlinx.coroutines.core)
     }
   }
 }

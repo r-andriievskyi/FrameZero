@@ -10,6 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import com.arkivanov.decompose.defaultComponentContext
 import com.frame.zero.core.session.SessionManager
 import com.frame.zero.feature.RootComponent
+import com.frame.zero.feature.account.AccountViewModel
 import com.frame.zero.feature.auth.AuthComponent
 import com.frame.zero.feature.auth.register.RegisterViewModel
 import com.frame.zero.feature.auth.signin.SignInViewModel
@@ -56,7 +57,8 @@ class MainActivity : ComponentActivity() {
       },
       taskDetailsViewModelFactory = { taskId ->
         koin.get<TaskDetailsViewModel> { parametersOf(taskId) }
-      }
+      },
+      accountViewModelFactory = { koin.get<AccountViewModel>() }
     )
   }
 

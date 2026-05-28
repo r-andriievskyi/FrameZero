@@ -16,23 +16,23 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
-import com.frame.zero.shared.design_system.AppTheme
-import com.frame.zero.shared.design_system.widgets.TopToolbar
-import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import com.frame.zero.domain.production.Genre
 import com.frame.zero.feature.production.CreateProductionComponent
 import com.frame.zero.feature.production.CreateProductionIntent
 import com.frame.zero.feature.production.CreateProductionState
+import com.frame.zero.shared.design_system.AppTheme
+import com.frame.zero.shared.design_system.LightDarkPreview
+import com.frame.zero.shared.design_system.widgets.TopToolbar
+import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import framezero.composeapp.features.production.generated.resources.Res
 import framezero.composeapp.features.production.generated.resources.create_step_indicator
 import framezero.composeapp.features.production.generated.resources.create_title
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-fun CreateProductionContent(component: CreateProductionComponent) {
+fun CreateProductionScreen(component: CreateProductionComponent) {
   val state by component.state.collectAsState()
-  CreateProductionScreen(
+  CreateProductionContent(
     state = state,
     onIntent = component::onIntent,
     onBack = {
@@ -46,7 +46,7 @@ fun CreateProductionContent(component: CreateProductionComponent) {
 }
 
 @Composable
-internal fun CreateProductionScreen(
+private fun CreateProductionContent(
   state: CreateProductionState,
   onIntent: (CreateProductionIntent) -> Unit,
   onBack: () -> Unit,
@@ -99,13 +99,11 @@ internal fun CreateProductionScreen(
   }
 }
 
-// ── Previews ─────────────────────────────────────────────────────────
-
-@Preview
+@LightDarkPreview
 @Composable
 private fun CreateProductionStep1Preview() {
-  AppTheme(darkTheme = true) {
-    CreateProductionScreen(
+  AppTheme {
+    CreateProductionContent(
       state = CreateProductionState(currentStep = 1, title = "Echoes of Silence", genre = Genre.DRAMA),
       onIntent = {},
       onBack = {}
@@ -113,11 +111,11 @@ private fun CreateProductionStep1Preview() {
   }
 }
 
-@Preview
+@LightDarkPreview
 @Composable
 private fun CreateProductionStep2Preview() {
-  AppTheme(darkTheme = true) {
-    CreateProductionScreen(
+  AppTheme {
+    CreateProductionContent(
       state = CreateProductionState(currentStep = 2),
       onIntent = {},
       onBack = {}
@@ -125,11 +123,11 @@ private fun CreateProductionStep2Preview() {
   }
 }
 
-@Preview
+@LightDarkPreview
 @Composable
 private fun CreateProductionStep3Preview() {
-  AppTheme(darkTheme = true) {
-    CreateProductionScreen(
+  AppTheme {
+    CreateProductionContent(
       state = CreateProductionState(currentStep = 3, title = "Echoes of Silence", genre = Genre.DRAMA),
       onIntent = {},
       onBack = {}
