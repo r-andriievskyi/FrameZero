@@ -58,12 +58,11 @@ class RootComponent(
     lifecycle.doOnDestroy { scope.cancel() }
     scope.launch {
       sessionManager.state.collect { sessionState ->
-        val target =
-          when (sessionState) {
-            SessionState.Loading -> Config.Splash
-            SessionState.LoggedOut -> Config.Auth
-            is SessionState.LoggedIn -> Config.Home
-          }
+        val target = when (sessionState) {
+          SessionState.Loading -> Config.Splash
+          SessionState.LoggedOut -> Config.Auth
+          is SessionState.LoggedIn -> Config.Home
+        }
         if (stack.value.active.configuration != target) navigation.replaceAll(target)
       }
     }
@@ -97,12 +96,14 @@ class RootComponent(
           }
         )
       )
+
       Config.Account -> Child.Account(
         AccountComponent(
           componentContext = context,
           onBack = { navigation.pop() }
         )
       )
+
       Config.CreateProduction -> Child.CreateProduction(
         CreateProductionComponent(
           componentContext = context,
@@ -111,6 +112,7 @@ class RootComponent(
           viewModelFactory = createProductionViewModelFactory
         )
       )
+
       is Config.ProductionDetails -> Child.ProductionDetails(
         ProductionDetailsComponent(
           componentContext = context,
@@ -120,6 +122,7 @@ class RootComponent(
           viewModelFactory = productionDetailsViewModelFactory
         )
       )
+
       is Config.TaskDetails -> Child.TaskDetails(
         TaskDetailsComponent(
           componentContext = context,
