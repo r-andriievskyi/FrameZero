@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlin.coroutines.CoroutineContext
 
 class TaskDetailsViewModel(
@@ -33,6 +34,24 @@ class TaskDetailsViewModel(
   fun onIntent(intent: TaskDetailsIntent) {
     when (intent) {
       TaskDetailsIntent.Refresh -> Unit
+      TaskDetailsIntent.ToggleComplete -> {
+        _state.update { current ->
+          val newStatus = if (current.status == TaskStatus.COMPLETED) {
+            TaskStatus.IN_PROGRESS
+          } else {
+            TaskStatus.COMPLETED
+          }
+          current.copy(status = newStatus)
+        }
+      }
+      is TaskDetailsIntent.ToggleChecklistItem -> {
+        _state.update { current ->
+          val updatedChecklist = current.checklist.map { item ->
+            if (item.id == intent.itemId) item.copy(isCompleted = !item.isCompleted) else item
+          }
+          current.copy(checklist = updatedChecklist)
+        }
+      }
     }
   }
 
