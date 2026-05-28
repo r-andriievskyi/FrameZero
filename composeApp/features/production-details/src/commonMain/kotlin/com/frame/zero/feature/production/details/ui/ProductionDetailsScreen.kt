@@ -117,8 +117,6 @@ private fun ProductionDetailsContent(
   }
 }
 
-// ── Detail Body ─────────────────────────────────────────────────────────
-
 @Composable
 private fun DetailBody(
   detail: ProductionDetail,
@@ -255,18 +253,6 @@ private fun ProductionDetailsLoadedPreview() {
           )
         )
       ),
-      onBack = {},
-      onIntent = {}
-    )
-  }
-}
-
-@LightDarkPreview
-@Composable
-private fun ProductionDetailsLoadingPreview() {
-  AppTheme {
-    ProductionDetailsContent(
-      state = ProductionDetailsState(isLoading = true),
       onBack = {},
       onIntent = {}
     )

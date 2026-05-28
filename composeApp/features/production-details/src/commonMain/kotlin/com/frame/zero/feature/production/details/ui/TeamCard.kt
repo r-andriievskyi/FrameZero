@@ -1,5 +1,6 @@
 package com.frame.zero.feature.production.details.ui
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,21 +17,25 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.frame.zero.domain.production.ProductionMember
+import com.frame.zero.domain.production.ViewerCrew
 import com.frame.zero.shared.design_system.AppTheme
+import com.frame.zero.shared.design_system.LightDarkPreview
+import com.frame.zero.shared.design_system.generated.resources.ic_chevron_right
+import com.frame.zero.shared.design_system.widgets.HorizontalSpacer
+import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import framezero.composeapp.features.production_details.generated.resources.Res
+import com.frame.zero.shared.design_system.generated.resources.Res as DesignSystemRes
 import framezero.composeapp.features.production_details.generated.resources.team_direct_reports
 import framezero.composeapp.features.production_details.generated.resources.team_header
 import framezero.composeapp.features.production_details.generated.resources.team_peers
 import framezero.composeapp.features.production_details.generated.resources.team_reports_to
 import framezero.composeapp.features.production_details.generated.resources.team_viewer_label
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-import com.frame.zero.shared.design_system.widgets.HorizontalSpacer
-import com.frame.zero.shared.design_system.widgets.VerticalSpacer
-import com.frame.zero.domain.production.ProductionMember
-import com.frame.zero.domain.production.ViewerCrew
 import kotlin.time.Instant
 
 private val AvatarSize = 44.dp
@@ -50,7 +55,6 @@ internal fun TeamCard(
       .background(AppTheme.colorSystem.cardBackground)
       .padding(AppTheme.spacingSystem.space16)
   ) {
-    // Header: TEAM + viewer role badge
     Row(
       modifier = Modifier.fillMaxWidth(),
       horizontalArrangement = Arrangement.SpaceBetween,
@@ -68,7 +72,6 @@ internal fun TeamCard(
       )
     }
 
-    // Reports To section
     viewerCrew.manager?.let { manager ->
       VerticalSpacer(AppTheme.spacingSystem.space16)
       SectionLabel(label = stringResource(Res.string.team_reports_to))
@@ -81,7 +84,6 @@ internal fun TeamCard(
       )
     }
 
-    // Peers section
     if (viewerCrew.peers.isNotEmpty()) {
       VerticalSpacer(AppTheme.spacingSystem.space16)
       SectionHeader(
@@ -102,7 +104,6 @@ internal fun TeamCard(
       )
     }
 
-    // Direct Reports section
     if (viewerCrew.reports.isNotEmpty()) {
       VerticalSpacer(AppTheme.spacingSystem.space16)
       SectionHeader(
@@ -171,9 +172,7 @@ private fun SectionHeader(
   ) {
     Text(
       text = label,
-      style = AppTheme.typographySystem.caption.copy(
-        fontWeight = FontWeight.Bold
-      ),
+      style = AppTheme.typographySystem.caption,
       color = AppTheme.colorSystem.textMuted
     )
     Text(
@@ -220,31 +219,29 @@ private fun CrewRow(
     Column(modifier = Modifier.weight(1f)) {
       Text(
         text = member.name,
-        style = AppTheme.typographySystem.titleSmall,
+        style = AppTheme.typographySystem.titleMedium,
         color = AppTheme.colorSystem.textPrimary
       )
+      VerticalSpacer(AppTheme.spacingSystem.space4)
       Text(
         text = member.role,
         style = AppTheme.typographySystem.bodySmall,
         color = AppTheme.colorSystem.textMuted
       )
     }
-    Text(
-      text = "›",
-      style = AppTheme.typographySystem.titleMedium,
-      color = AppTheme.colorSystem.textMuted
+    Image(
+      painter = painterResource(DesignSystemRes.drawable.ic_chevron_right),
+      colorFilter = ColorFilter.tint(AppTheme.colorSystem.textPrimary),
+      contentDescription = null
     )
   }
 }
 
-// ── Previews ────────────────────────────────────────────────────────────
-
-private val PreviewInstant = Instant.fromEpochMilliseconds(0L)
-
-@Preview
+@LightDarkPreview
 @Composable
 private fun TeamCardPreview() {
-  AppTheme(darkTheme = true) {
+  val previewInstant = Instant.fromEpochMilliseconds(0L)
+  AppTheme {
     TeamCard(
       viewerCrew = ViewerCrew(
         viewer = ProductionMember(
@@ -254,7 +251,7 @@ private fun TeamCardPreview() {
           role = "Producer",
           initials = "TE",
           avatarColorHex = "#2196F3",
-          addedAt = PreviewInstant,
+          addedAt = previewInstant,
           reportsToMemberId = "m1"
         ),
         manager = ProductionMember(
@@ -264,7 +261,7 @@ private fun TeamCardPreview() {
           role = "Director",
           initials = "MR",
           avatarColorHex = "#E91E63",
-          addedAt = PreviewInstant,
+          addedAt = previewInstant,
           reportsToMemberId = null
         ),
         peers = listOf(
@@ -275,7 +272,7 @@ private fun TeamCardPreview() {
             role = "Cinematographer",
             initials = "SL",
             avatarColorHex = "#9C27B0",
-            addedAt = PreviewInstant,
+            addedAt = previewInstant,
             reportsToMemberId = "m1"
           )
         ),
@@ -287,7 +284,7 @@ private fun TeamCardPreview() {
             role = "1st AD",
             initials = "JM",
             avatarColorHex = "#009688",
-            addedAt = PreviewInstant,
+            addedAt = previewInstant,
             reportsToMemberId = "m2"
           ),
           ProductionMember(
@@ -297,7 +294,7 @@ private fun TeamCardPreview() {
             role = "Cinematographer",
             initials = "SL",
             avatarColorHex = "#9C27B0",
-            addedAt = PreviewInstant,
+            addedAt = previewInstant,
             reportsToMemberId = "m2"
           )
         )
