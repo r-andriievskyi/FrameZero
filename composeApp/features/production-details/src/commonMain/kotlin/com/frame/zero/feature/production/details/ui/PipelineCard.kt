@@ -1,6 +1,7 @@
 package com.frame.zero.feature.production.details.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,7 +17,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.frame.zero.shared.design_system.AppTheme
 import framezero.composeapp.features.production_details.generated.resources.Res
@@ -27,6 +27,7 @@ import com.frame.zero.shared.design_system.widgets.HorizontalSpacer
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import com.frame.zero.domain.production.ProductionPhase
 import com.frame.zero.domain.production.ProductionPipelinePhase
+import com.frame.zero.shared.design_system.LightDarkPreview
 
 private val PhaseBarSegmentHeight = 6.dp
 private val PhaseDotSize = 16.dp
@@ -45,7 +46,12 @@ internal fun PipelineCard(
       .fillMaxWidth()
       .padding(horizontal = AppTheme.spacingSystem.space16)
       .clip(RoundedCornerShape(AppTheme.radiusSystem.radius16))
-      .background(AppTheme.colorSystem.cardBackground)
+      .background(AppTheme.colorSystem.cardBackground, RoundedCornerShape(AppTheme.radiusSystem.radius16))
+      .border(
+        AppTheme.borderSystem.hairline,
+        AppTheme.colorSystem.border,
+        RoundedCornerShape(AppTheme.radiusSystem.radius16)
+      )
       .padding(AppTheme.spacingSystem.space16)
   ) {
     Row(
@@ -107,7 +113,7 @@ internal fun PipelineCard(
   }
 }
 
-@Preview
+@LightDarkPreview
 @Composable
 private fun PipelineCardPreview() {
   val pipeline = listOf(

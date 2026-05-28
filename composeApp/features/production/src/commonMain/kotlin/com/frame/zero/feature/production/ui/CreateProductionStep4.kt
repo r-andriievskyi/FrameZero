@@ -112,7 +112,7 @@ internal fun ReviewCard(
     modifier = modifier
       .fillMaxWidth()
       .clip(cardShape)
-      .border(BorderWidth, AppTheme.colorSystem.cardBorder, cardShape)
+      .border(AppTheme.borderSystem.hairline, AppTheme.colorSystem.cardBorder, cardShape)
       .background(AppTheme.colorSystem.cardBackground)
   ) {
     Column(modifier = Modifier.padding(AppTheme.spacingSystem.space16)) {

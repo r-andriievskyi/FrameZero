@@ -34,4 +34,7 @@ object AppTheme {
 
   val radiusSystem: RadiusSystem
     @Composable get() = LocalAppTheme.current.radiusSystem
+
+  val borderSystem: BorderSystem
+    @Composable get() = LocalAppTheme.current.borderSystem
 }

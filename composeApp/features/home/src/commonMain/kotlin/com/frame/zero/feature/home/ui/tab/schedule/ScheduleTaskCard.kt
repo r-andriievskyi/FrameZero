@@ -117,7 +117,10 @@ private fun TaskPriority.displayLabel(): String =
     TaskPriority.LOW -> stringResource(Res.string.schedule_priority_low)
   }
 
-private data class BadgeColors(val background: Color, val text: Color)
+private data class BadgeColors(
+  val background: Color,
+  val text: Color
+)
 
 @LightDarkPreview
 @Composable
@@ -151,5 +154,3 @@ private fun ScheduleTaskCardPreview() {
     }
   }
 }
-
-

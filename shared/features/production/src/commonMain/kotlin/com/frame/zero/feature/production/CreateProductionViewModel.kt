@@ -50,8 +50,11 @@ class CreateProductionViewModel(
       CreateProductionIntent.NextStep -> nextStep()
       CreateProductionIntent.PreviousStep ->
         _state.update {
-          if (it.currentStep > 1) it.copy(currentStep = it.currentStep - 1, error = null)
-          else it
+          if (it.currentStep > 1) {
+            it.copy(currentStep = it.currentStep - 1, error = null)
+          } else {
+            it
+          }
         }
       CreateProductionIntent.Submit -> submit()
     }
@@ -75,8 +78,11 @@ class CreateProductionViewModel(
     when (current.currentStep) {
       1 -> {
         if (!current.canAdvanceStep1) {
-          val errorMsg = if (current.title.isBlank()) "Title is required"
-          else "Valid start and wrap dates are required"
+          val errorMsg = if (current.title.isBlank()) {
+            "Title is required"
+          } else {
+            "Valid start and wrap dates are required"
+          }
           _state.update { it.copy(error = errorMsg) }
           return
         }

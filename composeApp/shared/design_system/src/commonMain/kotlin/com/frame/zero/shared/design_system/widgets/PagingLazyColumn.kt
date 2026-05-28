@@ -252,9 +252,7 @@ fun DefaultInlineRefreshIndicator(
  * icon while refreshing. All icons are drawn via [Canvas] so no image resources are needed.
  */
 @Composable
-private fun RefreshIconBadge(
-  isRefreshing: Boolean
-) {
+private fun RefreshIconBadge(isRefreshing: Boolean) {
   val accentColor = AppTheme.colorSystem.accent
   val onAccentColor = AppTheme.colorSystem.textOnAccent
 

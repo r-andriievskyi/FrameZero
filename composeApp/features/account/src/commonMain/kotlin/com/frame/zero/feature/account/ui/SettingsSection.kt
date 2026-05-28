@@ -12,15 +12,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.frame.zero.shared.design_system.AppTheme
 import framezero.composeapp.features.account.generated.resources.Res
 import framezero.composeapp.features.account.generated.resources.ic_bell
 import framezero.composeapp.features.account.generated.resources.ic_lock
 import framezero.composeapp.features.account.generated.resources.ic_mail
 import framezero.composeapp.features.account.generated.resources.ic_user
-
-private val SectionBorderWidth = 1.dp
 
 @Composable
 internal fun SettingsSection(
@@ -42,7 +39,7 @@ internal fun SettingsSection(
         .fillMaxWidth()
         .clip(shape)
         .background(AppTheme.colorSystem.cardBackground, shape)
-        .border(SectionBorderWidth, AppTheme.colorSystem.cardBorder, shape)
+        .border(AppTheme.borderSystem.hairline, AppTheme.colorSystem.cardBorder, shape)
     ) {
       content()
     }

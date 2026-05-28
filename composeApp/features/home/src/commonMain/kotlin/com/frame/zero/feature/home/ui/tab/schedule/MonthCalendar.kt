@@ -62,7 +62,6 @@ import com.frame.zero.shared.design_system.generated.resources.Res as DesignSyst
 private val EventDotSize = 6.dp
 private val DayCellSize = 44.dp
 private val NavButtonSize = 36.dp
-private val MonthNavButtonBorderWidth = 1.dp
 
 @Composable
 internal fun MonthCalendar(
@@ -184,7 +183,7 @@ private fun MonthNavButton(
       .size(NavButtonSize)
       .clip(shape)
       .background(color = AppTheme.colorSystem.inputBackground, shape = shape)
-      .border(width = MonthNavButtonBorderWidth, color = AppTheme.colorSystem.border, shape = shape)
+      .border(width = AppTheme.borderSystem.hairline, color = AppTheme.colorSystem.border, shape = shape)
       .clickableWithRipple(color = AppTheme.colorSystem.accentDim, onClick = onClick),
     contentAlignment = Alignment.Center
   ) {

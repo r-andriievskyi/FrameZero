@@ -203,9 +203,18 @@ Rules:
   `Color(0xFF…)`, or raw `dp`/`sp` literals for visual tokens. Pick the
   closest semantic token; if none fits, add one to `ColorSystem` +
   `ThemeOptions`.
-- Always add a Preview to new composables; always have a default
-  `Modifier` parameter. Hoist magic numbers (sizes, borders) to
-  top-of-file `val`s.
+- Use `spacingSystem` tokens only for spacing (padding, gaps, spacer sizes).
+  Never use them for element sizes, widths, or border widths — use explicit
+  `Dp` values hoisted to top-of-file `val`s for those.
+- For vertical/horizontal gaps, use `VerticalSpacer(AppTheme.spacingSystem.spaceN)`
+  and `HorizontalSpacer(AppTheme.spacingSystem.spaceN)` from
+  `com.frame.zero.shared.design_system.widgets`. Never use a raw
+  `Spacer(Modifier.height/width(...))`.
+- Always annotate previews with `@LightDarkPreview` (from
+  `com.frame.zero.shared.design_system`) instead of plain `@Preview`.
+  This generates both light and dark variants automatically.
+- Always have a default `Modifier` parameter on new composables.
+  Hoist magic numbers (sizes, borders) to top-of-file `val`s.
 
 ## Conventions
 

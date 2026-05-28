@@ -21,8 +21,6 @@ import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.stringResource
 
 // ── Shared dimension constants ────────────────────────────────────────
-
-internal val BorderWidth = 1.dp
 internal val SelectedBorderWidth = 2.dp
 
 // ── Extension utilities ───────────────────────────────────────────────
