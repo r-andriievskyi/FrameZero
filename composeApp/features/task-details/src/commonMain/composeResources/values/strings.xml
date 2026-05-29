@@ -1,20 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <!-- Task details screen -->
   <string name="task_details_title">Task</string>
   <string name="task_details_mark_complete">Mark complete</string>
-  <string name="task_details_in_progress">Currently in progress</string>
-  <string name="task_details_completed">Completed</string>
   <string name="task_details_assignee">ASSIGNEE</string>
-  <string name="task_details_reporter">REPORTER</string>
-  <string name="task_details_due_date">DUE DATE</string>
-  <string name="task_details_phase">PHASE</string>
+  <string name="task_details_due_date">DUE</string>
   <string name="task_details_today">Today</string>
-  <string name="task_details_description">DESCRIPTION</string>
-  <string name="task_details_checklist">CHECKLIST</string>
-  <string name="task_details_attachments">ATTACHMENTS</string>
-  <string name="task_details_activity">ACTIVITY</string>
-  <string name="task_details_high_priority">High Priority</string>
-  <string name="task_details_medium_priority">Medium Priority</string>
-  <string name="task_details_low_priority">Low Priority</string>
 </resources>
