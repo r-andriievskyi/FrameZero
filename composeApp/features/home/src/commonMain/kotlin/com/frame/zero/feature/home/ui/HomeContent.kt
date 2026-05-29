@@ -23,7 +23,7 @@ import androidx.compose.ui.graphics.Color
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.feature.home.HomeComponent
 import com.frame.zero.feature.home.tab.HomeTab
-import com.frame.zero.feature.home.ui.tab.dashboard.DashboardTabContent
+import com.frame.zero.feature.home.ui.tab.dashboard.DashboardTab
 import com.frame.zero.feature.home.ui.tab.productions.ProductionsTabContent
 import com.frame.zero.feature.home.ui.tab.schedule.ScheduleTabContent
 import kotlinx.coroutines.launch
@@ -53,7 +53,7 @@ fun HomeContent(component: HomeComponent) {
         key = { tabs[it] }
       ) { page ->
         when (tabs[page]) {
-          HomeTab.DASHBOARD -> DashboardTabContent(component.dashboardTab)
+          HomeTab.DASHBOARD -> DashboardTab(component.dashboardTab)
           HomeTab.PRODUCTIONS -> ProductionsTabContent(component.projectsTab)
           HomeTab.SCHEDULE -> ScheduleTabContent(component.scheduleTab)
         }

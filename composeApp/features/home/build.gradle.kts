@@ -11,7 +11,16 @@ kotlin {
       implementation(projects.composeApp.shared.designSystem)
     }
     commonTest.dependencies { implementation(libs.kotlin.test) }
+    androidInstrumentedTest.dependencies {
+      implementation(libs.androidx.testExt.junit)
+      implementation(libs.compose.uiTestJUnit4)
+    }
   }
 }
 
-android { namespace = "com.frame.zero.feature.home.ui" }
+android {
+  namespace = "com.frame.zero.feature.home.ui"
+  defaultConfig { testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner" }
+}
+
+dependencies { debugImplementation(libs.compose.uiTestManifest) }

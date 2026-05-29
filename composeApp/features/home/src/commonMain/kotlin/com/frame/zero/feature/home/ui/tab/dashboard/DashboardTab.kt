@@ -24,14 +24,14 @@ import framezero.composeapp.features.home.generated.resources.greeting_good_morn
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-fun DashboardTabContent(component: DashboardTabComponent) {
+fun DashboardTab(component: DashboardTabComponent) {
   LaunchedEffect(Unit) { component.onAppeared() }
   val state by component.state.collectAsState()
   DashboardContent(dashboard = state.dashboard, onTaskClick = component.onTaskClick)
 }
 
 @Composable
-private fun DashboardContent(
+internal fun DashboardContent(
   dashboard: DashboardUi?,
   onTaskClick: (taskId: String) -> Unit
 ) {
