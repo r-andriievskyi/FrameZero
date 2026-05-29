@@ -14,4 +14,8 @@ object NotificationsTable : Table("notifications") {
   val createdAt = timestamp("created_at")
 
   override val primaryKey = PrimaryKey(id)
+
+  init {
+    index("idx_notifications_user", false, userId, createdAt)
+  }
 }

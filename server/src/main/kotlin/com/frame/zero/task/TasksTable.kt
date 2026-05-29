@@ -19,4 +19,10 @@ object TasksTable : Table("tasks") {
   val createdAt = timestamp("created_at")
 
   override val primaryKey = PrimaryKey(id)
+
+  init {
+    index("idx_tasks_production", false, productionId)
+    index("idx_tasks_assignee", false, assigneeUserId)
+    index("idx_tasks_due_date", false, dueDate)
+  }
 }
