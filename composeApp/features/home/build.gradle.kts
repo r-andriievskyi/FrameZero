@@ -11,8 +11,10 @@ kotlin {
       implementation(projects.composeApp.shared.designSystem)
     }
     commonTest.dependencies { implementation(libs.kotlin.test) }
-    androidInstrumentedTest.dependencies {
-      implementation(libs.androidx.testExt.junit)
+    androidUnitTest.dependencies {
+      implementation(libs.kotlin.testJunit)
+      implementation(libs.junit)
+      implementation(libs.robolectric)
       implementation(libs.compose.uiTestJUnit4)
     }
   }
@@ -20,7 +22,7 @@ kotlin {
 
 android {
   namespace = "com.frame.zero.feature.home.ui"
-  defaultConfig { testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner" }
+  testOptions { unitTests.isIncludeAndroidResources = true }
 }
 
 dependencies { debugImplementation(libs.compose.uiTestManifest) }
