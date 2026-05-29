@@ -16,4 +16,10 @@ object ProductionMembersTable : Table("production_members") {
   val reportsToMemberId = javaUUID("reports_to_member_id").nullable()
 
   override val primaryKey = PrimaryKey(id)
+
+  init {
+    index("idx_members_production", false, productionId)
+    index("idx_members_user", false, userId)
+    index("idx_members_reports_to", false, reportsToMemberId)
+  }
 }
