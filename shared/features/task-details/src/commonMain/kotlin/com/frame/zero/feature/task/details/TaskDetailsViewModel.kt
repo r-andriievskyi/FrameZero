@@ -21,14 +21,13 @@ class TaskDetailsViewModel(
 ) : InstanceKeeper.Instance {
   private val scope = CoroutineScope(dispatcher + SupervisorJob())
 
-  private val _state = MutableStateFlow(TaskDetailsState(taskId = taskId))
+  private val _state = MutableStateFlow(sampleTaskDetailsState(taskId))
   val state: StateFlow<TaskDetailsState> = _state.asStateFlow()
 
-  private val _events =
-    MutableSharedFlow<TaskDetailsEvent>(
-      extraBufferCapacity = 1,
-      onBufferOverflow = BufferOverflow.DROP_OLDEST
-    )
+  private val _events = MutableSharedFlow<TaskDetailsEvent>(
+    extraBufferCapacity = 1,
+    onBufferOverflow = BufferOverflow.DROP_OLDEST
+  )
   val events: SharedFlow<TaskDetailsEvent> = _events.asSharedFlow()
 
   fun onIntent(intent: TaskDetailsIntent) {
@@ -44,6 +43,7 @@ class TaskDetailsViewModel(
           current.copy(status = newStatus)
         }
       }
+
       is TaskDetailsIntent.ToggleChecklistItem -> {
         _state.update { current ->
           val updatedChecklist = current.checklist.map { item ->
