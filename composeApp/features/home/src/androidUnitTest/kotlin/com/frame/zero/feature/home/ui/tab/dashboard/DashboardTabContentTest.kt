@@ -5,7 +5,6 @@ import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.frame.zero.feature.home.tab.dashboard.DashboardStatsUi
 import com.frame.zero.feature.home.tab.dashboard.DashboardTaskUi
 import com.frame.zero.feature.home.tab.dashboard.DashboardUi
@@ -18,8 +17,9 @@ import com.frame.zero.shared.design_system.AppTheme
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 
-@RunWith(AndroidJUnit4::class)
+@RunWith(RobolectricTestRunner::class)
 class DashboardTabContentTest {
   @get:Rule
   val composeRule = createComposeRule()
