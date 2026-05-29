@@ -14,6 +14,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer
@@ -34,13 +36,13 @@ internal fun StatsRow(stats: DashboardStatsUi) {
     horizontalArrangement = Arrangement.spacedBy(AppTheme.spacingSystem.space8)
   ) {
     StatCard(
-      modifier = Modifier.weight(1f),
+      modifier = Modifier.weight(1f).testTag(DashboardTestTags.STAT_ACTIVE_PRODUCTIONS),
       icon = Res.drawable.ic_clapper_board,
       value = stats.activeProjects.toString(),
       label = stringResource(Res.string.stats_active_projects)
     )
     StatCard(
-      modifier = Modifier.weight(1f),
+      modifier = Modifier.weight(1f).testTag(DashboardTestTags.STAT_OPEN_TASKS),
       icon = Res.drawable.ic_task,
       value = stats.openTasks.toString(),
       label = stringResource(Res.string.stats_open_tasks)
@@ -58,6 +60,7 @@ private fun StatCard(
   val shape = RoundedCornerShape(AppTheme.radiusSystem.radius16)
   Column(
     modifier = modifier
+      .semantics(mergeDescendants = true) {}
       .clip(shape)
       .background(AppTheme.colorSystem.cardBackground)
       .border(AppTheme.borderSystem.hairline, AppTheme.colorSystem.border, shape)

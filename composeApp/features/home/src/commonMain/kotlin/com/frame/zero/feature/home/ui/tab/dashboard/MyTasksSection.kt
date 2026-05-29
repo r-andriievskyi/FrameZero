@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import com.frame.zero.feature.home.tab.dashboard.DashboardTaskUi
 import com.frame.zero.shared.design_system.AppTheme
@@ -33,12 +34,17 @@ internal fun MyTasksSection(
   onTaskClick: (taskId: String) -> Unit
 ) {
   SectionHeader(
+    modifier = Modifier.testTag(DashboardTestTags.MY_TASKS_SECTION),
     title = stringResource(Res.string.my_tasks_title),
     actionLabel = stringResource(Res.string.my_tasks_see_all)
   )
   VerticalSpacer(AppTheme.spacingSystem.space8)
   tasks.forEach { task ->
-    TaskCard(task = task, onClick = { onTaskClick(task.id) })
+    TaskCard(
+      modifier = Modifier.testTag(DashboardTestTags.taskRow(task.id)),
+      task = task,
+      onClick = { onTaskClick(task.id) }
+    )
     VerticalSpacer(AppTheme.spacingSystem.space8)
   }
 }
@@ -46,11 +52,12 @@ internal fun MyTasksSection(
 @Composable
 private fun TaskCard(
   task: DashboardTaskUi,
-  onClick: () -> Unit
+  onClick: () -> Unit,
+  modifier: Modifier = Modifier
 ) {
   val shape = RoundedCornerShape(AppTheme.radiusSystem.radius16)
   Row(
-    modifier = Modifier
+    modifier = modifier
       .fillMaxWidth()
       .clip(shape)
       .clickable(onClick = onClick)
