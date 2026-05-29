@@ -12,6 +12,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer
@@ -47,6 +48,7 @@ internal fun DashboardContent(
   ) {
     if (dashboard != null) {
       Text(
+        modifier = Modifier.testTag(DashboardTestTags.GREETING),
         text = stringResource(Res.string.greeting_good_morning, dashboard.displayName),
         style = AppTheme.typographySystem.displayMedium,
         color = AppTheme.colorSystem.textPrimary

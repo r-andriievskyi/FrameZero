@@ -12,10 +12,11 @@ import com.frame.zero.shared.design_system.AppTheme
 @Composable
 internal fun SectionHeader(
   title: String,
-  actionLabel: String
+  actionLabel: String,
+  modifier: Modifier = Modifier
 ) {
   Row(
-    modifier = Modifier.fillMaxWidth(),
+    modifier = modifier.fillMaxWidth(),
     horizontalArrangement = Arrangement.SpaceBetween,
     verticalAlignment = Alignment.CenterVertically
   ) {
