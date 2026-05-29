@@ -42,7 +42,7 @@ Composite Gradle build + native iOS wrapper.
 | `composeApp/` | Compose Multiplatform UI host (Android, iOS, JVM Desktop). Owns `App.kt`, the Decompose `RootComponent`, and platform entry points. |
 | `composeApp/features/<name>/` | Per-feature Compose UI rendering the matching shared component. Same feature list as above. |
 | `composeApp/shared/design_system/` | Shared design system library. Applies `crossplatform.kmp.library.compose`. |
-| `server/` | JVM Ktor backend (Netty + Exposed/Postgres + JWT via Koin). Feature packages: `auth`, `dashboard`, `notification`, `production`, `schedule`, `task`, plus `common`/`config`. Flyway migrations in `server/src/main/resources/db/migration/`. Depends on `shared` for wire types. |
+| `server/` | JVM Ktor backend (Netty + Exposed/Postgres + JWT via Koin). Feature packages: `auth`, `dashboard`, `notification`, `production`, `schedule`, `task`, plus `common`/`config`. Schema is created from the Exposed `Table` definitions on boot. Depends on `shared` for wire types. |
 | `iosApp/` | Swift/SwiftUI wrapper. Minimal — flag any Swift edits for manual review. |
 
 Navigation is **Decompose**. `RootComponent` (in `composeApp/commonMain`)
@@ -148,7 +148,7 @@ not directly to module scripts.
 - `multiplatform-settings` **1.3.0** (k/v storage)
 - `kotlinx-datetime` **0.7.1** (`Instant`/`LocalDate` in DTOs — never `java.time.*`)
 - AndroidX Room **2.8.4** (KMP) + Paging **3.5.0** + SQLite bundled **2.6.2** — offline-first repos
-- Server: Exposed **1.2.0** + HikariCP **7.0.2** + PostgreSQL **42.7.11**, Flyway **12.5.0**, H2 **2.4.240** (tests), JWT via `ktor-server-auth-jwt`, bcrypt for passwords
+- Server: Exposed **1.2.0** + HikariCP **7.0.2** + PostgreSQL **42.7.11**, H2 **2.4.240** (tests), JWT via `ktor-server-auth-jwt`, bcrypt for passwords
 - Android minSdk **29**, targetSdk **36**, JVM target **11**
 - Compose Hot Reload **1.1.0** on desktop
 
@@ -171,9 +171,13 @@ export DATABASE_URL=jdbc:postgresql://prod-host:5432/framezero
 
 ### Schema
 
-Flyway-managed in `server/src/main/resources/db/migration/`. Adding schema:
-new `V<n>__<desc>.sql` (never edit applied), update the Exposed `Table`,
-verify on H2 PostgreSQL-mode via `:server:test`.
+`DatabaseFactory.init` runs `SchemaUtils.create(...)` over the Exposed
+`Table` definitions on boot (`CREATE TABLE IF NOT EXISTS`), so the schema —
+including the declared indexes — is created from Kotlin, not SQL migrations.
+Adding schema: edit the Exposed `Table` (columns + any `index(...)` in an
+`init` block), verify on H2 PostgreSQL-mode via `:server:test`. `create`
+won't alter existing columns, so on a schema change drop/recreate the dev
+database.
 
 ## Client storage
 

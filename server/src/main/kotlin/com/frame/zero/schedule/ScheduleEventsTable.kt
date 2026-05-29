@@ -15,4 +15,9 @@ object ScheduleEventsTable : Table("schedule_events") {
   val kind = varchar("kind", 20)
 
   override val primaryKey = PrimaryKey(id)
+
+  init {
+    index("idx_events_production", false, productionId)
+    index("idx_events_starts_at", false, startsAt)
+  }
 }

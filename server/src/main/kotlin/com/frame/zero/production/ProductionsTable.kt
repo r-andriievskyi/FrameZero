@@ -21,4 +21,9 @@ object ProductionsTable : Table("productions") {
   val updatedAt = timestamp("updated_at")
 
   override val primaryKey = PrimaryKey(id)
+
+  init {
+    index("idx_productions_owner", false, ownerUserId)
+    index("idx_productions_updated_at", false, updatedAt)
+  }
 }
