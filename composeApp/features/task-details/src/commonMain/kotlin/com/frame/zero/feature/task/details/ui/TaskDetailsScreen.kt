@@ -1,30 +1,51 @@
 package com.frame.zero.feature.task.details.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import com.frame.zero.feature.task.details.TaskDetailsComponent
 import com.frame.zero.feature.task.details.TaskDetailsIntent
 import com.frame.zero.feature.task.details.TaskDetailsState
+import com.frame.zero.feature.task.details.TaskMember
+import com.frame.zero.feature.task.details.TaskPriority
+import com.frame.zero.feature.task.details.TaskStatus
 import com.frame.zero.feature.task.details.sampleTaskDetailsState
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
-import com.frame.zero.shared.design_system.widgets.OverflowMenu
+import com.frame.zero.shared.design_system.widgets.CtaButton
+import com.frame.zero.shared.design_system.widgets.HorizontalSpacer
 import com.frame.zero.shared.design_system.widgets.TopToolbar
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import framezero.composeapp.features.task_details.generated.resources.Res
+import framezero.composeapp.features.task_details.generated.resources.task_details_assignee
+import framezero.composeapp.features.task_details.generated.resources.task_details_due_date
+import framezero.composeapp.features.task_details.generated.resources.task_details_mark_complete
 import framezero.composeapp.features.task_details.generated.resources.task_details_title
+import framezero.composeapp.features.task_details.generated.resources.task_details_today
 import org.jetbrains.compose.resources.stringResource
+
+private val AvatarSize = 36.dp
 
 @Composable
 fun TaskDetailsScreen(component: TaskDetailsComponent) {
@@ -52,24 +73,31 @@ internal fun TaskDetailsContent(
     Column(modifier = Modifier.fillMaxSize()) {
       TopToolbar(
         title = stringResource(Res.string.task_details_title),
-        onBack = onBack,
-        trailingContent = {
-          OverflowMenu(items = emptyList())
-        }
+        onBack = onBack
       )
 
       Column(
         modifier = Modifier
-          .fillMaxSize()
+          .weight(1f)
           .verticalScroll(rememberScrollState())
           .padding(horizontal = AppTheme.spacingSystem.space16)
       ) {
-        HeaderSection(
-          priority = state.priority,
-          productionName = state.productionName
-        )
+        // Production name + Priority badge row
+        Row(
+          modifier = Modifier.fillMaxWidth(),
+          horizontalArrangement = Arrangement.SpaceBetween,
+          verticalAlignment = Alignment.CenterVertically
+        ) {
+          Text(
+            text = state.productionName,
+            style = AppTheme.typographySystem.bodyLarge,
+            color = AppTheme.colorSystem.textSecondary
+          )
+          PriorityBadge(priority = state.priority)
+        }
         VerticalSpacer(AppTheme.spacingSystem.space8)
 
+        // Title
         Text(
           text = state.title,
           style = AppTheme.typographySystem.displayMedium,
@@ -77,49 +105,151 @@ internal fun TaskDetailsContent(
         )
         VerticalSpacer(AppTheme.spacingSystem.space16)
 
-        MarkCompleteCard(
-          status = state.status,
-          onToggleComplete = { onIntent(TaskDetailsIntent.ToggleComplete) }
-        )
-        VerticalSpacer(AppTheme.spacingSystem.space16)
-
-        DetailsCard(
+        // Assignee + Due row
+        AssigneeDueRow(
           assignee = state.assignee,
-          reporter = state.reporter,
           dueDate = state.dueDate,
-          isDueToday = state.isDueToday,
-          phase = state.phase
+          isDueToday = state.isDueToday
         )
-        VerticalSpacer(AppTheme.spacingSystem.space16)
+        VerticalSpacer(AppTheme.spacingSystem.space24)
 
+        // Description
         if (state.description.isNotBlank()) {
-          DescriptionCard(
-            description = state.description,
-            tags = state.tags
+          Text(
+            text = state.description,
+            style = AppTheme.typographySystem.bodyLarge,
+            color = AppTheme.colorSystem.textSecondary
           )
-          VerticalSpacer(AppTheme.spacingSystem.space16)
         }
+      }
 
-        if (state.checklist.isNotEmpty()) {
-          ChecklistCard(
-            checklist = state.checklist,
-            onToggleItem = { onIntent(TaskDetailsIntent.ToggleChecklistItem(it)) }
+      // Bottom CTA
+      if (state.status != TaskStatus.COMPLETED) {
+        CtaButton(
+          text = stringResource(Res.string.task_details_mark_complete),
+          modifier = Modifier
+            .fillMaxWidth()
+            .padding(AppTheme.spacingSystem.space16),
+          onClick = { onIntent(TaskDetailsIntent.MarkComplete) }
+        )
+      }
+    }
+  }
+}
+
+@Composable
+private fun PriorityBadge(
+  priority: TaskPriority,
+  modifier: Modifier = Modifier
+) {
+  val (bgColor, textColor, label) = when (priority) {
+    TaskPriority.HIGH -> Triple(
+      AppTheme.colorSystem.priorityHighSurface,
+      AppTheme.colorSystem.priorityHighText,
+      "High"
+    )
+    TaskPriority.MEDIUM -> Triple(
+      AppTheme.colorSystem.priorityMedSurface,
+      AppTheme.colorSystem.priorityMedText,
+      "Medium"
+    )
+    TaskPriority.LOW -> Triple(
+      AppTheme.colorSystem.priorityLowSurface,
+      AppTheme.colorSystem.priorityLowText,
+      "Low"
+    )
+  }
+  Text(
+    text = label,
+    style = AppTheme.typographySystem.labelMedium.copy(fontWeight = FontWeight.Bold),
+    color = textColor,
+    modifier = modifier
+      .clip(RoundedCornerShape(AppTheme.radiusSystem.radius8))
+      .background(bgColor)
+      .padding(horizontal = AppTheme.spacingSystem.space8, vertical = AppTheme.spacingSystem.space4)
+  )
+}
+
+@Composable
+private fun AssigneeDueRow(
+  assignee: TaskMember?,
+  dueDate: String?,
+  isDueToday: Boolean,
+  modifier: Modifier = Modifier
+) {
+  Row(
+    modifier = modifier.fillMaxWidth(),
+    verticalAlignment = Alignment.Top
+  ) {
+    // Assignee column
+    Column(modifier = Modifier.weight(1f)) {
+      Text(
+        text = stringResource(Res.string.task_details_assignee),
+        style = AppTheme.typographySystem.caption.copy(fontWeight = FontWeight.Bold),
+        color = AppTheme.colorSystem.textMuted
+      )
+      VerticalSpacer(AppTheme.spacingSystem.space8)
+      assignee?.let { member ->
+        Row(verticalAlignment = Alignment.CenterVertically) {
+          val avatarColor = member.avatarColorHex
+            ?.let { parseHexColor(it) }
+            ?: AppTheme.colorSystem.accentDim
+          Box(
+            modifier = Modifier
+              .size(AvatarSize)
+              .clip(CircleShape)
+              .background(avatarColor),
+            contentAlignment = Alignment.Center
+          ) {
+            Text(
+              text = member.initials,
+              style = AppTheme.typographySystem.labelSmall,
+              color = AppTheme.colorSystem.textOnAccent
+            )
+          }
+          HorizontalSpacer(AppTheme.spacingSystem.space8)
+          Text(
+            text = member.name,
+            style = AppTheme.typographySystem.titleSmall,
+            color = AppTheme.colorSystem.textPrimary
           )
-          VerticalSpacer(AppTheme.spacingSystem.space16)
         }
+      }
+    }
 
-        if (state.attachments.isNotEmpty()) {
-          AttachmentsCard(attachments = state.attachments)
-          VerticalSpacer(AppTheme.spacingSystem.space16)
-        }
-
-        if (state.activity.isNotEmpty()) {
-          ActivityCard(activity = state.activity)
-          VerticalSpacer(AppTheme.spacingSystem.space32)
+    // Due column
+    Column {
+      Text(
+        text = stringResource(Res.string.task_details_due_date),
+        style = AppTheme.typographySystem.caption.copy(fontWeight = FontWeight.Bold),
+        color = AppTheme.colorSystem.textMuted
+      )
+      VerticalSpacer(AppTheme.spacingSystem.space8)
+      dueDate?.let {
+        if (isDueToday) {
+          Text(
+            text = stringResource(Res.string.task_details_today),
+            style = AppTheme.typographySystem.titleSmall,
+            color = AppTheme.colorSystem.errorText
+          )
+        } else {
+          Text(
+            text = it,
+            style = AppTheme.typographySystem.titleSmall,
+            color = AppTheme.colorSystem.textPrimary
+          )
         }
       }
     }
   }
+}
+
+@Suppress("MagicNumber")
+private fun parseHexColor(hex: String): Color? {
+  val cleaned = hex.removePrefix("#")
+  return runCatching {
+    Color(("FF$cleaned").toLong(16))
+  }.getOrNull()
 }
 
 @LightDarkPreview
@@ -133,4 +263,3 @@ private fun TaskDetailsContentPreview() {
     )
   }
 }
-
