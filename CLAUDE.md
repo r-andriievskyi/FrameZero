@@ -230,6 +230,9 @@ Rules:
   `shared/.../domain/Outcome.kt`) across layer boundaries. Reserve
   `Result<T>` for ad-hoc internal flows. Never throw across modules.
   Server maps exceptions to HTTP via `AppException`.
+- **StateFlow updates:** Always use `_state.update { it.copy(...) }` instead
+  of `_state.value = _state.value.copy(...)`. The `update` function is
+  atomic and avoids race conditions with concurrent emissions.
 - **Serialization:** kotlinx.serialization. `@Serializable` on DTOs.
 - **Wire format excludes UI hints:** DTOs carry only semantic fields
   (`phase`, `status`, enums). No `*Color`, `*Hint`, badge labels, or

@@ -41,6 +41,7 @@ FrameZero is a Kotlin Multiplatform (KMP) app targeting Android, iOS, Desktop, a
 - **Spacers:** Use `VerticalSpacer(AppTheme.spacingSystem.spaceN)` and `HorizontalSpacer(AppTheme.spacingSystem.spaceN)` from the design system (`com.frame.zero.shared.design_system.widgets`). Never use a raw `Spacer(Modifier.height/width(...))`.
 - **Previews:** Always use `@LightDarkPreview` (from `com.frame.zero.shared.design_system`) instead of a plain `@Preview`. This generates both light and dark previews automatically.
 - **Errors:** Use `Outcome<T>` (sealed type in `shared/.../domain/Outcome.kt`) or `Result<T>` across layer boundaries; don't throw.
+- **StateFlow updates:** Always use `_state.update { it.copy(...) }` instead of `_state.value = _state.value.copy(...)`. The `update` function is atomic and avoids race conditions with concurrent emissions.
 - **Serialization:** `kotlinx.serialization` with `@Serializable` on shared DTOs.
 - **Dependencies:** Always add to `gradle/libs.versions.toml`, never inline in build scripts.
 
