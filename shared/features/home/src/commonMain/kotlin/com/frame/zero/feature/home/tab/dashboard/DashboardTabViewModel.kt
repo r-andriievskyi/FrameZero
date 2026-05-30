@@ -19,7 +19,7 @@ import kotlin.coroutines.CoroutineContext
 class DashboardTabViewModel(
   private val getMeUseCase: GetMeUseCase,
   private val getDashboardUseCase: GetDashboardUseCase,
-  dispatcher: CoroutineContext = Dispatchers.Main
+  dispatcher: CoroutineContext = Dispatchers.Main.immediate
 ) : InstanceKeeper.Instance {
   private val scope = CoroutineScope(dispatcher + SupervisorJob())
 
