@@ -15,7 +15,6 @@ class ScheduleTabComponent(
   val state: StateFlow<ScheduleTabState>
     get() = viewModel.state
 
-  fun onAppeared() = viewModel.onAppeared()
 
   fun onViewChanged(view: ScheduleView) = viewModel.onViewChanged(view)
 

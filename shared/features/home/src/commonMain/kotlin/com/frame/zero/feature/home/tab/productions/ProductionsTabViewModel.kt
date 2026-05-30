@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
 import kotlin.coroutines.CoroutineContext
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -36,7 +37,7 @@ class ProductionsTabViewModel(
 
   fun onFilterSelected(phase: ProductionPhase?) {
     if (_state.value.selectedFilter == phase) return
-    _state.value = _state.value.copy(selectedFilter = phase)
+    _state.update { it.copy(selectedFilter = phase) }
   }
 
   override fun onDestroy() {

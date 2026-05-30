@@ -8,5 +8,6 @@ data class ScheduleTabState(
   val isLoading: Boolean = false,
   val view: ScheduleView = ScheduleView.DAY,
   val schedule: Schedule? = null,
-  val selectedDate: LocalDate? = null
+  val selectedDate: LocalDate? = null,
+  val error: String? = null
 )
