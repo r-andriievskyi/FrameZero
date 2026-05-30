@@ -35,8 +35,8 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.frame.zero.domain.production.Genre
 import com.frame.zero.domain.production.ProductionPhase
-import com.frame.zero.feature.home.tab.projects.ProductionUi
-import com.frame.zero.feature.home.tab.projects.ProjectsTabComponent
+import com.frame.zero.feature.home.tab.productions.ProductionUi
+import com.frame.zero.feature.home.tab.productions.ProductionsTabComponent
 import com.frame.zero.feature.home.ui.FloatingBottomNavClearance
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
@@ -62,7 +62,7 @@ private const val ContentFadeOutMillis = 140
 private enum class ProductionsContentState { Skeleton, Empty, List }
 
 @Composable
-fun ProductionsTabContent(component: ProjectsTabComponent) {
+fun ProductionsTab(component: ProductionsTabComponent) {
   val state by component.state.collectAsState()
   val lazyPagingItems = component.productions.collectAsLazyPagingItems()
   ProductionsContent(
