@@ -4,8 +4,8 @@ import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.childContext
 import com.frame.zero.feature.home.tab.dashboard.DashboardTabComponent
 import com.frame.zero.feature.home.tab.dashboard.DashboardTabViewModel
-import com.frame.zero.feature.home.tab.projects.ProjectsTabComponent
-import com.frame.zero.feature.home.tab.projects.ProjectsTabViewModel
+import com.frame.zero.feature.home.tab.productions.ProductionsTabComponent
+import com.frame.zero.feature.home.tab.productions.ProductionsTabViewModel
 import com.frame.zero.feature.home.tab.schedule.ScheduleTabComponent
 import com.frame.zero.feature.home.tab.schedule.ScheduleTabViewModel
 
@@ -17,25 +17,22 @@ class HomeComponent(
   val onProductionClick: (productionId: String) -> Unit = {},
   val onTaskClick: (taskId: String) -> Unit = {},
   dashboardViewModelFactory: () -> DashboardTabViewModel,
-  projectsViewModelFactory: () -> ProjectsTabViewModel,
+  productionsViewModelFactory: () -> ProductionsTabViewModel,
   scheduleViewModelFactory: () -> ScheduleTabViewModel
 ) : ComponentContext by componentContext {
-  val dashboardTab =
-    DashboardTabComponent(
-      componentContext = childContext(key = "tab-dashboard"),
-      onTaskClick = onTaskClick,
-      viewModelFactory = dashboardViewModelFactory
-    )
-  val projectsTab =
-    ProjectsTabComponent(
-      componentContext = childContext(key = "tab-projects"),
-      onCreateProductionClick = onCreateProductionClick,
-      onProductionClick = onProductionClick,
-      viewModelFactory = projectsViewModelFactory
-    )
-  val scheduleTab =
-    ScheduleTabComponent(
-      componentContext = childContext(key = "tab-schedule"),
-      viewModelFactory = scheduleViewModelFactory
-    )
+  val dashboardTab = DashboardTabComponent(
+    componentContext = childContext(key = "tab-dashboard"),
+    onTaskClick = onTaskClick,
+    viewModelFactory = dashboardViewModelFactory
+  )
+  val productionsTab = ProductionsTabComponent(
+    componentContext = childContext(key = "tab-productions"),
+    onCreateProductionClick = onCreateProductionClick,
+    onProductionClick = onProductionClick,
+    viewModelFactory = productionsViewModelFactory
+  )
+  val scheduleTab = ScheduleTabComponent(
+    componentContext = childContext(key = "tab-schedule"),
+    viewModelFactory = scheduleViewModelFactory
+  )
 }

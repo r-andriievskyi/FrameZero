@@ -3,7 +3,7 @@ package com.frame.zero.feature.home
 import com.frame.zero.feature.home.data.DashboardRepositoryImpl
 import com.frame.zero.feature.home.data.ScheduleRepositoryImpl
 import com.frame.zero.feature.home.tab.dashboard.DashboardTabViewModel
-import com.frame.zero.feature.home.tab.projects.ProjectsTabViewModel
+import com.frame.zero.feature.home.tab.productions.ProductionsTabViewModel
 import com.frame.zero.feature.home.tab.schedule.ScheduleTabViewModel
 import com.frame.zero.feature.home.usecase.GetDashboardUseCase
 import com.frame.zero.feature.home.usecase.GetMeUseCase
@@ -21,6 +21,6 @@ val featureHomeModule: Module =
     factory { GetDashboardUseCase(get()) }
     factory { GetScheduleUseCase(get()) }
     factory { DashboardTabViewModel(get(), get()) }
-    factory { ProjectsTabViewModel(get()) }
+    factory { ProductionsTabViewModel(get()) }
     factory { ScheduleTabViewModel(get()) }
   }

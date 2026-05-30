@@ -1,4 +1,4 @@
-package com.frame.zero.feature.home.tab.projects
+package com.frame.zero.feature.home.tab.productions
 
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
@@ -20,20 +20,19 @@ import kotlinx.coroutines.flow.map
 import kotlin.coroutines.CoroutineContext
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class ProjectsTabViewModel(
+class ProductionsTabViewModel(
   private val productionsRepository: ProductionsRepository,
   dispatcher: CoroutineContext = Dispatchers.Main
 ) : InstanceKeeper.Instance {
   private val scope = CoroutineScope(dispatcher + SupervisorJob())
 
-  private val _state = MutableStateFlow(ProjectsTabState())
-  val state: StateFlow<ProjectsTabState> = _state.asStateFlow()
+  private val _state = MutableStateFlow(ProductionsTabState())
+  val state: StateFlow<ProductionsTabState> = _state.asStateFlow()
 
-  val productions: Flow<PagingData<ProductionUi>> =
-    _state
-      .flatMapLatest { current -> productionsRepository.observeProductions(current.selectedFilter) }
-      .map { page -> page.map { it.toUi() } }
-      .cachedIn(scope)
+  val productions: Flow<PagingData<ProductionUi>> = _state
+    .flatMapLatest { current -> productionsRepository.observeProductions(current.selectedFilter) }
+    .map { page -> page.map { it.toUi() } }
+    .cachedIn(scope)
 
   fun onFilterSelected(phase: ProductionPhase?) {
     if (_state.value.selectedFilter == phase) return
@@ -44,3 +43,4 @@ class ProjectsTabViewModel(
     scope.cancel()
   }
 }
+
