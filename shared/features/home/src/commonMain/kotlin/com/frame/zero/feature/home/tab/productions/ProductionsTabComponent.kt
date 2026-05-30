@@ -23,4 +23,3 @@ class ProductionsTabComponent(
 
   fun onFilterSelected(phase: ProductionPhase?) = viewModel.onFilterSelected(phase)
 }
-
