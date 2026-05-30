@@ -17,7 +17,7 @@ import kotlin.coroutines.CoroutineContext
 
 class TaskDetailsViewModel(
   private val taskId: String,
-  dispatcher: CoroutineContext = Dispatchers.Main
+  dispatcher: CoroutineContext = Dispatchers.Main.immediate
 ) : InstanceKeeper.Instance {
   private val scope = CoroutineScope(dispatcher + SupervisorJob())
 

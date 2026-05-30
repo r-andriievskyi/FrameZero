@@ -17,7 +17,7 @@ import kotlin.coroutines.CoroutineContext
 
 class CreateProductionViewModel(
   private val createProductionUseCase: CreateProductionUseCase,
-  dispatcher: CoroutineContext = Dispatchers.Main
+  dispatcher: CoroutineContext = Dispatchers.Main.immediate
 ) : InstanceKeeper.Instance {
   private val scope = CoroutineScope(dispatcher + SupervisorJob())
 
