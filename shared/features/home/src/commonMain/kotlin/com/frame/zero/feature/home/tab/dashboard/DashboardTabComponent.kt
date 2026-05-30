@@ -14,5 +14,5 @@ class DashboardTabComponent(
   val state: StateFlow<DashboardTabState>
     get() = viewModel.state
 
-  fun onAppeared() = viewModel.onAppeared()
+  fun retry() = viewModel.retry()
 }
