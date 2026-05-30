@@ -22,7 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.frame.zero.domain.production.Genre
 import com.frame.zero.domain.production.ProductionPhase
-import com.frame.zero.feature.home.tab.projects.ProductionUi
+import com.frame.zero.feature.home.tab.productions.ProductionUi
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.modifier.clickableWithRipple
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer

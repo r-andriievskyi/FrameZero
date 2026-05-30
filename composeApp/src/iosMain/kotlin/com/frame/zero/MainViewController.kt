@@ -13,7 +13,7 @@ import com.frame.zero.feature.auth.register.RegisterViewModel
 import com.frame.zero.feature.auth.signin.SignInViewModel
 import com.frame.zero.feature.home.HomeComponent
 import com.frame.zero.feature.home.tab.dashboard.DashboardTabViewModel
-import com.frame.zero.feature.home.tab.projects.ProjectsTabViewModel
+import com.frame.zero.feature.home.tab.productions.ProductionsTabViewModel
 import com.frame.zero.feature.home.tab.schedule.ScheduleTabViewModel
 import com.frame.zero.feature.production.CreateProductionViewModel
 import com.frame.zero.feature.production.details.ProductionDetailsViewModel
@@ -50,7 +50,7 @@ private val iosRoot: RootComponent by lazy {
         onProductionClick = onProductionClick,
         onTaskClick = onTaskClick,
         dashboardViewModelFactory = { koin.get<DashboardTabViewModel>() },
-        projectsViewModelFactory = { koin.get<ProjectsTabViewModel>() },
+        productionsViewModelFactory = { koin.get<ProductionsTabViewModel>() },
         scheduleViewModelFactory = { koin.get<ScheduleTabViewModel>() }
       )
     },
