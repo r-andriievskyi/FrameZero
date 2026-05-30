@@ -23,7 +23,7 @@ import kotlin.coroutines.CoroutineContext
 @OptIn(ExperimentalCoroutinesApi::class)
 class ProductionsTabViewModel(
   private val productionsRepository: ProductionsRepository,
-  dispatcher: CoroutineContext = Dispatchers.Main
+  dispatcher: CoroutineContext = Dispatchers.Main.immediate
 ) : InstanceKeeper.Instance {
   private val scope = CoroutineScope(dispatcher + SupervisorJob())
 

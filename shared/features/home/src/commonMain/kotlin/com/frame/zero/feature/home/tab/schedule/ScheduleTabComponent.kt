@@ -15,7 +15,6 @@ class ScheduleTabComponent(
   val state: StateFlow<ScheduleTabState>
     get() = viewModel.state
 
-
   fun onViewChanged(view: ScheduleView) = viewModel.onViewChanged(view)
 
   fun onDateSelected(date: LocalDate) = viewModel.onDateSelected(date)

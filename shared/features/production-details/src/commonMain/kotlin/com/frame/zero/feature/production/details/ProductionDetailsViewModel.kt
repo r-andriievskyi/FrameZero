@@ -23,7 +23,7 @@ class ProductionDetailsViewModel(
   private val productionId: String,
   private val getProductionDetailsUseCase: GetProductionDetailsUseCase,
   private val deleteProductionUseCase: DeleteProductionUseCase,
-  dispatcher: CoroutineContext = Dispatchers.Main
+  dispatcher: CoroutineContext = Dispatchers.Main.immediate
 ) : InstanceKeeper.Instance {
   private val scope = CoroutineScope(dispatcher + SupervisorJob())
 

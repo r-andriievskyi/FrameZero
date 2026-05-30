@@ -18,7 +18,7 @@ import kotlin.coroutines.CoroutineContext
 
 class RegisterViewModel(
   private val registerUseCase: RegisterUseCase,
-  dispatcher: CoroutineContext = Dispatchers.Main
+  dispatcher: CoroutineContext = Dispatchers.Main.immediate
 ) : InstanceKeeper.Instance {
   private val scope = CoroutineScope(dispatcher + SupervisorJob())
 

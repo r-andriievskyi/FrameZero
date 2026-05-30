@@ -23,7 +23,7 @@ import kotlin.time.ExperimentalTime
 
 class ScheduleTabViewModel(
   private val getScheduleUseCase: GetScheduleUseCase,
-  dispatcher: CoroutineContext = Dispatchers.Main
+  dispatcher: CoroutineContext = Dispatchers.Main.immediate
 ) : InstanceKeeper.Instance {
   private val scope = CoroutineScope(dispatcher + SupervisorJob())
 

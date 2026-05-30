@@ -18,7 +18,7 @@ import kotlin.coroutines.CoroutineContext
 
 class SignInViewModel(
   private val loginUseCase: LoginUseCase,
-  dispatcher: CoroutineContext = Dispatchers.Main
+  dispatcher: CoroutineContext = Dispatchers.Main.immediate
 ) : InstanceKeeper.Instance {
   private val scope = CoroutineScope(dispatcher + SupervisorJob())
 
