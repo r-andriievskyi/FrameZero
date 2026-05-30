@@ -25,7 +25,7 @@ import com.frame.zero.feature.home.HomeComponent
 import com.frame.zero.feature.home.tab.HomeTab
 import com.frame.zero.feature.home.ui.tab.dashboard.DashboardTab
 import com.frame.zero.feature.home.ui.tab.productions.ProductionsTab
-import com.frame.zero.feature.home.ui.tab.schedule.ScheduleTabContent
+import com.frame.zero.feature.home.ui.tab.schedule.ScheduleTab
 import kotlinx.coroutines.launch
 
 @Composable
@@ -55,7 +55,7 @@ fun HomeContent(component: HomeComponent) {
         when (tabs[page]) {
           HomeTab.DASHBOARD -> DashboardTab(component.dashboardTab)
           HomeTab.PRODUCTIONS -> ProductionsTab(component.productionsTab)
-          HomeTab.SCHEDULE -> ScheduleTabContent(component.scheduleTab)
+          HomeTab.SCHEDULE -> ScheduleTab(component.scheduleTab)
         }
       }
     }
