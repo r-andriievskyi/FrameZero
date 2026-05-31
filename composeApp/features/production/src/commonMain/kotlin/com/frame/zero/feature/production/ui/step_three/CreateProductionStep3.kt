@@ -15,21 +15,21 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.tooling.preview.Preview
-import com.frame.zero.shared.design_system.AppTheme
-import com.frame.zero.shared.design_system.widgets.CtaButton
-import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import com.frame.zero.domain.production.Genre
 import com.frame.zero.feature.production.CreateProductionIntent
 import com.frame.zero.feature.production.CreateProductionState
 import com.frame.zero.feature.production.CrewMemberEntry
+import com.frame.zero.feature.production.ui.displayLabel
+import com.frame.zero.feature.production.ui.formatBudget
+import com.frame.zero.feature.production.ui.formatDisplay
 import com.frame.zero.feature.production.ui.widgets.CrewAvatar
 import com.frame.zero.feature.production.ui.widgets.ErrorText
 import com.frame.zero.feature.production.ui.widgets.FieldLabel
 import com.frame.zero.feature.production.ui.widgets.GenreChip
-import com.frame.zero.feature.production.ui.displayLabel
-import com.frame.zero.feature.production.ui.formatBudget
-import com.frame.zero.feature.production.ui.formatDisplay
+import com.frame.zero.shared.design_system.AppTheme
+import com.frame.zero.shared.design_system.LightDarkPreview
+import com.frame.zero.shared.design_system.widgets.CtaButton
+import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import framezero.composeapp.features.production.generated.resources.Res
 import framezero.composeapp.features.production.generated.resources.create_button_create
 import framezero.composeapp.features.production.generated.resources.create_button_creating
@@ -202,12 +202,10 @@ internal fun ReviewCard(
   }
 }
 
-// ── Previews ─────────────────────────────────────────────────────────
-
-@Preview
+@LightDarkPreview
 @Composable
 private fun Step3ContentPreview() {
-  AppTheme(darkTheme = true) {
+  AppTheme {
     Step3Content(
       state = CreateProductionState(
         title = "Echoes of Silence",
@@ -225,10 +223,10 @@ private fun Step3ContentPreview() {
   }
 }
 
-@Preview
+@LightDarkPreview
 @Composable
 private fun ReviewCardPreview() {
-  AppTheme(darkTheme = true) {
+  AppTheme {
     ReviewCard(
       state = CreateProductionState(
         title = "Echoes of Silence",
@@ -242,10 +240,10 @@ private fun ReviewCardPreview() {
   }
 }
 
-@Preview
+@LightDarkPreview
 @Composable
 private fun ReviewCardEmptyPreview() {
-  AppTheme(darkTheme = true) {
+  AppTheme {
     ReviewCard(state = CreateProductionState())
   }
 }
