@@ -20,7 +20,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.asColorFilter
@@ -30,10 +29,9 @@ import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import com.frame.zero.feature.production.CreateProductionIntent
 import com.frame.zero.feature.production.CreateProductionState
 import com.frame.zero.feature.production.CrewMemberEntry
-import com.frame.zero.feature.production.ui.widgets.CrewMemberRow
 import com.frame.zero.feature.production.ui.widgets.ErrorText
 import com.frame.zero.feature.production.ui.widgets.FieldLabel
-import com.frame.zero.feature.production.ui.widgets.RoleDropdown
+import com.frame.zero.shared.design_system.LightDarkPreview
 import framezero.composeapp.features.production.generated.resources.Res
 import framezero.composeapp.features.production.generated.resources.create_button_continue
 import framezero.composeapp.features.production.generated.resources.create_button_skip_continue
@@ -181,12 +179,10 @@ internal fun Step2Content(
   }
 }
 
-// ── Previews ─────────────────────────────────────────────────────────
-
-@Preview
+@LightDarkPreview
 @Composable
 private fun Step2ContentEmptyCrewPreview() {
-  AppTheme(darkTheme = true) {
+  AppTheme {
     Step2Content(
       state = CreateProductionState(),
       onIntent = {}
@@ -194,10 +190,10 @@ private fun Step2ContentEmptyCrewPreview() {
   }
 }
 
-@Preview
+@LightDarkPreview
 @Composable
 private fun Step2ContentWithCrewPreview() {
-  AppTheme(darkTheme = true) {
+  AppTheme{
     Step2Content(
       state = CreateProductionState(
         crewMembers = listOf(

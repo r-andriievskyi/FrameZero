@@ -1,4 +1,4 @@
-package com.frame.zero.feature.production.ui.widgets
+package com.frame.zero.feature.production.ui.step_one
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable

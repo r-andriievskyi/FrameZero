@@ -21,8 +21,6 @@ import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import com.frame.zero.domain.production.Genre
 import com.frame.zero.feature.production.CreateProductionIntent
 import com.frame.zero.feature.production.CreateProductionState
-import com.frame.zero.feature.production.ui.widgets.BudgetInputField
-import com.frame.zero.feature.production.ui.widgets.DateInputField
 import com.frame.zero.feature.production.ui.widgets.ErrorText
 import com.frame.zero.feature.production.ui.widgets.FieldLabel
 import com.frame.zero.feature.production.ui.widgets.GenreChip

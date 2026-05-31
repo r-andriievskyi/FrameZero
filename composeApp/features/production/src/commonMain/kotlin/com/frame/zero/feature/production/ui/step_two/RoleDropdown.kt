@@ -1,4 +1,4 @@
-package com.frame.zero.feature.production.ui.widgets
+package com.frame.zero.feature.production.ui.step_two
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
