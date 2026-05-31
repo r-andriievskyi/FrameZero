@@ -15,10 +15,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.frame.zero.shared.design_system.AppTheme
+import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.widgets.HorizontalSpacer
 
 private val StepIndicatorActiveWidth = 24.dp
-private val StepIndicatorSize = 8.dp
+private val StepIndicatorSize = 12.dp
 
 @Composable
 internal fun StepIndicator(
@@ -52,7 +53,7 @@ internal fun StepIndicator(
   }
 }
 
-@Preview
+@LightDarkPreview
 @Composable
 private fun StepIndicatorPreview() {
   AppTheme(darkTheme = true) {

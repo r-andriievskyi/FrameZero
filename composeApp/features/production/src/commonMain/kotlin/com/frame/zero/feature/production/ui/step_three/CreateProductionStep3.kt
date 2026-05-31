@@ -1,4 +1,4 @@
-package com.frame.zero.feature.production.ui
+package com.frame.zero.feature.production.ui.step_three
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -23,6 +23,13 @@ import com.frame.zero.domain.production.Genre
 import com.frame.zero.feature.production.CreateProductionIntent
 import com.frame.zero.feature.production.CreateProductionState
 import com.frame.zero.feature.production.CrewMemberEntry
+import com.frame.zero.feature.production.ui.widgets.CrewAvatar
+import com.frame.zero.feature.production.ui.widgets.ErrorText
+import com.frame.zero.feature.production.ui.widgets.FieldLabel
+import com.frame.zero.feature.production.ui.widgets.GenreChip
+import com.frame.zero.feature.production.ui.displayLabel
+import com.frame.zero.feature.production.ui.formatBudget
+import com.frame.zero.feature.production.ui.formatDisplay
 import framezero.composeapp.features.production.generated.resources.Res
 import framezero.composeapp.features.production.generated.resources.create_button_create
 import framezero.composeapp.features.production.generated.resources.create_button_creating

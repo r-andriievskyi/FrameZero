@@ -1,4 +1,4 @@
-package com.frame.zero.feature.production.ui
+package com.frame.zero.feature.production.ui.step_two
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -30,6 +30,10 @@ import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import com.frame.zero.feature.production.CreateProductionIntent
 import com.frame.zero.feature.production.CreateProductionState
 import com.frame.zero.feature.production.CrewMemberEntry
+import com.frame.zero.feature.production.ui.widgets.CrewMemberRow
+import com.frame.zero.feature.production.ui.widgets.ErrorText
+import com.frame.zero.feature.production.ui.widgets.FieldLabel
+import com.frame.zero.feature.production.ui.widgets.RoleDropdown
 import framezero.composeapp.features.production.generated.resources.Res
 import framezero.composeapp.features.production.generated.resources.create_button_continue
 import framezero.composeapp.features.production.generated.resources.create_button_skip_continue
