@@ -145,8 +145,6 @@ internal fun Step1Content(
   }
 }
 
-// ── Previews ─────────────────────────────────────────────────────────
-
 @Preview
 @Composable
 private fun Step1ContentPreview() {

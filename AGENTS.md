@@ -39,6 +39,7 @@ FrameZero is a Kotlin Multiplatform (KMP) app targeting Android, iOS, Desktop, a
 - **Expect/Actual:** When adding one, implement all three actuals (`androidMain`, `iosMain`, `jvmMain`) in the same change.
 - **Design system:** Use `AppTheme.colorSystem.*`, `AppTheme.spacingSystem.*`, `AppTheme.radiusSystem.*`, `AppTheme.typographySystem.*`. Never use `MaterialTheme` or hardcoded `Color`/`dp` values in feature UI. Use `spacingSystem` tokens only for spacing (padding, gaps) — never for size, width, or border-width values.
 - **Spacers:** Use `VerticalSpacer(AppTheme.spacingSystem.spaceN)` and `HorizontalSpacer(AppTheme.spacingSystem.spaceN)` from the design system (`com.frame.zero.shared.design_system.widgets`). Never use a raw `Spacer(Modifier.height/width(...))`.
+- **Clickable:** Use `Modifier.clickableWithRipple(color = ...)` from `com.frame.zero.shared.design_system.modifier` instead of the bare `Modifier.clickable { ... }` so every clickable surface gets a themed Material 3 ripple (`bounded`/`radius` configurable).
 - **Previews:** Always use `@LightDarkPreview` (from `com.frame.zero.shared.design_system`) instead of a plain `@Preview`. This generates both light and dark previews automatically.
 - **Errors:** Use `Outcome<T>` (sealed type in `shared/.../domain/Outcome.kt`) or `Result<T>` across layer boundaries; don't throw.
 - **StateFlow updates:** Always use `_state.update { it.copy(...) }` instead of `_state.value = _state.value.copy(...)`. The `update` function is atomic and avoids race conditions with concurrent emissions.

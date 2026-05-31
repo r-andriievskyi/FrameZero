@@ -92,8 +92,8 @@ private fun CreateProductionContent(
     ) { step ->
       when (step) {
         1 -> Step1Content(state = state, onIntent = onIntent)
-        2 -> Step3Content(state = state, onIntent = onIntent)
-        3 -> Step4Content(state = state, onIntent = onIntent)
+        2 -> Step2Content(state = state, onIntent = onIntent)
+        3 -> Step3Content(state = state, onIntent = onIntent)
       }
     }
   }
