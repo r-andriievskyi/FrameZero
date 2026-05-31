@@ -16,6 +16,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -31,10 +33,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.frame.zero.shared.design_system.AppTheme
+import com.frame.zero.shared.design_system.asColorFilter
 import com.frame.zero.shared.design_system.widgets.HorizontalSpacer
 import com.frame.zero.shared.design_system.widgets.SingleLineInputField
 import com.frame.zero.domain.production.ProductionPhase
 import com.frame.zero.feature.production.CrewMemberEntry
+import com.frame.zero.shared.design_system.LightDarkPreview
+import com.frame.zero.shared.design_system.modifier.clickableWithRipple
 import framezero.composeapp.features.production.generated.resources.Res
 import framezero.composeapp.features.production.generated.resources.budget_placeholder
 import framezero.composeapp.features.production.generated.resources.crew_role_art
@@ -48,6 +53,7 @@ import framezero.composeapp.features.production.generated.resources.crew_role_wr
 import framezero.composeapp.features.production.generated.resources.date_picker_cancel
 import framezero.composeapp.features.production.generated.resources.date_picker_ok
 import framezero.composeapp.features.production.generated.resources.ic_calendar_days
+import framezero.composeapp.features.production.generated.resources.ic_chevron_down
 import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -56,7 +62,7 @@ private val PhaseDotSize = 12.dp
 private val RemoveButtonSize = 24.dp
 private val CrewAvatarSize = 36.dp
 private val DropdownHeight = 32.dp
-private val DropdownMenuTopPadding = 52.dp
+private val DropdownChevronSize = 16.dp
 
 private val visiblePhases = listOf(
   ProductionPhase.IDEA,
@@ -69,9 +75,6 @@ private val visiblePhases = listOf(
   ProductionPhase.DISTRIBUTION,
   ProductionPhase.RELEASE
 )
-
-// ── Field label ──────────────────────────────────────────────────────
-
 @Composable
 internal fun FieldLabel(
   text: String,
@@ -306,7 +309,7 @@ internal fun RoleDropdown(
         .clip(shape)
         .background(AppTheme.colorSystem.inputBackground)
         .border(AppTheme.borderSystem.hairline, AppTheme.colorSystem.border, shape)
-        .clickable { expanded = !expanded }
+        .clickableWithRipple(AppTheme.colorSystem.accentDim) { expanded = true }
         .padding(
           horizontal = AppTheme.spacingSystem.space16,
           vertical = AppTheme.spacingSystem.space8
@@ -320,49 +323,43 @@ internal fun RoleDropdown(
         style = AppTheme.typographySystem.bodyLarge,
         color = AppTheme.colorSystem.textPrimary
       )
-      Text(
-        text = "⌄",
-        style = AppTheme.typographySystem.bodyLarge,
-        color = AppTheme.colorSystem.textMuted
+      Image(
+        painter = painterResource(Res.drawable.ic_chevron_down),
+        colorFilter = AppTheme.colorSystem.textMuted.asColorFilter(),
+        contentDescription = null,
+        modifier = Modifier.size(DropdownChevronSize)
       )
     }
 
-    if (expanded) {
-      Column(
-        modifier = Modifier
-          .fillMaxWidth()
-          .padding(top = DropdownMenuTopPadding)
-          .clip(shape)
-          .background(AppTheme.colorSystem.surfaceElevated)
-          .border(AppTheme.borderSystem.hairline, AppTheme.colorSystem.border, shape)
-      ) {
-        crewRoles.forEach { role ->
-          Text(
-            text = role,
-            style = AppTheme.typographySystem.bodyMedium,
-            color = if (role == selected) {
-              AppTheme.colorSystem.accentText
-            } else {
-              AppTheme.colorSystem.textPrimary
-            },
-            modifier = Modifier
-              .fillMaxWidth()
-              .clickable {
-                onSelect(role)
-                expanded = false
+    DropdownMenu(
+      expanded = expanded,
+      onDismissRequest = { expanded = false },
+      modifier = Modifier
+        .fillMaxWidth(0.5f)
+        .background(AppTheme.colorSystem.surfaceElevated)
+    ) {
+      crewRoles.forEach { role ->
+        DropdownMenuItem(
+          text = {
+            Text(
+              text = role,
+              style = AppTheme.typographySystem.bodyMedium,
+              color = if (role == selected) {
+                AppTheme.colorSystem.accentText
+              } else {
+                AppTheme.colorSystem.textPrimary
               }
-              .padding(
-                horizontal = AppTheme.spacingSystem.space16,
-                vertical = AppTheme.spacingSystem.space8
-              )
-          )
-        }
+            )
+          },
+          onClick = {
+            onSelect(role)
+            expanded = false
+          }
+        )
       }
     }
   }
 }
-
-// ── Budget input ─────────────────────────────────────────────────────
 
 @Composable
 internal fun BudgetInputField(
@@ -394,8 +391,6 @@ internal fun BudgetInputField(
   )
 }
 
-// ── Date input ───────────────────────────────────────────────────────
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun DateInputField(
@@ -423,6 +418,7 @@ internal fun DateInputField(
     trailingContent = {
       Image(
         painter = painterResource(Res.drawable.ic_calendar_days),
+        colorFilter = AppTheme.colorSystem.textMuted.asColorFilter(),
         contentDescription = null,
         modifier = Modifier.clickable(enabled = enabled) { showPicker = true }
       )
@@ -430,7 +426,7 @@ internal fun DateInputField(
   )
 
   if (showPicker) {
-    val initialMillis = value?.toEpochDays()?.toLong()?.times(86_400_000L)
+    val initialMillis = value?.toEpochDays()?.times(86_400_000L)
     val datePickerState = rememberDatePickerState(initialSelectedDateMillis = initialMillis)
     DatePickerDialog(
       onDismissRequest = { showPicker = false },
@@ -501,7 +497,7 @@ private fun CrewAvatarPreview() {
   }
 }
 
-@Preview
+@LightDarkPreview
 @Composable
 private fun RoleDropdownPreview() {
   AppTheme(darkTheme = true) {
@@ -509,7 +505,7 @@ private fun RoleDropdownPreview() {
   }
 }
 
-@Preview
+@LightDarkPreview
 @Composable
 private fun BudgetInputFieldPreview() {
   AppTheme(darkTheme = true) {
@@ -517,7 +513,7 @@ private fun BudgetInputFieldPreview() {
   }
 }
 
-@Preview
+@LightDarkPreview
 @Composable
 private fun DateInputFieldPreview() {
   AppTheme(darkTheme = true) {
@@ -530,7 +526,7 @@ private fun DateInputFieldPreview() {
   }
 }
 
-@Preview
+@LightDarkPreview
 @Composable
 private fun FieldLabelPreview() {
   AppTheme(darkTheme = true) {
@@ -538,7 +534,7 @@ private fun FieldLabelPreview() {
   }
 }
 
-@Preview
+@LightDarkPreview
 @Composable
 private fun ErrorTextPreview() {
   AppTheme(darkTheme = true) {

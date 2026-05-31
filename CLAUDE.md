@@ -214,6 +214,11 @@ Rules:
   and `HorizontalSpacer(AppTheme.spacingSystem.spaceN)` from
   `com.frame.zero.shared.design_system.widgets`. Never use a raw
   `Spacer(Modifier.height/width(...))`.
+- For clickable surfaces, use `Modifier.clickableWithRipple(color = ...)`
+  from `com.frame.zero.shared.design_system.modifier` instead of the bare
+  `Modifier.clickable { ... }`. It wires a themed Material 3 ripple
+  (`bounded`/`radius` configurable) so click feedback stays consistent
+  across the app.
 - Always annotate previews with `@LightDarkPreview` (from
   `com.frame.zero.shared.design_system`) instead of plain `@Preview`.
   This generates both light and dark variants automatically.
