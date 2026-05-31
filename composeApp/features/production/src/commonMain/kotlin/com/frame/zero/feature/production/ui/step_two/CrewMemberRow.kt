@@ -1,7 +1,7 @@
-package com.frame.zero.feature.production.ui.widgets
+package com.frame.zero.feature.production.ui.step_two
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,9 +17,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.frame.zero.feature.production.CrewMemberEntry
+import com.frame.zero.feature.production.ui.widgets.CrewAvatar
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
+import com.frame.zero.shared.design_system.asColorFilter
+import com.frame.zero.shared.design_system.modifier.clickableWithRipple
 import com.frame.zero.shared.design_system.widgets.HorizontalSpacer
+import framezero.composeapp.features.production.generated.resources.Res
+import framezero.composeapp.features.production.generated.resources.ic_cross
+import org.jetbrains.compose.resources.painterResource
 
 private val RemoveButtonSize = 24.dp
 
@@ -34,7 +40,7 @@ internal fun CrewMemberRow(
     modifier = modifier
       .fillMaxWidth()
       .clip(shape)
-      .border(AppTheme.borderSystem.hairline, AppTheme.colorSystem.cardBorder, shape)
+      .border(AppTheme.borderSystem.hairline, AppTheme.colorSystem.border, shape)
       .padding(AppTheme.spacingSystem.space8),
     verticalAlignment = Alignment.CenterVertically
   ) {
@@ -56,13 +62,14 @@ internal fun CrewMemberRow(
       modifier = Modifier
         .size(RemoveButtonSize)
         .clip(CircleShape)
-        .clickable(onClick = onRemove),
+        .clickableWithRipple(color = AppTheme.colorSystem.accentDim, onClick = onRemove)
+        .padding(AppTheme.spacingSystem.space4),
       contentAlignment = Alignment.Center
     ) {
-      Text(
-        text = "✕",
-        style = AppTheme.typographySystem.labelSmall,
-        color = AppTheme.colorSystem.textMuted
+      Image(
+        painter = painterResource(Res.drawable.ic_cross),
+        colorFilter = AppTheme.colorSystem.textMuted.asColorFilter(),
+        contentDescription = null
       )
     }
   }
