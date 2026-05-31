@@ -1,43 +1,62 @@
 package com.frame.zero.feature.production
 
 import com.arkivanov.essenty.instancekeeper.InstanceKeeper
+import com.frame.zero.domain.DomainError
 import com.frame.zero.domain.Outcome
 import com.frame.zero.dto.production.CreateCrewMemberDto
 import com.frame.zero.feature.production.domain.CreateProductionUseCase
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
+internal const val DEFAULT_CREW_ROLE = "Director"
+
 class CreateProductionViewModel(
   private val createProductionUseCase: CreateProductionUseCase,
-  dispatcher: CoroutineContext = Dispatchers.Main.immediate
+  dispatcher: CoroutineContext = kotlinx.coroutines.Dispatchers.Main.immediate
 ) : InstanceKeeper.Instance {
   private val scope = CoroutineScope(dispatcher + SupervisorJob())
 
-  private val _state = MutableStateFlow(CreateProductionState())
+  private val _state = MutableStateFlow(CreateProductionState(totalSteps = TOTAL_STEPS))
   val state: StateFlow<CreateProductionState> = _state.asStateFlow()
+
+  private val _navigationEvents = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+  val navigationEvents: SharedFlow<Unit> = _navigationEvents.asSharedFlow()
 
   fun onIntent(intent: CreateProductionIntent) {
     when (intent) {
       is CreateProductionIntent.TitleChanged ->
-        _state.update { it.copy(title = intent.title, error = null) }
+        _state.update {
+          val updated = it.copy(title = intent.title, error = null)
+          updated.copy(canAdvanceStep1 = updated.computeCanAdvanceStep1())
+        }
       is CreateProductionIntent.GenreChanged ->
         _state.update { it.copy(genre = intent.genre) }
       is CreateProductionIntent.LoglineChanged ->
         _state.update { it.copy(logline = intent.logline) }
       is CreateProductionIntent.StartDateChanged ->
-        _state.update { it.copy(startDate = intent.date, error = null) }
+        _state.update {
+          val updated = it.copy(startDate = intent.date, error = null)
+          updated.copy(canAdvanceStep1 = updated.computeCanAdvanceStep1())
+        }
       is CreateProductionIntent.WrapDateChanged ->
-        _state.update { it.copy(wrapDate = intent.date, error = null) }
+        _state.update {
+          val updated = it.copy(wrapDate = intent.date, error = null)
+          updated.copy(canAdvanceStep1 = updated.computeCanAdvanceStep1())
+        }
       is CreateProductionIntent.BudgetChanged ->
-        _state.update { it.copy(budgetCents = intent.budgetCents) }
+        _state.update {
+          it.copy(budgetCents = intent.budgetCents, budgetDisplay = intent.budgetCents?.let(::formatBudget))
+        }
       is CreateProductionIntent.CrewNameChanged ->
         _state.update { it.copy(crewNameInput = intent.name) }
       is CreateProductionIntent.CrewRoleChanged ->
@@ -45,7 +64,7 @@ class CreateProductionViewModel(
       CreateProductionIntent.AddCrewMember -> addCrewMember()
       is CreateProductionIntent.RemoveCrewMember ->
         _state.update {
-          it.copy(crewMembers = it.crewMembers.toMutableList().apply { removeAt(intent.index) })
+          it.copy(crewMembers = it.crewMembers.filterIndexed { i, _ -> i != intent.index })
         }
       CreateProductionIntent.NextStep -> nextStep()
       CreateProductionIntent.PreviousStep ->
@@ -61,15 +80,17 @@ class CreateProductionViewModel(
   }
 
   private fun addCrewMember() {
-    val current = _state.value
-    val name = current.crewNameInput.trim()
-    if (name.isBlank()) return
     _state.update {
-      it.copy(
-        crewMembers = it.crewMembers + CrewMemberEntry(name = name, role = it.crewRoleInput),
-        crewNameInput = "",
-        crewRoleInput = "Director"
-      )
+      val name = it.crewNameInput.trim()
+      if (name.isBlank()) {
+        it
+      } else {
+        it.copy(
+          crewMembers = it.crewMembers + CrewMemberEntry(name = name, role = it.crewRoleInput),
+          crewNameInput = "",
+          crewRoleInput = DEFAULT_CREW_ROLE
+        )
+      }
     }
   }
 
@@ -94,16 +115,18 @@ class CreateProductionViewModel(
   }
 
   private fun submit() {
+    _state.update {
+      if (it.isLoading) return
+      it.copy(isLoading = true, error = null)
+    }
     val current = _state.value
-    if (current.isLoading) return
     val start = current.startDate
     val wrap = current.wrapDate
     if (start == null || wrap == null) {
-      _state.update { it.copy(error = "Start and wrap dates are required") }
+      _state.update { it.copy(isLoading = false, error = "Start and wrap dates are required") }
       return
     }
     scope.launch {
-      _state.update { it.copy(isLoading = true, error = null) }
       val params = CreateProductionUseCase.Params(
         title = current.title.trim(),
         genre = current.genre,
@@ -114,13 +137,44 @@ class CreateProductionViewModel(
         crew = current.crewMembers.map { CreateCrewMemberDto(name = it.name, role = it.role) }
       )
       when (val outcome = createProductionUseCase(params)) {
-        is Outcome.Success -> _state.update { it.copy(isLoading = false, isSuccess = true) }
-        is Outcome.Failure -> _state.update { it.copy(isLoading = false, error = outcome.error.toString()) }
+        is Outcome.Success -> {
+          _state.update { it.copy(isLoading = false) }
+          _navigationEvents.tryEmit(Unit)
+        }
+        is Outcome.Failure -> _state.update {
+          it.copy(isLoading = false, error = outcome.error.toUserMessage())
+        }
       }
     }
   }
 
+  private fun DomainError.toUserMessage(): String =
+    when (this) {
+      is DomainError.Network -> message
+      is DomainError.Unknown -> message ?: "Something went wrong. Please try again."
+      DomainError.InvalidCredentials -> "Authentication failed. Please sign in again."
+      DomainError.EmailAlreadyExists -> "Email already exists."
+    }
+
+  private fun formatBudget(cents: Long): String {
+    val dollars = cents / 100
+    val prefix = if (dollars < 0) "-$" else "$"
+    val absStr = kotlin.math.abs(dollars).toString()
+    val formatted = absStr.reversed().chunked(3).joinToString(",").reversed()
+    return "$prefix$formatted"
+  }
+
+  private fun CreateProductionState.computeCanAdvanceStep1(): Boolean =
+    title.isNotBlank() &&
+      startDate != null &&
+      wrapDate != null &&
+      wrapDate.toEpochDays() > startDate.toEpochDays()
+
   override fun onDestroy() {
     scope.cancel()
+  }
+
+  private companion object {
+    const val TOTAL_STEPS = 3
   }
 }

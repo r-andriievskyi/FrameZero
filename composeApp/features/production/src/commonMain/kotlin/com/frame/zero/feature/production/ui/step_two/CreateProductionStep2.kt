@@ -2,7 +2,6 @@ package com.frame.zero.feature.production.ui.step_two
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,6 +22,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.asColorFilter
+import com.frame.zero.shared.design_system.modifier.clickableWithRipple
 import com.frame.zero.shared.design_system.widgets.CtaButton
 import com.frame.zero.shared.design_system.widgets.SingleLineInputField
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer
@@ -102,7 +102,7 @@ internal fun Step2Content(
           .size(AddCrewButtonSize)
           .clip(RoundedCornerShape(AppTheme.radiusSystem.radius8))
           .background(AppTheme.colorSystem.accent)
-          .clickable {
+          .clickableWithRipple(color = AppTheme.colorSystem.textOnAccent) {
             if (state.crewNameInput.isNotBlank()) {
               onIntent(CreateProductionIntent.AddCrewMember)
             }

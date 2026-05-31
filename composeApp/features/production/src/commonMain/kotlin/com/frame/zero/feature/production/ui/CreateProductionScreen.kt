@@ -71,7 +71,7 @@ private fun CreateProductionContent(
         .fillMaxWidth()
         .padding(horizontal = AppTheme.spacingSystem.space16),
       text = stringResource(Res.string.create_step_indicator, state.currentStep, state.totalSteps),
-      style = AppTheme.typographySystem.caption,
+      style = AppTheme.typographySystem.bodyMedium,
       color = AppTheme.colorSystem.textMuted,
       textAlign = TextAlign.Center
     )
