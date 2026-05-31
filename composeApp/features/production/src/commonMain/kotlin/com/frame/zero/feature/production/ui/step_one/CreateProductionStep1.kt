@@ -13,8 +13,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import com.frame.zero.shared.design_system.AppTheme
+import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.widgets.CtaButton
 import com.frame.zero.shared.design_system.widgets.SingleLineInputField
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer
@@ -149,10 +149,10 @@ internal fun Step1Content(
   }
 }
 
-@Preview
+@LightDarkPreview
 @Composable
 private fun Step1ContentPreview() {
-  AppTheme(darkTheme = true) {
+  AppTheme {
     Step1Content(
       state = CreateProductionState(
         title = "Echoes of Silence",
@@ -166,10 +166,10 @@ private fun Step1ContentPreview() {
   }
 }
 
-@Preview
+@LightDarkPreview
 @Composable
 private fun Step1ContentEmptyPreview() {
-  AppTheme(darkTheme = true) {
+  AppTheme {
     Step1Content(
       state = CreateProductionState(),
       onIntent = {}

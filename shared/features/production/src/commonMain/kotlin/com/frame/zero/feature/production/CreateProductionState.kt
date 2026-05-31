@@ -10,24 +10,18 @@ data class CrewMemberEntry(
 
 data class CreateProductionState(
   val currentStep: Int = 1,
+  val totalSteps: Int = 3,
   val title: String = "",
   val genre: Genre = Genre.DRAMA,
   val logline: String = "",
   val startDate: LocalDate? = null,
   val wrapDate: LocalDate? = null,
   val budgetCents: Long? = null,
+  val budgetDisplay: String? = null,
   val crewNameInput: String = "",
-  val crewRoleInput: String = "Director",
+  val crewRoleInput: String = DEFAULT_CREW_ROLE,
   val crewMembers: List<CrewMemberEntry> = emptyList(),
+  val canAdvanceStep1: Boolean = false,
   val isLoading: Boolean = false,
-  val error: String? = null,
-  val isSuccess: Boolean = false
-) {
-  val totalSteps: Int get() = 3
-
-  val canAdvanceStep1: Boolean
-    get() = title.isNotBlank() &&
-      startDate != null &&
-      wrapDate != null &&
-      wrapDate.toEpochDays() > startDate.toEpochDays()
-}
+  val error: String? = null
+)
