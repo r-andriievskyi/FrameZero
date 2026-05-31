@@ -20,7 +20,6 @@ import com.frame.zero.feature.production.CreateProductionIntent
 import com.frame.zero.feature.production.CreateProductionState
 import com.frame.zero.feature.production.CrewMemberEntry
 import com.frame.zero.feature.production.ui.displayLabel
-import com.frame.zero.feature.production.ui.formatBudget
 import com.frame.zero.feature.production.ui.formatDisplay
 import com.frame.zero.feature.production.ui.widgets.CrewAvatar
 import com.frame.zero.feature.production.ui.widgets.ErrorText
@@ -176,7 +175,7 @@ internal fun ReviewCard(
             color = AppTheme.colorSystem.textMuted
           )
           Text(
-            text = state.budgetCents?.let { formatBudget(it) }
+            text = state.budgetDisplay
               ?: stringResource(Res.string.create_review_not_set),
             style = AppTheme.typographySystem.bodyMedium,
             color = AppTheme.colorSystem.textPrimary
