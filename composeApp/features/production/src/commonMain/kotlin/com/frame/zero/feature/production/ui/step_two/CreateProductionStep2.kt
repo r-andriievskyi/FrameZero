@@ -22,6 +22,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.asColorFilter
+import com.frame.zero.ui.asString
 import com.frame.zero.shared.design_system.modifier.clickableWithRipple
 import com.frame.zero.shared.design_system.widgets.CtaButton
 import com.frame.zero.shared.design_system.widgets.SingleLineInputField
@@ -160,7 +161,7 @@ internal fun Step2Content(
 
     state.error?.let { error ->
       VerticalSpacer(AppTheme.spacingSystem.space16)
-      ErrorText(error)
+      ErrorText(error.asString())
     }
 
     VerticalSpacer(AppTheme.spacingSystem.space24)
