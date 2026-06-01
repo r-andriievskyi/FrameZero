@@ -1,9 +1,11 @@
+import com.codingfeline.buildkonfig.compiler.FieldSpec
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
   alias(libs.plugins.kotlinMultiplatform)
   alias(libs.plugins.androidLibrary)
   alias(libs.plugins.kotlinSerialization)
+  alias(libs.plugins.buildKonfig)
   id("crossplatform.code.quality")
 }
 
@@ -50,18 +52,27 @@ dependencies {
 
 android {
   namespace = "com.frame.zero.shared"
-  compileSdk =
-    libs.versions.android.compileSdk
-      .get()
-      .toInt()
+  compileSdk = libs.versions.android.compileSdk
+    .get()
+    .toInt()
   compileOptions {
     sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
   }
   defaultConfig {
-    minSdk =
-      libs.versions.android.minSdk
-        .get()
-        .toInt()
+    minSdk = libs.versions.android.minSdk
+      .get()
+      .toInt()
+  }
+}
+
+buildkonfig {
+  packageName = "com.frame.zero.core.network"
+
+  defaultConfigs {
+    buildConfigField(FieldSpec.Type.BOOLEAN, "DEBUG", "true")
+  }
+  defaultConfigs("release") {
+    buildConfigField(FieldSpec.Type.BOOLEAN, "DEBUG", "false")
   }
 }
