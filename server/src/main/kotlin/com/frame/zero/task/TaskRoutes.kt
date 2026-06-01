@@ -23,11 +23,10 @@ import org.koin.ktor.ext.inject
 import java.util.UUID
 
 fun Route.taskRoutes() {
-  val service by inject<TaskService>()
-
   authenticate("auth-jwt") {
     route("/api/v1/tasks") {
       get {
+        val service by call.inject<TaskService>()
         val userId = call.userId()
         val tz = call.timezone()
         val assigneeMe = call.request.queryParameters["assignee"] == "me"
@@ -58,6 +57,7 @@ fun Route.taskRoutes() {
       }
 
       post {
+        val service by call.inject<TaskService>()
         val userId = call.userId()
         val tz = call.timezone()
         val request = call.receive<CreateTaskRequest>()
@@ -67,6 +67,7 @@ fun Route.taskRoutes() {
 
       route("/{id}") {
         get {
+          val service by call.inject<TaskService>()
           val userId = call.userId()
           val taskId = call.pathUuid("id")
           val tz = call.timezone()
@@ -74,6 +75,7 @@ fun Route.taskRoutes() {
         }
 
         patch {
+          val service by call.inject<TaskService>()
           val userId = call.userId()
           val taskId = call.pathUuid("id")
           val tz = call.timezone()
@@ -82,6 +84,7 @@ fun Route.taskRoutes() {
         }
 
         delete {
+          val service by call.inject<TaskService>()
           val userId = call.userId()
           val taskId = call.pathUuid("id")
           service.delete(userId, taskId)
