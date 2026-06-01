@@ -51,10 +51,12 @@ import com.frame.zero.shared.design_system.tokens.TokenColorTealSoftL
 import com.frame.zero.shared.design_system.tokens.TokenColorTealTextD
 import com.frame.zero.shared.design_system.tokens.TokenColorTealTextL
 import com.frame.zero.shared.design_system.tokens.TokenColorWhite
+import com.frame.zero.shared.design_system.tokens.TokenRadius14
 import com.frame.zero.shared.design_system.tokens.TokenRadius16
 import com.frame.zero.shared.design_system.tokens.TokenRadius4
 import com.frame.zero.shared.design_system.tokens.TokenRadius8
 import com.frame.zero.shared.design_system.tokens.TokenRadiusMax
+import com.frame.zero.shared.design_system.tokens.TokenSpace12
 import com.frame.zero.shared.design_system.tokens.TokenSpace16
 import com.frame.zero.shared.design_system.tokens.TokenSpace2
 import com.frame.zero.shared.design_system.tokens.TokenSpace24
@@ -208,6 +210,7 @@ data class ThemeOptions(
         space2 = TokenSpace2,
         space4 = TokenSpace4,
         space8 = TokenSpace8,
+        space12 = TokenSpace12,
         space16 = TokenSpace16,
         space24 = TokenSpace24,
         space32 = TokenSpace32
@@ -217,6 +220,7 @@ data class ThemeOptions(
       RadiusSystem(
         radius4 = TokenRadius4,
         radius8 = TokenRadius8,
+        radius14 = TokenRadius14,
         radius16 = TokenRadius16,
         radiusMax = TokenRadiusMax
       )
