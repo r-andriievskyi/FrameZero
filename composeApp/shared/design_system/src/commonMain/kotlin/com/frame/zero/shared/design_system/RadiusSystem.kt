@@ -7,6 +7,7 @@ import androidx.compose.ui.unit.Dp
 data class RadiusSystem(
   val radius4: Dp,
   val radius8: Dp,
+  val radius14: Dp,
   val radius16: Dp,
   val radiusMax: Dp
 )
