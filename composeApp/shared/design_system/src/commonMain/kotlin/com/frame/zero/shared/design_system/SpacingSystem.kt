@@ -8,6 +8,7 @@ data class SpacingSystem(
   val space2: Dp,
   val space4: Dp,
   val space8: Dp,
+  val space12: Dp,
   val space16: Dp,
   val space24: Dp,
   val space32: Dp
