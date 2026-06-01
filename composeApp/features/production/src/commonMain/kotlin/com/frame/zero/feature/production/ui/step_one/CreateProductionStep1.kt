@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.widgets.CtaButton
+import com.frame.zero.ui.asString
 import com.frame.zero.shared.design_system.widgets.SingleLineInputField
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import com.frame.zero.domain.production.Genre
@@ -134,7 +135,7 @@ internal fun Step1Content(
 
     state.error?.let { error ->
       VerticalSpacer(AppTheme.spacingSystem.space16)
-      ErrorText(error)
+      ErrorText(error.asString())
     }
 
     VerticalSpacer(AppTheme.spacingSystem.space24)

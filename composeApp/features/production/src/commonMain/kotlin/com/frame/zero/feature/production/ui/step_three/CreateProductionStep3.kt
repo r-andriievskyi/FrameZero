@@ -28,6 +28,7 @@ import com.frame.zero.feature.production.ui.widgets.GenreChip
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.widgets.CtaButton
+import com.frame.zero.ui.asString
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import framezero.composeapp.features.production.generated.resources.Res
 import framezero.composeapp.features.production.generated.resources.create_button_create
@@ -87,7 +88,7 @@ internal fun Step3Content(
     }
 
     state.error?.let { error ->
-      ErrorText(error)
+      ErrorText(error.asString())
       VerticalSpacer(AppTheme.spacingSystem.space16)
     }
 

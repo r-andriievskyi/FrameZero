@@ -1,6 +1,7 @@
 package com.frame.zero.feature.production
 
 import com.frame.zero.domain.production.Genre
+import com.frame.zero.ui.UiText
 import kotlinx.datetime.LocalDate
 
 data class CrewMemberEntry(
@@ -23,5 +24,5 @@ data class CreateProductionState(
   val crewMembers: List<CrewMemberEntry> = emptyList(),
   val canAdvanceStep1: Boolean = false,
   val isLoading: Boolean = false,
-  val error: String? = null
+  val error: UiText? = null
 )
