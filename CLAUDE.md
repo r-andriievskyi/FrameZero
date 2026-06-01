@@ -9,9 +9,6 @@ Guidance for Claude Code when working in this repo.
 ./gradlew :composeApp:assembleDebug    # build debug APK
 ./gradlew :composeApp:installDebug     # install on connected device
 
-# Desktop (JVM) — preferred for UI iteration, hot reload enabled
-./gradlew :composeApp:run
-
 # Server (Ktor) — port 8080, dev mode supplies a built-in JWT secret
 ./gradlew :server:run
 ./scripts/seed_db.sh                   # seed 5 users + 10 productions
@@ -39,7 +36,7 @@ Composite Gradle build + native iOS wrapper.
 | `shared/` | Multiplatform business logic; no UI. Holds `Constants`, domain models (`User`, `DomainError`, `Outcome`, `UseCase`), DTOs, DTO↔domain mappers, Ktor `HttpClient` (`core/network/`), session machine (`core/session/`), and `multiplatform-settings` token storage. |
 | `shared/features/<name>/` | Per-feature logic — Decompose `Component`, `ViewModel`, state/intent, feature-local Koin module. Currently `account`, `auth`, `home`, `production`, `production-details`, `task-details`. |
 | `shared/repositories/<name>/` | Repository interfaces + impls. Currently `auth`, `user`, `dashboard`, `productions`, `schedule`. `productions` is offline-first (Room + Paging 3 `RemoteMediator`); see [Offline-first repositories](#offline-first-repositories). |
-| `composeApp/` | Compose Multiplatform UI host (Android, iOS, JVM Desktop). Owns `App.kt`, the Decompose `RootComponent`, and platform entry points. |
+| `composeApp/` | Compose Multiplatform UI host (Android, iOS). Owns `App.kt`, the Decompose `RootComponent`, and platform entry points. |
 | `composeApp/features/<name>/` | Per-feature Compose UI rendering the matching shared component. Same feature list as above. |
 | `composeApp/shared/design_system/` | Shared design system library. Applies `crossplatform.kmp.library.compose`. |
 | `server/` | JVM Ktor backend (Netty + Exposed/Postgres + JWT via Koin). Feature packages: `auth`, `dashboard`, `notification`, `production`, `schedule`, `task`, plus `common`/`config`. Schema is created from the Exposed `Table` definitions on boot. Depends on `shared` for wire types. |
@@ -116,7 +113,7 @@ silently drop code into `androidMain` "for now".
 
 - `crossplatform.kmp.library` — applies `com.android.library` +
   `kotlinMultiplatform`, registers `androidTarget`, `iosArm64`,
-  `iosSimulatorArm64`, `jvm()`, pulls SDK/JVM versions from the catalog,
+  `iosSimulatorArm64`, pulls SDK/JVM versions from the catalog,
   applies `crossplatform.code.quality`.
 - `crossplatform.kmp.library.compose` — above + Compose Multiplatform +
   compose-compiler + standard Compose deps in `commonMain`.
@@ -128,8 +125,10 @@ by hand.
 
 For platform-specific behaviour (HTTP engine, secure storage, Room
 builder), declare `expect` in `commonMain` and provide actuals in
-`androidMain`, `iosMain`, **and** `jvmMain` in the same change. Don't
-leave any as TODO. Don't `if/when` on runtime OS.
+`androidMain` **and** `iosMain` in the same change. The `shared` module
+also retains a `jvm()` target (needed by the `:server` module), so any
+`expect` declared there must also have a `jvmMain` actual. Don't leave
+any as TODO. Don't `if/when` on runtime OS.
 
 ### Tests
 
@@ -143,14 +142,13 @@ All versions in `gradle/libs.versions.toml` — add new deps to the catalog,
 not directly to module scripts.
 
 - Kotlin **2.3.21**, Compose Multiplatform **1.10.3**, AGP **8.11.2**, KSP **2.3.8**
-- Ktor **3.4.3** (Netty server; OkHttp on Android/JVM, Darwin on iOS for the client)
+- Ktor **3.4.3** (Netty server; OkHttp on Android, Darwin on iOS for the client)
 - Material3 `1.10.0-alpha05`, Decompose **3.5.0**, Koin **4.2.1**
 - `multiplatform-settings` **1.3.0** (k/v storage)
 - `kotlinx-datetime` **0.7.1** (`Instant`/`LocalDate` in DTOs — never `java.time.*`)
 - AndroidX Room **2.8.4** (KMP) + Paging **3.5.0** + SQLite bundled **2.6.2** — offline-first repos
 - Server: Exposed **1.2.0** + HikariCP **7.0.2** + PostgreSQL **42.7.11**, H2 **2.4.240** (tests), JWT via `ktor-server-auth-jwt`, bcrypt for passwords
 - Android minSdk **29**, targetSdk **36**, JVM target **11**
-- Compose Hot Reload **1.1.0** on desktop
 
 ## Server config
 
@@ -251,11 +249,12 @@ Rules:
   in a same-named file, side-by-side in the same package
   (`ProductionsRepository` → `ProductionsRepositoryImpl`). Don't invent
   technology/strategy suffixes (`*Exposed`, `Ktor*`, `OfflineFirst*`).
-  **Exception:** platform actuals in `androidMain`/`iosMain`/`jvmMain`
-  keep the platform prefix (`AndroidDatabaseBuilderFactory`) so the three
-  classes don't collide in DI logs and stack traces.
+  **Exception:** platform actuals in `androidMain`/`iosMain` (and
+  `shared`'s `jvmMain`, retained for the `:server` consumer) keep the
+  platform prefix (`AndroidDatabaseBuilderFactory`) so the classes don't
+  collide in DI logs and stack traces.
 - **HTTP engine** chosen via `expect/actual` in
-  `shared/.../core/network/HttpClientFactory.kt` — OkHttp on Android/JVM,
+  `shared/.../core/network/HttpClientFactory.kt` — OkHttp on Android,
   Darwin on iOS.
 - **Resources:** Compose resources in
   `composeApp/src/commonMain/composeResources/`, via generated `Res`.

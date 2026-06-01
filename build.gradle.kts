@@ -9,7 +9,6 @@ plugins {
     id("crossplatform.kmp.library") apply false
     id("crossplatform.kmp.library.compose") apply false
     id("crossplatform.code.quality") apply false
-    alias(libs.plugins.composeHotReload) apply false
     alias(libs.plugins.composeMultiplatform) apply false
     alias(libs.plugins.composeCompiler) apply false
     alias(libs.plugins.kotlinJvm) apply false

@@ -25,7 +25,6 @@ class KmpLibraryConventionPlugin : Plugin<Project> {
         }
         iosArm64()
         iosSimulatorArm64()
-        jvm()
       }
 
       extensions.configure<LibraryExtension> {
