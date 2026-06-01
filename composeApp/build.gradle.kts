@@ -1,4 +1,3 @@
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -6,7 +5,6 @@ plugins {
   alias(libs.plugins.androidApplication)
   alias(libs.plugins.composeMultiplatform)
   alias(libs.plugins.composeCompiler)
-  alias(libs.plugins.composeHotReload)
   id("crossplatform.code.quality")
 }
 
@@ -19,8 +17,6 @@ kotlin {
       isStatic = true
     }
   }
-
-  jvm()
 
   sourceSets {
     androidMain.dependencies {
@@ -55,10 +51,6 @@ kotlin {
       implementation(projects.composeApp.shared.designSystem)
     }
     commonTest.dependencies { implementation(libs.kotlin.test) }
-    jvmMain.dependencies {
-      implementation(compose.desktop.currentOs)
-      implementation(libs.kotlinx.coroutinesSwing)
-    }
   }
 }
 
@@ -91,15 +83,3 @@ android {
 }
 
 dependencies { debugImplementation(libs.compose.uiTooling) }
-
-compose.desktop {
-  application {
-    mainClass = "com.frame.zero.MainKt"
-
-    nativeDistributions {
-      targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-      packageName = "com.frame.zero"
-      packageVersion = "1.0.0"
-    }
-  }
-}

@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-FrameZero is a Kotlin Multiplatform (KMP) app targeting Android, iOS, Desktop, and a Ktor server backend. Navigation uses Decompose; DI uses Koin; UI uses Compose Multiplatform with a custom design system.
+FrameZero is a Kotlin Multiplatform (KMP) app targeting Android and iOS, with a Ktor server backend. Navigation uses Decompose; DI uses Koin; UI uses Compose Multiplatform with a custom design system.
 
 ## Architecture — Key Decisions
 
@@ -24,7 +24,7 @@ FrameZero is a Kotlin Multiplatform (KMP) app targeting Android, iOS, Desktop, a
 ## Commands
 
 ```bash
-./gradlew :composeApp:run              # Desktop (fastest iteration with hot reload)
+./gradlew :composeApp:installDebug     # Install Android debug build on a connected device
 ./gradlew :server:run                  # Ktor server on port 8080
 ./gradlew ktlintFormat                 # Auto-format all Kotlin source before committing
 ./gradlew ktlintCheck                  # Verify formatting (CI)
@@ -36,7 +36,7 @@ FrameZero is a Kotlin Multiplatform (KMP) app targeting Android, iOS, Desktop, a
 
 - **Koin DI:** Each feature exposes a `val <name>Module = module { ... }` (see `authModule` in `AuthModule.kt`). ViewModels are `factory`, repositories are `single`.
 - **Decompose components:** Accept `ComponentContext` + ViewModel factories via constructor. Use sealed `Config`/`Child` interfaces for sub-navigation (see `AuthComponent.kt`).
-- **Expect/Actual:** When adding one, implement all three actuals (`androidMain`, `iosMain`, `jvmMain`) in the same change.
+- **Expect/Actual:** When adding one, implement both actuals (`androidMain`, `iosMain`) in the same change. The `shared` module also retains a `jvm()` target for `:server` consumption, so any `expect` declared there also needs a `jvmMain` actual.
 - **Design system:** Use `AppTheme.colorSystem.*`, `AppTheme.spacingSystem.*`, `AppTheme.radiusSystem.*`, `AppTheme.typographySystem.*`. Never use `MaterialTheme` or hardcoded `Color`/`dp` values in feature UI. Use `spacingSystem` tokens only for spacing (padding, gaps) — never for size, width, or border-width values.
 - **Spacers:** Use `VerticalSpacer(AppTheme.spacingSystem.spaceN)` and `HorizontalSpacer(AppTheme.spacingSystem.spaceN)` from the design system (`com.frame.zero.shared.design_system.widgets`). Never use a raw `Spacer(Modifier.height/width(...))`.
 - **Clickable:** Use `Modifier.clickableWithRipple(color = ...)` from `com.frame.zero.shared.design_system.modifier` instead of the bare `Modifier.clickable { ... }` so every clickable surface gets a themed Material 3 ripple (`bounded`/`radius` configurable).
