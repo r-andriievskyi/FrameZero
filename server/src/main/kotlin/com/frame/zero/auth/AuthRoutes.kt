@@ -20,11 +20,10 @@ import org.koin.ktor.ext.inject
 import java.util.UUID
 
 fun Route.authRoutes() {
-  val service by inject<AuthService>()
-
   route("/auth") {
     rateLimit(AUTH_RATE_LIMIT_NAME) {
       post("/register") {
+        val service by call.inject<AuthService>()
         val body = call.receive<RegisterRequest>()
         call.respond(
           HttpStatusCode.Created,
@@ -33,17 +32,20 @@ fun Route.authRoutes() {
       }
 
       post("/login") {
+        val service by call.inject<AuthService>()
         val body = call.receive<LoginRequest>()
         call.respond(service.login(body.email, body.password))
       }
 
       post("/refresh") {
+        val service by call.inject<AuthService>()
         val body = call.receive<RefreshRequest>()
         call.respond(service.refresh(body.refreshToken))
       }
     }
 
     post("/logout") {
+      val service by call.inject<AuthService>()
       val body = call.receive<LogoutRequest>()
       service.logout(body.refreshToken)
       call.respond(HttpStatusCode.NoContent)
@@ -51,6 +53,7 @@ fun Route.authRoutes() {
 
     authenticate("auth-jwt") {
       get("/me") {
+        val service by call.inject<AuthService>()
         val principal =
           call.principal<JWTPrincipal>() ?: return@get call.respond(HttpStatusCode.Unauthorized)
         val userId =

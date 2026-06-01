@@ -20,11 +20,10 @@ import io.ktor.server.routing.route
 import org.koin.ktor.ext.inject
 
 fun Route.scheduleRoutes() {
-  val service by inject<ScheduleService>()
-
   authenticate("auth-jwt") {
     route("/api/v1/schedule") {
       get {
+        val service by call.inject<ScheduleService>()
         val userId = call.userId()
         val tz = call.timezone()
         val view =
@@ -39,6 +38,7 @@ fun Route.scheduleRoutes() {
       }
 
       post {
+        val service by call.inject<ScheduleService>()
         val userId = call.userId()
         val request = call.receive<CreateScheduleEventRequest>()
         val event = service.create(userId, request)
@@ -47,6 +47,7 @@ fun Route.scheduleRoutes() {
 
       route("/{id}") {
         patch {
+          val service by call.inject<ScheduleService>()
           val userId = call.userId()
           val eventId = call.pathUuid("id")
           val request = call.receive<UpdateScheduleEventRequest>()
@@ -54,6 +55,7 @@ fun Route.scheduleRoutes() {
         }
 
         delete {
+          val service by call.inject<ScheduleService>()
           val userId = call.userId()
           val eventId = call.pathUuid("id")
           service.delete(userId, eventId)

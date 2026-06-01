@@ -10,11 +10,10 @@ import io.ktor.server.routing.route
 import org.koin.ktor.ext.inject
 
 fun Route.dashboardRoutes() {
-  val service by inject<DashboardService>()
-
   authenticate("auth-jwt") {
     route("/api/v1") {
       get("/dashboard") {
+        val service by call.inject<DashboardService>()
         val userId = call.userId()
         val tz = call.timezone()
         call.respond(service.get(userId, tz))

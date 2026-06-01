@@ -13,11 +13,10 @@ import io.ktor.server.routing.route
 import org.koin.ktor.ext.inject
 
 fun Route.notificationRoutes() {
-  val service by inject<NotificationService>()
-
   authenticate("auth-jwt") {
     route("/api/v1/notifications") {
       get {
+        val service by call.inject<NotificationService>()
         val userId = call.userId()
         val limit =
           call.request.queryParameters["limit"]
@@ -28,6 +27,7 @@ fun Route.notificationRoutes() {
       }
 
       post("/read") {
+        val service by call.inject<NotificationService>()
         val userId = call.userId()
         val request = call.receive<MarkReadRequest>()
         service.markRead(userId, request)
