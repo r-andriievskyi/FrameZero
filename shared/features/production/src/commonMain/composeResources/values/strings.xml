@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <!-- CreateProductionViewModel error messages -->
+  <string name="error_title_required">Title is required</string>
+  <string name="error_invalid_dates">Valid start and wrap dates are required</string>
+  <string name="error_missing_dates">Start and wrap dates are required</string>
+  <string name="error_auth_failed">Authentication failed. Please sign in again.</string>
+  <string name="error_email_exists">Email already exists.</string>
+  <string name="error_unknown_fallback">Something went wrong. Please try again.</string>
+</resources>

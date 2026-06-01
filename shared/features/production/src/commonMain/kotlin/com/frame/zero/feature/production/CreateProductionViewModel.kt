@@ -5,6 +5,15 @@ import com.frame.zero.domain.DomainError
 import com.frame.zero.domain.Outcome
 import com.frame.zero.dto.production.CreateCrewMemberDto
 import com.frame.zero.feature.production.domain.CreateProductionUseCase
+import com.frame.zero.ui.UiText
+import com.frame.zero.ui.asUiText
+import framezero.shared.features.production.generated.resources.Res
+import framezero.shared.features.production.generated.resources.error_auth_failed
+import framezero.shared.features.production.generated.resources.error_email_exists
+import framezero.shared.features.production.generated.resources.error_invalid_dates
+import framezero.shared.features.production.generated.resources.error_missing_dates
+import framezero.shared.features.production.generated.resources.error_title_required
+import framezero.shared.features.production.generated.resources.error_unknown_fallback
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
@@ -99,12 +108,12 @@ class CreateProductionViewModel(
     when (current.currentStep) {
       1 -> {
         if (!current.canAdvanceStep1) {
-          val errorMsg = if (current.title.isBlank()) {
-            "Title is required"
+          val error = if (current.title.isBlank()) {
+            Res.string.error_title_required.asUiText()
           } else {
-            "Valid start and wrap dates are required"
+            Res.string.error_invalid_dates.asUiText()
           }
-          _state.update { it.copy(error = errorMsg) }
+          _state.update { it.copy(error = error) }
           return
         }
         _state.update { it.copy(currentStep = 2, error = null) }
@@ -123,7 +132,9 @@ class CreateProductionViewModel(
     val start = current.startDate
     val wrap = current.wrapDate
     if (start == null || wrap == null) {
-      _state.update { it.copy(isLoading = false, error = "Start and wrap dates are required") }
+      _state.update {
+        it.copy(isLoading = false, error = Res.string.error_missing_dates.asUiText())
+      }
       return
     }
     scope.launch {
@@ -142,18 +153,19 @@ class CreateProductionViewModel(
           _navigationEvents.tryEmit(Unit)
         }
         is Outcome.Failure -> _state.update {
-          it.copy(isLoading = false, error = outcome.error.toUserMessage())
+          it.copy(isLoading = false, error = outcome.error.toUiText())
         }
       }
     }
   }
 
-  private fun DomainError.toUserMessage(): String =
+  private fun DomainError.toUiText(): UiText =
     when (this) {
-      is DomainError.Network -> message
-      is DomainError.Unknown -> message ?: "Something went wrong. Please try again."
-      DomainError.InvalidCredentials -> "Authentication failed. Please sign in again."
-      DomainError.EmailAlreadyExists -> "Email already exists."
+      is DomainError.Network -> UiText.Dynamic(message)
+      is DomainError.Unknown -> message?.let(UiText::Dynamic)
+        ?: Res.string.error_unknown_fallback.asUiText()
+      DomainError.InvalidCredentials -> Res.string.error_auth_failed.asUiText()
+      DomainError.EmailAlreadyExists -> Res.string.error_email_exists.asUiText()
     }
 
   private fun formatBudget(cents: Long): String {
