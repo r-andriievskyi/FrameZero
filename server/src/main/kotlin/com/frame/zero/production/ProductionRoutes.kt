@@ -24,11 +24,10 @@ import io.ktor.server.routing.route
 import org.koin.ktor.ext.inject
 
 fun Route.productionRoutes() {
-  val service by inject<ProductionService>()
-
   authenticate("auth-jwt") {
     route("/api/v1/productions") {
       get {
+        val service by call.inject<ProductionService>()
         val userId = call.userId()
         val phases =
           call.request.queryParameters.getAll("phase")?.mapNotNull {
@@ -49,6 +48,7 @@ fun Route.productionRoutes() {
       }
 
       post {
+        val service by call.inject<ProductionService>()
         val userId = call.userId()
         val request = call.receive<CreateProductionRequest>()
         val production = service.createProduction(userId, request)
@@ -58,12 +58,14 @@ fun Route.productionRoutes() {
 
       route("/{id}") {
         get {
+          val service by call.inject<ProductionService>()
           val userId = call.userId()
           val productionId = call.pathUuid("id")
           call.respond(service.getProduction(userId, productionId))
         }
 
         patch {
+          val service by call.inject<ProductionService>()
           val userId = call.userId()
           val productionId = call.pathUuid("id")
           val request = call.receive<UpdateProductionRequest>()
@@ -71,6 +73,7 @@ fun Route.productionRoutes() {
         }
 
         post("/phase") {
+          val service by call.inject<ProductionService>()
           val userId = call.userId()
           val productionId = call.pathUuid("id")
           val request = call.receive<PhaseTransitionRequest>()
@@ -78,6 +81,7 @@ fun Route.productionRoutes() {
         }
 
         delete {
+          val service by call.inject<ProductionService>()
           val userId = call.userId()
           val productionId = call.pathUuid("id")
           service.deleteProduction(userId, productionId)
@@ -86,12 +90,14 @@ fun Route.productionRoutes() {
 
         route("/members") {
           get {
+            val service by call.inject<ProductionService>()
             val userId = call.userId()
             val productionId = call.pathUuid("id")
             call.respond(service.listMembers(userId, productionId))
           }
 
           post {
+            val service by call.inject<ProductionService>()
             val userId = call.userId()
             val productionId = call.pathUuid("id")
             val request = call.receive<AddMemberRequest>()
@@ -100,6 +106,7 @@ fun Route.productionRoutes() {
           }
 
           patch("/{memberId}") {
+            val service by call.inject<ProductionService>()
             val userId = call.userId()
             val productionId = call.pathUuid("id")
             val memberId = call.pathUuid("memberId")
@@ -108,6 +115,7 @@ fun Route.productionRoutes() {
           }
 
           delete("/{memberId}") {
+            val service by call.inject<ProductionService>()
             val userId = call.userId()
             val productionId = call.pathUuid("id")
             val memberId = call.pathUuid("memberId")
