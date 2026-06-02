@@ -11,13 +11,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.frame.zero.domain.schedule.Schedule
 import com.frame.zero.domain.schedule.ScheduleDay
 import com.frame.zero.domain.schedule.ScheduleEvent
@@ -37,19 +34,18 @@ import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import framezero.composeapp.features.home.generated.resources.Res
 import framezero.composeapp.features.home.generated.resources.schedule_screen_title
-import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.plus
 import org.jetbrains.compose.resources.stringResource
 import kotlin.time.Instant
 
 @Composable
 fun ScheduleTab(component: ScheduleTabComponent) {
-  val state by component.state.collectAsState()
+  val state by component.state.collectAsStateWithLifecycle()
   ScheduleContent(
     state = state,
     onViewChanged = component::onViewChanged,
-    onDateSelected = component::onDateSelected
+    onDateSelected = component::onDateSelected,
+    onMonthNavigated = component::onMonthNavigated
   )
 }
 
@@ -57,24 +53,19 @@ fun ScheduleTab(component: ScheduleTabComponent) {
 private fun ScheduleContent(
   state: ScheduleTabState,
   onViewChanged: (ScheduleView) -> Unit = {},
-  onDateSelected: (LocalDate) -> Unit = {}
+  onDateSelected: (LocalDate) -> Unit = {},
+  onMonthNavigated: (offset: Int) -> Unit = {}
 ) {
   val selectedDate = state.selectedDate ?: return
   val schedule = state.schedule
 
-  // Local month navigation state for the month view
-  var displayMonth by remember(selectedDate) { mutableStateOf(selectedDate.month) }
-  var displayYear by remember(selectedDate) { mutableStateOf(selectedDate.year) }
-
   // Dates that have either events or tasks — drives the dot indicators.
-  val daysWithItems by remember(schedule) {
-    derivedStateOf {
-      schedule?.days
-        ?.filter { it.events.isNotEmpty() || it.tasks.isNotEmpty() }
-        ?.map { it.date }
-        ?.toSet()
-        .orEmpty()
-    }
+  val daysWithItems = remember(schedule) {
+    schedule?.days
+      ?.filter { it.events.isNotEmpty() || it.tasks.isNotEmpty() }
+      ?.map { it.date }
+      ?.toSet()
+      .orEmpty()
   }
 
 
@@ -116,8 +107,9 @@ private fun ScheduleContent(
       }
 
       ScheduleView.WEEK -> {
+        val weekStart = remember(selectedDate) { weekStartFor(selectedDate) }
         WeekDayStrip(
-          weekStart = weekStartFor(selectedDate),
+          weekStart = weekStart,
           selectedDate = selectedDate,
           daysWithEvents = daysWithItems,
           onDayClick = onDateSelected
@@ -126,24 +118,14 @@ private fun ScheduleContent(
 
       ScheduleView.MONTH -> {
         MonthCalendar(
-          year = displayYear,
-          month = displayMonth,
+          year = state.displayYear,
+          month = state.displayMonth,
           selectedDate = selectedDate,
           today = selectedDate,
           daysWithEvents = daysWithItems,
           onDayClick = onDateSelected,
-          onPreviousMonth = {
-            val prev = LocalDate(displayYear, displayMonth, 1)
-              .plus(-1, DateTimeUnit.MONTH)
-            displayYear = prev.year
-            displayMonth = prev.month
-          },
-          onNextMonth = {
-            val next = LocalDate(displayYear, displayMonth, 1)
-              .plus(1, DateTimeUnit.MONTH)
-            displayYear = next.year
-            displayMonth = next.month
-          }
+          onPreviousMonth = { onMonthNavigated(-1) },
+          onNextMonth = { onMonthNavigated(1) }
         )
       }
     }

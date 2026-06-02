@@ -7,7 +7,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -41,6 +40,7 @@ import com.frame.zero.feature.home.tab.productions.ProductionsTabComponent
 import com.frame.zero.feature.home.ui.FloatingBottomNavClearance
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
+import com.frame.zero.shared.design_system.modifier.clickableWithRipple
 import com.frame.zero.shared.design_system.widgets.DefaultInlineRefreshIndicator
 import com.frame.zero.shared.design_system.widgets.PagingLazyColumn
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer
@@ -125,7 +125,7 @@ private fun ProductionsContent(
               .size(AddButtonSize)
               .clip(RoundedCornerShape(AppTheme.radiusSystem.radius8))
               .background(AppTheme.colorSystem.accent)
-              .clickable(onClick = onCreateProductionClick),
+              .clickableWithRipple(color = AppTheme.colorSystem.accentDim, onClick = onCreateProductionClick),
             contentAlignment = Alignment.Center
           ) {
             Image(

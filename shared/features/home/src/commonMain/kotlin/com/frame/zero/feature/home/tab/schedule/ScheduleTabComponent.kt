@@ -18,4 +18,6 @@ class ScheduleTabComponent(
   fun onViewChanged(view: ScheduleView) = viewModel.onViewChanged(view)
 
   fun onDateSelected(date: LocalDate) = viewModel.onDateSelected(date)
+
+  fun onMonthNavigated(offset: Int) = viewModel.onMonthNavigated(offset)
 }

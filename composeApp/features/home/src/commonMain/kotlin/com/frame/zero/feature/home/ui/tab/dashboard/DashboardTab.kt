@@ -8,9 +8,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.platform.testTag
 import com.frame.zero.feature.home.tab.dashboard.DashboardStatsUi
 import com.frame.zero.feature.home.tab.dashboard.DashboardTabComponent
@@ -26,7 +26,7 @@ import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun DashboardTab(component: DashboardTabComponent) {
-  val state by component.state.collectAsState()
+  val state by component.state.collectAsStateWithLifecycle()
   DashboardContent(dashboard = state.dashboard, onTaskClick = component.onTaskClick)
 }
 

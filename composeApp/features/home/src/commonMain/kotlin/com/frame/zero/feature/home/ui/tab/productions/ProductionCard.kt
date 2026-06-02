@@ -18,14 +18,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.frame.zero.domain.production.Genre
 import com.frame.zero.domain.production.ProductionPhase
 import com.frame.zero.feature.home.tab.productions.ProductionUi
 import com.frame.zero.shared.design_system.AppTheme
+import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.modifier.clickableWithRipple
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer
+import com.frame.zero.shared.design_system.widgets.rememberRoundedCornerShape
 import framezero.composeapp.features.home.generated.resources.Res
 import framezero.composeapp.features.home.generated.resources.days_left
 import framezero.composeapp.features.home.generated.resources.ic_calendar_clock
@@ -148,7 +149,7 @@ internal fun ProductionCard(
 
 @Composable
 private fun PhaseBadge(phase: ProductionPhase) {
-  val shape = RoundedCornerShape(AppTheme.radiusSystem.radius8)
+  val shape = rememberRoundedCornerShape(AppTheme.radiusSystem.radius8)
   Box(
     modifier = Modifier
       .clip(shape)
@@ -173,7 +174,7 @@ private fun ProgressBar(
   color: Color
 ) {
   val trackColor = AppTheme.colorSystem.border
-  val shape = RoundedCornerShape(AppTheme.radiusSystem.radius4)
+  val shape = rememberRoundedCornerShape(AppTheme.radiusSystem.radius4)
 
   Box(
     modifier = Modifier
@@ -214,7 +215,7 @@ internal fun Genre.displayLabel(): String = name.replace('_', ' ').lowercase().r
 
 // ── Previews ──────────────────────────────────────────────────────────
 
-@Preview
+@LightDarkPreview
 @Composable
 private fun ProductionCardPreview() {
   AppTheme(darkTheme = true) {
@@ -238,7 +239,7 @@ private fun ProductionCardPreview() {
   }
 }
 
-@Preview
+@LightDarkPreview
 @Composable
 private fun ProductionCardUrgentPreview() {
   AppTheme(darkTheme = true) {
