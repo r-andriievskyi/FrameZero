@@ -244,6 +244,10 @@ class ProductionsRemoteMediatorTest {
       rows.removeAll { it.phaseFilter == filter }
     }
 
+    override suspend fun deleteById(id: String) {
+      rows.removeAll { it.id == id }
+    }
+
     override suspend fun deleteRemoteKey(filter: String) {
       keys.remove(filter)
     }
