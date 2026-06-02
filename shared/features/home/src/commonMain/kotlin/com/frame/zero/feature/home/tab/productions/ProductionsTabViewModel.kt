@@ -4,7 +4,6 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
 import com.arkivanov.essenty.instancekeeper.InstanceKeeper
-import com.frame.zero.domain.production.ProductionPhase
 import com.frame.zero.repository.productions.ProductionsRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -31,13 +30,15 @@ class ProductionsTabViewModel(
   val state: StateFlow<ProductionsTabState> = _state.asStateFlow()
 
   val productions: Flow<PagingData<ProductionUi>> = _state
-    .flatMapLatest { current -> productionsRepository.observeProductions(current.selectedFilter) }
+    .flatMapLatest { current ->
+      productionsRepository.observeProductions(current.selectedFilter.toPhaseOrNull())
+    }
     .map { page -> page.map { it.toUi() } }
     .cachedIn(scope)
 
-  fun onFilterSelected(phase: ProductionPhase?) {
-    if (_state.value.selectedFilter == phase) return
-    _state.update { it.copy(selectedFilter = phase) }
+  fun onFilterSelected(filter: ProductionFilter) {
+    if (_state.value.selectedFilter == filter) return
+    _state.update { it.copy(selectedFilter = filter) }
   }
 
   override fun onDestroy() {
