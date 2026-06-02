@@ -8,6 +8,7 @@ data class TypographySystem(
   val displayLarge: TextStyle,
   val displayMedium: TextStyle,
   val titleLarge: TextStyle,
+  val titleExtraLarge: TextStyle,
   val titleMedium: TextStyle,
   val titleSmall: TextStyle,
   val bodyLarge: TextStyle,
