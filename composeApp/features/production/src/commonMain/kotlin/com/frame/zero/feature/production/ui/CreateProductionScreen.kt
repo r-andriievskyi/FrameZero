@@ -12,10 +12,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.frame.zero.domain.production.Genre
 import com.frame.zero.feature.production.CreateProductionComponent
 import com.frame.zero.feature.production.CreateProductionIntent
@@ -34,17 +34,11 @@ import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun CreateProductionScreen(component: CreateProductionComponent) {
-  val state by component.state.collectAsState()
+  val state by component.state.collectAsStateWithLifecycle()
   CreateProductionContent(
     state = state,
     onIntent = component::onIntent,
-    onBack = {
-      if (state.currentStep > 1) {
-        component.onIntent(CreateProductionIntent.PreviousStep)
-      } else {
-        component.onBack()
-      }
-    }
+    onBack = component::navigateBack
   )
 }
 
