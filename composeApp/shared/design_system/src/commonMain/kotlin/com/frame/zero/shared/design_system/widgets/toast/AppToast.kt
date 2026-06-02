@@ -8,11 +8,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -26,6 +24,7 @@ import com.frame.zero.shared.design_system.generated.resources.ic_circle_check
 import com.frame.zero.shared.design_system.generated.resources.ic_circle_x
 import com.frame.zero.shared.design_system.modifier.clickableWithRipple
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer
+import com.frame.zero.shared.design_system.widgets.rememberRoundedCornerShape
 import org.jetbrains.compose.resources.vectorResource
 
 private val ToastIconSize = 20.dp
@@ -62,8 +61,7 @@ fun AppToast(
   modifier: Modifier = Modifier
 ) {
   val colors = toastColors(severity)
-  val radius = AppTheme.radiusSystem.radius14
-  val shape = remember(radius) { RoundedCornerShape(radius) }
+  val shape = rememberRoundedCornerShape(AppTheme.radiusSystem.radius14)
 
   val spacingSystem = AppTheme.spacingSystem
   val typographySystem = AppTheme.typographySystem
@@ -110,8 +108,7 @@ fun AppToast(
       }
     }
     if (actionLabel != null && onAction != null) {
-      val actionRadius = AppTheme.radiusSystem.radius8
-      val actionShape = remember(actionRadius) { RoundedCornerShape(actionRadius) }
+      val actionShape = rememberRoundedCornerShape(AppTheme.radiusSystem.radius8)
       Text(
         text = actionLabel,
         style = typographySystem.labelMedium,

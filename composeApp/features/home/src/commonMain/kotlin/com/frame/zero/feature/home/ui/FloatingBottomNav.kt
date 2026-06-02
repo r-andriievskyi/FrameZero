@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -18,11 +17,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.frame.zero.feature.home.tab.HomeTab
 import com.frame.zero.shared.design_system.AppTheme
+import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.modifier.clickableWithRipple
+import com.frame.zero.shared.design_system.widgets.rememberRoundedCornerShape
 import framezero.composeapp.features.home.generated.resources.Res
 import framezero.composeapp.features.home.generated.resources.tab_dashboard
 import framezero.composeapp.features.home.generated.resources.tab_productions
@@ -48,14 +48,14 @@ fun FloatingBottomNav(
   onSelect: (HomeTab) -> Unit,
   modifier: Modifier = Modifier
 ) {
-  val radius = AppTheme.radiusSystem.radiusMax
-  val shape = remember(radius) { RoundedCornerShape(radius) }
+  val shape = rememberRoundedCornerShape(AppTheme.radiusSystem.radiusMax)
+  val colorSystem = AppTheme.colorSystem
   Row(
     modifier = modifier
       .height(FloatingBottomNavHeight)
-      .border(width = AppTheme.borderSystem.hairline, color = AppTheme.colorSystem.border, shape = shape)
+      .border(width = AppTheme.borderSystem.hairline, color = colorSystem.border, shape = shape)
       .clip(shape)
-      .background(AppTheme.colorSystem.surfaceElevated)
+      .background(colorSystem.surfaceElevated)
       .padding(AppTheme.spacingSystem.space4),
     verticalAlignment = Alignment.CenterVertically
   ) {
@@ -77,9 +77,9 @@ private fun NavItem(
   selected: Boolean,
   onClick: () -> Unit
 ) {
+  val itemShape = rememberRoundedCornerShape(AppTheme.radiusSystem.radiusMax)
   val colorSystem = AppTheme.colorSystem
-  val itemRadius = AppTheme.radiusSystem.radiusMax
-  val itemShape = remember(itemRadius) { RoundedCornerShape(itemRadius) }
+  val spacingSystem = AppTheme.spacingSystem
   Box(
     modifier = modifier
       .clip(itemShape)
@@ -89,8 +89,8 @@ private fun NavItem(
       )
       .background(color = if (selected) colorSystem.accent else Color.Transparent)
       .padding(
-        horizontal = AppTheme.spacingSystem.space16,
-        vertical = AppTheme.spacingSystem.space8
+        horizontal = spacingSystem.space16,
+        vertical = spacingSystem.space8
       ),
     contentAlignment = Alignment.Center
   ) {
@@ -102,7 +102,7 @@ private fun NavItem(
   }
 }
 
-@Preview(showBackground = true)
+@LightDarkPreview
 @Composable
 private fun FloatingBottomNavPreview() {
   AppTheme {
