@@ -3,12 +3,11 @@ package com.frame.zero.feature.home.ui.tab.dashboard
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -16,11 +15,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.tooling.preview.Preview
 import com.frame.zero.feature.home.tab.dashboard.DashboardTaskUi
+import com.frame.zero.feature.home.tab.dashboard.DueUrgency
 import com.frame.zero.shared.design_system.AppTheme
+import com.frame.zero.shared.design_system.LightDarkPreview
+import com.frame.zero.shared.design_system.modifier.clickableWithRipple
 import com.frame.zero.shared.design_system.widgets.HorizontalSpacer
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer
+import com.frame.zero.shared.design_system.widgets.rememberRoundedCornerShape
 import framezero.composeapp.features.home.generated.resources.Res
 import framezero.composeapp.features.home.generated.resources.ic_chevron_right
 import framezero.composeapp.features.home.generated.resources.my_tasks_see_all
@@ -31,13 +33,25 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 internal fun MyTasksSection(
   tasks: List<DashboardTaskUi>,
-  onTaskClick: (taskId: String) -> Unit
+  onTaskClick: (taskId: String) -> Unit,
+  modifier: Modifier = Modifier
 ) {
-  SectionHeader(
-    modifier = Modifier.testTag(DashboardTestTags.MY_TASKS_SECTION),
-    title = stringResource(Res.string.my_tasks_title),
-    actionLabel = stringResource(Res.string.my_tasks_see_all)
-  )
+  Row(
+    modifier = modifier.fillMaxWidth().testTag(DashboardTestTags.MY_TASKS_SECTION),
+    horizontalArrangement = Arrangement.SpaceBetween,
+    verticalAlignment = Alignment.CenterVertically
+  ) {
+    Text(
+      text = stringResource(Res.string.my_tasks_title),
+      style = AppTheme.typographySystem.titleMedium,
+      color = AppTheme.colorSystem.textPrimary
+    )
+    Text(
+      text = stringResource(Res.string.my_tasks_see_all),
+      style = AppTheme.typographySystem.labelMedium,
+      color = AppTheme.colorSystem.accentText
+    )
+  }
   VerticalSpacer(AppTheme.spacingSystem.space8)
   tasks.forEach { task ->
     TaskCard(
@@ -55,54 +69,57 @@ private fun TaskCard(
   onClick: () -> Unit,
   modifier: Modifier = Modifier
 ) {
-  val shape = RoundedCornerShape(AppTheme.radiusSystem.radius16)
+  val shape = rememberRoundedCornerShape(AppTheme.radiusSystem.radius16)
+  val colorSystem = AppTheme.colorSystem
+  val spacingSystem = AppTheme.spacingSystem
+  val typographySystem = AppTheme.typographySystem
   Row(
     modifier = modifier
       .fillMaxWidth()
       .clip(shape)
-      .clickable(onClick = onClick)
-      .background(AppTheme.colorSystem.cardBackground)
-      .border(AppTheme.borderSystem.hairline, AppTheme.colorSystem.border, shape)
-      .padding(AppTheme.spacingSystem.space16),
+      .clickableWithRipple(color = colorSystem.accentDim, onClick = onClick)
+      .background(colorSystem.cardBackground)
+      .border(AppTheme.borderSystem.hairline, colorSystem.border, shape)
+      .padding(spacingSystem.space16),
     verticalAlignment = Alignment.CenterVertically
   ) {
     Column(modifier = Modifier.weight(1f)) {
       Text(
         text = task.title,
-        style = AppTheme.typographySystem.bodyMedium,
-        color = AppTheme.colorSystem.textPrimary
+        style = typographySystem.bodyMedium,
+        color = colorSystem.textPrimary
       )
-      VerticalSpacer(AppTheme.spacingSystem.space4)
+      VerticalSpacer(spacingSystem.space4)
       Row {
         Text(
           text = task.productionTitle,
-          style = AppTheme.typographySystem.bodySmall,
-          color = AppTheme.colorSystem.textMuted
+          style = typographySystem.bodySmall,
+          color = colorSystem.textMuted
         )
         val dueLabel = task.dueLabel
         if (dueLabel != null) {
-          HorizontalSpacer(AppTheme.spacingSystem.space8)
-          val dueLabelColor = when {
-            dueLabel.equals("Today", ignoreCase = true) -> AppTheme.colorSystem.errorText
-            dueLabel.equals("Tomorrow", ignoreCase = true) -> AppTheme.colorSystem.warningText
-            else -> AppTheme.colorSystem.textMuted
+          HorizontalSpacer(spacingSystem.space8)
+          val dueLabelColor = when (task.dueUrgency) {
+            DueUrgency.Overdue, DueUrgency.Today -> colorSystem.errorText
+            DueUrgency.Tomorrow -> colorSystem.warningText
+            DueUrgency.Normal -> colorSystem.textMuted
           }
-          Text(text = dueLabel, style = AppTheme.typographySystem.bodySmall, color = dueLabelColor)
+          Text(text = dueLabel, style = typographySystem.bodySmall, color = dueLabelColor)
         }
       }
     }
     Image(
       painter = painterResource(Res.drawable.ic_chevron_right),
-      colorFilter = ColorFilter.tint(AppTheme.colorSystem.textPrimary),
+      colorFilter = ColorFilter.tint(colorSystem.textPrimary),
       contentDescription = null
     )
   }
 }
 
-@Preview
+@LightDarkPreview
 @Composable
 private fun MyTasksSectionPreview() {
-  AppTheme(darkTheme = true) {
+  AppTheme {
     Column(
       modifier = Modifier
         .background(AppTheme.colorSystem.background)
@@ -115,19 +132,22 @@ private fun MyTasksSectionPreview() {
             id = "1",
             title = "Review Scene 12 script revisions",
             productionTitle = "Echoes of Silence",
-            dueLabel = "Today"
+            dueLabel = "Today",
+            dueUrgency = DueUrgency.Today
           ),
           DashboardTaskUi(
             id = "2",
             title = "Confirm exterior shooting locations",
             productionTitle = "Neon Wolves",
-            dueLabel = "Tomorrow"
+            dueLabel = "Tomorrow",
+            dueUrgency = DueUrgency.Tomorrow
           ),
           DashboardTaskUi(
             id = "3",
             title = "Approve final color grade",
             productionTitle = "The Last Frame",
-            dueLabel = "Apr 28"
+            dueLabel = "Apr 28",
+            dueUrgency = DueUrgency.Normal
           )
         )
       )
