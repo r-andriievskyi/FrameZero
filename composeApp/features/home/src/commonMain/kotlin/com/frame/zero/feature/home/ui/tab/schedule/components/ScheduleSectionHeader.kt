@@ -1,4 +1,4 @@
-package com.frame.zero.feature.home.ui.tab.schedule
+package com.frame.zero.feature.home.ui.tab.schedule.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
