@@ -17,8 +17,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Clock
@@ -32,10 +34,14 @@ class ScheduleTabViewModel(
   private val scope = CoroutineScope(dispatcher + SupervisorJob())
 
   private val _state = MutableStateFlow(
-    ScheduleTabState(
-      selectedDate = today(),
-      isSelectedDateToday = true
-    )
+    today().let { t ->
+      ScheduleTabState(
+        selectedDate = t,
+        isSelectedDateToday = true,
+        displayYear = t.year,
+        displayMonth = t.month
+      )
+    }
   )
   val state: StateFlow<ScheduleTabState> = _state.asStateFlow()
 
@@ -57,11 +63,21 @@ class ScheduleTabViewModel(
       it.copy(
         selectedDate = date,
         isSelectedDateToday = date == todayDate,
+        displayYear = date.year,
+        displayMonth = date.month,
         selectedDayEvents = it.schedule.eventsFor(date),
         selectedDayTasks = it.schedule.tasksFor(date, todayDate)
       )
     }
     load(view = _state.value.view, date = date)
+  }
+
+  fun onMonthNavigated(offset: Int) {
+    _state.update { state ->
+      val current = LocalDate(state.displayYear, state.displayMonth, 1)
+      val next = current.plus(offset, DateTimeUnit.MONTH)
+      state.copy(displayYear = next.year, displayMonth = next.month)
+    }
   }
 
   private fun load(view: ScheduleView, date: LocalDate) {

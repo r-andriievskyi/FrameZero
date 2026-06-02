@@ -31,4 +31,12 @@ class CreateProductionComponent(
   }
 
   fun onIntent(intent: CreateProductionIntent) = viewModel.onIntent(intent)
+
+  fun navigateBack() {
+    if (viewModel.state.value.currentStep > 1) {
+      viewModel.onIntent(CreateProductionIntent.PreviousStep)
+    } else {
+      onBack()
+    }
+  }
 }

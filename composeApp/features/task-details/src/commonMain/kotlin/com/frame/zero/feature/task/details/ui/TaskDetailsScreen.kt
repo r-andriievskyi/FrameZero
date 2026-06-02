@@ -16,9 +16,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -49,7 +50,7 @@ private val AvatarSize = 36.dp
 
 @Composable
 fun TaskDetailsScreen(component: TaskDetailsComponent) {
-  val state by component.state.collectAsState()
+  val state by component.state.collectAsStateWithLifecycle()
   TaskDetailsContent(
     state = state,
     onBack = component.onBack,
@@ -82,7 +83,6 @@ internal fun TaskDetailsContent(
           .verticalScroll(rememberScrollState())
           .padding(horizontal = AppTheme.spacingSystem.space16)
       ) {
-        // Production name + Priority badge row
         Row(
           modifier = Modifier.fillMaxWidth(),
           horizontalArrangement = Arrangement.SpaceBetween,
@@ -191,9 +191,9 @@ private fun AssigneeDueRow(
       VerticalSpacer(AppTheme.spacingSystem.space8)
       assignee?.let { member ->
         Row(verticalAlignment = Alignment.CenterVertically) {
-          val avatarColor = member.avatarColorHex
-            ?.let { parseHexColor(it) }
-            ?: AppTheme.colorSystem.accentDim
+          val avatarColor = remember(member.avatarColorHex) {
+            member.avatarColorHex?.let { parseHexColor(it) }
+          } ?: AppTheme.colorSystem.accentDim
           Box(
             modifier = Modifier
               .size(AvatarSize)
