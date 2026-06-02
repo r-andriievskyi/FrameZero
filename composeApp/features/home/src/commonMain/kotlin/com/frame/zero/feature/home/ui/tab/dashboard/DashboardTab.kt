@@ -17,6 +17,8 @@ import com.frame.zero.feature.home.tab.dashboard.DashboardTabComponent
 import com.frame.zero.feature.home.tab.dashboard.DashboardTaskUi
 import com.frame.zero.feature.home.tab.dashboard.DashboardUi
 import com.frame.zero.feature.home.tab.dashboard.DueUrgency
+import com.frame.zero.feature.home.ui.tab.dashboard.components.MyTasksSection
+import com.frame.zero.feature.home.ui.tab.dashboard.components.StatsRow
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer

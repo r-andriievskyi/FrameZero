@@ -1,4 +1,4 @@
-package com.frame.zero.feature.home.ui.tab.dashboard
+package com.frame.zero.feature.home.ui.tab.dashboard.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.testTag
 import com.frame.zero.feature.home.tab.dashboard.DashboardTaskUi
 import com.frame.zero.feature.home.tab.dashboard.DueUrgency
+import com.frame.zero.feature.home.ui.tab.dashboard.DashboardTestTags
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.modifier.clickableWithRipple
