@@ -39,5 +39,6 @@ class ProductionsRepositoryImpl(
 
   override suspend fun delete(productionId: String) {
     remoteApi.delete(productionId)
+    database.productionsCacheDao().deleteById(productionId)
   }
 }

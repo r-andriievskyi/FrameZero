@@ -27,6 +27,9 @@ abstract class ProductionsDao {
   @Query("DELETE FROM productions WHERE phaseFilter = :filter")
   abstract suspend fun deleteByFilter(filter: String)
 
+  @Query("DELETE FROM productions WHERE id = :id")
+  abstract suspend fun deleteById(id: String)
+
   @Query("DELETE FROM production_remote_keys WHERE phaseFilter = :filter")
   abstract suspend fun deleteRemoteKey(filter: String)
 
