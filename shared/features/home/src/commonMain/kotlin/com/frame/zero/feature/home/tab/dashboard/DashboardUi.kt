@@ -15,26 +15,36 @@ data class DashboardStatsUi(
   val openTasks: Int
 )
 
+enum class DueUrgency {
+  Overdue,
+  Today,
+  Tomorrow,
+  Normal
+}
+
 data class DashboardTaskUi(
   val id: String,
   val title: String,
   val productionTitle: String,
-  val dueLabel: String?
+  val dueLabel: String?,
+  val dueUrgency: DueUrgency
 )
 
-fun Dashboard.toUi(): DashboardUi =
+fun Dashboard.toUi(resolveUrgency: (DashboardTask) -> DueUrgency): DashboardUi =
   DashboardUi(
     displayName = displayName,
     stats = stats.toUi(),
-    myTasks = myTasks.map { it.toUi() }
+    myTasks = myTasks.map { it.toUi(resolveUrgency(it)) }
   )
 
 fun DashboardStats.toUi(): DashboardStatsUi = DashboardStatsUi(activeProjects = activeProjects, openTasks = openTasks)
 
-fun DashboardTask.toUi(): DashboardTaskUi =
+fun DashboardTask.toUi(dueUrgency: DueUrgency): DashboardTaskUi =
   DashboardTaskUi(
     id = id,
     title = title,
     productionTitle = productionTitle,
-    dueLabel = dueLabel
+    dueLabel = dueLabel,
+    dueUrgency = dueUrgency
   )
+

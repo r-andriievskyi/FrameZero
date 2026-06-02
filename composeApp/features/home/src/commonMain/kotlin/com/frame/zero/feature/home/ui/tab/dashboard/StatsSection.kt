@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -16,10 +15,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.tooling.preview.Preview
-import com.frame.zero.shared.design_system.AppTheme
-import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import com.frame.zero.feature.home.tab.dashboard.DashboardStatsUi
+import com.frame.zero.shared.design_system.AppTheme
+import com.frame.zero.shared.design_system.LightDarkPreview
+import com.frame.zero.shared.design_system.modifier.clickableWithRipple
+import com.frame.zero.shared.design_system.widgets.VerticalSpacer
+import com.frame.zero.shared.design_system.widgets.rememberRoundedCornerShape
 import framezero.composeapp.features.home.generated.resources.Res
 import framezero.composeapp.features.home.generated.resources.ic_clapper_board
 import framezero.composeapp.features.home.generated.resources.ic_task
@@ -30,22 +31,28 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-internal fun StatsRow(stats: DashboardStatsUi) {
+internal fun StatsRow(stats: DashboardStatsUi, modifier: Modifier = Modifier) {
   Row(
-    modifier = Modifier.fillMaxWidth(),
+    modifier = modifier.fillMaxWidth(),
     horizontalArrangement = Arrangement.spacedBy(AppTheme.spacingSystem.space8)
   ) {
     StatCard(
       modifier = Modifier.weight(1f).testTag(DashboardTestTags.STAT_ACTIVE_PRODUCTIONS),
       icon = Res.drawable.ic_clapper_board,
       value = stats.activeProjects.toString(),
-      label = stringResource(Res.string.stats_active_projects)
+      label = stringResource(Res.string.stats_active_projects),
+      onClick = {
+        // todo
+      }
     )
     StatCard(
       modifier = Modifier.weight(1f).testTag(DashboardTestTags.STAT_OPEN_TASKS),
       icon = Res.drawable.ic_task,
       value = stats.openTasks.toString(),
-      label = stringResource(Res.string.stats_open_tasks)
+      label = stringResource(Res.string.stats_open_tasks),
+      onClick = {
+        // todo
+      }
     )
   }
 }
@@ -55,47 +62,51 @@ private fun StatCard(
   modifier: Modifier = Modifier,
   icon: DrawableResource,
   value: String,
-  label: String
+  label: String,
+  onClick: () -> Unit
 ) {
-  val shape = RoundedCornerShape(AppTheme.radiusSystem.radius16)
+  val shape = rememberRoundedCornerShape(AppTheme.radiusSystem.radius16)
+
+  val colorSystem = AppTheme.colorSystem
+  val spacingSystem = AppTheme.spacingSystem
+  val typographySystem = AppTheme.typographySystem
+
   Column(
     modifier = modifier
       .semantics(mergeDescendants = true) {}
       .clip(shape)
-      .background(AppTheme.colorSystem.cardBackground)
-      .border(AppTheme.borderSystem.hairline, AppTheme.colorSystem.border, shape)
-      .padding(AppTheme.spacingSystem.space16)
+      .clickableWithRipple(color = colorSystem.accentDim, onClick = onClick)
+      .background(colorSystem.cardBackground)
+      .border(AppTheme.borderSystem.hairline, colorSystem.border, shape)
+      .padding(spacingSystem.space16)
   ) {
     Image(
       painter = painterResource(icon),
-      colorFilter = ColorFilter.tint(AppTheme.colorSystem.textPrimary),
+      colorFilter = ColorFilter.tint(colorSystem.textPrimary),
       contentDescription = null
     )
-    VerticalSpacer(AppTheme.spacingSystem.space8)
+    VerticalSpacer(spacingSystem.space8)
     Text(
       text = value,
-      style = AppTheme.typographySystem.displayMedium,
-      color = AppTheme.colorSystem.textPrimary
+      style = typographySystem.displayMedium,
+      color = colorSystem.textPrimary
     )
-    VerticalSpacer(AppTheme.spacingSystem.space4)
+    VerticalSpacer(spacingSystem.space4)
     Text(
       text = label,
-      style = AppTheme.typographySystem.bodySmall,
-      color = AppTheme.colorSystem.textMuted
+      style = typographySystem.bodySmall,
+      color = colorSystem.textMuted
     )
   }
 }
 
-@Preview
+@LightDarkPreview
 @Composable
 private fun StatsSectionPreview() {
-  AppTheme(darkTheme = true) {
-    Column(
-      modifier = Modifier
-        .background(AppTheme.colorSystem.background)
-        .padding(AppTheme.spacingSystem.space16)
-    ) {
-      StatsRow(stats = DashboardStatsUi(activeProjects = 3, openTasks = 12))
-    }
+  AppTheme {
+    StatsRow(
+      modifier = Modifier.padding(AppTheme.spacingSystem.space16),
+      stats = DashboardStatsUi(activeProjects = 3, openTasks = 12)
+    )
   }
 }

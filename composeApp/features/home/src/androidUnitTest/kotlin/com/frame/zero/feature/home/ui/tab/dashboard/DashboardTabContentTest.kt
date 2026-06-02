@@ -8,6 +8,7 @@ import androidx.compose.ui.test.performClick
 import com.frame.zero.feature.home.tab.dashboard.DashboardStatsUi
 import com.frame.zero.feature.home.tab.dashboard.DashboardTaskUi
 import com.frame.zero.feature.home.tab.dashboard.DashboardUi
+import com.frame.zero.feature.home.tab.dashboard.DueUrgency
 import com.frame.zero.feature.home.ui.tab.dashboard.DashboardTestTags.GREETING
 import com.frame.zero.feature.home.ui.tab.dashboard.DashboardTestTags.MY_TASKS_SECTION
 import com.frame.zero.feature.home.ui.tab.dashboard.DashboardTestTags.STAT_ACTIVE_PRODUCTIONS
@@ -206,6 +207,7 @@ class DashboardTabContentTest {
     id: String = "1",
     title: String = "Review Scene 12 script revisions",
     productionTitle: String = "Echoes of Silence",
-    dueLabel: String? = "Today"
-  ): DashboardTaskUi = DashboardTaskUi(id = id, title = title, productionTitle = productionTitle, dueLabel = dueLabel)
+    dueLabel: String? = "Today",
+    dueUrgency: DueUrgency = DueUrgency.Today
+  ): DashboardTaskUi = DashboardTaskUi(id = id, title = title, productionTitle = productionTitle, dueLabel = dueLabel, dueUrgency = dueUrgency)
 }
