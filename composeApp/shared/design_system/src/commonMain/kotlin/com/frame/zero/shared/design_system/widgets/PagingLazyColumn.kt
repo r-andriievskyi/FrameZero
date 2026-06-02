@@ -75,14 +75,15 @@ class PagingListUiState internal constructor(
 ) {
   val isLoading: Boolean get() = refreshState is LoadState.Loading
 
-  /** First load with no items to show, or load triggered by a [resetKey] change. */
-  val isInitialLoad: Boolean get() = isLoading && (itemCount == 0 || isFilterTransition)
+  /** First load with no items to show. Suppressed during a filter transition so the list
+   *  doesn't flicker into the skeleton when Room has cached items for the new key. */
+  val isInitialLoad: Boolean get() = isLoading && itemCount == 0 && !isFilterTransition
 
   /** Reload while items are already visible (drives pull-to-refresh). */
   val isRefreshing: Boolean get() = isLoading && itemCount > 0 && !isFilterTransition
 
   /** Finished loading and there is nothing to show. */
-  val isEmpty: Boolean get() = !isInitialLoad && itemCount == 0
+  val isEmpty: Boolean get() = !isLoading && !isFilterTransition && itemCount == 0
 }
 
 /**
