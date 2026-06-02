@@ -26,8 +26,11 @@ import com.frame.zero.domain.schedule.ScheduleTask
 import com.frame.zero.domain.schedule.ScheduleView
 import com.frame.zero.dto.task.TaskPriority
 import com.frame.zero.dto.task.TaskStatus
+import com.frame.zero.feature.home.tab.schedule.DueLabel
+import com.frame.zero.feature.home.tab.schedule.ScheduleEventUiModel
 import com.frame.zero.feature.home.tab.schedule.ScheduleTabComponent
 import com.frame.zero.feature.home.tab.schedule.ScheduleTabState
+import com.frame.zero.feature.home.tab.schedule.ScheduleTaskUiModel
 import com.frame.zero.feature.home.ui.FloatingBottomNavClearance
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
@@ -74,42 +77,41 @@ private fun ScheduleContent(
     }
   }
 
-  val selectedDay by remember(schedule, selectedDate) {
-    derivedStateOf { schedule?.days?.find { it.date == selectedDate } }
-  }
 
   val navigationBarsBottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+  val spacingSystem = AppTheme.spacingSystem
+  val colorSystem = AppTheme.colorSystem
   Column(
     modifier = Modifier
       .fillMaxSize()
-      .background(AppTheme.colorSystem.background)
+      .background(colorSystem.background)
       .verticalScroll(rememberScrollState())
-      .padding(horizontal = AppTheme.spacingSystem.space16)
+      .padding(horizontal = spacingSystem.space16)
       .padding(
-        top = AppTheme.spacingSystem.space24,
+        top = spacingSystem.space24,
         bottom = navigationBarsBottom + FloatingBottomNavClearance
       )
   ) {
     Text(
       text = stringResource(Res.string.schedule_screen_title),
       style = AppTheme.typographySystem.displayMedium,
-      color = AppTheme.colorSystem.textPrimary
+      color = colorSystem.textPrimary
     )
 
-    VerticalSpacer(AppTheme.spacingSystem.space16)
+    VerticalSpacer(spacingSystem.space16)
 
     ScheduleViewSelector(
       selected = state.view,
       onViewSelected = onViewChanged
     )
 
-    VerticalSpacer(AppTheme.spacingSystem.space16)
+    VerticalSpacer(spacingSystem.space16)
 
     when (state.view) {
       ScheduleView.DAY -> {
         ScheduleDateHeader(
           date = selectedDate,
-          isToday = true
+          isToday = state.isSelectedDateToday
         )
       }
 
@@ -146,20 +148,16 @@ private fun ScheduleContent(
       }
     }
 
-    VerticalSpacer(AppTheme.spacingSystem.space24)
+    VerticalSpacer(spacingSystem.space24)
 
-    val day = selectedDay
-    if (day != null && (day.events.isNotEmpty() || day.tasks.isNotEmpty())) {
+    if (state.selectedDayEvents.isNotEmpty() || state.selectedDayTasks.isNotEmpty()) {
       ScheduleTimeline(
-        events = day.events,
-        tasks = day.tasks,
-        selectedDate = selectedDate
+        events = state.selectedDayEvents,
+        tasks = state.selectedDayTasks
       )
     }
   }
 }
-
-// ── Previews ────────────────────────────────────────────────────────────────
 
 private val previewDate = LocalDate(2026, 4, 26)
 
@@ -226,6 +224,17 @@ private val previewSchedule = Schedule(
   )
 )
 
+private val previewEventUiModels = listOf(
+  ScheduleEventUiModel(id = "1", title = "Scene 14 – Interior Office", productionTitle = "Film", location = "Studio A", eventKind = ScheduleEventKind.SHOOT, timeRangeLabel = "08:00 – 09:00"),
+  ScheduleEventUiModel(id = "2", title = "Cast lunch & script review", productionTitle = "Film", location = "Green Room", eventKind = ScheduleEventKind.MEETING, timeRangeLabel = "12:00 – 13:00"),
+  ScheduleEventUiModel(id = "3", title = "ADR Session – Maya Rivera", productionTitle = "Film", location = "Sound Stage", eventKind = ScheduleEventKind.SHOOT, timeRangeLabel = "14:00 – 15:00"),
+  ScheduleEventUiModel(id = "4", title = "Director dailies review", productionTitle = "Film", location = "Screening Room", eventKind = ScheduleEventKind.REVIEW, timeRangeLabel = "16:30 – 17:30")
+)
+
+private val previewTaskUiModels = listOf(
+  ScheduleTaskUiModel(id = "5", title = "Review Scene 12 script revisions", productionTitle = "Echoes of Silence", priority = TaskPriority.HIGH, dueLabel = DueLabel.Today)
+)
+
 @LightDarkPreview
 @Composable
 private fun ScheduleContentDayPreview() {
@@ -234,7 +243,9 @@ private fun ScheduleContentDayPreview() {
       state = ScheduleTabState(
         view = ScheduleView.DAY,
         selectedDate = previewDate,
-        schedule = previewSchedule
+        schedule = previewSchedule,
+        selectedDayEvents = previewEventUiModels,
+        selectedDayTasks = previewTaskUiModels
       )
     )
   }

@@ -9,5 +9,8 @@ data class ScheduleTabState(
   val view: ScheduleView = ScheduleView.DAY,
   val schedule: Schedule? = null,
   val selectedDate: LocalDate? = null,
+  val isSelectedDateToday: Boolean = false,
+  val selectedDayEvents: List<ScheduleEventUiModel> = emptyList(),
+  val selectedDayTasks: List<ScheduleTaskUiModel> = emptyList(),
   val error: String? = null
 )
