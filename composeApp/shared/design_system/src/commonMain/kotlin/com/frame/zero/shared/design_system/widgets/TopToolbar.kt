@@ -20,6 +20,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.frame.zero.shared.design_system.AppTheme
+import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.generated.resources.Res
 import com.frame.zero.shared.design_system.generated.resources.ic_chevron_left
 import com.frame.zero.shared.design_system.modifier.clickableWithRipple
@@ -34,21 +35,22 @@ fun TopToolbar(
   modifier: Modifier = Modifier,
   trailingContent: @Composable RowScope.() -> Unit = {}
 ) {
+  val spacingSystem = AppTheme.spacingSystem
   Row(
     modifier = modifier
       .fillMaxWidth()
       .padding(
-        horizontal = AppTheme.spacingSystem.space16,
-        vertical = AppTheme.spacingSystem.space16
+        horizontal = spacingSystem.space16,
+        vertical = spacingSystem.space16
       ),
     verticalAlignment = Alignment.CenterVertically
   ) {
     BackButton(onClick = onBack)
-    HorizontalSpacer(AppTheme.spacingSystem.space8)
+    HorizontalSpacer(spacingSystem.space8)
     Text(
       modifier = Modifier.weight(1f),
       text = title,
-      style = AppTheme.typographySystem.titleLarge,
+      style = AppTheme.typographySystem.titleExtraLarge,
       color = AppTheme.colorSystem.textPrimary,
       maxLines = 1,
       overflow = TextOverflow.Ellipsis
@@ -62,15 +64,16 @@ private fun BackButton(
   onClick: () -> Unit,
   modifier: Modifier = Modifier
 ) {
-  val shape = RoundedCornerShape(AppTheme.radiusSystem.radius8)
+  val shape = rememberRoundedCornerShape(AppTheme.radiusSystem.radius8)
+  val colorSystem = AppTheme.colorSystem
   Box(
     modifier = modifier
       .size(BackButtonSize)
       .clip(shape)
-      .background(AppTheme.colorSystem.cardBackground)
-      .border(width = AppTheme.borderSystem.hairline, color = AppTheme.colorSystem.border, shape = shape)
+      .background(colorSystem.cardBackground)
+      .border(width = AppTheme.borderSystem.hairline, color = colorSystem.border, shape = shape)
       .clickableWithRipple(
-        color = AppTheme.colorSystem.accentDim,
+        color = colorSystem.accentDim,
         bounded = true,
         onClick = onClick
       ),
@@ -78,27 +81,16 @@ private fun BackButton(
   ) {
     Image(
       painter = painterResource(Res.drawable.ic_chevron_left),
-      colorFilter = ColorFilter.tint(AppTheme.colorSystem.textPrimary),
+      colorFilter = ColorFilter.tint(colorSystem.textPrimary),
       contentDescription = null
     )
   }
 }
 
-@Preview
-@Composable
-private fun TopToolbarPreview() {
-  AppTheme(darkTheme = true) {
-    TopToolbar(
-      title = "Summer Campaign 2026",
-      onBack = {}
-    )
-  }
-}
-
-@Preview
+@LightDarkPreview
 @Composable
 private fun TopToolbarWithOverflowPreview() {
-  AppTheme(darkTheme = true) {
+  AppTheme {
     TopToolbar(
       title = "Summer Campaign 2026",
       onBack = {},
