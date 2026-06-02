@@ -19,6 +19,7 @@ import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.widgets.HorizontalSpacer
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer
+import com.frame.zero.shared.design_system.widgets.rememberRoundedCornerShape
 import framezero.composeapp.features.home.generated.resources.Res
 import framezero.composeapp.features.home.generated.resources.schedule_priority_high
 import framezero.composeapp.features.home.generated.resources.schedule_priority_low
@@ -33,44 +34,47 @@ internal fun ScheduleTaskCard(
   priority: TaskPriority?,
   modifier: Modifier = Modifier
 ) {
-  val shape = RoundedCornerShape(AppTheme.radiusSystem.radius16)
+  val shape = rememberRoundedCornerShape(AppTheme.radiusSystem.radius16)
+  val colorSystem = AppTheme.colorSystem
+  val spacingSystem = AppTheme.spacingSystem
+  val typographySystem = AppTheme.typographySystem
   Row(
     modifier = modifier
       .fillMaxWidth()
       .clip(shape)
       .border(
-        width = AppTheme.spacingSystem.space2,
-        color = AppTheme.colorSystem.cardBorder,
+        width = AppTheme.borderSystem.hairline,
+        color = colorSystem.border,
         shape = shape
       )
-      .background(AppTheme.colorSystem.cardBackground)
-      .padding(AppTheme.spacingSystem.space16),
+      .background(colorSystem.cardBackground)
+      .padding(spacingSystem.space16),
     verticalAlignment = Alignment.CenterVertically
   ) {
     Column(modifier = Modifier.weight(1f)) {
       Text(
         text = title,
-        style = AppTheme.typographySystem.titleMedium,
-        color = AppTheme.colorSystem.textPrimary
+        style = typographySystem.titleMedium,
+        color = colorSystem.textPrimary
       )
-      VerticalSpacer(AppTheme.spacingSystem.space4)
+      VerticalSpacer(spacingSystem.space4)
       if (dueLabel != null) {
         Text(
           text = dueLabel,
-          style = AppTheme.typographySystem.bodySmall,
-          color = AppTheme.colorSystem.textMuted
+          style = typographySystem.bodySmall,
+          color = colorSystem.textMuted
         )
-        VerticalSpacer(AppTheme.spacingSystem.space4)
+        VerticalSpacer(spacingSystem.space4)
       }
       Text(
         text = productionTitle,
-        style = AppTheme.typographySystem.bodySmall,
-        color = AppTheme.colorSystem.textMuted
+        style = typographySystem.bodySmall,
+        color = colorSystem.textMuted
       )
     }
 
     if (priority != null) {
-      HorizontalSpacer(AppTheme.spacingSystem.space8)
+      HorizontalSpacer(spacingSystem.space8)
       PriorityBadge(priority = priority)
     }
   }
