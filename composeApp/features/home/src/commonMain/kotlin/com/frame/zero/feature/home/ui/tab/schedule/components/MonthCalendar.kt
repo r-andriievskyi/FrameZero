@@ -1,4 +1,4 @@
-package com.frame.zero.feature.home.ui.tab.schedule
+package com.frame.zero.feature.home.ui.tab.schedule.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -20,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -206,7 +207,7 @@ private fun MonthDayCell(
 ) {
   val background = when {
     isSelected -> AppTheme.colorSystem.accent
-    else -> androidx.compose.ui.graphics.Color.Transparent
+    else -> Color.Transparent
   }
   val textColor = when {
     isSelected -> AppTheme.colorSystem.textOnAccent

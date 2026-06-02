@@ -1,4 +1,4 @@
-package com.frame.zero.feature.home.ui.tab.productions
+package com.frame.zero.feature.home.ui.tab.productions.components
 
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
