@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.frame.zero.shared.design_system.AppTheme
+import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.modifier.clickableWithRipple
 
 private val MinHeight = 48.dp
@@ -31,7 +32,6 @@ fun CtaButton(
         .background(color = AppTheme.colorSystem.accent, shape = shape)
         .clickableWithRipple(
           color = AppTheme.colorSystem.accentDim,
-          bounded = true,
           onClick = onClick
         ).padding(
           horizontal = AppTheme.spacingSystem.space8,
@@ -43,6 +43,17 @@ fun CtaButton(
       text = text,
       style = AppTheme.typographySystem.labelLarge,
       color = AppTheme.colorSystem.textOnAccent
+    )
+  }
+}
+
+@LightDarkPreview
+@Composable
+private fun CtaButtonPreview() {
+  AppTheme {
+    CtaButton(
+      text = "Continue",
+      onClick = {}
     )
   }
 }
