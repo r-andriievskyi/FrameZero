@@ -2,8 +2,9 @@ package com.frame.zero.feature.home.ui.tab.productions
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -21,9 +22,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.frame.zero.shared.design_system.AppTheme
+import com.frame.zero.shared.design_system.LightDarkPreview
+import com.frame.zero.shared.design_system.widgets.CtaButton
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import framezero.composeapp.features.home.generated.resources.Res
 import framezero.composeapp.features.home.generated.resources.projects_create_button
@@ -32,18 +34,15 @@ import framezero.composeapp.features.home.generated.resources.projects_empty_inv
 import framezero.composeapp.features.home.generated.resources.projects_empty_title
 import org.jetbrains.compose.resources.stringResource
 
-private val IllustrationContainerWidth = 220.dp
-private val IllustrationContainerHeight = 160.dp
-private val StackedCardWidth = 180.dp
-private val StackedCardHeight = 100.dp
-private val BackCardOffsetY = 40.dp
-private val MiddleCardOffsetY = 25.dp
+private const val IllustrationWidthFraction = 0.7f
+private const val ContainerAspectRatio = 1.375f
+private const val StackedCardWidthFraction = 0.82f
+private const val StackedCardHeightFraction = 0.625f
+private const val BackCardOffsetFraction = 0.25f
+private const val MiddleCardOffsetFraction = 0.156f
+private const val FrontCardHeightFraction = 0.44f
 private val IllustrationBarHeight = 4.dp
-private val FrontCardWidth = 200.dp
-private val FrontCardHeight = 70.dp
-private val TitleBarWidth = 80.dp
 private val TitleBarHeight = 8.dp
-private val SubtitleBarWidth = 50.dp
 private val SubtitleBarHeight = 6.dp
 
 @Composable
@@ -51,58 +50,47 @@ internal fun EmptyState(
   modifier: Modifier = Modifier,
   onCreateProductionClick: () -> Unit
 ) {
+  val spacingSystem = AppTheme.spacingSystem
+  val typographySystem = AppTheme.typographySystem
+  val colorSystem = AppTheme.colorSystem
   Column(
-    modifier = modifier.fillMaxWidth().padding(vertical = AppTheme.spacingSystem.space24),
+    modifier = modifier.fillMaxWidth().padding(vertical = spacingSystem.space24),
     horizontalAlignment = Alignment.CenterHorizontally
   ) {
     EmptyStateIllustration()
 
-    VerticalSpacer(AppTheme.spacingSystem.space24)
+    VerticalSpacer(spacingSystem.space24)
 
     Text(
       text = stringResource(Res.string.projects_empty_title),
-      style = AppTheme.typographySystem.titleMedium,
-      color = AppTheme.colorSystem.textPrimary,
+      style = typographySystem.titleMedium,
+      color = colorSystem.textPrimary,
       textAlign = TextAlign.Center
     )
 
-    VerticalSpacer(AppTheme.spacingSystem.space8)
+    VerticalSpacer(spacingSystem.space8)
 
     Text(
       text = stringResource(Res.string.projects_empty_description),
-      style = AppTheme.typographySystem.bodySmall,
-      color = AppTheme.colorSystem.textMuted,
+      style = typographySystem.bodySmall,
+      color = colorSystem.textMuted,
       textAlign = TextAlign.Center
     )
 
-    VerticalSpacer(AppTheme.spacingSystem.space24)
+    VerticalSpacer(spacingSystem.space24)
 
-    Box(
-      modifier =
-        Modifier
-          .fillMaxWidth(0.7f)
-          .clip(RoundedCornerShape(AppTheme.radiusSystem.radius16))
-          .background(AppTheme.colorSystem.accent)
-          .clickable(onClick = onCreateProductionClick)
-          .padding(
-            horizontal = AppTheme.spacingSystem.space24,
-            vertical = AppTheme.spacingSystem.space16
-          ),
-      contentAlignment = Alignment.Center
-    ) {
-      Text(
-        text = stringResource(Res.string.projects_create_button),
-        style = AppTheme.typographySystem.labelLarge,
-        color = AppTheme.colorSystem.textOnAccent
-      )
-    }
+    CtaButton(
+      modifier = Modifier.fillMaxWidth(0.7f),
+      text = stringResource(Res.string.projects_create_button),
+      onClick = onCreateProductionClick
+    )
 
-    VerticalSpacer(AppTheme.spacingSystem.space16)
+    VerticalSpacer(spacingSystem.space16)
 
     Text(
       text = stringResource(Res.string.projects_empty_invite),
-      style = AppTheme.typographySystem.bodySmall,
-      color = AppTheme.colorSystem.textMuted,
+      style = typographySystem.bodySmall,
+      color = colorSystem.textMuted,
       textAlign = TextAlign.Center
     )
   }
@@ -112,32 +100,39 @@ internal fun EmptyState(
 private fun EmptyStateIllustration() {
   val cardShape = RoundedCornerShape(AppTheme.radiusSystem.radius16)
 
-  Box(
-    modifier = Modifier.size(width = IllustrationContainerWidth, height = IllustrationContainerHeight),
+  BoxWithConstraints(
+    modifier = Modifier
+      .fillMaxWidth(IllustrationWidthFraction)
+      .aspectRatio(ContainerAspectRatio),
     contentAlignment = Alignment.BottomCenter
   ) {
-    // Back card (rotated left)
+    val containerWidth = maxWidth
+    val containerHeight = maxHeight
+    val stackedCardWidth = containerWidth * StackedCardWidthFraction
+    val stackedCardHeight = containerHeight * StackedCardHeightFraction
+    val frontCardHeight = containerHeight * FrontCardHeightFraction
+
+    // back card
     Box(
       modifier = Modifier
-        .size(width = StackedCardWidth, height = StackedCardHeight)
-        .offset(y = -BackCardOffsetY)
+        .size(width = stackedCardWidth, height = stackedCardHeight)
+        .offset(y = -(containerHeight * BackCardOffsetFraction))
         .rotate(-5f)
         .clip(cardShape)
         .background(AppTheme.colorSystem.cardBackground)
         .border(AppTheme.borderSystem.hairline, AppTheme.colorSystem.cardBorder, cardShape)
     )
 
-    // Middle card (rotated right)
+    // middle card
     Box(
       modifier = Modifier
-        .size(width = StackedCardWidth, height = StackedCardHeight)
-        .offset(y = -MiddleCardOffsetY)
+        .size(width = stackedCardWidth, height = stackedCardHeight)
+        .offset(y = -(containerHeight * MiddleCardOffsetFraction))
         .rotate(3f)
         .clip(cardShape)
         .background(AppTheme.colorSystem.cardBackground)
         .border(AppTheme.borderSystem.hairline, AppTheme.colorSystem.cardBorder, cardShape)
     ) {
-      // Colored progress bars at bottom of middle card
       Row(
         modifier = Modifier
           .align(Alignment.BottomStart)
@@ -170,10 +165,10 @@ private fun EmptyStateIllustration() {
       }
     }
 
-    // Front card
     Box(
       modifier = Modifier
-        .size(width = FrontCardWidth, height = FrontCardHeight)
+        .fillMaxWidth(0.9f)
+        .height(frontCardHeight)
         .clip(cardShape)
         .background(AppTheme.colorSystem.cardBackground)
         .border(AppTheme.borderSystem.hairline, AppTheme.colorSystem.cardBorder, cardShape)
@@ -183,14 +178,16 @@ private fun EmptyStateIllustration() {
       Column {
         Box(
           modifier = Modifier
-            .size(width = TitleBarWidth, height = TitleBarHeight)
+            .fillMaxWidth(0.4f)
+            .height(TitleBarHeight)
             .clip(RoundedCornerShape(AppTheme.radiusSystem.radius4))
             .background(AppTheme.colorSystem.border)
         )
         VerticalSpacer(AppTheme.spacingSystem.space4)
         Box(
           modifier = Modifier
-            .size(width = SubtitleBarWidth, height = SubtitleBarHeight)
+            .fillMaxWidth(0.25f)
+            .height(SubtitleBarHeight)
             .clip(RoundedCornerShape(AppTheme.radiusSystem.radius4))
             .background(AppTheme.colorSystem.border)
         )
@@ -199,16 +196,13 @@ private fun EmptyStateIllustration() {
   }
 }
 
-@Preview
+@LightDarkPreview
 @Composable
 private fun EmptyStatePreview() {
-  AppTheme(darkTheme = true) {
-    Column(
-      modifier = Modifier
-        .background(AppTheme.colorSystem.background)
-        .padding(AppTheme.spacingSystem.space16)
-    ) {
-      EmptyState(onCreateProductionClick = {})
-    }
+  AppTheme {
+    EmptyState(
+      modifier = Modifier.padding(AppTheme.spacingSystem.space16),
+      onCreateProductionClick = {}
+    )
   }
 }
