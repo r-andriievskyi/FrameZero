@@ -7,12 +7,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.frame.zero.feature.account.AccountComponent
 import com.frame.zero.feature.account.AccountState
+import com.frame.zero.feature.account.ui.components.SettingsRow
+import com.frame.zero.feature.account.ui.components.SettingsSection
+import com.frame.zero.feature.account.ui.components.SignOutButton
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.widgets.TopToolbar
@@ -38,7 +42,7 @@ fun AccountScreen(
   component: AccountComponent,
   modifier: Modifier = Modifier
 ) {
-  val state by component.state.collectAsState()
+  val state by component.state.collectAsStateWithLifecycle()
   AccountContent(
     state = state,
     onBack = component.onBack,
@@ -52,7 +56,7 @@ fun AccountScreen(
 }
 
 @Composable
-fun AccountContent(
+internal fun AccountContent(
   state: AccountState,
   onBack: () -> Unit,
   onEditProfileClick: () -> Unit,
@@ -112,6 +116,14 @@ fun AccountContent(
       VerticalSpacer(AppTheme.spacingSystem.space24)
     }
   }
+}
+
+@Composable
+private fun SettingsDivider(modifier: Modifier = Modifier) {
+  HorizontalDivider(
+    modifier = modifier,
+    color = AppTheme.colorSystem.border
+  )
 }
 
 @LightDarkPreview

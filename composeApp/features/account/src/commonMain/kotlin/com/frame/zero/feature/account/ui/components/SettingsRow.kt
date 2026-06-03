@@ -1,4 +1,4 @@
-package com.frame.zero.feature.account.ui
+package com.frame.zero.feature.account.ui.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
