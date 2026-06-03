@@ -12,6 +12,7 @@ FrameZero is a Kotlin Multiplatform (KMP) app targeting Android and iOS, with a 
 - **Convention plugins** (`build-logic/`): `crossplatform.kmp.library`, `crossplatform.kmp.library.compose`, and `crossplatform.code.quality` configure targets, SDK versions, and code quality tooling. New KMP modules should apply one of the first two (they inherit code quality automatically).
 - **Server DB migrations:** Flyway manages schema evolution. Migration files live in `server/src/main/resources/db/migration/` using the naming convention `V<N>__<description>.sql`.
 - **Offline-first repositories:** Paginated lists use Room (KMP) + Paging 3 `RemoteMediator`. `shared/repositories/productions/` is the reference impl. The repo returns `Flow<PagingData<DomainType>>`; UI observes Room, never the network directly. Room modules apply `libs.plugins.ksp` + `libs.plugins.androidxRoom` and register `ksp` configs for all targets.
+- **Sign-out cleanup:** Any module owning user-scoped local state (Room cache, in-memory user data) implements `SessionCleaner` (`shared/.../core/session/SessionCleaner.kt`) and registers in its Koin module with `single { … } bind SessionCleaner::class`. `SessionManager` invokes every registered cleaner — each under its own `runCatching` — before clearing tokens in `forceLogout()`, covering both user-initiated sign-out and the auto-logout path triggered by a failed refresh-token rotation. Reference impl: `ProductionsSessionCleaner` → `ProductionsDao.clearAll()`.
 
 ## Adding a New Feature
 

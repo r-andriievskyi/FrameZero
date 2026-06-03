@@ -90,6 +90,19 @@ Paginated lists use **Room (KMP) + Paging 3 `RemoteMediator`**.
   `Ios*`/`Jvm*` actuals, wired through Koin's `platformModule()`. The
   Koin module sets `BundledSQLiteDriver` and `Dispatchers.Default` query
   context.
+- **Sign-out cleanup.** Any module that owns local user-scoped state
+  (Room DB, cached files, in-memory user data) implements
+  `interface SessionCleaner { suspend fun clear() }`
+  (`shared/.../core/session/SessionCleaner.kt`) and registers it in its
+  Koin module via `single { … } bind SessionCleaner::class`.
+  `SessionManager` injects the list via Koin's `getAll()` and invokes
+  every cleaner — each under its own `runCatching`, so a failure in one
+  doesn't strand the other state — during `forceLogout()`. This covers
+  both user-initiated sign-out and the auto-logout path that fires when
+  refresh-token rotation fails (`LogoutSignal.emit()`). Tokens are
+  cleared *after* cleaners run so no future request can succeed against
+  a half-cleared cache. Reference impl:
+  `ProductionsSessionCleaner` → `ProductionsDao.clearAll()`.
 
 ### Module placement
 
