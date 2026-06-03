@@ -52,4 +52,10 @@ abstract class ProductionsDao {
     insertProductions(entities)
     upsertRemoteKey(ProductionRemoteKeyEntity(nextCursor = nextCursor))
   }
+
+  @Transaction
+  open suspend fun clearAll() {
+    deleteAll()
+    deleteRemoteKey()
+  }
 }

@@ -14,6 +14,7 @@ class SessionManager(
   private val tokenStorage: TokenStorage,
   private val authOperations: SessionAuthOperations,
   logoutSignal: LogoutSignal,
+  private val cleaners: List<SessionCleaner> = emptyList(),
   scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 ) {
   private val _state = MutableStateFlow<SessionState>(SessionState.Loading)
@@ -45,7 +46,8 @@ class SessionManager(
     forceLogout()
   }
 
-  private fun forceLogout() {
+  private suspend fun forceLogout() {
+    cleaners.forEach { cleaner -> runCatching { cleaner.clear() } }
     tokenStorage.clearTokens()
     _state.value = SessionState.LoggedOut
   }
