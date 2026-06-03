@@ -1,7 +1,6 @@
 package com.frame.zero.repository.productions.network
 
 import com.frame.zero.core.network.NetworkConfig
-import com.frame.zero.domain.production.ProductionPhase
 import com.frame.zero.dto.common.CursorPagedResponse
 import com.frame.zero.dto.production.CreateProductionRequest
 import com.frame.zero.dto.production.ProductionDetailDto
@@ -20,13 +19,11 @@ class ProductionsApiImpl(
 ) : ProductionsApi {
   override suspend fun getAll(
     limit: Int,
-    cursor: String?,
-    phase: ProductionPhase?
+    cursor: String?
   ): CursorPagedResponse<ProductionSummaryDto> =
     httpClient.get("${networkConfig.baseUrl}/api/v1/productions") {
       parameter("limit", limit)
       if (cursor != null) parameter("cursor", cursor)
-      if (phase != null) parameter("phase", phase.name)
     }.body()
 
   override suspend fun getDetails(productionId: String): ProductionDetailDto =

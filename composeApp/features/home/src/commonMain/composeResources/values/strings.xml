@@ -28,17 +28,6 @@
 
   <!-- Projects tab -->
   <string name="projects_title">Productions</string>
-  <string name="projects_filter_all">All</string>
-  <string name="projects_filter_idea">Idea</string>
-  <string name="projects_filter_development">Development</string>
-  <string name="projects_filter_financing">Financing</string>
-  <string name="projects_filter_pre_production">Pre-Production</string>
-  <string name="projects_filter_production">Production</string>
-  <string name="projects_filter_post_production">Post-Production</string>
-  <string name="projects_filter_marketing">Marketing</string>
-  <string name="projects_filter_distribution">Distribution</string>
-  <string name="projects_filter_release">Release</string>
-  <string name="projects_filter_archived">Archived</string>
   <string name="projects_empty_title">Start your first production</string>
   <string name="projects_empty_description">You haven't been added to any productions\nyet. Create one to start tracking scenes,\ncrew, and schedule.</string>
   <string name="projects_create_button">Create production</string>

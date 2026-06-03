@@ -9,14 +9,14 @@ import androidx.room.Transaction
 
 @Dao
 abstract class ProductionsDao {
-  @Query("SELECT * FROM productions WHERE phaseFilter = :filter ORDER BY pageOrder ASC")
-  abstract fun pagingSource(filter: String): PagingSource<Int, ProductionEntity>
+  @Query("SELECT * FROM productions ORDER BY pageOrder ASC")
+  abstract fun pagingSource(): PagingSource<Int, ProductionEntity>
 
-  @Query("SELECT MAX(pageOrder) FROM productions WHERE phaseFilter = :filter")
-  abstract suspend fun maxPageOrder(filter: String): Long?
+  @Query("SELECT MAX(pageOrder) FROM productions")
+  abstract suspend fun maxPageOrder(): Long?
 
-  @Query("SELECT * FROM production_remote_keys WHERE phaseFilter = :filter")
-  abstract suspend fun remoteKey(filter: String): ProductionRemoteKeyEntity?
+  @Query("SELECT * FROM production_remote_keys LIMIT 1")
+  abstract suspend fun remoteKey(): ProductionRemoteKeyEntity?
 
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   abstract suspend fun insertProductions(entities: List<ProductionEntity>)
@@ -24,34 +24,32 @@ abstract class ProductionsDao {
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   abstract suspend fun upsertRemoteKey(key: ProductionRemoteKeyEntity)
 
-  @Query("DELETE FROM productions WHERE phaseFilter = :filter")
-  abstract suspend fun deleteByFilter(filter: String)
+  @Query("DELETE FROM productions")
+  abstract suspend fun deleteAll()
 
   @Query("DELETE FROM productions WHERE id = :id")
   abstract suspend fun deleteById(id: String)
 
-  @Query("DELETE FROM production_remote_keys WHERE phaseFilter = :filter")
-  abstract suspend fun deleteRemoteKey(filter: String)
+  @Query("DELETE FROM production_remote_keys")
+  abstract suspend fun deleteRemoteKey()
 
   @Transaction
   open suspend fun refresh(
-    filter: String,
     entities: List<ProductionEntity>,
     nextCursor: String?
   ) {
-    deleteByFilter(filter)
-    deleteRemoteKey(filter)
+    deleteAll()
+    deleteRemoteKey()
     insertProductions(entities)
-    upsertRemoteKey(ProductionRemoteKeyEntity(filter, nextCursor))
+    upsertRemoteKey(ProductionRemoteKeyEntity(nextCursor = nextCursor))
   }
 
   @Transaction
   open suspend fun append(
-    filter: String,
     entities: List<ProductionEntity>,
     nextCursor: String?
   ) {
     insertProductions(entities)
-    upsertRemoteKey(ProductionRemoteKeyEntity(filter, nextCursor))
+    upsertRemoteKey(ProductionRemoteKeyEntity(nextCursor = nextCursor))
   }
 }

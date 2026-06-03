@@ -12,7 +12,6 @@ import com.frame.zero.dto.common.CursorPagedResponse
 import com.frame.zero.dto.production.CreateProductionRequest
 import com.frame.zero.dto.production.ProductionDetailDto
 import com.frame.zero.dto.production.ProductionSummaryDto
-import com.frame.zero.repository.productions.local.ALL_FILTER_KEY
 import com.frame.zero.repository.productions.local.ProductionEntity
 import com.frame.zero.repository.productions.local.ProductionRemoteKeyEntity
 import com.frame.zero.repository.productions.local.ProductionsDao
@@ -33,15 +32,14 @@ class ProductionsRemoteMediatorTest {
     runTest {
       val api = FakeProductionsApi(page = pageOf(productionSummary("p1"), nextCursor = "cursor-2"))
       val dao = FakeProductionsDao()
-      val mediator = ProductionsRemoteMediator(phase = null, remoteApi = api, dao = dao)
+      val mediator = ProductionsRemoteMediator(remoteApi = api, dao = dao)
 
       val result = mediator.load(LoadType.REFRESH, emptyPagingState())
 
       assertTrue(result is RemoteMediator.MediatorResult.Success)
       assertEquals(false, result.endOfPaginationReached)
       assertEquals(listOf("p1"), dao.getRows().map { it.id })
-      assertEquals(ALL_FILTER_KEY, dao.getRows().single().phaseFilter)
-      assertEquals("cursor-2", dao.getKeys()[ALL_FILTER_KEY]?.nextCursor)
+      assertEquals("cursor-2", dao.getKey()?.nextCursor)
     }
 
   @Test
@@ -49,28 +47,27 @@ class ProductionsRemoteMediatorTest {
     runTest {
       val api = FakeProductionsApi(page = pageOf(productionSummary("p1"), nextCursor = null))
       val dao = FakeProductionsDao()
-      val mediator = ProductionsRemoteMediator(phase = null, remoteApi = api, dao = dao)
+      val mediator = ProductionsRemoteMediator(remoteApi = api, dao = dao)
 
       val result = mediator.load(LoadType.REFRESH, emptyPagingState())
 
       assertTrue(result is RemoteMediator.MediatorResult.Success)
       assertTrue(result.endOfPaginationReached)
-      assertTrue(dao.getKeys().containsKey(ALL_FILTER_KEY))
-      assertEquals(null, dao.getKeys()[ALL_FILTER_KEY]?.nextCursor)
+      assertEquals(null, dao.getKey()?.nextCursor)
     }
 
   @Test
-  fun `REFRESH on one filter does not touch rows belonging to other filters`() =
+  fun `REFRESH replaces existing cached rows`() =
     runTest {
       val api = FakeProductionsApi(page = pageOf(productionSummary("p2"), nextCursor = null))
       val dao = FakeProductionsDao().apply {
-        addRow(productionEntity(id = "p1-prod", filter = ProductionPhase.PRODUCTION.name))
+        addRow(productionEntity(id = "p1"))
       }
-      val mediator = ProductionsRemoteMediator(phase = null, remoteApi = api, dao = dao)
+      val mediator = ProductionsRemoteMediator(remoteApi = api, dao = dao)
 
       mediator.load(LoadType.REFRESH, emptyPagingState())
 
-      assertEquals(setOf("p1-prod", "p2"), dao.getRows().map { it.id }.toSet())
+      assertEquals(listOf("p2"), dao.getRows().map { it.id })
     }
 
   @Test
@@ -78,7 +75,7 @@ class ProductionsRemoteMediatorTest {
     runTest {
       val api = FakeProductionsApi(page = pageOf(nextCursor = null))
       val dao = FakeProductionsDao()
-      val mediator = ProductionsRemoteMediator(phase = null, remoteApi = api, dao = dao)
+      val mediator = ProductionsRemoteMediator(remoteApi = api, dao = dao)
 
       val result = mediator.load(LoadType.APPEND, emptyPagingState())
 
@@ -92,10 +89,10 @@ class ProductionsRemoteMediatorTest {
     runTest {
       val api = FakeProductionsApi(page = pageOf(productionSummary("p2"), nextCursor = "cursor-3"))
       val dao = FakeProductionsDao().apply {
-        addRow(productionEntity(id = "p1", filter = ALL_FILTER_KEY))
-        updateKeyValue(ALL_FILTER_KEY, ProductionRemoteKeyEntity(ALL_FILTER_KEY, nextCursor = "cursor-2"))
+        addRow(productionEntity(id = "p1"))
+        setKey(ProductionRemoteKeyEntity(nextCursor = "cursor-2"))
       }
-      val mediator = ProductionsRemoteMediator(phase = null, remoteApi = api, dao = dao)
+      val mediator = ProductionsRemoteMediator(remoteApi = api, dao = dao)
 
       val result = mediator.load(LoadType.APPEND, emptyPagingState())
 
@@ -104,14 +101,14 @@ class ProductionsRemoteMediatorTest {
       assertEquals("cursor-2", call.cursor)
       val appended = dao.getRows().single { it.id == "p2" }
       assertEquals(1L, appended.pageOrder)
-      assertEquals("cursor-3", dao.getKeys()[ALL_FILTER_KEY]?.nextCursor)
+      assertEquals("cursor-3", dao.getKey()?.nextCursor)
     }
 
   @Test
   fun `PREPEND always short-circuits without calling the API`() =
     runTest {
       val api = FakeProductionsApi(page = pageOf(nextCursor = null))
-      val mediator = ProductionsRemoteMediator(phase = null, remoteApi = api, dao = FakeProductionsDao())
+      val mediator = ProductionsRemoteMediator(remoteApi = api, dao = FakeProductionsDao())
 
       val result = mediator.load(LoadType.PREPEND, emptyPagingState())
 
@@ -126,24 +123,24 @@ class ProductionsRemoteMediatorTest {
       val boom = IOException("connection refused")
       val api = FakeProductionsApi(error = boom)
       val dao = FakeProductionsDao().apply {
-        addRow(productionEntity(id = "p1", filter = ALL_FILTER_KEY))
-        updateKeyValue(ALL_FILTER_KEY, ProductionRemoteKeyEntity(ALL_FILTER_KEY, nextCursor = "cursor-2"))
+        addRow(productionEntity(id = "p1"))
+        setKey(ProductionRemoteKeyEntity(nextCursor = "cursor-2"))
       }
-      val mediator = ProductionsRemoteMediator(phase = null, remoteApi = api, dao = dao)
+      val mediator = ProductionsRemoteMediator(remoteApi = api, dao = dao)
 
       val result = mediator.load(LoadType.REFRESH, emptyPagingState())
 
       assertTrue(result is RemoteMediator.MediatorResult.Error)
       assertEquals(boom, result.throwable)
       assertEquals(listOf("p1"), dao.getRows().map { it.id })
-      assertEquals("cursor-2", dao.getKeys()[ALL_FILTER_KEY]?.nextCursor)
+      assertEquals("cursor-2", dao.getKey()?.nextCursor)
     }
 
   @Test
   fun `CancellationException is rethrown, not converted to Error`() =
     runTest {
       val api = FakeProductionsApi(error = CancellationException("cancelled"))
-      val mediator = ProductionsRemoteMediator(phase = null, remoteApi = api, dao = FakeProductionsDao())
+      val mediator = ProductionsRemoteMediator(remoteApi = api, dao = FakeProductionsDao())
 
       assertFailsWith<CancellationException> {
         mediator.load(LoadType.REFRESH, emptyPagingState())
@@ -170,13 +167,9 @@ class ProductionsRemoteMediatorTest {
       updatedAt = Instant.fromEpochMilliseconds(1_000L)
     )
 
-  private fun productionEntity(
-    id: String,
-    filter: String
-  ): ProductionEntity =
+  private fun productionEntity(id: String): ProductionEntity =
     ProductionEntity(
       id = id,
-      phaseFilter = filter,
       title = "Title $id",
       genre = Genre.DRAMA.name,
       phase = ProductionPhase.PRODUCTION.name,
@@ -198,18 +191,16 @@ class ProductionsRemoteMediatorTest {
   ) : ProductionsApi {
     data class GetAllCall(
       val limit: Int,
-      val cursor: String?,
-      val phase: ProductionPhase?
+      val cursor: String?
     )
 
     val getAllCalls: MutableList<GetAllCall> = mutableListOf()
 
     override suspend fun getAll(
       limit: Int,
-      cursor: String?,
-      phase: ProductionPhase?
+      cursor: String?
     ): CursorPagedResponse<ProductionSummaryDto> {
-      getAllCalls += GetAllCall(limit, cursor, phase)
+      getAllCalls += GetAllCall(limit, cursor)
       error?.let { throw it }
       return page
     }
@@ -223,33 +214,32 @@ class ProductionsRemoteMediatorTest {
 
   private class FakeProductionsDao : ProductionsDao() {
     private val rows: MutableList<ProductionEntity> = mutableListOf()
-    private val keys: MutableMap<String, ProductionRemoteKeyEntity> = mutableMapOf()
+    private var key: ProductionRemoteKeyEntity? = null
 
-    override fun pagingSource(filter: String): PagingSource<Int, ProductionEntity> = error("not used")
+    override fun pagingSource(): PagingSource<Int, ProductionEntity> = error("not used")
 
-    override suspend fun maxPageOrder(filter: String): Long? =
-      rows.filter { it.phaseFilter == filter }.maxOfOrNull { it.pageOrder }
+    override suspend fun maxPageOrder(): Long? = rows.maxOfOrNull { it.pageOrder }
 
-    override suspend fun remoteKey(filter: String): ProductionRemoteKeyEntity? = keys[filter]
+    override suspend fun remoteKey(): ProductionRemoteKeyEntity? = key
 
     override suspend fun insertProductions(entities: List<ProductionEntity>) {
       rows += entities
     }
 
     override suspend fun upsertRemoteKey(key: ProductionRemoteKeyEntity) {
-      keys[key.phaseFilter] = key
+      this.key = key
     }
 
-    override suspend fun deleteByFilter(filter: String) {
-      rows.removeAll { it.phaseFilter == filter }
+    override suspend fun deleteAll() {
+      rows.clear()
     }
 
     override suspend fun deleteById(id: String) {
       rows.removeAll { it.id == id }
     }
 
-    override suspend fun deleteRemoteKey(filter: String) {
-      keys.remove(filter)
+    override suspend fun deleteRemoteKey() {
+      key = null
     }
 
     fun getRows(): List<ProductionEntity> = rows
@@ -258,13 +248,10 @@ class ProductionsRemoteMediatorTest {
       rows.add(entity)
     }
 
-    fun updateKeyValue(
-      key: String,
-      value: ProductionRemoteKeyEntity
-    ) {
-      keys[key] = value
+    fun setKey(value: ProductionRemoteKeyEntity) {
+      key = value
     }
 
-    fun getKeys(): Map<String, ProductionRemoteKeyEntity> = keys
+    fun getKey(): ProductionRemoteKeyEntity? = key
   }
 }
