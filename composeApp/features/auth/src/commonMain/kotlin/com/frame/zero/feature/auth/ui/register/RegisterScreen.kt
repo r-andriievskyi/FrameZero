@@ -1,6 +1,7 @@
 package com.frame.zero.feature.auth.ui.register
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,6 +27,7 @@ import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.widgets.CtaButton
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer
+import com.frame.zero.shared.design_system.widgets.toast.ToastHost
 import framezero.composeapp.features.auth.generated.resources.Res
 import framezero.composeapp.features.auth.generated.resources.btn_create_account
 import org.jetbrains.compose.resources.stringResource
@@ -33,11 +35,17 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 fun RegisterScreen(component: RegisterComponent) {
   val state by component.state.collectAsStateWithLifecycle()
-  RegisterContent(
-    state = state,
-    onIntent = component::onIntent,
-    onSignInClick = component.onNavigateToSignIn
-  )
+  Box(modifier = Modifier.fillMaxSize()) {
+    RegisterContent(
+      state = state,
+      onIntent = component::onIntent,
+      onSignInClick = component.onNavigateToSignIn
+    )
+    ToastHost(
+      message = state.errorToast,
+      onDismiss = { component.onIntent(RegisterIntent.ToastDismissed) }
+    )
+  }
 }
 
 @Composable

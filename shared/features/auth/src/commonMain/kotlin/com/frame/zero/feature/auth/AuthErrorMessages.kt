@@ -11,3 +11,11 @@ internal fun DomainError.toUserMessage(): String =
     is DomainError.Network -> "Network error: $message"
     is DomainError.Unknown -> message ?: "Something went wrong"
   }
+
+/**
+ * True for failures the user can't fix by editing the form — network outages
+ * and server/unexpected errors. These surface as a transient toast rather than
+ * an inline field error.
+ */
+internal val DomainError.isNetworkOrServerError: Boolean
+  get() = this is DomainError.Network || this is DomainError.Unknown

@@ -6,6 +6,4 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.Dp
 
 @Composable
-fun rememberRoundedCornerShape(radius: Dp): RoundedCornerShape =
-  remember(radius) { RoundedCornerShape(radius) }
-
+fun rememberRoundedCornerShape(radius: Dp): RoundedCornerShape = remember(radius) { RoundedCornerShape(radius) }
