@@ -44,6 +44,7 @@ FrameZero is a Kotlin Multiplatform (KMP) app targeting Android and iOS, with a 
 - **Previews:** Always use `@LightDarkPreview` (from `com.frame.zero.shared.design_system`) instead of a plain `@Preview`. This generates both light and dark previews automatically.
 - **Errors:** Use `Outcome<T>` (sealed type in `shared/.../domain/Outcome.kt`) or `Result<T>` across layer boundaries; don't throw.
 - **StateFlow updates:** Always use `_state.update { it.copy(...) }` instead of `_state.value = _state.value.copy(...)`. The `update` function is atomic and avoids race conditions with concurrent emissions.
+- **Flow collection in composables:** Always use `collectAsStateWithLifecycle()` instead of `collectAsState()`. It stops collection when the UI is not visible, saving CPU/battery.
 - **Serialization:** `kotlinx.serialization` with `@Serializable` on shared DTOs.
 - **Dependencies:** Always add to `gradle/libs.versions.toml`, never inline in build scripts.
 
