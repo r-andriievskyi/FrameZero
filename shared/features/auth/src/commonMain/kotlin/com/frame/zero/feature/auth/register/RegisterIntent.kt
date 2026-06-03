@@ -18,4 +18,6 @@ sealed interface RegisterIntent {
   ) : RegisterIntent
 
   data object Submit : RegisterIntent
+
+  data object ToastDismissed : RegisterIntent
 }

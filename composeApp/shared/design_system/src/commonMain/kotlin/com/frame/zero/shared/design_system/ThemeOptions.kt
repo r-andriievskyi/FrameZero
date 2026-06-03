@@ -94,136 +94,142 @@ data class ThemeOptions(
   val borderSystem: BorderSystem
 ) {
   companion object {
-    fun light() = ThemeOptions(
-      colorSystem = ColorSystem(
-        background = TokenColorNeutral050,
-        surfaceElevated = TokenColorNeutral100L,
-        navBackground = TokenColorNeutral050,
-        inputBackground = TokenColorNeutral100L,
-        cardBackground = TokenColorNeutral100L,
-        border = TokenColorNeutral200L,
-        cardBorder = TokenColorNeutral200L,
-        textPrimary = TokenColorNeutral900L,
-        textSecondary = TokenColorNeutral600L,
-        textMuted = TokenColorNeutral500L,
-        textOnAccent = TokenColorWhite,
-        accent = TokenColorBeacon500,
-        accentDim = TokenColorBeacon600,
-        accentSurface = TokenColorBeaconSoftL,
-        accentText = TokenColorBeaconTextL,
-        successSurface = TokenColorTealSoftL,
-        successText = TokenColorTealTextL,
-        warningSurface = TokenColorAmberSoftL,
-        warningText = TokenColorAmberTextL,
-        errorSurface = TokenColorRoseSoftL,
-        errorText = TokenColorRoseTextL,
-        priorityHighSurface = TokenColorRoseSoftL,
-        priorityHighText = TokenColorRoseTextL,
-        priorityMedSurface = TokenColorAmberSoftL,
-        priorityMedText = TokenColorAmberTextL,
-        priorityLowSurface = TokenColorTealSoftL,
-        priorityLowText = TokenColorTealTextL,
-        developmentSurface = skySoftL,
-        developmentText = skyTextL,
-        preProductionSurface = amberSoftL,
-        preProductionText = amberTextL,
-        productionSurface = tealSoftL,
-        productionText = tealTextL,
-        postProductionSurface = beaconSoftL,
-        postProductionText = beaconTextL,
-        distributionSurface = roseSoftL,
-        distributionText = roseTextL
-      ),
-      typographySystem = sharedTypography(),
-      spacingSystem = sharedSpacing(),
-      radiusSystem = sharedRadius(),
-      borderSystem = sharedBorder()
-    )
+    fun light() =
+      ThemeOptions(
+        colorSystem = ColorSystem(
+          background = TokenColorNeutral050,
+          surfaceElevated = TokenColorNeutral100L,
+          navBackground = TokenColorNeutral050,
+          inputBackground = TokenColorNeutral100L,
+          cardBackground = TokenColorNeutral100L,
+          border = TokenColorNeutral200L,
+          cardBorder = TokenColorNeutral200L,
+          textPrimary = TokenColorNeutral900L,
+          textSecondary = TokenColorNeutral600L,
+          textMuted = TokenColorNeutral500L,
+          textOnAccent = TokenColorWhite,
+          accent = TokenColorBeacon500,
+          accentDim = TokenColorBeacon600,
+          accentSurface = TokenColorBeaconSoftL,
+          accentText = TokenColorBeaconTextL,
+          successSurface = TokenColorTealSoftL,
+          successText = TokenColorTealTextL,
+          warningSurface = TokenColorAmberSoftL,
+          warningText = TokenColorAmberTextL,
+          errorSurface = TokenColorRoseSoftL,
+          errorText = TokenColorRoseTextL,
+          priorityHighSurface = TokenColorRoseSoftL,
+          priorityHighText = TokenColorRoseTextL,
+          priorityMedSurface = TokenColorAmberSoftL,
+          priorityMedText = TokenColorAmberTextL,
+          priorityLowSurface = TokenColorTealSoftL,
+          priorityLowText = TokenColorTealTextL,
+          developmentSurface = skySoftL,
+          developmentText = skyTextL,
+          preProductionSurface = amberSoftL,
+          preProductionText = amberTextL,
+          productionSurface = tealSoftL,
+          productionText = tealTextL,
+          postProductionSurface = beaconSoftL,
+          postProductionText = beaconTextL,
+          distributionSurface = roseSoftL,
+          distributionText = roseTextL
+        ),
+        typographySystem = sharedTypography(),
+        spacingSystem = sharedSpacing(),
+        radiusSystem = sharedRadius(),
+        borderSystem = sharedBorder()
+      )
 
-    fun dark() = ThemeOptions(
-      colorSystem = ColorSystem(
-        background = TokenColorNeutral900,
-        surfaceElevated = TokenColorNeutral750,
-        navBackground = TokenColorNeutral850,
-        inputBackground = TokenColorNeutral800,
-        cardBackground = TokenColorNeutral780,
-        border = TokenColorNeutral600,
-        cardBorder = TokenColorNeutral700,
-        textPrimary = TokenColorNeutral100,
-        textSecondary = TokenColorNeutral300,
-        textMuted = TokenColorNeutral400,
-        textOnAccent = TokenColorWhite,
-        accent = TokenColorBeacon500,
-        accentDim = TokenColorBeacon600,
-        accentSurface = TokenColorBeaconSoftD,
-        accentText = TokenColorBeaconTextD,
-        successSurface = TokenColorTealSoftD,
-        successText = TokenColorTealTextD,
-        warningSurface = TokenColorAmberSoftD,
-        warningText = TokenColorAmberTextD,
-        errorSurface = TokenColorRoseSoftD,
-        errorText = TokenColorRoseTextD,
-        priorityHighSurface = TokenColorRoseSoftD,
-        priorityHighText = TokenColorRoseTextD,
-        priorityMedSurface = TokenColorAmberSoftD,
-        priorityMedText = TokenColorAmberTextD,
-        priorityLowSurface = TokenColorTealSoftD,
-        priorityLowText = TokenColorTealTextD,
-        developmentSurface = skySoftD,
-        developmentText = skyTextD,
-        preProductionSurface = amberSoftD,
-        preProductionText = amberTextD,
-        productionSurface = tealSoftD,
-        productionText = tealTextD,
-        postProductionSurface = beaconSoftD,
-        postProductionText = beaconTextD,
-        distributionSurface = roseSoftD,
-        distributionText = roseTextD
-      ),
-      typographySystem = sharedTypography(),
-      spacingSystem = sharedSpacing(),
-      radiusSystem = sharedRadius(),
-      borderSystem = sharedBorder()
-    )
+    fun dark() =
+      ThemeOptions(
+        colorSystem = ColorSystem(
+          background = TokenColorNeutral900,
+          surfaceElevated = TokenColorNeutral750,
+          navBackground = TokenColorNeutral850,
+          inputBackground = TokenColorNeutral800,
+          cardBackground = TokenColorNeutral780,
+          border = TokenColorNeutral600,
+          cardBorder = TokenColorNeutral700,
+          textPrimary = TokenColorNeutral100,
+          textSecondary = TokenColorNeutral300,
+          textMuted = TokenColorNeutral400,
+          textOnAccent = TokenColorWhite,
+          accent = TokenColorBeacon500,
+          accentDim = TokenColorBeacon600,
+          accentSurface = TokenColorBeaconSoftD,
+          accentText = TokenColorBeaconTextD,
+          successSurface = TokenColorTealSoftD,
+          successText = TokenColorTealTextD,
+          warningSurface = TokenColorAmberSoftD,
+          warningText = TokenColorAmberTextD,
+          errorSurface = TokenColorRoseSoftD,
+          errorText = TokenColorRoseTextD,
+          priorityHighSurface = TokenColorRoseSoftD,
+          priorityHighText = TokenColorRoseTextD,
+          priorityMedSurface = TokenColorAmberSoftD,
+          priorityMedText = TokenColorAmberTextD,
+          priorityLowSurface = TokenColorTealSoftD,
+          priorityLowText = TokenColorTealTextD,
+          developmentSurface = skySoftD,
+          developmentText = skyTextD,
+          preProductionSurface = amberSoftD,
+          preProductionText = amberTextD,
+          productionSurface = tealSoftD,
+          productionText = tealTextD,
+          postProductionSurface = beaconSoftD,
+          postProductionText = beaconTextD,
+          distributionSurface = roseSoftD,
+          distributionText = roseTextD
+        ),
+        typographySystem = sharedTypography(),
+        spacingSystem = sharedSpacing(),
+        radiusSystem = sharedRadius(),
+        borderSystem = sharedBorder()
+      )
 
-    private fun sharedTypography() = TypographySystem(
-      displayLarge = DisplayLarge,
-      displayMedium = DisplayMedium,
-      titleLarge = TitleLarge,
-      titleExtraLarge = TitleExtraLarge,
-      titleMedium = TitleMedium,
-      titleSmall = TitleSmall,
-      bodyLarge = BodyLarge,
-      bodyMedium = BodyMedium,
-      bodySmall = BodySmall,
-      labelLarge = LabelLarge,
-      labelMedium = LabelMedium,
-      labelSmall = LabelSmall,
-      caption = Caption,
-      monoMedium = MonoMedium,
-      monoSmall = MonoSmall
-    )
+    private fun sharedTypography() =
+      TypographySystem(
+        displayLarge = DisplayLarge,
+        displayMedium = DisplayMedium,
+        titleLarge = TitleLarge,
+        titleExtraLarge = TitleExtraLarge,
+        titleMedium = TitleMedium,
+        titleSmall = TitleSmall,
+        bodyLarge = BodyLarge,
+        bodyMedium = BodyMedium,
+        bodySmall = BodySmall,
+        labelLarge = LabelLarge,
+        labelMedium = LabelMedium,
+        labelSmall = LabelSmall,
+        caption = Caption,
+        monoMedium = MonoMedium,
+        monoSmall = MonoSmall
+      )
 
-    private fun sharedSpacing() = SpacingSystem(
-      space2 = TokenSpace2,
-      space4 = TokenSpace4,
-      space8 = TokenSpace8,
-      space12 = TokenSpace12,
-      space16 = TokenSpace16,
-      space24 = TokenSpace24,
-      space32 = TokenSpace32
-    )
+    private fun sharedSpacing() =
+      SpacingSystem(
+        space2 = TokenSpace2,
+        space4 = TokenSpace4,
+        space8 = TokenSpace8,
+        space12 = TokenSpace12,
+        space16 = TokenSpace16,
+        space24 = TokenSpace24,
+        space32 = TokenSpace32
+      )
 
-    private fun sharedRadius() = RadiusSystem(
-      radius4 = TokenRadius4,
-      radius8 = TokenRadius8,
-      radius14 = TokenRadius14,
-      radius16 = TokenRadius16,
-      radiusMax = TokenRadiusMax
-    )
+    private fun sharedRadius() =
+      RadiusSystem(
+        radius4 = TokenRadius4,
+        radius8 = TokenRadius8,
+        radius14 = TokenRadius14,
+        radius16 = TokenRadius16,
+        radiusMax = TokenRadiusMax
+      )
 
-    private fun sharedBorder() = BorderSystem(
-      hairline = TokenBorderHairline
-    )
+    private fun sharedBorder() =
+      BorderSystem(
+        hairline = TokenBorderHairline
+      )
   }
 }

@@ -105,6 +105,38 @@ class RegisterViewModelTest {
     }
 
   @Test
+  fun `Network error surfaces as a toast, not an inline error`() =
+    runTest {
+      val repo = FakeAuthRepository(registerThrows = DomainException(DomainError.Network("offline")))
+      val vm = makeViewModel(this, repo)
+
+      vm.onIntent(RegisterIntent.EmailChanged("u@x.com"))
+      vm.onIntent(RegisterIntent.PasswordChanged("p"))
+      vm.onIntent(RegisterIntent.Submit)
+      advanceUntilIdle()
+
+      assertEquals("Network error: offline", vm.state.value.errorToast)
+      assertNull(vm.state.value.error)
+    }
+
+  @Test
+  fun `ToastDismissed clears the toast message`() =
+    runTest {
+      val repo = FakeAuthRepository(registerThrows = DomainException(DomainError.Network("offline")))
+      val vm = makeViewModel(this, repo)
+
+      vm.onIntent(RegisterIntent.EmailChanged("u@x.com"))
+      vm.onIntent(RegisterIntent.PasswordChanged("p"))
+      vm.onIntent(RegisterIntent.Submit)
+      advanceUntilIdle()
+      assertEquals("Network error: offline", vm.state.value.errorToast)
+
+      vm.onIntent(RegisterIntent.ToastDismissed)
+
+      assertNull(vm.state.value.errorToast)
+    }
+
+  @Test
   fun `Submit routes to register and not login`() =
     runTest {
       val repo = FakeAuthRepository(registerUserDto = userDto)

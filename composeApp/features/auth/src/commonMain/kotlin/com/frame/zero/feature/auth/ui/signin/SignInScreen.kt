@@ -1,6 +1,7 @@
 package com.frame.zero.feature.auth.ui.signin
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,6 +26,7 @@ import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.widgets.CtaButton
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer
+import com.frame.zero.shared.design_system.widgets.toast.ToastHost
 import framezero.composeapp.features.auth.generated.resources.Res
 import framezero.composeapp.features.auth.generated.resources.btn_sign_in
 import framezero.composeapp.features.auth.generated.resources.signin_forgot_password
@@ -33,11 +35,17 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 fun SignInScreen(component: SignInComponent) {
   val state by component.state.collectAsStateWithLifecycle()
-  SignInContent(
-    state = state,
-    onIntent = component::onIntent,
-    onCreateAccountClick = component.onNavigateToRegister
-  )
+  Box(modifier = Modifier.fillMaxSize()) {
+    SignInContent(
+      state = state,
+      onIntent = component::onIntent,
+      onCreateAccountClick = component.onNavigateToRegister
+    )
+    ToastHost(
+      message = state.errorToast,
+      onDismiss = { component.onIntent(SignInIntent.ToastDismissed) }
+    )
+  }
 }
 
 @Composable

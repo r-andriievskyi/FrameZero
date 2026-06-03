@@ -114,7 +114,7 @@ class SignInViewModelTest {
     }
 
   @Test
-  fun `Network error message includes the underlying detail`() =
+  fun `Network error surfaces as a toast, not an inline error`() =
     runTest {
       val repo = FakeAuthRepository(loginThrows = DomainException(DomainError.Network("offline")))
       val vm = makeViewModel(this, repo)
@@ -124,11 +124,12 @@ class SignInViewModelTest {
       vm.onIntent(SignInIntent.Submit)
       advanceUntilIdle()
 
-      assertEquals("Network error: offline", vm.state.value.error)
+      assertEquals("Network error: offline", vm.state.value.errorToast)
+      assertNull(vm.state.value.error)
     }
 
   @Test
-  fun `Unknown error with null message uses fallback text`() =
+  fun `Unknown server error surfaces as a toast with fallback text`() =
     runTest {
       val repo = FakeAuthRepository(loginThrows = DomainException(DomainError.Unknown(null)))
       val vm = makeViewModel(this, repo)
@@ -138,7 +139,25 @@ class SignInViewModelTest {
       vm.onIntent(SignInIntent.Submit)
       advanceUntilIdle()
 
-      assertEquals("Something went wrong", vm.state.value.error)
+      assertEquals("Something went wrong", vm.state.value.errorToast)
+      assertNull(vm.state.value.error)
+    }
+
+  @Test
+  fun `ToastDismissed clears the toast message`() =
+    runTest {
+      val repo = FakeAuthRepository(loginThrows = DomainException(DomainError.Network("offline")))
+      val vm = makeViewModel(this, repo)
+
+      vm.onIntent(SignInIntent.EmailChanged("u@x.com"))
+      vm.onIntent(SignInIntent.PasswordChanged("p"))
+      vm.onIntent(SignInIntent.Submit)
+      advanceUntilIdle()
+      assertEquals("Network error: offline", vm.state.value.errorToast)
+
+      vm.onIntent(SignInIntent.ToastDismissed)
+
+      assertNull(vm.state.value.errorToast)
     }
 
   @Test
