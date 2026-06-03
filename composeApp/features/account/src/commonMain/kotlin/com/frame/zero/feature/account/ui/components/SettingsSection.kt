@@ -5,7 +5,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -21,11 +20,12 @@ internal fun SettingsSection(
   modifier: Modifier = Modifier,
   content: @Composable () -> Unit
 ) {
+  val colorSystem = AppTheme.colorSystem
   Column(modifier = modifier.fillMaxWidth()) {
     Text(
       text = title,
       style = AppTheme.typographySystem.labelSmall,
-      color = AppTheme.colorSystem.textMuted,
+      color = colorSystem.textMuted,
       fontWeight = FontWeight.SemiBold,
       modifier = Modifier.padding(bottom = AppTheme.spacingSystem.space8)
     )
@@ -34,8 +34,8 @@ internal fun SettingsSection(
       modifier = Modifier
         .fillMaxWidth()
         .clip(shape)
-        .background(AppTheme.colorSystem.cardBackground, shape)
-        .border(AppTheme.borderSystem.hairline, AppTheme.colorSystem.cardBorder, shape)
+        .background(colorSystem.cardBackground, shape)
+        .border(AppTheme.borderSystem.hairline, colorSystem.border, shape)
     ) {
       content()
     }
