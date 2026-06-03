@@ -9,7 +9,7 @@ val sessionModule: Module =
     single<Settings> { createTokenSettings() }
     single { TokenStorage(get()) }
     single { LogoutSignal() }
-    single { SessionManager(get(), get(), get()) }
+    single { SessionManager(get(), get(), get(), cleaners = getAll()) }
   }
 
 internal expect fun createTokenSettings(): Settings

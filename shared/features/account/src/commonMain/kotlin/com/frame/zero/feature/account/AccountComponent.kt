@@ -35,6 +35,6 @@ class AccountComponent(
   }
 
   fun onSignOutClick() {
-    // TODO: trigger sign-out
+    viewModel.signOut()
   }
 }

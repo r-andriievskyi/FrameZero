@@ -31,7 +31,7 @@ class SessionManagerTest {
     runTest {
       val storage = TokenStorage(MapSettings()).also { it.saveTokens("a", "r") }
       val ops = FakeAuthOps(currentUserDto = userDto)
-      val manager = SessionManager(storage, ops, LogoutSignal(), backgroundScope)
+      val manager = SessionManager(storage, ops, LogoutSignal(), scope = backgroundScope)
 
       manager.initialize()
 
@@ -44,7 +44,7 @@ class SessionManagerTest {
     runTest {
       val storage = TokenStorage(MapSettings()).also { it.saveTokens("a", "r") }
       val ops = FakeAuthOps(fetchThrows = true)
-      val manager = SessionManager(storage, ops, LogoutSignal(), backgroundScope)
+      val manager = SessionManager(storage, ops, LogoutSignal(), scope = backgroundScope)
 
       manager.initialize()
 
@@ -67,7 +67,7 @@ class SessionManagerTest {
     runTest {
       val storage = TokenStorage(MapSettings()).also { it.saveTokens("a", "r") }
       val ops = FakeAuthOps()
-      val manager = SessionManager(storage, ops, LogoutSignal(), backgroundScope)
+      val manager = SessionManager(storage, ops, LogoutSignal(), scope = backgroundScope)
       manager.onAuthenticated(user)
 
       manager.logout()
@@ -82,7 +82,7 @@ class SessionManagerTest {
     runTest {
       val storage = TokenStorage(MapSettings()).also { it.saveTokens("a", "r") }
       val ops = FakeAuthOps(signOutThrows = true)
-      val manager = SessionManager(storage, ops, LogoutSignal(), backgroundScope)
+      val manager = SessionManager(storage, ops, LogoutSignal(), scope = backgroundScope)
       manager.onAuthenticated(user)
 
       manager.logout()
@@ -97,11 +97,76 @@ class SessionManagerTest {
       val storage = TokenStorage(MapSettings()).also { it.saveTokens("a", "r") }
       val ops = FakeAuthOps()
       val signal = LogoutSignal()
-      val manager = SessionManager(storage, ops, signal, backgroundScope)
+      val manager = SessionManager(storage, ops, signal, scope = backgroundScope)
       manager.onAuthenticated(user)
 
       signal.emit()
 
+      assertEquals(SessionState.LoggedOut, manager.state.value)
+      assertFalse(storage.hasTokens())
+    }
+
+  @Test
+  fun `logout invokes all registered cleaners`() =
+    runTest {
+      val storage = TokenStorage(MapSettings()).also { it.saveTokens("a", "r") }
+      val ops = FakeAuthOps()
+      val cleanerA = FakeCleaner()
+      val cleanerB = FakeCleaner()
+      val manager = SessionManager(
+        storage,
+        ops,
+        LogoutSignal(),
+        cleaners = listOf(cleanerA, cleanerB),
+        scope = backgroundScope
+      )
+      manager.onAuthenticated(user)
+
+      manager.logout()
+
+      assertEquals(1, cleanerA.clearCalls)
+      assertEquals(1, cleanerB.clearCalls)
+      assertEquals(SessionState.LoggedOut, manager.state.value)
+    }
+
+  @Test
+  fun `LogoutSignal emission invokes cleaners`() =
+    runTest(UnconfinedTestDispatcher()) {
+      val storage = TokenStorage(MapSettings()).also { it.saveTokens("a", "r") }
+      val cleaner = FakeCleaner()
+      val signal = LogoutSignal()
+      val manager = SessionManager(
+        storage,
+        FakeAuthOps(),
+        signal,
+        cleaners = listOf(cleaner),
+        scope = backgroundScope
+      )
+      manager.onAuthenticated(user)
+
+      signal.emit()
+
+      assertEquals(1, cleaner.clearCalls)
+      assertEquals(SessionState.LoggedOut, manager.state.value)
+    }
+
+  @Test
+  fun `failing cleaner still clears tokens and transitions to LoggedOut`() =
+    runTest {
+      val storage = TokenStorage(MapSettings()).also { it.saveTokens("a", "r") }
+      val cleaner = FakeCleaner(throws = true)
+      val manager = SessionManager(
+        storage,
+        FakeAuthOps(),
+        LogoutSignal(),
+        cleaners = listOf(cleaner),
+        scope = backgroundScope
+      )
+      manager.onAuthenticated(user)
+
+      manager.logout()
+
+      assertEquals(1, cleaner.clearCalls)
       assertEquals(SessionState.LoggedOut, manager.state.value)
       assertFalse(storage.hasTokens())
     }
@@ -131,6 +196,17 @@ class SessionManagerTest {
     override suspend fun signOutRemote() {
       signOutCalls++
       if (signOutThrows) throw RuntimeException("network down")
+    }
+  }
+
+  private class FakeCleaner(
+    private val throws: Boolean = false
+  ) : SessionCleaner {
+    var clearCalls = 0
+
+    override suspend fun clear() {
+      clearCalls++
+      if (throws) throw RuntimeException("cleaner failed")
     }
   }
 }
