@@ -1,4 +1,4 @@
-package com.frame.zero.feature.account.ui
+package com.frame.zero.feature.account.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -11,13 +11,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import com.frame.zero.shared.design_system.AppTheme
-import framezero.composeapp.features.account.generated.resources.Res
-import framezero.composeapp.features.account.generated.resources.ic_bell
-import framezero.composeapp.features.account.generated.resources.ic_lock
-import framezero.composeapp.features.account.generated.resources.ic_mail
-import framezero.composeapp.features.account.generated.resources.ic_user
+import com.frame.zero.shared.design_system.LightDarkPreview
+import com.frame.zero.shared.design_system.widgets.rememberRoundedCornerShape
 
 @Composable
 internal fun SettingsSection(
@@ -33,7 +29,7 @@ internal fun SettingsSection(
       fontWeight = FontWeight.SemiBold,
       modifier = Modifier.padding(bottom = AppTheme.spacingSystem.space8)
     )
-    val shape = RoundedCornerShape(AppTheme.radiusSystem.radius16)
+    val shape = rememberRoundedCornerShape(AppTheme.radiusSystem.radius16)
     Column(
       modifier = Modifier
         .fillMaxWidth()
@@ -46,34 +42,12 @@ internal fun SettingsSection(
   }
 }
 
-@Preview
+@LightDarkPreview
 @Composable
 private fun SettingsSectionPreview() {
-  AppTheme(darkTheme = true) {
+  AppTheme {
     SettingsSection(title = "ACCOUNT") {
-      SettingsRow(
-        icon = Res.drawable.ic_user,
-        title = "Edit profile",
-        subtitle = "Maya Rivera"
-      )
-      SettingsDivider()
-      SettingsRow(
-        icon = Res.drawable.ic_mail,
-        title = "Email address",
-        subtitle = "maya@studiozero.co"
-      )
-      SettingsDivider()
-      SettingsRow(
-        icon = Res.drawable.ic_lock,
-        title = "Password & security",
-        subtitle = "Last changed 3 months ago"
-      )
-      SettingsDivider()
-      SettingsRow(
-        icon = Res.drawable.ic_bell,
-        title = "Notifications",
-        subtitle = "All enabled"
-      )
+
     }
   }
 }
