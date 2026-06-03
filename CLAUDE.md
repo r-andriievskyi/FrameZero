@@ -220,6 +220,11 @@ Rules:
   `Color(0xFF…)`, or raw `dp`/`sp` literals for visual tokens. Pick the
   closest semantic token; if none fits, add one to `ColorSystem` +
   `ThemeOptions`.
+- **Design system locals:** When a design system sub-system (`colorSystem`,
+  `spacingSystem`, `typographySystem`) is referenced more than once inside a
+  composable, extract it to a local val at the top of the composable body
+  (e.g. `val colorSystem = AppTheme.colorSystem`). Single-use references can
+  be accessed inline.
 - Use `spacingSystem` tokens only for spacing (padding, gaps, spacer sizes).
   Never use them for element sizes, widths, or border widths — use explicit
   `Dp` values hoisted to top-of-file `val`s for those.
@@ -235,6 +240,13 @@ Rules:
 - Always annotate previews with `@LightDarkPreview` (from
   `com.frame.zero.shared.design_system`) instead of plain `@Preview`.
   This generates both light and dark variants automatically.
+- **Components directory:** composables extracted from a screen live in a
+  `components/` subdirectory next to their parent screen file (e.g.
+  `signin/components/SignInHeader.kt` alongside `signin/SignInContent.kt`).
+  Composables shared across multiple screens within the same feature go in
+  the feature-level `ui/components/` package (e.g.
+  `ui/components/AuthLogoHeader.kt`). Each component file defines one
+  primary `internal` composable and includes a `@LightDarkPreview`.
 - Always have a default `Modifier` parameter on new composables.
   Hoist magic numbers (sizes, borders) to top-of-file `val`s.
 - Always use `collectAsStateWithLifecycle()` instead of `collectAsState()` in
