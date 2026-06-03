@@ -32,7 +32,7 @@ kotlin {
 android { namespace = "com.frame.zero.repository.productions" }
 
 room {
-  schemaDirectory("$projectDir/schemas")
+  schemaDirectory("$projectDir/build/schemas")
 }
 
 dependencies {

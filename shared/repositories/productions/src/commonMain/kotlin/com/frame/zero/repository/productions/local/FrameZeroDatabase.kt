@@ -8,7 +8,7 @@ import androidx.room.RoomDatabaseConstructor
 @Database(
   entities = [ProductionEntity::class, ProductionRemoteKeyEntity::class],
   version = 1,
-  exportSchema = true
+  exportSchema = false
 )
 @ConstructedBy(FrameZeroDatabaseConstructor::class)
 abstract class FrameZeroDatabase : RoomDatabase() {

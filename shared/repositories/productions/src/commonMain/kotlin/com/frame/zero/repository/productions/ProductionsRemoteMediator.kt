@@ -4,21 +4,16 @@ import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType
 import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
-import com.frame.zero.domain.production.ProductionPhase
 import com.frame.zero.repository.productions.local.ProductionEntity
 import com.frame.zero.repository.productions.local.ProductionsDao
-import com.frame.zero.repository.productions.local.filterKeyFor
 import com.frame.zero.repository.productions.network.ProductionsApi
 import kotlinx.coroutines.CancellationException
 
 @OptIn(ExperimentalPagingApi::class)
 internal class ProductionsRemoteMediator(
-  private val phase: ProductionPhase?,
   private val remoteApi: ProductionsApi,
   private val dao: ProductionsDao
 ) : RemoteMediator<Int, ProductionEntity>() {
-  private val filter: String = filterKeyFor(phase)
-
   override suspend fun load(
     loadType: LoadType,
     state: PagingState<Int, ProductionEntity>
@@ -28,7 +23,7 @@ internal class ProductionsRemoteMediator(
         LoadType.REFRESH -> null
         LoadType.PREPEND -> return MediatorResult.Success(endOfPaginationReached = true)
         LoadType.APPEND -> {
-          val nextCursor = dao.remoteKey(filter)?.nextCursor
+          val nextCursor = dao.remoteKey()?.nextCursor
             ?: return MediatorResult.Success(endOfPaginationReached = true)
           nextCursor
         }
@@ -36,16 +31,14 @@ internal class ProductionsRemoteMediator(
 
       val response = remoteApi.getAll(
         limit = state.config.pageSize,
-        cursor = cursor,
-        phase = phase
+        cursor = cursor
       )
 
-      val baseOrder = if (loadType == LoadType.REFRESH) 0L else (dao.maxPageOrder(filter) ?: -1L) + 1L
+      val baseOrder = if (loadType == LoadType.REFRESH) 0L else (dao.maxPageOrder() ?: -1L) + 1L
 
       val entities = response.items.mapIndexed { index, dto ->
         ProductionEntity(
           id = dto.id,
-          phaseFilter = filter,
           title = dto.title,
           genre = dto.genre.name,
           phase = dto.phase.name,
@@ -58,9 +51,9 @@ internal class ProductionsRemoteMediator(
       }
 
       if (loadType == LoadType.REFRESH) {
-        dao.refresh(filter, entities, response.nextCursor)
+        dao.refresh(entities, response.nextCursor)
       } else {
-        dao.append(filter, entities, response.nextCursor)
+        dao.append(entities, response.nextCursor)
       }
 
       MediatorResult.Success(endOfPaginationReached = response.nextCursor == null)
