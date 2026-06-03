@@ -10,4 +10,6 @@ sealed interface SignInIntent {
   ) : SignInIntent
 
   data object Submit : SignInIntent
+
+  data object ToastDismissed : SignInIntent
 }

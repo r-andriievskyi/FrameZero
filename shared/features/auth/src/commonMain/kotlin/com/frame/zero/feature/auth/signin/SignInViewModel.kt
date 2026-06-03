@@ -4,6 +4,7 @@ import com.arkivanov.essenty.instancekeeper.InstanceKeeper
 import com.frame.zero.domain.Outcome
 import com.frame.zero.feature.auth.EMPTY_CREDENTIALS_MESSAGE
 import com.frame.zero.feature.auth.domain.LoginUseCase
+import com.frame.zero.feature.auth.isNetworkOrServerError
 import com.frame.zero.feature.auth.toUserMessage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -31,6 +32,7 @@ class SignInViewModel(
       is SignInIntent.PasswordChanged ->
         _state.update { it.copy(password = intent.password, error = null) }
       SignInIntent.Submit -> submit()
+      SignInIntent.ToastDismissed -> _state.update { it.copy(errorToast = null) }
     }
   }
 
@@ -42,14 +44,20 @@ class SignInViewModel(
       return
     }
     scope.launch {
-      _state.update { it.copy(isLoading = true, error = null) }
+      _state.update { it.copy(isLoading = true, error = null, errorToast = null) }
       when (
         val outcome =
           loginUseCase(LoginUseCase.Params(current.email.trim(), current.password))
       ) {
         is Outcome.Success -> _state.update { it.copy(isLoading = false) }
-        is Outcome.Failure ->
-          _state.update { it.copy(isLoading = false, error = outcome.error.toUserMessage()) }
+        is Outcome.Failure -> {
+          val message = outcome.error.toUserMessage()
+          if (outcome.error.isNetworkOrServerError) {
+            _state.update { it.copy(isLoading = false, errorToast = message) }
+          } else {
+            _state.update { it.copy(isLoading = false, error = message) }
+          }
+        }
       }
     }
   }
