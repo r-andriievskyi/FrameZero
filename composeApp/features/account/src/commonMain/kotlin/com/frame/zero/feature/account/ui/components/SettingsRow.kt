@@ -5,13 +5,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -24,6 +22,8 @@ import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.generated.resources.ic_chevron_right
 import com.frame.zero.shared.design_system.modifier.clickableWithRipple
+import com.frame.zero.shared.design_system.widgets.HorizontalSpacer
+import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import framezero.composeapp.features.account.generated.resources.Res
 import framezero.composeapp.features.account.generated.resources.ic_user
 import org.jetbrains.compose.resources.DrawableResource
@@ -31,8 +31,6 @@ import org.jetbrains.compose.resources.painterResource
 import com.frame.zero.shared.design_system.generated.resources.Res as DesignSystemRes
 
 private val IconContainerSize = 40.dp
-private val IconSize = 20.dp
-private val ChevronSize = 20.dp
 
 @Composable
 internal fun SettingsRow(
@@ -42,17 +40,20 @@ internal fun SettingsRow(
   modifier: Modifier = Modifier,
   onClick: () -> Unit = {}
 ) {
+  val colorSystem = AppTheme.colorSystem
+  val spacingSystem = AppTheme.spacingSystem
+  val typographySystem = AppTheme.typographySystem
   Row(
     modifier = modifier
       .fillMaxWidth()
       .clickableWithRipple(
-        color = AppTheme.colorSystem.accentDim,
+        color = colorSystem.accentDim,
         bounded = true,
         onClick = onClick
       )
       .padding(
-        horizontal = AppTheme.spacingSystem.space16,
-        vertical = AppTheme.spacingSystem.space16
+        horizontal = spacingSystem.space16,
+        vertical = spacingSystem.space16
       ),
     verticalAlignment = Alignment.CenterVertically
   ) {
@@ -60,36 +61,34 @@ internal fun SettingsRow(
       modifier = Modifier
         .size(IconContainerSize)
         .clip(RoundedCornerShape(AppTheme.radiusSystem.radius8))
-        .background(AppTheme.colorSystem.inputBackground),
+        .background(colorSystem.inputBackground),
       contentAlignment = Alignment.Center
     ) {
-      Image(
+      Icon(
         painter = painterResource(icon),
         contentDescription = title,
-        colorFilter = ColorFilter.tint(AppTheme.colorSystem.accent),
-        modifier = Modifier.size(IconSize)
+        tint = colorSystem.accent
       )
     }
-    Spacer(modifier = Modifier.width(AppTheme.spacingSystem.space16))
+    HorizontalSpacer(spacingSystem.space16)
     Column(modifier = Modifier.weight(1f)) {
       Text(
         text = title,
-        style = AppTheme.typographySystem.bodyMedium,
-        color = AppTheme.colorSystem.textPrimary,
+        style = typographySystem.bodyMedium,
+        color = colorSystem.textPrimary,
         fontWeight = FontWeight.Medium
       )
-      Spacer(modifier = Modifier.height(AppTheme.spacingSystem.space2))
+      VerticalSpacer(spacingSystem.space2)
       Text(
         text = subtitle,
-        style = AppTheme.typographySystem.bodySmall,
-        color = AppTheme.colorSystem.textMuted
+        style = typographySystem.bodySmall,
+        color = colorSystem.textMuted
       )
     }
     Image(
       painter = painterResource(DesignSystemRes.drawable.ic_chevron_right),
       contentDescription = null,
-      colorFilter = ColorFilter.tint(AppTheme.colorSystem.textMuted),
-      modifier = Modifier.size(ChevronSize)
+      colorFilter = ColorFilter.tint(colorSystem.textMuted)
     )
   }
 }

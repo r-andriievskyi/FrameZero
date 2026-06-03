@@ -66,6 +66,7 @@ internal fun AccountContent(
   onSignOutClick: () -> Unit,
   modifier: Modifier = Modifier
 ) {
+  val spacingSystem = AppTheme.spacingSystem
   Column(
     modifier = modifier
       .fillMaxSize()
@@ -77,9 +78,9 @@ internal fun AccountContent(
       modifier = Modifier
         .fillMaxSize()
         .verticalScroll(rememberScrollState())
-        .padding(horizontal = AppTheme.spacingSystem.space16)
+        .padding(horizontal = spacingSystem.space16)
     ) {
-      VerticalSpacer(AppTheme.spacingSystem.space16)
+      VerticalSpacer(spacingSystem.space16)
       SettingsSection(title = stringResource(Res.string.section_account)) {
         SettingsRow(
           icon = Res.drawable.ic_user,
@@ -102,7 +103,7 @@ internal fun AccountContent(
           onClick = onPasswordSecurityClick
         )
       }
-      VerticalSpacer(AppTheme.spacingSystem.space24)
+      VerticalSpacer(spacingSystem.space24)
       SettingsSection(title = stringResource(Res.string.section_workspace)) {
         SettingsRow(
           icon = Res.drawable.ic_bell,
@@ -111,9 +112,9 @@ internal fun AccountContent(
           onClick = onNotificationsClick
         )
       }
-      VerticalSpacer(AppTheme.spacingSystem.space24)
+      VerticalSpacer(spacingSystem.space24)
       SignOutButton(onClick = onSignOutClick)
-      VerticalSpacer(AppTheme.spacingSystem.space24)
+      VerticalSpacer(spacingSystem.space24)
     }
   }
 }

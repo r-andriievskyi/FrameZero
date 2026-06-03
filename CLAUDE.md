@@ -237,6 +237,8 @@ Rules:
   This generates both light and dark variants automatically.
 - Always have a default `Modifier` parameter on new composables.
   Hoist magic numbers (sizes, borders) to top-of-file `val`s.
+- Always use `collectAsStateWithLifecycle()` instead of `collectAsState()` in
+  composables. It stops collection when the UI is not visible, saving CPU/battery.
 
 ## Conventions
 
