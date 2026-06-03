@@ -5,7 +5,7 @@ import com.arkivanov.decompose.extensions.compose.stack.Children
 import com.arkivanov.decompose.extensions.compose.stack.animation.stackAnimation
 import com.frame.zero.feature.RootComponent
 import com.frame.zero.feature.account.ui.AccountScreen
-import com.frame.zero.feature.auth.ui.AuthContent
+import com.frame.zero.feature.auth.ui.AuthScreen
 import com.frame.zero.feature.home.ui.HomeContent
 import com.frame.zero.feature.production.details.ui.ProductionDetailsScreen
 import com.frame.zero.feature.production.ui.CreateProductionScreen
@@ -20,7 +20,7 @@ fun RootContent(component: RootComponent) {
   ) { child ->
     when (val instance = child.instance) {
       RootComponent.Child.Splash -> SplashContent()
-      is RootComponent.Child.Auth -> AuthContent(instance.component)
+      is RootComponent.Child.Auth -> AuthScreen(instance.component)
       is RootComponent.Child.Home -> HomeContent(instance.component)
       is RootComponent.Child.Account -> AccountScreen(instance.component)
       is RootComponent.Child.CreateProduction -> CreateProductionScreen(instance.component)
