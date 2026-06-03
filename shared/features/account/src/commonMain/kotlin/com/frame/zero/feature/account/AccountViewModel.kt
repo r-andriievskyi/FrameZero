@@ -3,13 +3,22 @@ package com.frame.zero.feature.account
 import com.arkivanov.essenty.instancekeeper.InstanceKeeper
 import com.frame.zero.core.session.SessionManager
 import com.frame.zero.core.session.SessionState
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import kotlin.coroutines.CoroutineContext
 
 class AccountViewModel(
-  sessionManager: SessionManager
+  private val sessionManager: SessionManager,
+  dispatcher: CoroutineContext = Dispatchers.Main.immediate
 ) : InstanceKeeper.Instance {
+  private val scope = CoroutineScope(dispatcher + SupervisorJob())
+
   private val user = (sessionManager.state.value as? SessionState.LoggedIn)?.user
 
   private val _state = MutableStateFlow(
@@ -20,5 +29,11 @@ class AccountViewModel(
   )
   val state: StateFlow<AccountState> = _state.asStateFlow()
 
-  override fun onDestroy() = Unit
+  fun signOut() {
+    scope.launch { sessionManager.logout() }
+  }
+
+  override fun onDestroy() {
+    scope.cancel()
+  }
 }
