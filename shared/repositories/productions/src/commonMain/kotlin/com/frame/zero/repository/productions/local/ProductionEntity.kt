@@ -2,15 +2,14 @@ package com.frame.zero.repository.productions.local
 
 import androidx.room.Entity
 import androidx.room.Index
+import androidx.room.PrimaryKey
 
 @Entity(
   tableName = "productions",
-  primaryKeys = ["id", "phaseFilter"],
-  indices = [Index(value = ["phaseFilter", "pageOrder"])]
+  indices = [Index(value = ["pageOrder"])]
 )
 data class ProductionEntity(
-  val id: String,
-  val phaseFilter: String,
+  @PrimaryKey val id: String,
   val title: String,
   val genre: String,
   val phase: String,

@@ -6,11 +6,9 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
 import com.frame.zero.domain.production.Production
-import com.frame.zero.domain.production.ProductionPhase
 import com.frame.zero.dto.production.CreateProductionRequest
 import com.frame.zero.dto.production.ProductionDetailDto
 import com.frame.zero.repository.productions.local.FrameZeroDatabase
-import com.frame.zero.repository.productions.local.filterKeyFor
 import com.frame.zero.repository.productions.local.toProduction
 import com.frame.zero.repository.productions.network.ProductionsApi
 import kotlinx.coroutines.flow.Flow
@@ -23,13 +21,12 @@ class ProductionsRepositoryImpl(
   private val database: FrameZeroDatabase
 ) : ProductionsRepository {
   @OptIn(ExperimentalPagingApi::class)
-  override fun observeProductions(phase: ProductionPhase?): Flow<PagingData<Production>> {
+  override fun observeProductions(): Flow<PagingData<Production>> {
     val dao = database.productionsCacheDao()
-    val filter = filterKeyFor(phase)
     return Pager(
       config = PagingConfig(pageSize = PageSize, enablePlaceholders = false),
-      remoteMediator = ProductionsRemoteMediator(phase, remoteApi, dao),
-      pagingSourceFactory = { dao.pagingSource(filter) }
+      remoteMediator = ProductionsRemoteMediator(remoteApi, dao),
+      pagingSourceFactory = { dao.pagingSource() }
     ).flow.map { pagingData -> pagingData.map { entity -> entity.toProduction() } }
   }
 

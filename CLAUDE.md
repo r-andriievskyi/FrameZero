@@ -76,18 +76,20 @@ Paginated lists use **Room (KMP) + Paging 3 `RemoteMediator`**.
   `remoteMediator` writes API pages into Room (REFRESH replaces, APPEND
   cursor-paginates). UI observes Room, never the network directly.
 - Room layer lives in the same module under `local/` (`FrameZeroDatabase`,
-  `*Entity`, `*Dao`, `*RemoteKeyEntity`, `FilterKey`, `*EntityMapper`).
-  Apply `libs.plugins.ksp` + `libs.plugins.androidxRoom`, set
-  `room { schemaDirectory(...) }`, register `ksp` configs for
-  `kspAndroid`/`kspIosArm64`/`kspIosSimulatorArm64`/`kspJvm`.
+  `*Entity`, `*Dao`, `*RemoteKeyEntity`, `*EntityMapper`).
+  Apply `libs.plugins.ksp` + `libs.plugins.androidxRoom`, mark the
+  database `@Database(exportSchema = false)`, point the Room Gradle
+  plugin at `build/schemas` (it requires a `schemaDirectory` even when
+  schema export is off), and register `ksp` configs for
+  `kspAndroid`/`kspIosArm64`/`kspIosSimulatorArm64`/`kspJvm`. The app
+  isn't in production yet, so we don't track schema JSONs or write
+  migrations — flip `exportSchema = true` and start versioning when that
+  changes.
 - Room's KMP builder is platform-specific. Each db-owning module exposes
   `interface DatabaseBuilderFactory` in `commonMain` with `Android*`/
   `Ios*`/`Jvm*` actuals, wired through Koin's `platformModule()`. The
   Koin module sets `BundledSQLiteDriver` and `Dispatchers.Default` query
   context.
-- Multi-filter caches store a `filterKey` column on the entity and a
-  per-filter row in `*RemoteKeyEntity` so filters don't clobber each
-  other's cursor.
 
 ### Module placement
 

@@ -3,7 +3,6 @@ package com.frame.zero.feature.home.testing
 import androidx.paging.PagingData
 import com.frame.zero.auth.dto.UserDto
 import com.frame.zero.domain.production.Production
-import com.frame.zero.domain.production.ProductionPhase
 import com.frame.zero.dto.dashboard.DashboardResponse
 import com.frame.zero.dto.dashboard.GreetingDto
 import com.frame.zero.dto.dashboard.StatsDto
@@ -54,10 +53,11 @@ internal class FakeDashboardRepository(
 internal class FakeProductionsRepository(
   private val emissions: Flow<PagingData<Production>> = flowOf(PagingData.empty())
 ) : ProductionsRepository {
-  val observeCalls: MutableList<ProductionPhase?> = mutableListOf()
+  var observeCalls: Int = 0
+    private set
 
-  override fun observeProductions(phase: ProductionPhase?): Flow<PagingData<Production>> {
-    observeCalls += phase
+  override fun observeProductions(): Flow<PagingData<Production>> {
+    observeCalls++
     return emissions
   }
 

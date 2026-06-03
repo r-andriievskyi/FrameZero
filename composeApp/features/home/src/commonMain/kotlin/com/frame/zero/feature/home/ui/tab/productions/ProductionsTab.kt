@@ -23,23 +23,19 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.frame.zero.domain.production.Genre
 import com.frame.zero.domain.production.ProductionPhase
-import com.frame.zero.feature.home.tab.productions.ProductionFilter
 import com.frame.zero.feature.home.tab.productions.ProductionUi
 import com.frame.zero.feature.home.tab.productions.ProductionsTabComponent
 import com.frame.zero.feature.home.ui.FloatingBottomNavClearance
 import com.frame.zero.feature.home.ui.tab.productions.components.EmptyState
-import com.frame.zero.feature.home.ui.tab.productions.components.FilterChipsRow
 import com.frame.zero.feature.home.ui.tab.productions.components.ProductionCard
 import com.frame.zero.feature.home.ui.tab.productions.components.ProductionsSkeleton
 import com.frame.zero.shared.design_system.AppTheme
@@ -68,13 +64,9 @@ private enum class ProductionsContentState { Skeleton, Empty, List }
 
 @Composable
 fun ProductionsTab(component: ProductionsTabComponent) {
-  val state by component.state.collectAsStateWithLifecycle()
   val lazyPagingItems = component.productions.collectAsLazyPagingItems()
   ProductionsContent(
     lazyPagingItems = lazyPagingItems,
-    availableFilters = state.availableFilters,
-    selectedFilter = state.selectedFilter,
-    onFilterSelected = component::onFilterSelected,
     onCreateProductionClick = component.onCreateProductionClick,
     onProductionClick = component.onProductionClick
   )
@@ -83,16 +75,10 @@ fun ProductionsTab(component: ProductionsTabComponent) {
 @Composable
 private fun ProductionsContent(
   lazyPagingItems: LazyPagingItems<ProductionUi>,
-  availableFilters: List<ProductionFilter>,
-  selectedFilter: ProductionFilter,
-  onFilterSelected: (ProductionFilter) -> Unit,
   onCreateProductionClick: () -> Unit,
   onProductionClick: (productionId: String) -> Unit = {}
 ) {
-  val pagingState = rememberPagingListUiState(
-    lazyPagingItems = lazyPagingItems,
-    resetKey = selectedFilter
-  )
+  val pagingState = rememberPagingListUiState(lazyPagingItems = lazyPagingItems)
 
   val navigationBarsBottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
   Column(
@@ -140,14 +126,6 @@ private fun ProductionsContent(
         }
       }
     }
-
-    VerticalSpacer(AppTheme.spacingSystem.space16)
-
-    FilterChipsRow(
-      availableFilters = availableFilters,
-      selectedFilter = selectedFilter,
-      onFilterSelected = onFilterSelected
-    )
 
     VerticalSpacer(AppTheme.spacingSystem.space16)
 
@@ -237,9 +215,6 @@ private fun ProductionsContentPreview() {
     )
     ProductionsContent(
       lazyPagingItems = previewPagingFlow(items).collectAsLazyPagingItems(),
-      availableFilters = listOf(ProductionFilter.All) + ProductionPhase.entries.map { ProductionFilter.ByPhase(it) },
-      selectedFilter = ProductionFilter.All,
-      onFilterSelected = {},
       onCreateProductionClick = {},
       onProductionClick = {}
     )
