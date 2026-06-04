@@ -10,6 +10,8 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
@@ -19,15 +21,21 @@ class AccountViewModel(
 ) : InstanceKeeper.Instance {
   private val scope = CoroutineScope(dispatcher + SupervisorJob())
 
-  private val user = (sessionManager.state.value as? SessionState.LoggedIn)?.user
-
-  private val _state = MutableStateFlow(
-    AccountState(
-      userName = user?.let { "${it.firstName} ${it.lastName}".trim() }.orEmpty(),
-      email = user?.email.orEmpty()
-    )
-  )
+  private val _state = MutableStateFlow(AccountState())
   val state: StateFlow<AccountState> = _state.asStateFlow()
+
+  init {
+    scope.launch {
+      sessionManager.state.filterIsInstance<SessionState.LoggedIn>().collect { loggedIn ->
+        _state.update {
+          it.copy(
+            userName = "${loggedIn.user.firstName} ${loggedIn.user.lastName}".trim(),
+            email = loggedIn.user.email
+          )
+        }
+      }
+    }
+  }
 
   fun signOut() {
     scope.launch { sessionManager.logout() }
