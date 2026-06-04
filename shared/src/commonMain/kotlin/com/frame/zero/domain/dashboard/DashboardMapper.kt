@@ -19,6 +19,5 @@ fun TaskSummaryDto.toDomain(): DashboardTask =
     title = title,
     productionTitle = productionTitle,
     dueDate = dueDate,
-    dueLabel = dueLabel,
     status = status
   )

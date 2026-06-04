@@ -19,6 +19,5 @@ data class DashboardTask(
   val title: String,
   val productionTitle: String,
   val dueDate: LocalDate?,
-  val dueLabel: String?,
   val status: TaskStatus
 )

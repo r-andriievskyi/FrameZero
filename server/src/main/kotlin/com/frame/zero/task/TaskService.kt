@@ -2,7 +2,6 @@ package com.frame.zero.task
 
 import com.frame.zero.AppError
 import com.frame.zero.AppException
-import com.frame.zero.common.dueLabelFor
 import com.frame.zero.common.toJava
 import com.frame.zero.common.toKotlin
 import com.frame.zero.dto.task.CreateTaskRequest
@@ -40,7 +39,7 @@ class TaskService(
         limit = limit,
         cursor = cursor
       )
-    return Pair(items.map { it.toSummaryDto(timezone) }, nextCursor)
+    return Pair(items.map { it.toSummaryDto() }, nextCursor)
   }
 
   suspend fun get(
@@ -127,13 +126,12 @@ class TaskService(
     tasks.delete(taskId)
   }
 
-  private fun TaskRecord.toSummaryDto(tz: ZoneId): TaskSummaryDto =
+  private fun TaskRecord.toSummaryDto(): TaskSummaryDto =
     TaskSummaryDto(
       id = id.toString(),
       title = title,
       productionTitle = productionTitle,
       dueDate = dueDate?.toKotlin(),
-      dueLabel = dueDate?.let { dueLabelFor(it, tz) },
       status = status
     )
 

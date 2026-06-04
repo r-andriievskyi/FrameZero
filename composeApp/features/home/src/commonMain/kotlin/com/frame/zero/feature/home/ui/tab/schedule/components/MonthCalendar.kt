@@ -221,6 +221,7 @@ private fun MonthDayCell(
       .size(DayCellSize)
       .clip(RoundedCornerShape(AppTheme.radiusSystem.radius8))
       .background(background)
+      // No ripple: selected state is conveyed by background color change
       .clickable(
         interactionSource = remember { MutableInteractionSource() },
         indication = null,

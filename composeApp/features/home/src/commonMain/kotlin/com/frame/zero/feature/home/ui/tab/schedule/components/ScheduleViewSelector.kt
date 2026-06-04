@@ -2,7 +2,6 @@ package com.frame.zero.feature.home.ui.tab.schedule.components
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,6 +17,7 @@ import androidx.compose.ui.text.style.TextAlign
 import com.frame.zero.domain.schedule.ScheduleView
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
+import com.frame.zero.shared.design_system.modifier.clickableWithRipple
 import framezero.composeapp.features.home.generated.resources.Res
 import framezero.composeapp.features.home.generated.resources.schedule_view_day
 import framezero.composeapp.features.home.generated.resources.schedule_view_month
@@ -66,7 +66,7 @@ private fun SegmentTab(
     modifier = modifier
       .clip(RoundedCornerShape(AppTheme.radiusSystem.radiusMax))
       .background(backgroundColor)
-      .clickable(onClick = onClick)
+      .clickableWithRipple(color = AppTheme.colorSystem.accentDim, onClick = onClick)
       .padding(
         horizontal = AppTheme.spacingSystem.space16,
         vertical = AppTheme.spacingSystem.space8

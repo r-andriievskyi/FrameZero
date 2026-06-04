@@ -1,7 +1,6 @@
 package com.frame.zero.dashboard
 
 import com.frame.zero.auth.UserRepository
-import com.frame.zero.common.dueLabelFor
 import com.frame.zero.common.toKotlin
 import com.frame.zero.dto.dashboard.DashboardResponse
 import com.frame.zero.dto.dashboard.GreetingDto
@@ -44,15 +43,12 @@ class DashboardService(
     )
   }
 
-  private fun TaskRecord.toSummaryDto(tz: ZoneId): TaskSummaryDto {
-    val label = dueDate?.let { dueLabelFor(it, tz) }
-    return TaskSummaryDto(
+  private fun TaskRecord.toSummaryDto(tz: ZoneId): TaskSummaryDto =
+    TaskSummaryDto(
       id = id.toString(),
       title = title,
       productionTitle = productionTitle,
       dueDate = dueDate?.toKotlin(),
-      dueLabel = label,
       status = status
     )
-  }
 }
