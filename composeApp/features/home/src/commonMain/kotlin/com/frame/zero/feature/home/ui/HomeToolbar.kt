@@ -12,8 +12,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.tooling.preview.Preview
 import com.frame.zero.shared.design_system.AppTheme
+import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.modifier.clickableWithRipple
 import com.frame.zero.shared.design_system.widgets.HorizontalSpacer
 import framezero.composeapp.features.home.generated.resources.Res
@@ -72,10 +72,10 @@ fun HomeToolbar(
   }
 }
 
-@Preview
+@LightDarkPreview
 @Composable
 private fun HomeToolbarPreview() {
-  AppTheme(darkTheme = true) {
+  AppTheme {
     HomeToolbar(onNotificationsClick = {}, onAccountClick = {})
   }
 }

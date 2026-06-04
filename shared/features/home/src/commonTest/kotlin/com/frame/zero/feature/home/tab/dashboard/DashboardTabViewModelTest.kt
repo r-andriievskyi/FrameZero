@@ -38,7 +38,6 @@ class DashboardTabViewModelTest {
         title = "Storyboard",
         productionTitle = "Pilot",
         dueDate = null,
-        dueLabel = "Tomorrow",
         status = TaskStatus.OPEN
       )
     )

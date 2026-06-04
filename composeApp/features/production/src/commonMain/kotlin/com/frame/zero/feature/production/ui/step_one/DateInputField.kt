@@ -1,7 +1,6 @@
 package com.frame.zero.feature.production.ui.step_one
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -18,6 +17,7 @@ import com.frame.zero.feature.production.ui.parseDateInput
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.asColorFilter
+import com.frame.zero.shared.design_system.modifier.clickableWithRipple
 import com.frame.zero.shared.design_system.widgets.SingleLineInputField
 import framezero.composeapp.features.production.generated.resources.Res
 import framezero.composeapp.features.production.generated.resources.date_picker_cancel
@@ -56,7 +56,7 @@ internal fun DateInputField(
         painter = painterResource(Res.drawable.ic_calendar_days),
         colorFilter = AppTheme.colorSystem.textMuted.asColorFilter(),
         contentDescription = null,
-        modifier = Modifier.clickable(enabled = enabled) { showPicker = true }
+        modifier = Modifier.clickableWithRipple(color = AppTheme.colorSystem.accentDim, enabled = enabled) { showPicker = true }
       )
     }
   )

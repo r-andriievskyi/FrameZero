@@ -8,6 +8,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class SessionManager(
@@ -25,20 +26,20 @@ class SessionManager(
   }
 
   suspend fun initialize() {
-    _state.value = SessionState.Loading
+    _state.update { SessionState.Loading }
     if (!tokenStorage.hasTokens()) {
-      _state.value = SessionState.LoggedOut
+      _state.update { SessionState.LoggedOut }
       return
     }
     runCatching { authOperations.fetchCurrentUser() }
       .fold(
-        onSuccess = { _state.value = SessionState.LoggedIn(it.toDomain()) },
+        onSuccess = { user -> _state.update { SessionState.LoggedIn(user.toDomain()) } },
         onFailure = { forceLogout() }
       )
   }
 
   fun onAuthenticated(user: User) {
-    _state.value = SessionState.LoggedIn(user)
+    _state.update { SessionState.LoggedIn(user) }
   }
 
   suspend fun logout() {
@@ -49,6 +50,6 @@ class SessionManager(
   private suspend fun forceLogout() {
     cleaners.forEach { cleaner -> runCatching { cleaner.clear() } }
     tokenStorage.clearTokens()
-    _state.value = SessionState.LoggedOut
+    _state.update { SessionState.LoggedOut }
   }
 }

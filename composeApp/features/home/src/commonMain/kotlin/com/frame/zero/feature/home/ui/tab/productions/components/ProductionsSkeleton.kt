@@ -22,10 +22,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.frame.zero.shared.design_system.AppTheme
+import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 
 private const val SkeletonCardCount = 4
@@ -138,10 +138,10 @@ private fun SkeletonBar(
   )
 }
 
-@Preview
+@LightDarkPreview
 @Composable
 private fun ProductionsSkeletonPreview() {
-  AppTheme(darkTheme = true) {
+  AppTheme {
     Column(
       modifier = Modifier
         .background(AppTheme.colorSystem.background)

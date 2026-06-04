@@ -2,7 +2,6 @@ package com.frame.zero.feature.production.ui.widgets
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -12,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
+import com.frame.zero.shared.design_system.modifier.clickableWithRipple
 
 @Composable
 internal fun GenreChip(
@@ -36,7 +36,7 @@ internal fun GenreChip(
         if (isSelected) AppTheme.colorSystem.accent else AppTheme.colorSystem.cardBorder,
         shape
       )
-      .clickable(onClick = onClick)
+      .clickableWithRipple(color = AppTheme.colorSystem.accentDim, onClick = onClick)
       .padding(
         horizontal = AppTheme.spacingSystem.space16,
         vertical = AppTheme.spacingSystem.space8
