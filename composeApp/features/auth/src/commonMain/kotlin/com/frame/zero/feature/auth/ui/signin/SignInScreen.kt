@@ -12,7 +12,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.frame.zero.feature.auth.signin.SignInComponent
 import com.frame.zero.feature.auth.signin.SignInIntent
@@ -29,7 +28,6 @@ import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import com.frame.zero.shared.design_system.widgets.toast.ToastHost
 import framezero.composeapp.features.auth.generated.resources.Res
 import framezero.composeapp.features.auth.generated.resources.btn_sign_in
-import framezero.composeapp.features.auth.generated.resources.signin_forgot_password
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -77,14 +75,6 @@ private fun SignInContent(
       value = state.password,
       onValueChange = { onIntent(SignInIntent.PasswordChanged(it)) },
       enabled = !state.isLoading
-    )
-    VerticalSpacer(spacingSystem.space8)
-    Text(
-      modifier = Modifier.fillMaxWidth(),
-      text = stringResource(Res.string.signin_forgot_password),
-      color = AppTheme.colorSystem.accent,
-      style = AppTheme.typographySystem.bodyMedium,
-      textAlign = TextAlign.End
     )
     VerticalSpacer(spacingSystem.space24)
     CtaButton(
