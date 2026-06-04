@@ -10,7 +10,9 @@ data class TaskDetailsState(
   val dueDate: String? = null,
   val isDueToday: Boolean = false,
   val description: String = "",
-  val isLoading: Boolean = false
+  val isLoading: Boolean = false,
+  val isError: Boolean = false,
+  val showMarkCompleteButton: Boolean = false
 )
 
 enum class TaskPriority { HIGH, MEDIUM, LOW }

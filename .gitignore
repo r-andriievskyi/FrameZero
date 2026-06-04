@@ -21,6 +21,7 @@ google-services.json
 agconnect-services.json
 .env
 .env.*
+!.env.example
 
 # ─── iOS / Xcode ─────────────────────────────────────────────────────────────
 xcuserdata/

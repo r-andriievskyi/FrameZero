@@ -10,8 +10,13 @@ Guidance for Claude Code when working in this repo.
 ./gradlew :composeApp:installDebug     # install on connected device
 
 # Server (Ktor) — port 8080, dev mode supplies a built-in JWT secret
+docker compose up -d                   # start Postgres (credentials match AppConfig defaults)
 ./gradlew :server:run
 ./scripts/seed_db.sh                   # seed 5 users + 10 productions
+
+# Stop / reset DB
+docker compose stop                    # pause, data persists
+docker compose down -v                 # wipe DB volume entirely
 
 # Tests
 ./gradlew test                                                   # all modules
@@ -171,14 +176,30 @@ not directly to module scripts.
 set by `:server:run`) supplies a hardcoded `JWT_SECRET`; production mode
 (`KTOR_ENV=production`) fails fast without one. Other env vars
 (`JWT_ISSUER`/`AUDIENCE`/`REALM`, `DATABASE_URL`/`USER`/`PASSWORD`) have
-sensible defaults — see `server/.../config/AppConfig.kt`. Access-token TTL
-15 min, refresh 30 days, in `JwtConfig`.
+sensible defaults that match `docker-compose.yml` — see
+`server/.../config/AppConfig.kt`. Access-token TTL 15 min, refresh 30 days,
+in `JwtConfig`.
 
-Production-style boot:
+**Local dev** — no env setup needed; defaults work out of the box:
+```bash
+docker compose up -d
+./gradlew :server:run
+```
+
+**New engineer onboarding:**
+```bash
+cp .env.example .env    # only needed to override defaults (e.g. staging DB)
+docker compose up -d
+./gradlew :server:run
+```
+
+**Production-style boot:**
 ```bash
 export KTOR_ENV=production
 export JWT_SECRET=$(openssl rand -base64 32)
 export DATABASE_URL=jdbc:postgresql://prod-host:5432/framezero
+export DATABASE_USER=...
+export DATABASE_PASSWORD=...
 ./gradlew :server:run
 ```
 
