@@ -5,4 +5,6 @@
   <string name="task_details_assignee">ASSIGNEE</string>
   <string name="task_details_due_date">DUE</string>
   <string name="task_details_today">Today</string>
+  <string name="task_details_error">Couldn\'t load this task.</string>
+  <string name="task_details_retry">Retry</string>
 </resources>

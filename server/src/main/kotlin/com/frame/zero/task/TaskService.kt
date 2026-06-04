@@ -6,6 +6,7 @@ import com.frame.zero.common.dueLabelFor
 import com.frame.zero.common.toJava
 import com.frame.zero.common.toKotlin
 import com.frame.zero.dto.task.CreateTaskRequest
+import com.frame.zero.dto.task.TaskAssigneeDto
 import com.frame.zero.dto.task.TaskDetailDto
 import com.frame.zero.dto.task.TaskStatus
 import com.frame.zero.dto.task.TaskSummaryDto
@@ -145,7 +146,15 @@ class TaskService(
       description = description,
       dueDate = dueDate?.toKotlin(),
       status = status,
+      priority = priority,
       assigneeUserId = assigneeUserId?.toString(),
+      assignee = assigneeUserId?.let {
+        TaskAssigneeDto(
+          userId = it.toString(),
+          name = assigneeName.orEmpty(),
+          avatarColorHex = assigneeAvatarColorHex
+        )
+      },
       createdAt = createdAt.toKotlinInstant()
     )
 }
