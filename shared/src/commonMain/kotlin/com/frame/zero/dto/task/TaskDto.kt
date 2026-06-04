@@ -36,8 +36,17 @@ data class TaskDetailDto(
   val description: String?,
   val dueDate: LocalDate?,
   val status: TaskStatus,
+  val priority: TaskPriority,
   val assigneeUserId: String?,
+  val assignee: TaskAssigneeDto?,
   val createdAt: Instant
+)
+
+@Serializable
+data class TaskAssigneeDto(
+  val userId: String,
+  val name: String,
+  val avatarColorHex: String?
 )
 
 @Serializable

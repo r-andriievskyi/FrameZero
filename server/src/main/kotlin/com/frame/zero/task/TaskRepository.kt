@@ -2,6 +2,7 @@ package com.frame.zero.task
 
 import com.frame.zero.common.decodeCursor
 import com.frame.zero.common.encodeCursor
+import com.frame.zero.auth.UsersTable
 import com.frame.zero.config.dbQuery
 import com.frame.zero.dto.task.TaskPriority
 import com.frame.zero.dto.task.TaskStatus
@@ -16,6 +17,7 @@ import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.core.isNotNull
 import org.jetbrains.exposed.v1.core.less
 import org.jetbrains.exposed.v1.core.lessEq
+import org.jetbrains.exposed.v1.core.JoinType
 import org.jetbrains.exposed.v1.core.or
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
@@ -35,6 +37,8 @@ data class TaskRecord(
   val status: TaskStatus,
   val priority: TaskPriority,
   val assigneeUserId: UUID?,
+  val assigneeName: String?,
+  val assigneeAvatarColorHex: String?,
   val createdAt: Instant
 )
 
@@ -120,13 +124,15 @@ class TaskRepositoryImpl : TaskRepository {
         status = TaskStatus.OPEN,
         priority = TaskPriority.MEDIUM,
         assigneeUserId = assigneeUserId,
+        assigneeName = null,
+        assigneeAvatarColorHex = null,
         createdAt = now
       )
     }
 
   override suspend fun findById(id: UUID): TaskRecord? =
     dbQuery {
-      (TasksTable innerJoin ProductionsTable)
+      tasksWithRelations
         .selectAll()
         .where { TasksTable.id eq id }
         .singleOrNull()
@@ -143,7 +149,7 @@ class TaskRepositoryImpl : TaskRepository {
   ): Pair<List<TaskRecord>, String?> =
     dbQuery {
       val rows =
-        (TasksTable innerJoin ProductionsTable)
+        tasksWithRelations
           .selectAll()
           .where {
             var cond = TasksTable.id.isNotNull()
@@ -184,7 +190,7 @@ class TaskRepositoryImpl : TaskRepository {
     limit: Int
   ): List<TaskRecord> =
     dbQuery {
-      (TasksTable innerJoin ProductionsTable)
+      tasksWithRelations
         .selectAll()
         .where {
           (TasksTable.assigneeUserId eq userId) and (TasksTable.status eq TaskStatus.OPEN.name)
@@ -206,7 +212,7 @@ class TaskRepositoryImpl : TaskRepository {
           .map { it[ProductionMembersTable.productionId] }
       if (memberProductionIds.isEmpty()) return@dbQuery emptyList()
 
-      (TasksTable innerJoin ProductionsTable)
+      tasksWithRelations
         .selectAll()
         .where {
           TasksTable.dueDate.isNotNull() and
@@ -247,7 +253,7 @@ class TaskRepositoryImpl : TaskRepository {
       if (updated == 0) {
         null
       } else {
-        (TasksTable innerJoin ProductionsTable)
+        tasksWithRelations
           .selectAll()
           .where { TasksTable.id eq id }
           .singleOrNull()
@@ -259,6 +265,11 @@ class TaskRepositoryImpl : TaskRepository {
     dbQuery {
       TasksTable.deleteWhere { TasksTable.id eq id } > 0
     }
+
+  // Tasks joined with their production (always present) and assignee user
+  // (optional, hence a left join so unassigned tasks still return).
+  private val tasksWithRelations
+    get() = (TasksTable innerJoin ProductionsTable).join(UsersTable, JoinType.LEFT, TasksTable.assigneeUserId, UsersTable.id)
 
   private fun ResultRow.toRecord(): TaskRecord =
     TaskRecord(
@@ -272,6 +283,10 @@ class TaskRepositoryImpl : TaskRepository {
       priority = runCatching { TaskPriority.valueOf(this[TasksTable.priority]) }
         .getOrDefault(TaskPriority.MEDIUM),
       assigneeUserId = this[TasksTable.assigneeUserId],
+      assigneeName = this.getOrNull(UsersTable.firstName)?.let {
+        "$it ${this.getOrNull(UsersTable.lastName).orEmpty()}".trim()
+      },
+      assigneeAvatarColorHex = this.getOrNull(UsersTable.avatarColorHex),
       createdAt = this[TasksTable.createdAt]
     )
 }

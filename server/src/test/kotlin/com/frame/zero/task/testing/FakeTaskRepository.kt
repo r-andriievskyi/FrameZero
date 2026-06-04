@@ -1,5 +1,6 @@
 package com.frame.zero.task.testing
 
+import com.frame.zero.dto.task.TaskPriority
 import com.frame.zero.dto.task.TaskStatus
 import com.frame.zero.task.TaskRecord
 import com.frame.zero.task.TaskRepository
@@ -26,7 +27,10 @@ internal class FakeTaskRepository : TaskRepository {
         description = description,
         dueDate = dueDate,
         status = TaskStatus.OPEN,
+        priority = TaskPriority.MEDIUM,
         assigneeUserId = assigneeUserId,
+        assigneeName = null,
+        assigneeAvatarColorHex = null,
         createdAt = Instant.now()
       )
     tasks += record

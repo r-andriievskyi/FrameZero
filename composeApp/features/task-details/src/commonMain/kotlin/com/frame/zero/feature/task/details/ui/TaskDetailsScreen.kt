@@ -14,24 +14,24 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.frame.zero.feature.task.details.TaskDetailsComponent
 import com.frame.zero.feature.task.details.TaskDetailsIntent
 import com.frame.zero.feature.task.details.TaskDetailsState
 import com.frame.zero.feature.task.details.TaskMember
 import com.frame.zero.feature.task.details.TaskPriority
 import com.frame.zero.feature.task.details.TaskStatus
-import com.frame.zero.feature.task.details.sampleTaskDetailsState
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.widgets.CtaButton
@@ -41,7 +41,9 @@ import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import framezero.composeapp.features.task_details.generated.resources.Res
 import framezero.composeapp.features.task_details.generated.resources.task_details_assignee
 import framezero.composeapp.features.task_details.generated.resources.task_details_due_date
+import framezero.composeapp.features.task_details.generated.resources.task_details_error
 import framezero.composeapp.features.task_details.generated.resources.task_details_mark_complete
+import framezero.composeapp.features.task_details.generated.resources.task_details_retry
 import framezero.composeapp.features.task_details.generated.resources.task_details_title
 import framezero.composeapp.features.task_details.generated.resources.task_details_today
 import org.jetbrains.compose.resources.stringResource
@@ -65,10 +67,11 @@ internal fun TaskDetailsContent(
   onIntent: (TaskDetailsIntent) -> Unit,
   modifier: Modifier = Modifier
 ) {
+  val colorSystem = AppTheme.colorSystem
   Box(
     modifier = modifier
       .fillMaxSize()
-      .background(AppTheme.colorSystem.background)
+      .background(colorSystem.background)
       .systemBarsPadding()
   ) {
     Column(modifier = Modifier.fillMaxSize()) {
@@ -77,61 +80,66 @@ internal fun TaskDetailsContent(
         onBack = onBack
       )
 
-      Column(
-        modifier = Modifier
-          .weight(1f)
-          .verticalScroll(rememberScrollState())
-          .padding(horizontal = AppTheme.spacingSystem.space16)
-      ) {
-        Row(
-          modifier = Modifier.fillMaxWidth(),
-          horizontalArrangement = Arrangement.SpaceBetween,
-          verticalAlignment = Alignment.CenterVertically
-        ) {
-          Text(
-            text = state.productionName,
-            style = AppTheme.typographySystem.bodyLarge,
-            color = AppTheme.colorSystem.textSecondary
-          )
-          PriorityBadge(priority = state.priority)
+      when {
+        state.isLoading -> CenteredProgress(modifier = Modifier.weight(1f))
+        state.isError -> CenteredError(
+          onRetry = { onIntent(TaskDetailsIntent.Refresh) },
+          modifier = Modifier.weight(1f)
+        )
+        else -> {
+          Column(
+            modifier = Modifier
+              .weight(1f)
+              .verticalScroll(rememberScrollState())
+              .padding(horizontal = AppTheme.spacingSystem.space16)
+          ) {
+            Row(
+              modifier = Modifier.fillMaxWidth(),
+              horizontalArrangement = Arrangement.SpaceBetween,
+              verticalAlignment = Alignment.CenterVertically
+            ) {
+              Text(
+                text = state.productionName,
+                style = AppTheme.typographySystem.bodyLarge,
+                color = colorSystem.textSecondary
+              )
+              PriorityBadge(priority = state.priority)
+            }
+            VerticalSpacer(AppTheme.spacingSystem.space8)
+
+            Text(
+              text = state.title,
+              style = AppTheme.typographySystem.displayMedium,
+              color = colorSystem.textPrimary
+            )
+            VerticalSpacer(AppTheme.spacingSystem.space16)
+
+            AssigneeDueRow(
+              assignee = state.assignee,
+              dueDate = state.dueDate,
+              isDueToday = state.isDueToday
+            )
+            VerticalSpacer(AppTheme.spacingSystem.space24)
+
+            if (state.description.isNotBlank()) {
+              Text(
+                text = state.description,
+                style = AppTheme.typographySystem.bodyLarge,
+                color = colorSystem.textSecondary
+              )
+            }
+          }
+
+          if (state.showMarkCompleteButton) {
+            CtaButton(
+              text = stringResource(Res.string.task_details_mark_complete),
+              modifier = Modifier
+                .fillMaxWidth()
+                .padding(AppTheme.spacingSystem.space16),
+              onClick = { onIntent(TaskDetailsIntent.MarkComplete) }
+            )
+          }
         }
-        VerticalSpacer(AppTheme.spacingSystem.space8)
-
-        // Title
-        Text(
-          text = state.title,
-          style = AppTheme.typographySystem.displayMedium,
-          color = AppTheme.colorSystem.textPrimary
-        )
-        VerticalSpacer(AppTheme.spacingSystem.space16)
-
-        // Assignee + Due row
-        AssigneeDueRow(
-          assignee = state.assignee,
-          dueDate = state.dueDate,
-          isDueToday = state.isDueToday
-        )
-        VerticalSpacer(AppTheme.spacingSystem.space24)
-
-        // Description
-        if (state.description.isNotBlank()) {
-          Text(
-            text = state.description,
-            style = AppTheme.typographySystem.bodyLarge,
-            color = AppTheme.colorSystem.textSecondary
-          )
-        }
-      }
-
-      // Bottom CTA
-      if (state.status != TaskStatus.COMPLETED) {
-        CtaButton(
-          text = stringResource(Res.string.task_details_mark_complete),
-          modifier = Modifier
-            .fillMaxWidth()
-            .padding(AppTheme.spacingSystem.space16),
-          onClick = { onIntent(TaskDetailsIntent.MarkComplete) }
-        )
       }
     }
   }
@@ -244,6 +252,41 @@ private fun AssigneeDueRow(
   }
 }
 
+@Composable
+private fun CenteredProgress(modifier: Modifier = Modifier) {
+  Box(
+    modifier = modifier.fillMaxSize(),
+    contentAlignment = Alignment.Center
+  ) {
+    CircularProgressIndicator(color = AppTheme.colorSystem.accent)
+  }
+}
+
+@Composable
+private fun CenteredError(
+  onRetry: () -> Unit,
+  modifier: Modifier = Modifier
+) {
+  Column(
+    modifier = modifier
+      .fillMaxSize()
+      .padding(AppTheme.spacingSystem.space16),
+    horizontalAlignment = Alignment.CenterHorizontally,
+    verticalArrangement = Arrangement.Center
+  ) {
+    Text(
+      text = stringResource(Res.string.task_details_error),
+      style = AppTheme.typographySystem.bodyLarge,
+      color = AppTheme.colorSystem.textSecondary
+    )
+    VerticalSpacer(AppTheme.spacingSystem.space16)
+    CtaButton(
+      text = stringResource(Res.string.task_details_retry),
+      onClick = onRetry
+    )
+  }
+}
+
 @Suppress("MagicNumber")
 private fun parseHexColor(hex: String): Color? {
   val cleaned = hex.removePrefix("#")
@@ -257,7 +300,24 @@ private fun parseHexColor(hex: String): Color? {
 private fun TaskDetailsContentPreview() {
   AppTheme {
     TaskDetailsContent(
-      state = sampleTaskDetailsState(),
+      state = TaskDetailsState(
+        taskId = "taskId",
+        title = "Review Scene 12 script revisions",
+        productionName = "Echoes of Silence",
+        priority = TaskPriority.HIGH,
+        status = TaskStatus.COMPLETED,
+        assignee = TaskMember(
+          initials = "MR",
+          name = "Maya Rivera",
+          avatarColorHex = "#0097A7"
+        ),
+        dueDate = "Apr 26, 2026",
+        isDueToday = true,
+        showMarkCompleteButton = true,
+        description = "Writer turned in revised pages for the confrontation in Scene 12. " +
+          "Review the new dialogue against the shooting schedule and flag any continuity " +
+          "issues with the Act II callbacks before the table read."
+      ),
       onBack = {},
       onIntent = {}
     )

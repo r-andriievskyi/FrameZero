@@ -17,11 +17,34 @@ command -v curl >/dev/null || error "curl not found"
 command -v jq   >/dev/null || error "jq not found"
 
 # ---------------------------------------------------------------------------
+# Date helpers — all dates are relative to today so seeds stay fresh on re-run
+# ---------------------------------------------------------------------------
+
+# date_add <N> — YYYY-MM-DD that is N days from today (negative = past)
+date_add() {
+  local n="$1"
+  if date -v +0d >/dev/null 2>&1; then
+    # macOS/BSD date
+    if (( n >= 0 )); then
+      date -v "+${n}d" +%Y-%m-%d
+    else
+      date -v "${n}d" +%Y-%m-%d
+    fi
+  else
+    # GNU date
+    date -d "$n days" +%Y-%m-%d
+  fi
+}
+
+# dt <N> <HH:MM:SS> — ISO-8601 datetime N days from today, UTC
+dt() { echo "$(date_add "$1")T${2}Z"; }
+
+# ---------------------------------------------------------------------------
 # Users
 # ---------------------------------------------------------------------------
 
 declare -a USERS=(
-  "alice.wright|Alice|Wright|Password1!"
+  "alice|Alice|Wright|Password1!"
   "bob.hayes|Bob|Hayes|Password1!"
   "carol.kim|Carol|Kim|Password1!"
   "david.osei|David|Osei|Password1!"
@@ -34,7 +57,7 @@ declare -a USER_IDS=()
 info "Registering 5 users..."
 for entry in "${USERS[@]}"; do
   IFS='|' read -r handle first last pass <<< "$entry"
-  email="${handle}@framezero.dev"
+  email="${handle}@fz.dev"
 
   response=$(curl -sf -X POST "$AUTH_URL/register" \
     -H "Content-Type: application/json" \
@@ -101,17 +124,20 @@ advance_phase() {
 
 PRODUCTION_IDS=()
 
+# Dates are relative to today. Offsets chosen so each production's phase makes
+# narrative sense: DISTRIBUTION/POST have past dates, PRODUCTION straddles now,
+# PRE_PRODUCTION/DEVELOPMENT reach further into the future.
 declare -a PRODUCTIONS=(
-  "Midnight Signal|THRILLER|DEVELOPMENT|A detective uncovers a city-wide conspiracy hidden in plain radio frequencies.|2026-07-01|2027-06-30|75000000"
-  "The Last Cartographer|DRAMA|PRE_PRODUCTION|An aging mapmaker embarks on one final expedition to chart uncharted territory.|2026-04-01|2027-01-31|40000000"
-  "Orbit 7|SCI_FI|PRODUCTION|Seven astronauts must improvise survival on a station with failing AI support.|2026-02-01|2026-12-15|120000000"
-  "Corner Store Blues|COMEDY|POST_PRODUCTION|A family-owned convenience store becomes the unlikely hub of neighbourhood drama.|2025-06-01|2026-03-31|18000000"
-  "The Quiet Epidemic|DOCUMENTARY|DISTRIBUTION|An investigative look at the rise of chronic loneliness in modern cities.|2024-03-01|2025-06-30|5000000"
-  "Hollow Earth|HORROR|DEVELOPMENT|A spelunking team discovers that the caves beneath their town are very much alive.|2026-09-01|2027-08-31|30000000"
-  "Velocity|ACTION|PRE_PRODUCTION|A former rally driver is pulled into a cross-continental heist with no off ramp.|2026-03-15|2027-02-28|95000000"
-  "Paper Crane|ANIMATION|PRODUCTION|A paper crane folded by a grieving child becomes sentient and searches for her.|2026-01-15|2026-11-30|55000000"
-  "Landslide|DRAMA|PRE_PRODUCTION|A small mining town fights for its future after a disaster exposes corporate negligence.|2026-04-15|2027-03-31|62000000"
-  "Neon Requiem|THRILLER|DEVELOPMENT|A jazz musician pieces together one catastrophic night from the memories of strangers.|2026-10-01|2027-09-30|48000000"
+  "Midnight Signal|THRILLER|DEVELOPMENT|A detective uncovers a city-wide conspiracy hidden in plain radio frequencies.|$(date_add 27)|$(date_add 391)|75000000"
+  "The Last Cartographer|DRAMA|PRE_PRODUCTION|An aging mapmaker embarks on one final expedition to chart uncharted territory.|$(date_add -64)|$(date_add 241)|40000000"
+  "Orbit 7|SCI_FI|PRODUCTION|Seven astronauts must improvise survival on a station with failing AI support.|$(date_add -123)|$(date_add 194)|120000000"
+  "Corner Store Blues|COMEDY|POST_PRODUCTION|A family-owned convenience store becomes the unlikely hub of neighbourhood drama.|$(date_add -368)|$(date_add -65)|18000000"
+  "The Quiet Epidemic|DOCUMENTARY|DISTRIBUTION|An investigative look at the rise of chronic loneliness in modern cities.|$(date_add -826)|$(date_add -339)|5000000"
+  "Hollow Earth|HORROR|DEVELOPMENT|A spelunking team discovers that the caves beneath their town are very much alive.|$(date_add 89)|$(date_add 453)|30000000"
+  "Velocity|ACTION|PRE_PRODUCTION|A former rally driver is pulled into a cross-continental heist with no off ramp.|$(date_add -81)|$(date_add 269)|95000000"
+  "Paper Crane|ANIMATION|PRODUCTION|A paper crane folded by a grieving child becomes sentient and searches for her.|$(date_add -140)|$(date_add 179)|55000000"
+  "Landslide|DRAMA|PRE_PRODUCTION|A small mining town fights for its future after a disaster exposes corporate negligence.|$(date_add -50)|$(date_add 300)|62000000"
+  "Neon Requiem|THRILLER|DEVELOPMENT|A jazz musician pieces together one catastrophic night from the memories of strangers.|$(date_add 119)|$(date_add 483)|48000000"
 )
 
 for entry in "${PRODUCTIONS[@]}"; do
@@ -212,21 +238,21 @@ create_task() {
 }
 
 # productionId | title | description | dueDate | assigneeUserId
-# NOTE: the task due 2026-05-27 below intentionally lands on the same day as
-# the two events scheduled for 2026-05-27 (see EVENTS array) so the schedule
-# day-view has at least one day populated with both tasks and events.
+# NOTE: the first task (today-8) intentionally lands on the same day as the
+# two events at offset -8 (see EVENTS array) so the schedule day-view has at
+# least one day populated with both tasks and events.
 declare -a TASKS=(
-  "${PRODUCTION_IDS[0]}|Approve shooting script revision 4|Sign off on the radio-frequency reveal before tomorrow's location scout.|2026-05-27|${ALICE_ID}"
-  "${PRODUCTION_IDS[0]}|Lock shooting script revision 4|Final pass on the radio-frequency reveal in act two before table read.|2026-05-25|${ALICE_ID}"
-  "${PRODUCTION_IDS[0]}|Scout downtown rooftop locations|Need three viable rooftops with clear sightlines to the broadcast tower.|2026-06-10|${BOB_ID}"
-  "${PRODUCTION_IDS[0]}|Build day-out-of-days schedule|Initial pass for stripboard, expecting 42 shooting days.|2026-06-01|${CAROL_ID}"
-  "${PRODUCTION_IDS[0]}|Confirm composer availability|Reach out to shortlist of three composers for development meetings.|2026-07-15|${ALICE_ID}"
-  "${PRODUCTION_IDS[1]}|Finalize cartographer character bible|Backstory, voice references, and expedition timeline.|2026-05-18|${ALICE_ID}"
-  "${PRODUCTION_IDS[1]}|Source period-accurate cartography props|Brass instruments, parchment maps, leather satchels.|2026-06-20|${DAVID_ID}"
-  "${PRODUCTION_IDS[1]}|Costume mood board for expedition crew|Layered wool, weather-beaten textures, era 1880-1900.|2026-06-05|${EVA_ID}"
-  "${PRODUCTION_IDS[2]}|Review VFX vendor bids for station exteriors|Three bids in; need cost vs quality breakdown.|2026-05-30|${ALICE_ID}"
-  "${PRODUCTION_IDS[5]}|Greenlight pitch deck for studio|Slides 1-12 done; need budget summary and comp titles.|2026-06-12|${ALICE_ID}"
-  "${PRODUCTION_IDS[9]}|Option soundtrack jazz standards|List of 8 tracks, request quotes from rights holders.|2026-07-01|${BOB_ID}"
+  "${PRODUCTION_IDS[0]}|Approve shooting script revision 4|Sign off on the radio-frequency reveal before tomorrow's location scout.|$(date_add -8)|${ALICE_ID}"
+  "${PRODUCTION_IDS[0]}|Lock shooting script revision 4|Final pass on the radio-frequency reveal in act two before table read.|$(date_add -10)|${ALICE_ID}"
+  "${PRODUCTION_IDS[0]}|Scout downtown rooftop locations|Need three viable rooftops with clear sightlines to the broadcast tower.|$(date_add 6)|${BOB_ID}"
+  "${PRODUCTION_IDS[0]}|Build day-out-of-days schedule|Initial pass for stripboard, expecting 42 shooting days.|$(date_add -3)|${CAROL_ID}"
+  "${PRODUCTION_IDS[0]}|Confirm composer availability|Reach out to shortlist of three composers for development meetings.|$(date_add 41)|${ALICE_ID}"
+  "${PRODUCTION_IDS[1]}|Finalize cartographer character bible|Backstory, voice references, and expedition timeline.|$(date_add -17)|${ALICE_ID}"
+  "${PRODUCTION_IDS[1]}|Source period-accurate cartography props|Brass instruments, parchment maps, leather satchels.|$(date_add 16)|${DAVID_ID}"
+  "${PRODUCTION_IDS[1]}|Costume mood board for expedition crew|Layered wool, weather-beaten textures, era 1880-1900.|$(date_add 1)|${EVA_ID}"
+  "${PRODUCTION_IDS[2]}|Review VFX vendor bids for station exteriors|Three bids in; need cost vs quality breakdown.|$(date_add -5)|${ALICE_ID}"
+  "${PRODUCTION_IDS[5]}|Greenlight pitch deck for studio|Slides 1-12 done; need budget summary and comp titles.|$(date_add 8)|${ALICE_ID}"
+  "${PRODUCTION_IDS[9]}|Option soundtrack jazz standards|List of 8 tracks, request quotes from rights holders.|$(date_add 27)|${BOB_ID}"
 )
 
 for entry in "${TASKS[@]}"; do
@@ -264,21 +290,22 @@ create_event() {
 }
 
 # productionId | title | location | startsAt | endsAt | kind
+# Day offsets from today: -8 -7 -6 -3 -2 -1 0(today) +1 +4 +6
 declare -a EVENTS=(
-  "${PRODUCTION_IDS[0]}|Writers' room: act two beats|Studio C, Hollywood|2026-05-27T16:00:00Z|2026-05-27T18:00:00Z|MEETING"
-  "${PRODUCTION_IDS[2]}|VFX vendor review|Conference Room A|2026-05-27T21:00:00Z|2026-05-27T22:30:00Z|REVIEW"
-  "${PRODUCTION_IDS[0]}|Location scout: downtown rooftops|Downtown LA|2026-05-28T15:00:00Z|2026-05-28T19:00:00Z|SHOOT"
-  "${PRODUCTION_IDS[1]}|Production design walkthrough|Stage 4|2026-05-28T17:00:00Z|2026-05-28T18:30:00Z|REVIEW"
-  "${PRODUCTION_IDS[2]}|Station exterior plate shoot|Backlot Soundstage 2|2026-05-29T14:00:00Z|2026-05-29T23:00:00Z|SHOOT"
-  "${PRODUCTION_IDS[1]}|Costume fitting: expedition crew|Wardrobe Dept|2026-05-29T18:00:00Z|2026-05-29T20:00:00Z|MEETING"
-  "${PRODUCTION_IDS[0]}|Table read with cast|Studio B|2026-06-01T17:00:00Z|2026-06-01T20:00:00Z|MEETING"
-  "${PRODUCTION_IDS[6]}|Stunt choreography rehearsal|Lot 12 Driveway|2026-06-02T15:00:00Z|2026-06-02T19:00:00Z|SHOOT"
-  "${PRODUCTION_IDS[7]}|Animatic review: act one|Animation Suite|2026-06-03T16:00:00Z|2026-06-03T18:00:00Z|REVIEW"
-  "${PRODUCTION_IDS[9]}|Jazz standards listening session|Music Room|2026-06-03T20:00:00Z|2026-06-03T21:30:00Z|MEETING"
-  "${PRODUCTION_IDS[5]}|Greenlight pitch dry-run|Boardroom|2026-06-04T16:00:00Z|2026-06-04T17:30:00Z|REVIEW"
-  "${PRODUCTION_IDS[2]}|Crew call: airlock sequence|Stage 7|2026-06-05T13:00:00Z|2026-06-05T23:00:00Z|SHOOT"
-  "${PRODUCTION_IDS[1]}|Expedition location recce|Sierra Nevada Foothills|2026-06-08T15:00:00Z|2026-06-08T22:00:00Z|OTHER"
-  "${PRODUCTION_IDS[0]}|Composer shortlist call|Zoom|2026-06-10T18:00:00Z|2026-06-10T19:00:00Z|MEETING"
+  "${PRODUCTION_IDS[0]}|Writers' room: act two beats|Studio C, Hollywood|$(dt -8 16:00:00)|$(dt -8 18:00:00)|MEETING"
+  "${PRODUCTION_IDS[2]}|VFX vendor review|Conference Room A|$(dt -8 21:00:00)|$(dt -8 22:30:00)|REVIEW"
+  "${PRODUCTION_IDS[0]}|Location scout: downtown rooftops|Downtown LA|$(dt -7 15:00:00)|$(dt -7 19:00:00)|SHOOT"
+  "${PRODUCTION_IDS[1]}|Production design walkthrough|Stage 4|$(dt -7 17:00:00)|$(dt -7 18:30:00)|REVIEW"
+  "${PRODUCTION_IDS[2]}|Station exterior plate shoot|Backlot Soundstage 2|$(dt -6 14:00:00)|$(dt -6 23:00:00)|SHOOT"
+  "${PRODUCTION_IDS[1]}|Costume fitting: expedition crew|Wardrobe Dept|$(dt -6 18:00:00)|$(dt -6 20:00:00)|MEETING"
+  "${PRODUCTION_IDS[0]}|Table read with cast|Studio B|$(dt -3 17:00:00)|$(dt -3 20:00:00)|MEETING"
+  "${PRODUCTION_IDS[6]}|Stunt choreography rehearsal|Lot 12 Driveway|$(dt -2 15:00:00)|$(dt -2 19:00:00)|SHOOT"
+  "${PRODUCTION_IDS[7]}|Animatic review: act one|Animation Suite|$(dt -1 16:00:00)|$(dt -1 18:00:00)|REVIEW"
+  "${PRODUCTION_IDS[9]}|Jazz standards listening session|Music Room|$(dt -1 20:00:00)|$(dt -1 21:30:00)|MEETING"
+  "${PRODUCTION_IDS[5]}|Greenlight pitch dry-run|Boardroom|$(dt 0 16:00:00)|$(dt 0 17:30:00)|REVIEW"
+  "${PRODUCTION_IDS[2]}|Crew call: airlock sequence|Stage 7|$(dt 1 13:00:00)|$(dt 1 23:00:00)|SHOOT"
+  "${PRODUCTION_IDS[1]}|Expedition location recce|Sierra Nevada Foothills|$(dt 4 15:00:00)|$(dt 4 22:00:00)|OTHER"
+  "${PRODUCTION_IDS[0]}|Composer shortlist call|Zoom|$(dt 6 18:00:00)|$(dt 6 19:00:00)|MEETING"
 )
 
 for entry in "${EVENTS[@]}"; do
