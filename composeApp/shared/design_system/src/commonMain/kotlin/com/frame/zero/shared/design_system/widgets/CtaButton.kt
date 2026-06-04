@@ -3,9 +3,15 @@ package com.frame.zero.shared.design_system.widgets
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -18,11 +24,13 @@ import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.modifier.clickableWithRipple
 
 private val MinHeight = 48.dp
+private val LoadingIndicatorSize = 36.dp
 
 @Composable
 fun CtaButton(
   text: String,
   modifier: Modifier = Modifier,
+  loading: Boolean = false,
   onClick: () -> Unit
 ) {
   val colorSystem = AppTheme.colorSystem
@@ -32,6 +40,7 @@ fun CtaButton(
     contentColor = colorSystem.textOnAccent,
     rippleColor = colorSystem.accentDim,
     border = null,
+    loading = loading,
     modifier = modifier,
     onClick = onClick
   )
@@ -44,6 +53,7 @@ fun OutlinedCtaButton(
   rippleColor: Color,
   modifier: Modifier = Modifier,
   borderColor: Color = contentColor,
+  loading: Boolean = false,
   onClick: () -> Unit
 ) {
   CtaButtonInternal(
@@ -52,18 +62,21 @@ fun OutlinedCtaButton(
     contentColor = contentColor,
     rippleColor = rippleColor,
     border = BorderStroke(AppTheme.borderSystem.hairline, borderColor),
+    loading = loading,
     modifier = modifier,
     onClick = onClick
   )
 }
 
 @Composable
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 private fun CtaButtonInternal(
   text: String,
   backgroundColor: Color,
   contentColor: Color,
   rippleColor: Color,
   border: BorderStroke?,
+  loading: Boolean,
   modifier: Modifier,
   onClick: () -> Unit
 ) {
@@ -77,6 +90,7 @@ private fun CtaButtonInternal(
       .then(if (border != null) Modifier.border(border, shape) else Modifier)
       .clickableWithRipple(
         color = rippleColor,
+        enabled = !loading,
         onClick = onClick
       ).padding(
         horizontal = spacingSystem.space8,
@@ -84,11 +98,18 @@ private fun CtaButtonInternal(
       ),
     contentAlignment = Alignment.Center
   ) {
-    Text(
-      text = text,
-      style = AppTheme.typographySystem.labelLarge,
-      color = contentColor
-    )
+    if (loading) {
+      LoadingIndicator(
+        modifier = Modifier.size(LoadingIndicatorSize),
+        color = contentColor
+      )
+    } else {
+      Text(
+        text = text,
+        style = AppTheme.typographySystem.labelLarge,
+        color = contentColor
+      )
+    }
   }
 }
 
@@ -96,22 +117,36 @@ private fun CtaButtonInternal(
 @Composable
 private fun CtaButtonPreview() {
   AppTheme {
-    CtaButton(
-      text = "Continue",
-      onClick = {}
-    )
-  }
-}
-
-@LightDarkPreview
-@Composable
-private fun OutlinedCtaButtonPreview() {
-  AppTheme {
-    OutlinedCtaButton(
-      text = "Sign out",
-      contentColor = AppTheme.colorSystem.errorText,
-      rippleColor = AppTheme.colorSystem.errorSurface,
-      onClick = {}
-    )
+    Column(
+      modifier = Modifier.padding(AppTheme.spacingSystem.space16),
+      verticalArrangement = Arrangement.spacedBy(AppTheme.spacingSystem.space12)
+    ) {
+      CtaButton(
+        modifier = Modifier.fillMaxWidth(),
+        text = "Continue",
+        onClick = {}
+      )
+      CtaButton(
+        modifier = Modifier.fillMaxWidth(),
+        text = "Loading…",
+        loading = true,
+        onClick = {}
+      )
+      OutlinedCtaButton(
+        modifier = Modifier.fillMaxWidth(),
+        text = "Sign out",
+        contentColor = AppTheme.colorSystem.errorText,
+        rippleColor = AppTheme.colorSystem.errorSurface,
+        onClick = {}
+      )
+      OutlinedCtaButton(
+        modifier = Modifier.fillMaxWidth(),
+        text = "Loading…",
+        contentColor = AppTheme.colorSystem.errorText,
+        rippleColor = AppTheme.colorSystem.errorSurface,
+        loading = true,
+        onClick = {}
+      )
+    }
   }
 }
