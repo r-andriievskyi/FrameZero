@@ -93,6 +93,7 @@ private fun RegisterContent(
     VerticalSpacer(spacingSystem.space24)
     CtaButton(
       text = stringResource(Res.string.btn_create_account),
+      loading = state.isLoading,
       onClick = { onIntent(RegisterIntent.Submit) },
       modifier = Modifier.fillMaxWidth()
     )

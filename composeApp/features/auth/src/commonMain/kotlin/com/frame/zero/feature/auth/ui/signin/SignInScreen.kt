@@ -89,6 +89,7 @@ private fun SignInContent(
     VerticalSpacer(spacingSystem.space24)
     CtaButton(
       text = stringResource(Res.string.btn_sign_in),
+      loading = state.isLoading,
       onClick = { onIntent(SignInIntent.Submit) },
       modifier = Modifier.fillMaxWidth()
     )
