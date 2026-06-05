@@ -2,6 +2,8 @@ package com.frame.zero.feature.home.tab.dashboard
 
 import com.arkivanov.essenty.instancekeeper.InstanceKeeper
 import com.frame.zero.domain.Outcome
+import com.frame.zero.domain.dashboard.Dashboard
+import com.frame.zero.domain.dashboard.DashboardStats
 import com.frame.zero.domain.dashboard.DashboardTask
 import com.frame.zero.feature.home.usecase.GetDashboardUseCase
 import com.frame.zero.feature.home.usecase.GetMeUseCase
@@ -69,7 +71,7 @@ class DashboardTabViewModel(
             DashboardTabState(
               isLoading = false,
               dashboard = dashResult.data
-                .toUi { task -> resolveUrgency(task, today) }
+                .toUi(today)
                 .copy(displayName = userName)
             )
           }
@@ -89,6 +91,40 @@ class DashboardTabViewModel(
       dueDate == today -> DueUrgency.Today
       dueDate == today.plus(1, DateTimeUnit.DAY) -> DueUrgency.Tomorrow
       else -> DueUrgency.Normal
+    }
+  }
+
+  private fun Dashboard.toUi(today: LocalDate): DashboardUi =
+    DashboardUi(
+      displayName = displayName,
+      stats = stats.toUi(),
+      myTasks = myTasks.map { it.toUi(resolveUrgency(it, today)) }
+    )
+
+  private fun DashboardStats.toUi(): DashboardStatsUi =
+    DashboardStatsUi(activeProjects = activeProjects, openTasks = openTasks)
+
+  private fun DashboardTask.toUi(dueUrgency: DueUrgency): DashboardTaskUi =
+    DashboardTaskUi(
+      id = id,
+      title = title,
+      productionTitle = productionTitle,
+      dueLabel = formatDueLabel(dueDate, dueUrgency),
+      dueUrgency = dueUrgency
+    )
+
+  private fun formatDueLabel(
+    dueDate: LocalDate?,
+    urgency: DueUrgency
+  ): String? {
+    val date = dueDate ?: return null
+    return when (urgency) {
+      DueUrgency.Today -> "Today"
+      DueUrgency.Tomorrow -> "Tomorrow"
+      DueUrgency.Overdue, DueUrgency.Normal -> {
+        val month = date.month.name.take(3).lowercase().replaceFirstChar { it.uppercase() }
+        "$month ${date.day}"
+      }
     }
   }
 

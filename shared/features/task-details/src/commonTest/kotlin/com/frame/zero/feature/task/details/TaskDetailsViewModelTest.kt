@@ -12,9 +12,11 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.LocalDate
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
@@ -56,6 +58,35 @@ class TaskDetailsViewModelTest {
       assertEquals("Maya Rivera", state.assignee?.name)
       assertTrue(state.showMarkCompleteButton)
       assertEquals(listOf("t1"), repo.getCalls)
+    }
+
+  @Test
+  fun `formats due date as abbreviated month day year and not due today`() =
+    runTest {
+      val repo = FakeTasksRepository(task = openTask.copy(dueDate = LocalDate(2026, 4, 6)))
+      val viewModel = makeViewModel(this, repo)
+
+      advanceUntilIdle()
+
+      val state = viewModel.state.value
+      assertEquals("Apr 6, 2026", state.dueDate)
+      assertFalse(state.isDueToday)
+    }
+
+  @Test
+  fun `null due date and assignee map to null, blank description maps to empty string`() =
+    runTest {
+      val repo = FakeTasksRepository(
+        task = openTask.copy(dueDate = null, assignee = null, description = null)
+      )
+      val viewModel = makeViewModel(this, repo)
+
+      advanceUntilIdle()
+
+      val state = viewModel.state.value
+      assertNull(state.dueDate)
+      assertNull(state.assignee)
+      assertEquals("", state.description)
     }
 
   @Test

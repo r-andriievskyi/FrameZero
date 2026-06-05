@@ -19,6 +19,7 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.LocalDate
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -62,6 +63,31 @@ class DashboardTabViewModelTest {
       assertEquals("Storyboard", dashboard.myTasks.single().title)
       assertEquals(1, userRepo.getMeCalls)
       assertEquals(1, dashboardRepo.getDashboardCalls)
+    }
+
+  @Test
+  fun `formats a past due date as an overdue abbreviated month-day label`() =
+    runTest {
+      val pastDue = dashboardResponse.copy(
+        myTasks = listOf(
+          TaskSummaryDto(
+            id = "t1",
+            title = "Storyboard",
+            productionTitle = "Pilot",
+            dueDate = LocalDate(2020, 1, 15),
+            status = TaskStatus.OPEN
+          )
+        )
+      )
+      val userRepo = FakeUserRepository(userDto = userDto)
+      val dashboardRepo = FakeDashboardRepository(response = pastDue)
+      val viewModel = makeViewModel(this, userRepo, dashboardRepo)
+
+      advanceUntilIdle()
+
+      val task = assertNotNull(viewModel.state.value.dashboard).myTasks.single()
+      assertEquals("Jan 15", task.dueLabel)
+      assertEquals(DueUrgency.Overdue, task.dueUrgency)
     }
 
   @Test
