@@ -10,7 +10,12 @@ import com.frame.zero.feature.auth.domain.RegisterUseCase
 import com.frame.zero.feature.auth.testing.FakeAuthRepository
 import com.frame.zero.feature.auth.testing.NoopSessionAuthOperations
 import com.frame.zero.repository.auth.AuthRepository
+import com.frame.zero.ui.asUiText
 import com.russhwolf.settings.MapSettings
+import framezero.shared.features.auth.generated.resources.Res
+import framezero.shared.features.auth.generated.resources.error_email_exists
+import framezero.shared.features.auth.generated.resources.error_empty_credentials
+import framezero.shared.features.auth.generated.resources.error_network
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
@@ -69,7 +74,7 @@ class RegisterViewModelTest {
       vm.onIntent(RegisterIntent.Submit)
       advanceUntilIdle()
 
-      assertEquals("Email and password must not be empty", vm.state.value.error)
+      assertEquals(Res.string.error_empty_credentials.asUiText(), vm.state.value.error)
       assertEquals(0, repo.registerCalls.size)
     }
 
@@ -101,7 +106,7 @@ class RegisterViewModelTest {
       vm.onIntent(RegisterIntent.Submit)
       advanceUntilIdle()
 
-      assertEquals("An account with this email already exists", vm.state.value.error)
+      assertEquals(Res.string.error_email_exists.asUiText(), vm.state.value.error)
     }
 
   @Test
@@ -115,7 +120,7 @@ class RegisterViewModelTest {
       vm.onIntent(RegisterIntent.Submit)
       advanceUntilIdle()
 
-      assertEquals("Network error: offline", vm.state.value.errorToast)
+      assertEquals(Res.string.error_network.asUiText("offline"), vm.state.value.errorToast)
       assertNull(vm.state.value.error)
     }
 
@@ -129,7 +134,7 @@ class RegisterViewModelTest {
       vm.onIntent(RegisterIntent.PasswordChanged("p"))
       vm.onIntent(RegisterIntent.Submit)
       advanceUntilIdle()
-      assertEquals("Network error: offline", vm.state.value.errorToast)
+      assertEquals(Res.string.error_network.asUiText("offline"), vm.state.value.errorToast)
 
       vm.onIntent(RegisterIntent.ToastDismissed)
 

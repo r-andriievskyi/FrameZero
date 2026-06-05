@@ -66,7 +66,7 @@ class DashboardTabViewModelTest {
     }
 
   @Test
-  fun `formats a past due date as an overdue abbreviated month-day label`() =
+  fun `exposes a past due date with overdue urgency`() =
     runTest {
       val pastDue = dashboardResponse.copy(
         myTasks = listOf(
@@ -86,7 +86,7 @@ class DashboardTabViewModelTest {
       advanceUntilIdle()
 
       val task = assertNotNull(viewModel.state.value.dashboard).myTasks.single()
-      assertEquals("Jan 15", task.dueLabel)
+      assertEquals(LocalDate(2020, 1, 15), task.dueDate)
       assertEquals(DueUrgency.Overdue, task.dueUrgency)
     }
 

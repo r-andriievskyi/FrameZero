@@ -1,15 +1,23 @@
 package com.frame.zero.feature.auth
 
 import com.frame.zero.domain.DomainError
+import com.frame.zero.ui.UiText
+import com.frame.zero.ui.asUiText
+import framezero.shared.features.auth.generated.resources.Res
+import framezero.shared.features.auth.generated.resources.error_email_exists
+import framezero.shared.features.auth.generated.resources.error_empty_credentials
+import framezero.shared.features.auth.generated.resources.error_invalid_credentials
+import framezero.shared.features.auth.generated.resources.error_network
+import framezero.shared.features.auth.generated.resources.error_unknown_fallback
 
-internal const val EMPTY_CREDENTIALS_MESSAGE = "Email and password must not be empty"
+internal fun emptyCredentialsError(): UiText = Res.string.error_empty_credentials.asUiText()
 
-internal fun DomainError.toUserMessage(): String =
+internal fun DomainError.toUiText(): UiText =
   when (this) {
-    DomainError.InvalidCredentials -> "Invalid email or password"
-    DomainError.EmailAlreadyExists -> "An account with this email already exists"
-    is DomainError.Network -> "Network error: $message"
-    is DomainError.Unknown -> message ?: "Something went wrong"
+    DomainError.InvalidCredentials -> Res.string.error_invalid_credentials.asUiText()
+    DomainError.EmailAlreadyExists -> Res.string.error_email_exists.asUiText()
+    is DomainError.Network -> Res.string.error_network.asUiText(message)
+    is DomainError.Unknown -> message?.let(UiText::Dynamic) ?: Res.string.error_unknown_fallback.asUiText()
   }
 
 /**
