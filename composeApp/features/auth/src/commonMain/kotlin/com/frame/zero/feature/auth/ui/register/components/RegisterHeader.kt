@@ -42,4 +42,3 @@ internal fun RegisterHeader(modifier: Modifier = Modifier) {
 private fun RegisterHeaderPreview() {
   AppTheme { RegisterHeader() }
 }
-

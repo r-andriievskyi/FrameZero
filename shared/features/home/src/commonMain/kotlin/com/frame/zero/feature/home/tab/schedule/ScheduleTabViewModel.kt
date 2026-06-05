@@ -80,7 +80,10 @@ class ScheduleTabViewModel(
     }
   }
 
-  private fun load(view: ScheduleView, date: LocalDate) {
+  private fun load(
+    view: ScheduleView,
+    date: LocalDate
+  ) {
     loadJob?.cancel()
     loadJob = scope.launch {
       _state.update { it.copy(isLoading = true, error = null) }
@@ -110,37 +113,42 @@ class ScheduleTabViewModel(
   }
 
   @OptIn(ExperimentalTime::class)
-  private fun today(): LocalDate = Clock.System.now()
-    .toLocalDateTime(TimeZone.currentSystemDefault())
-    .date
+  private fun today(): LocalDate =
+    Clock.System.now()
+      .toLocalDateTime(TimeZone.currentSystemDefault())
+      .date
 
   private fun Schedule?.eventsFor(date: LocalDate): List<ScheduleEventUiModel> =
     this?.days?.find { it.date == date }?.events?.map { it.toUiModel() }.orEmpty()
 
-  private fun Schedule?.tasksFor(date: LocalDate, today: LocalDate): List<ScheduleTaskUiModel> =
-    this?.days?.find { it.date == date }?.tasks?.map { it.toUiModel(today) }.orEmpty()
+  private fun Schedule?.tasksFor(
+    date: LocalDate,
+    today: LocalDate
+  ): List<ScheduleTaskUiModel> = this?.days?.find { it.date == date }?.tasks?.map { it.toUiModel(today) }.orEmpty()
 
-  private fun ScheduleEvent.toUiModel() = ScheduleEventUiModel(
-    id = id,
-    title = title,
-    productionTitle = productionTitle,
-    location = location,
-    eventKind = kind,
-    timeRangeLabel = "${startsAt.formatTime()} – ${endsAt.formatTime()}"
-  )
+  private fun ScheduleEvent.toUiModel() =
+    ScheduleEventUiModel(
+      id = id,
+      title = title,
+      productionTitle = productionTitle,
+      location = location,
+      eventKind = kind,
+      timeRangeLabel = "${startsAt.formatTime()} – ${endsAt.formatTime()}"
+    )
 
-  private fun ScheduleTask.toUiModel(today: LocalDate) = ScheduleTaskUiModel(
-    id = id,
-    title = title,
-    productionTitle = productionTitle,
-    priority = priority,
-    dueLabel = if (dueDate == today) {
-      DueLabel.Today
-    } else {
-      val monthStr = dueDate.month.name.take(3).lowercase().replaceFirstChar { it.uppercase() }
-      DueLabel.OtherDate("$monthStr ${dueDate.day}")
-    }
-  )
+  private fun ScheduleTask.toUiModel(today: LocalDate) =
+    ScheduleTaskUiModel(
+      id = id,
+      title = title,
+      productionTitle = productionTitle,
+      priority = priority,
+      dueLabel = if (dueDate == today) {
+        DueLabel.Today
+      } else {
+        val monthStr = dueDate.month.name.take(3).lowercase().replaceFirstChar { it.uppercase() }
+        DueLabel.OtherDate("$monthStr ${dueDate.day}")
+      }
+    )
 
   private fun Instant.formatTime(): String {
     val local = toLocalDateTime(TimeZone.currentSystemDefault())

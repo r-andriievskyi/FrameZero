@@ -49,7 +49,10 @@ fun DashboardTask.toUi(dueUrgency: DueUrgency): DashboardTaskUi =
     dueUrgency = dueUrgency
   )
 
-private fun formatDueLabel(dueDate: LocalDate?, urgency: DueUrgency): String? {
+private fun formatDueLabel(
+  dueDate: LocalDate?,
+  urgency: DueUrgency
+): String? {
   val date = dueDate ?: return null
   return when (urgency) {
     DueUrgency.Today -> "Today"
@@ -60,4 +63,3 @@ private fun formatDueLabel(dueDate: LocalDate?, urgency: DueUrgency): String? {
     }
   }
 }
-

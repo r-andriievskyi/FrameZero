@@ -1,0 +1,73 @@
+package com.frame.zero.feature.production.domain
+
+import com.frame.zero.domain.DomainError
+import com.frame.zero.domain.Outcome
+import com.frame.zero.domain.production.Genre
+import com.frame.zero.domain.production.Production
+import com.frame.zero.dto.production.CreateCrewMemberDto
+import com.frame.zero.feature.production.testing.FakeProductionsRepository
+import com.frame.zero.feature.production.testing.productionDetailDto
+import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.LocalDate
+import kotlinx.io.IOException
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertIs
+
+class CreateProductionUseCaseTest {
+  private fun params(
+    title: String = "Pilot",
+    logline: String? = "A story",
+    crew: List<CreateCrewMemberDto> = emptyList()
+  ): CreateProductionUseCase.Params =
+    CreateProductionUseCase.Params(
+      title = title,
+      genre = Genre.DRAMA,
+      logline = logline,
+      startDate = LocalDate(2026, 4, 1),
+      wrapDate = LocalDate(2026, 5, 1),
+      budgetCents = 123_456,
+      crew = crew
+    )
+
+  @Test
+  fun `success builds request from params and returns domain production`() =
+    runTest {
+      val repo = FakeProductionsRepository(detail = productionDetailDto(id = "p9", title = "Pilot"))
+      val crew = listOf(CreateCrewMemberDto(name = "Ada", role = "Director"))
+
+      val outcome = CreateProductionUseCase(repo)(params(crew = crew))
+
+      val success = assertIs<Outcome.Success<Production>>(outcome)
+      assertEquals("p9", success.data.id)
+      val request = repo.createRequests.single()
+      assertEquals("Pilot", request.title)
+      assertEquals(Genre.DRAMA, request.genre)
+      assertEquals("A story", request.logline)
+      assertEquals(LocalDate(2026, 4, 1), request.startDate)
+      assertEquals(LocalDate(2026, 5, 1), request.wrapDate)
+      assertEquals(123_456, request.budgetCents)
+      assertEquals(crew, request.crew)
+    }
+
+  @Test
+  fun `blank logline becomes null in request`() =
+    runTest {
+      val repo = FakeProductionsRepository()
+
+      CreateProductionUseCase(repo)(params(logline = "   "))
+
+      assertEquals(null, repo.createRequests.single().logline)
+    }
+
+  @Test
+  fun `IOException maps to Network failure`() =
+    runTest {
+      val repo = FakeProductionsRepository(createThrows = IOException("offline"))
+
+      val outcome = CreateProductionUseCase(repo)(params())
+
+      val failure = assertIs<Outcome.Failure>(outcome)
+      assertEquals(DomainError.Network("offline"), failure.error)
+    }
+}

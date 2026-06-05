@@ -194,7 +194,7 @@ private fun Step2ContentEmptyCrewPreview() {
 @LightDarkPreview
 @Composable
 private fun Step2ContentWithCrewPreview() {
-  AppTheme{
+  AppTheme {
     Step2Content(
       state = CreateProductionState(
         crewMembers = listOf(

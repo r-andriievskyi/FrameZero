@@ -51,7 +51,10 @@ import org.jetbrains.compose.resources.stringResource
 private val AvatarSize = 36.dp
 
 @Composable
-fun TaskDetailsScreen(component: TaskDetailsComponent, modifier: Modifier = Modifier) {
+fun TaskDetailsScreen(
+  component: TaskDetailsComponent,
+  modifier: Modifier = Modifier
+) {
   val state by component.state.collectAsStateWithLifecycle()
   TaskDetailsContent(
     state = state,

@@ -26,4 +26,3 @@ private fun ErrorTextPreview() {
     ErrorText(error = "Title cannot be empty")
   }
 }
-

@@ -31,7 +31,10 @@ import framezero.composeapp.features.auth.generated.resources.btn_sign_in
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-fun SignInScreen(component: SignInComponent, modifier: Modifier = Modifier) {
+fun SignInScreen(
+  component: SignInComponent,
+  modifier: Modifier = Modifier
+) {
   val state by component.state.collectAsStateWithLifecycle()
   Box(modifier = modifier.fillMaxSize()) {
     SignInContent(

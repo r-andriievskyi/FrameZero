@@ -32,7 +32,10 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-internal fun StatsRow(stats: DashboardStatsUi, modifier: Modifier = Modifier) {
+internal fun StatsRow(
+  stats: DashboardStatsUi,
+  modifier: Modifier = Modifier
+) {
   Row(
     modifier = modifier.fillMaxWidth(),
     horizontalArrangement = Arrangement.spacedBy(AppTheme.spacingSystem.space8)

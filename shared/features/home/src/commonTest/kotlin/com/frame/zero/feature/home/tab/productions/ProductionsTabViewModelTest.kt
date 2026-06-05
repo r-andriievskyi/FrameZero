@@ -44,8 +44,9 @@ class ProductionsTabViewModelTest {
   private fun makeViewModel(
     scope: TestScope,
     repository: FakeProductionsRepository = FakeProductionsRepository()
-  ): ProductionsTabViewModel = ProductionsTabViewModel(
-    productionsRepository = repository,
-    dispatcher = StandardTestDispatcher(scope.testScheduler)
-  )
+  ): ProductionsTabViewModel =
+    ProductionsTabViewModel(
+      productionsRepository = repository,
+      dispatcher = StandardTestDispatcher(scope.testScheduler)
+    )
 }
