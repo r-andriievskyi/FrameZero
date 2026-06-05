@@ -5,7 +5,10 @@ import com.frame.zero.dto.task.TaskPriority
 
 sealed interface DueLabel {
   data object Today : DueLabel
-  data class OtherDate(val formatted: String) : DueLabel
+
+  data class OtherDate(
+    val formatted: String
+  ) : DueLabel
 }
 
 data class ScheduleEventUiModel(
@@ -24,4 +27,3 @@ data class ScheduleTaskUiModel(
   val priority: TaskPriority,
   val dueLabel: DueLabel
 )
-

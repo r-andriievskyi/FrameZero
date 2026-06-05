@@ -26,4 +26,3 @@ private fun FieldLabelPreview() {
     FieldLabel(text = "Production Title")
   }
 }
-

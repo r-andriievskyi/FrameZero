@@ -51,4 +51,3 @@ internal fun SignInFooter(
 private fun SignInFooterPreview() {
   AppTheme { SignInFooter(isLoading = false, onCreateAccountClick = {}) }
 }
-

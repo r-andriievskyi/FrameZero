@@ -269,7 +269,12 @@ class TaskRepositoryImpl : TaskRepository {
   // Tasks joined with their production (always present) and assignee user
   // (optional, hence a left join so unassigned tasks still return).
   private val tasksWithRelations
-    get() = (TasksTable innerJoin ProductionsTable).join(UsersTable, JoinType.LEFT, TasksTable.assigneeUserId, UsersTable.id)
+    get() = (TasksTable innerJoin ProductionsTable).join(
+      UsersTable,
+      JoinType.LEFT,
+      TasksTable.assigneeUserId,
+      UsersTable.id
+    )
 
   private fun ResultRow.toRecord(): TaskRecord =
     TaskRecord(

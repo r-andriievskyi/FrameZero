@@ -56,7 +56,10 @@ internal fun DateInputField(
         painter = painterResource(Res.drawable.ic_calendar_days),
         colorFilter = AppTheme.colorSystem.textMuted.asColorFilter(),
         contentDescription = null,
-        modifier = Modifier.clickableWithRipple(color = AppTheme.colorSystem.accentDim, enabled = enabled) { showPicker = true }
+        modifier = Modifier.clickableWithRipple(color = AppTheme.colorSystem.accentDim, enabled = enabled) {
+          showPicker =
+            true
+        }
       )
     }
   )
@@ -99,4 +102,3 @@ private fun DateInputFieldPreview() {
     )
   }
 }
-

@@ -41,4 +41,3 @@ internal fun AuthLogoHeader(modifier: Modifier = Modifier) {
 private fun AuthLogoHeaderPreview() {
   AppTheme { AuthLogoHeader() }
 }
-

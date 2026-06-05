@@ -128,4 +128,3 @@ private fun RoleDropdownPreview() {
     RoleDropdown(selected = "Director", onSelect = {})
   }
 }
-

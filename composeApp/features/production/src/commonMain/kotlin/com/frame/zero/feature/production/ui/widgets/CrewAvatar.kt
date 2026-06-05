@@ -52,4 +52,3 @@ private fun CrewAvatarPreview() {
     CrewAvatar(member = CrewMemberEntry(name = "Jane Smith", role = "Director"))
   }
 }
-

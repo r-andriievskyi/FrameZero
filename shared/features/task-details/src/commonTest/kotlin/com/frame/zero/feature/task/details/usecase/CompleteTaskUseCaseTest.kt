@@ -1,0 +1,54 @@
+package com.frame.zero.feature.task.details.usecase
+
+import com.frame.zero.domain.DomainError
+import com.frame.zero.domain.Outcome
+import com.frame.zero.dto.task.TaskDetailDto
+import com.frame.zero.dto.task.TaskPriority
+import com.frame.zero.dto.task.TaskStatus
+import com.frame.zero.feature.task.details.testing.FakeTasksRepository
+import kotlinx.coroutines.test.runTest
+import kotlinx.io.IOException
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertIs
+import kotlin.time.Instant
+
+class CompleteTaskUseCaseTest {
+  private val openTask = TaskDetailDto(
+    id = "t1",
+    productionId = "p1",
+    productionTitle = "Pilot",
+    title = "Storyboard",
+    description = null,
+    dueDate = null,
+    status = TaskStatus.OPEN,
+    priority = TaskPriority.MEDIUM,
+    assigneeUserId = null,
+    assignee = null,
+    createdAt = Instant.fromEpochMilliseconds(0)
+  )
+  private val doneTask = openTask.copy(status = TaskStatus.DONE)
+
+  @Test
+  fun `success returns completed task and forwards id`() =
+    runTest {
+      val repo = FakeTasksRepository(task = openTask, completedTask = doneTask)
+
+      val outcome = CompleteTaskUseCase(repo)("t1")
+
+      val success = assertIs<Outcome.Success<TaskDetailDto>>(outcome)
+      assertEquals(TaskStatus.DONE, success.data.status)
+      assertEquals(listOf("t1"), repo.completeCalls)
+    }
+
+  @Test
+  fun `IOException maps to Network failure`() =
+    runTest {
+      val repo = FakeTasksRepository(task = openTask, completeThrows = IOException("offline"))
+
+      val outcome = CompleteTaskUseCase(repo)("t1")
+
+      val failure = assertIs<Outcome.Failure>(outcome)
+      assertEquals(DomainError.Network("offline"), failure.error)
+    }
+}

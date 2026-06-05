@@ -209,5 +209,12 @@ class DashboardTabContentTest {
     productionTitle: String = "Echoes of Silence",
     dueLabel: String? = "Today",
     dueUrgency: DueUrgency = DueUrgency.Today
-  ): DashboardTaskUi = DashboardTaskUi(id = id, title = title, productionTitle = productionTitle, dueLabel = dueLabel, dueUrgency = dueUrgency)
+  ): DashboardTaskUi =
+    DashboardTaskUi(
+      id = id,
+      title = title,
+      productionTitle = productionTitle,
+      dueLabel = dueLabel,
+      dueUrgency = dueUrgency
+    )
 }

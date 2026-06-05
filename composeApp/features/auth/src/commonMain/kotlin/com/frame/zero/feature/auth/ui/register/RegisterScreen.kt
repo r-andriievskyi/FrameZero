@@ -33,7 +33,10 @@ import framezero.composeapp.features.auth.generated.resources.btn_create_account
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-fun RegisterScreen(component: RegisterComponent, modifier: Modifier = Modifier) {
+fun RegisterScreen(
+  component: RegisterComponent,
+  modifier: Modifier = Modifier
+) {
   val state by component.state.collectAsStateWithLifecycle()
   Box(modifier = modifier.fillMaxSize()) {
     RegisterContent(

@@ -158,12 +158,11 @@ class ScheduleTabViewModelTest {
       assertEquals(callsBeforeDestroy, repo.calls.size)
     }
 
-  private fun makeViewModel(
-    repository: ScheduleRepository
-  ): ScheduleTabViewModel = ScheduleTabViewModel(
-    getScheduleUseCase = GetScheduleUseCase(repository),
-    dispatcher = testDispatcher
-  )
+  private fun makeViewModel(repository: ScheduleRepository): ScheduleTabViewModel =
+    ScheduleTabViewModel(
+      getScheduleUseCase = GetScheduleUseCase(repository),
+      dispatcher = testDispatcher
+    )
 
   private class GatedScheduleRepository(
     private val gate: CompletableDeferred<ScheduleResponse>

@@ -79,7 +79,10 @@ class DashboardTabViewModel(
     }
   }
 
-  private fun resolveUrgency(task: DashboardTask, today: LocalDate): DueUrgency {
+  private fun resolveUrgency(
+    task: DashboardTask,
+    today: LocalDate
+  ): DueUrgency {
     val dueDate = task.dueDate ?: return DueUrgency.Normal
     return when {
       dueDate < today -> DueUrgency.Overdue

@@ -47,7 +47,6 @@ internal fun SettingsSection(
 private fun SettingsSectionPreview() {
   AppTheme {
     SettingsSection(title = "ACCOUNT") {
-
     }
   }
 }
