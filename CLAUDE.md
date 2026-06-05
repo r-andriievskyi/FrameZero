@@ -97,6 +97,28 @@ Paginated lists use **Room (KMP) + Paging 3 `RemoteMediator`**.
   `LogoutSignal.emit()`). Tokens are cleared *after* cleaners run. Reference impl:
   `ProductionsSessionCleaner` → `ProductionsDao.clearAll()`.
 
+### Self-registering plugins
+
+Cross-cutting concerns are built as **self-registering plugins** so a backend can be
+added or removed in one DI line, and so the pattern is reusable as a blueprint in other
+projects. Each concern has three parts:
+
+1. **Sink contract** — an interface implementations provide (`SessionCleaner`, `LogSink`,
+   `AnalyticsSink`).
+2. **Facade** — a `single` service the app injects and calls (`Logger`, `Analytics`; for
+   cleanup the consumer is `SessionManager`). Its impl receives `getAll<Sink>()` and
+   **fans out to every registered sink, each under its own `runCatching`** so one bad sink
+   can't break the others.
+3. **Registration** — `single { SomeSink(...) } bind XSink::class` in the concern's Koin
+   module. **To add a new backend (a real log destination, Crashlytics, Firebase, …),
+   implement the sink interface and add one `bind` line — nothing else changes.**
+
+Instances: `SessionCleaner` (`shared/.../core/session/`), `LogSink` →
+`Logger`/`loggingModule` (`shared/.../core/logging/`), `AnalyticsSink` →
+`Analytics`/`analyticsModule` (`shared/.../core/analytics/`). Logging and analytics
+currently ship `NoOp*` sinks only — the scaffolding is wired end to end; real sinks and
+call-site consumption are a deliberate later step.
+
 ### Module placement
 
 - Cross-cutting domain/network/storage → `shared/`.
