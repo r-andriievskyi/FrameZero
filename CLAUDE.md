@@ -253,6 +253,11 @@ Rules:
 - **Wire format excludes UI hints:** DTOs carry only semantic fields (`phase`,
   `status`, enums) — no `*Color`, `*Hint`, badge labels, or cosmetic fields. Derive
   client-side in mappers (e.g. `ProductionPhase.toAccentColorHint()`).
+- **Presentation logic lives in the ViewModel:** date/time/number formatting,
+  label/initials/display-string building, and choosing display text belong in the
+  ViewModel (as `private` members), never in `*Ui.kt`/`*Mapper.kt`. Mapper extensions
+  (`toUi`, `toState`) may only do structural field/enum mapping. The ViewModel owns
+  the domain/DTO→UI-model mapping — see `ScheduleTabViewModel` for the reference shape.
 - **DI:** each feature exposes `val <name>Module = module { ... }`, registered in
   `composeApp/.../di/AppModule.kt`. ViewModels `factory`, repositories `single`.
   Don't reference Koin from `composeApp/commonMain` constructors — inject component

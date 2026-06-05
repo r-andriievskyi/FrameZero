@@ -2,6 +2,7 @@ package com.frame.zero.feature.task.details
 
 import com.arkivanov.essenty.instancekeeper.InstanceKeeper
 import com.frame.zero.domain.Outcome
+import com.frame.zero.dto.task.TaskDetailDto
 import com.frame.zero.feature.task.details.usecase.CompleteTaskUseCase
 import com.frame.zero.feature.task.details.usecase.GetTaskDetailsUseCase
 import kotlinx.coroutines.CoroutineScope
@@ -17,11 +18,14 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
+import com.frame.zero.dto.task.TaskPriority as DtoTaskPriority
+import com.frame.zero.dto.task.TaskStatus as DtoTaskStatus
 
 class TaskDetailsViewModel(
   private val taskId: String,
@@ -67,7 +71,7 @@ class TaskDetailsViewModel(
 
   private fun markComplete() {
     scope.launch {
-      when (val result = completeTaskUseCase(taskId)) {
+      when (completeTaskUseCase(taskId)) {
         is Outcome.Success -> _state.update {
           it.copy(status = TaskStatus.COMPLETED, showMarkCompleteButton = false)
         }
@@ -76,7 +80,71 @@ class TaskDetailsViewModel(
     }
   }
 
+  private fun TaskDetailDto.toTaskDetailsState(today: LocalDate): TaskDetailsState {
+    val mappedStatus = status.toFeatureStatus()
+    return TaskDetailsState(
+      taskId = id,
+      title = title,
+      productionName = productionTitle,
+      priority = priority.toFeaturePriority(),
+      status = mappedStatus,
+      assignee = assignee?.let { member ->
+        TaskMember(
+          initials = initialsFrom(member.name),
+          name = member.name,
+          avatarColorHex = member.avatarColorHex
+        )
+      },
+      dueDate = dueDate?.let { formatDueDate(it) },
+      isDueToday = dueDate == today,
+      description = description.orEmpty(),
+      isLoading = false,
+      isError = false,
+      showMarkCompleteButton = mappedStatus != TaskStatus.COMPLETED
+    )
+  }
+
+  private fun DtoTaskStatus.toFeatureStatus(): TaskStatus =
+    when (this) {
+      DtoTaskStatus.OPEN -> TaskStatus.IN_PROGRESS
+      DtoTaskStatus.DONE -> TaskStatus.COMPLETED
+    }
+
+  private fun DtoTaskPriority.toFeaturePriority(): TaskPriority =
+    when (this) {
+      DtoTaskPriority.HIGH -> TaskPriority.HIGH
+      DtoTaskPriority.MEDIUM -> TaskPriority.MEDIUM
+      DtoTaskPriority.LOW -> TaskPriority.LOW
+    }
+
+  private fun formatDueDate(date: LocalDate): String =
+    "${MonthAbbreviations[date.month.ordinal]} ${date.day}, ${date.year}"
+
+  private fun initialsFrom(name: String): String =
+    name.trim().split(" ")
+      .filter { it.isNotBlank() }
+      .take(2)
+      .map { it.first().uppercaseChar() }
+      .joinToString("")
+
   override fun onDestroy() {
     scope.cancel()
+  }
+
+  private companion object {
+    private val MonthAbbreviations = arrayOf(
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec"
+    )
   }
 }
