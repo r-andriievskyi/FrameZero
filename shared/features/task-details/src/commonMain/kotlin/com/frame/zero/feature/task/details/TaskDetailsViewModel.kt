@@ -95,7 +95,7 @@ class TaskDetailsViewModel(
           avatarColorHex = member.avatarColorHex
         )
       },
-      dueDate = dueDate?.let { formatDueDate(it) },
+      dueDate = dueDate,
       isDueToday = dueDate == today,
       description = description.orEmpty(),
       isLoading = false,
@@ -117,9 +117,6 @@ class TaskDetailsViewModel(
       DtoTaskPriority.LOW -> TaskPriority.LOW
     }
 
-  private fun formatDueDate(date: LocalDate): String =
-    "${MonthAbbreviations[date.month.ordinal]} ${date.day}, ${date.year}"
-
   private fun initialsFrom(name: String): String =
     name.trim().split(" ")
       .filter { it.isNotBlank() }
@@ -129,22 +126,5 @@ class TaskDetailsViewModel(
 
   override fun onDestroy() {
     scope.cancel()
-  }
-
-  private companion object {
-    private val MonthAbbreviations = arrayOf(
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec"
-    )
   }
 }

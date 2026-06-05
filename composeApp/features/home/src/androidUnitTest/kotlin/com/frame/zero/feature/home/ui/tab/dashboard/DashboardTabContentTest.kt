@@ -15,6 +15,7 @@ import com.frame.zero.feature.home.ui.tab.dashboard.DashboardTestTags.STAT_ACTIV
 import com.frame.zero.feature.home.ui.tab.dashboard.DashboardTestTags.STAT_OPEN_TASKS
 import com.frame.zero.feature.home.ui.tab.dashboard.DashboardTestTags.taskRow
 import com.frame.zero.shared.design_system.AppTheme
+import kotlinx.datetime.LocalDate
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -35,8 +36,7 @@ class DashboardTabContentTest {
               task(
                 id = "1",
                 title = "Review Scene 12 script revisions",
-                productionTitle = "Echoes of Silence",
-                dueLabel = "Today"
+                productionTitle = "Echoes of Silence"
               )
             )
           ),
@@ -146,7 +146,11 @@ class DashboardTabContentTest {
     composeRule.setContent {
       AppTheme {
         DashboardContent(
-          dashboard = dashboard(myTasks = listOf(task(id = "1", dueLabel = "Apr 28"))),
+          dashboard = dashboard(
+            myTasks = listOf(
+              task(id = "1", dueDate = LocalDate(2026, 4, 28), dueUrgency = DueUrgency.Normal)
+            )
+          ),
           onTaskClick = {}
         )
       }
@@ -162,7 +166,7 @@ class DashboardTabContentTest {
         DashboardContent(
           dashboard = dashboard(
             myTasks = listOf(
-              task(id = "1", title = "Task without due date", productionTitle = "Project X", dueLabel = null)
+              task(id = "1", title = "Task without due date", productionTitle = "Project X", dueDate = null)
             )
           ),
           onTaskClick = {}
@@ -207,14 +211,14 @@ class DashboardTabContentTest {
     id: String = "1",
     title: String = "Review Scene 12 script revisions",
     productionTitle: String = "Echoes of Silence",
-    dueLabel: String? = "Today",
+    dueDate: LocalDate? = LocalDate(2026, 4, 27),
     dueUrgency: DueUrgency = DueUrgency.Today
   ): DashboardTaskUi =
     DashboardTaskUi(
       id = id,
       title = title,
       productionTitle = productionTitle,
-      dueLabel = dueLabel,
+      dueDate = dueDate,
       dueUrgency = dueUrgency
     )
 }
