@@ -32,6 +32,7 @@ import io.ktor.server.plugins.callid.callIdMdc
 import io.ktor.server.plugins.calllogging.CallLogging
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.cors.routing.CORS
+import io.ktor.server.plugins.origin
 import io.ktor.server.plugins.ratelimit.RateLimit
 import io.ktor.server.plugins.ratelimit.RateLimitName
 import io.ktor.server.plugins.statuspages.StatusPages
@@ -103,6 +104,10 @@ fun Application.module(config: AppConfig) {
   install(RateLimit) {
     register(AUTH_RATE_LIMIT_NAME) {
       rateLimiter(limit = AUTH_RATE_LIMIT, refillPeriod = 1.minutes)
+      // Key the limit per client so one caller can't exhaust the bucket for
+      // everyone (the default key is global). Behind a proxy, install
+      // XForwardedHeaders so origin.remoteHost reflects the real client IP.
+      requestKey { call -> call.request.origin.remoteHost }
     }
   }
 
