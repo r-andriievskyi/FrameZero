@@ -24,6 +24,7 @@ import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import framezero.composeapp.features.home.generated.resources.Res
 import framezero.composeapp.features.home.generated.resources.greeting_good_morning
+import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -78,21 +79,21 @@ private fun DashboardContentPreview() {
             id = "1",
             title = "Review Scene 12 script revisions",
             productionTitle = "Echoes of Silence",
-            dueLabel = "Today",
+            dueDate = LocalDate(2026, 4, 27),
             dueUrgency = DueUrgency.Today
           ),
           DashboardTaskUi(
             id = "2",
             title = "Confirm exterior shooting locations",
             productionTitle = "Neon Wolves",
-            dueLabel = "Tomorrow",
+            dueDate = LocalDate(2026, 4, 28),
             dueUrgency = DueUrgency.Tomorrow
           ),
           DashboardTaskUi(
             id = "3",
             title = "Approve final color grade",
             productionTitle = "The Last Frame",
-            dueLabel = "Apr 28",
+            dueDate = LocalDate(2026, 4, 28),
             dueUrgency = DueUrgency.Normal
           )
         )

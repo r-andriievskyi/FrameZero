@@ -28,6 +28,7 @@ import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.widgets.CtaButton
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import com.frame.zero.shared.design_system.widgets.toast.ToastHost
+import com.frame.zero.ui.asString
 import framezero.composeapp.features.auth.generated.resources.Res
 import framezero.composeapp.features.auth.generated.resources.btn_create_account
 import org.jetbrains.compose.resources.stringResource
@@ -45,7 +46,7 @@ fun RegisterScreen(
       onSignInClick = component.onNavigateToSignIn
     )
     ToastHost(
-      message = state.errorToast,
+      message = state.errorToast?.asString(),
       onDismiss = { component.onIntent(RegisterIntent.ToastDismissed) }
     )
   }
@@ -103,7 +104,7 @@ private fun RegisterContent(
     state.error?.let { error ->
       VerticalSpacer(spacingSystem.space8)
       Text(
-        text = error,
+        text = error.asString(),
         color = AppTheme.colorSystem.errorText,
         style = AppTheme.typographySystem.bodySmall
       )

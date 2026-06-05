@@ -61,7 +61,7 @@ class TaskDetailsViewModelTest {
     }
 
   @Test
-  fun `formats due date as abbreviated month day year and not due today`() =
+  fun `exposes the raw due date and flags it as not due today`() =
     runTest {
       val repo = FakeTasksRepository(task = openTask.copy(dueDate = LocalDate(2026, 4, 6)))
       val viewModel = makeViewModel(this, repo)
@@ -69,7 +69,7 @@ class TaskDetailsViewModelTest {
       advanceUntilIdle()
 
       val state = viewModel.state.value
-      assertEquals("Apr 6, 2026", state.dueDate)
+      assertEquals(LocalDate(2026, 4, 6), state.dueDate)
       assertFalse(state.isDueToday)
     }
 

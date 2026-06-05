@@ -18,6 +18,7 @@ import androidx.compose.ui.platform.testTag
 import com.frame.zero.feature.home.tab.dashboard.DashboardTaskUi
 import com.frame.zero.feature.home.tab.dashboard.DueUrgency
 import com.frame.zero.feature.home.ui.tab.dashboard.DashboardTestTags
+import com.frame.zero.feature.home.ui.toShortDueLabel
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.modifier.clickableWithRipple
@@ -28,6 +29,9 @@ import framezero.composeapp.features.home.generated.resources.Res
 import framezero.composeapp.features.home.generated.resources.ic_chevron_right
 import framezero.composeapp.features.home.generated.resources.my_tasks_see_all
 import framezero.composeapp.features.home.generated.resources.my_tasks_title
+import framezero.composeapp.features.home.generated.resources.today
+import framezero.composeapp.features.home.generated.resources.tomorrow
+import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -97,13 +101,18 @@ private fun TaskCard(
           style = typographySystem.bodySmall,
           color = colorSystem.textMuted
         )
-        val dueLabel = task.dueLabel
-        if (dueLabel != null) {
+        val dueDate = task.dueDate
+        if (dueDate != null) {
           HorizontalSpacer(spacingSystem.space8)
           val dueLabelColor = when (task.dueUrgency) {
             DueUrgency.Overdue, DueUrgency.Today -> colorSystem.errorText
             DueUrgency.Tomorrow -> colorSystem.warningText
             DueUrgency.Normal -> colorSystem.textMuted
+          }
+          val dueLabel = when (task.dueUrgency) {
+            DueUrgency.Today -> stringResource(Res.string.today)
+            DueUrgency.Tomorrow -> stringResource(Res.string.tomorrow)
+            DueUrgency.Overdue, DueUrgency.Normal -> dueDate.toShortDueLabel()
           }
           Text(text = dueLabel, style = typographySystem.bodySmall, color = dueLabelColor)
         }
@@ -133,21 +142,21 @@ private fun MyTasksSectionPreview() {
             id = "1",
             title = "Review Scene 12 script revisions",
             productionTitle = "Echoes of Silence",
-            dueLabel = "Today",
+            dueDate = LocalDate(2026, 4, 27),
             dueUrgency = DueUrgency.Today
           ),
           DashboardTaskUi(
             id = "2",
             title = "Confirm exterior shooting locations",
             productionTitle = "Neon Wolves",
-            dueLabel = "Tomorrow",
+            dueDate = LocalDate(2026, 4, 28),
             dueUrgency = DueUrgency.Tomorrow
           ),
           DashboardTaskUi(
             id = "3",
             title = "Approve final color grade",
             productionTitle = "The Last Frame",
-            dueLabel = "Apr 28",
+            dueDate = LocalDate(2026, 4, 28),
             dueUrgency = DueUrgency.Normal
           )
         )

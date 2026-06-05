@@ -1,5 +1,7 @@
 package com.frame.zero.feature.home.tab.dashboard
 
+import kotlinx.datetime.LocalDate
+
 data class DashboardUi(
   val displayName: String,
   val stats: DashboardStatsUi,
@@ -22,6 +24,6 @@ data class DashboardTaskUi(
   val id: String,
   val title: String,
   val productionTitle: String,
-  val dueLabel: String?,
+  val dueDate: LocalDate?,
   val dueUrgency: DueUrgency
 )

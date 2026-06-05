@@ -145,8 +145,7 @@ class ScheduleTabViewModel(
       dueLabel = if (dueDate == today) {
         DueLabel.Today
       } else {
-        val monthStr = dueDate.month.name.take(3).lowercase().replaceFirstChar { it.uppercase() }
-        DueLabel.OtherDate("$monthStr ${dueDate.day}")
+        DueLabel.OtherDate(dueDate)
       }
     )
 

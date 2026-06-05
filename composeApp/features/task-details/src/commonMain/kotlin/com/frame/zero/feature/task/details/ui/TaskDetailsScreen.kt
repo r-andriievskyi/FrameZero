@@ -46,6 +46,7 @@ import framezero.composeapp.features.task_details.generated.resources.task_detai
 import framezero.composeapp.features.task_details.generated.resources.task_details_retry
 import framezero.composeapp.features.task_details.generated.resources.task_details_title
 import framezero.composeapp.features.task_details.generated.resources.task_details_today
+import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.stringResource
 
 private val AvatarSize = 36.dp
@@ -185,7 +186,7 @@ private fun PriorityBadge(
 @Composable
 private fun AssigneeDueRow(
   assignee: TaskMember?,
-  dueDate: String?,
+  dueDate: LocalDate?,
   isDueToday: Boolean,
   modifier: Modifier = Modifier
 ) {
@@ -237,7 +238,7 @@ private fun AssigneeDueRow(
         color = AppTheme.colorSystem.textMuted
       )
       VerticalSpacer(AppTheme.spacingSystem.space8)
-      dueDate?.let {
+      dueDate?.let { date ->
         if (isDueToday) {
           Text(
             text = stringResource(Res.string.task_details_today),
@@ -246,7 +247,7 @@ private fun AssigneeDueRow(
           )
         } else {
           Text(
-            text = it,
+            text = date.toMediumDateLabel(),
             style = AppTheme.typographySystem.titleSmall,
             color = AppTheme.colorSystem.textPrimary
           )
@@ -315,7 +316,7 @@ private fun TaskDetailsContentPreview() {
           name = "Maya Rivera",
           avatarColorHex = "#0097A7"
         ),
-        dueDate = "Apr 26, 2026",
+        dueDate = LocalDate(2026, 4, 26),
         isDueToday = true,
         showMarkCompleteButton = true,
         description = "Writer turned in revised pages for the confrontation in Scene 12. " +

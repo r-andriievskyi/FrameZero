@@ -1,5 +1,7 @@
 package com.frame.zero.feature.task.details
 
+import kotlinx.datetime.LocalDate
+
 data class TaskDetailsState(
   val taskId: String = "",
   val title: String = "",
@@ -7,7 +9,7 @@ data class TaskDetailsState(
   val priority: TaskPriority = TaskPriority.MEDIUM,
   val status: TaskStatus = TaskStatus.IN_PROGRESS,
   val assignee: TaskMember? = null,
-  val dueDate: String? = null,
+  val dueDate: LocalDate? = null,
   val isDueToday: Boolean = false,
   val description: String = "",
   val isLoading: Boolean = false,

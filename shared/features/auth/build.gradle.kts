@@ -1,4 +1,4 @@
-plugins { id("crossplatform.kmp.library") }
+plugins { id("crossplatform.kmp.library.compose") }
 
 base { archivesName = "feature-auth" }
 
@@ -6,6 +6,7 @@ kotlin {
   sourceSets {
     commonMain.dependencies {
       api(projects.shared)
+      api(projects.shared.uiText)
       api(projects.shared.repositories.auth)
       api(projects.shared.repositories.user)
       api(libs.decompose)
@@ -13,6 +14,7 @@ kotlin {
       implementation(libs.kotlinx.coroutines.core)
       implementation(libs.ktor.clientContentNegotiation)
       implementation(libs.ktor.clientSerializationJson)
+      implementation(libs.compose.components.resources)
     }
     commonTest.dependencies {
       implementation(libs.kotlin.test)

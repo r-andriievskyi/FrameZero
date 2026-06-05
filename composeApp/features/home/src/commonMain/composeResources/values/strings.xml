@@ -45,6 +45,7 @@
   <string name="schedule_view_week">Week</string>
   <string name="schedule_view_month">Month</string>
   <string name="today">Today</string>
+  <string name="tomorrow">Tomorrow</string>
   <string name="schedule_events_header">EVENTS</string>
   <string name="schedule_tasks_due_header">TASKS DUE</string>
   <string name="schedule_due_today">Due Today</string>

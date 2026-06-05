@@ -2,10 +2,10 @@ package com.frame.zero.feature.auth.signin
 
 import com.arkivanov.essenty.instancekeeper.InstanceKeeper
 import com.frame.zero.domain.Outcome
-import com.frame.zero.feature.auth.EMPTY_CREDENTIALS_MESSAGE
 import com.frame.zero.feature.auth.domain.LoginUseCase
+import com.frame.zero.feature.auth.emptyCredentialsError
 import com.frame.zero.feature.auth.isNetworkOrServerError
-import com.frame.zero.feature.auth.toUserMessage
+import com.frame.zero.feature.auth.toUiText
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -40,7 +40,7 @@ class SignInViewModel(
     val current = _state.value
     if (current.isLoading) return
     if (current.email.isBlank() || current.password.isBlank()) {
-      _state.update { it.copy(error = EMPTY_CREDENTIALS_MESSAGE) }
+      _state.update { it.copy(error = emptyCredentialsError()) }
       return
     }
     scope.launch {
@@ -51,7 +51,7 @@ class SignInViewModel(
       ) {
         is Outcome.Success -> _state.update { it.copy(isLoading = false) }
         is Outcome.Failure -> {
-          val message = outcome.error.toUserMessage()
+          val message = outcome.error.toUiText()
           if (outcome.error.isNetworkOrServerError) {
             _state.update { it.copy(isLoading = false, errorToast = message) }
           } else {

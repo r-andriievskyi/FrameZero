@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <!-- Auth error messages (SignInViewModel / RegisterViewModel) -->
+  <string name="error_empty_credentials">Email and password must not be empty</string>
+  <string name="error_invalid_credentials">Invalid email or password</string>
+  <string name="error_email_exists">An account with this email already exists</string>
+  <string name="error_network">Network error: %1$s</string>
+  <string name="error_unknown_fallback">Something went wrong</string>
+</resources>

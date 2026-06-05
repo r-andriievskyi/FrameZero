@@ -11,7 +11,13 @@ import com.frame.zero.feature.auth.domain.LoginUseCase
 import com.frame.zero.feature.auth.testing.FakeAuthRepository
 import com.frame.zero.feature.auth.testing.NoopSessionAuthOperations
 import com.frame.zero.repository.auth.AuthRepository
+import com.frame.zero.ui.asUiText
 import com.russhwolf.settings.MapSettings
+import framezero.shared.features.auth.generated.resources.Res
+import framezero.shared.features.auth.generated.resources.error_empty_credentials
+import framezero.shared.features.auth.generated.resources.error_invalid_credentials
+import framezero.shared.features.auth.generated.resources.error_network
+import framezero.shared.features.auth.generated.resources.error_unknown_fallback
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -66,7 +72,7 @@ class SignInViewModelTest {
       vm.onIntent(SignInIntent.Submit)
       advanceUntilIdle()
 
-      assertEquals("Email and password must not be empty", vm.state.value.error)
+      assertEquals(Res.string.error_empty_credentials.asUiText(), vm.state.value.error)
       assertEquals(0, repo.loginCalls.size)
     }
 
@@ -80,7 +86,7 @@ class SignInViewModelTest {
       vm.onIntent(SignInIntent.Submit)
       advanceUntilIdle()
 
-      assertEquals("Email and password must not be empty", vm.state.value.error)
+      assertEquals(Res.string.error_empty_credentials.asUiText(), vm.state.value.error)
     }
 
   @Test
@@ -109,7 +115,7 @@ class SignInViewModelTest {
       vm.onIntent(SignInIntent.Submit)
       advanceUntilIdle()
 
-      assertEquals("Invalid email or password", vm.state.value.error)
+      assertEquals(Res.string.error_invalid_credentials.asUiText(), vm.state.value.error)
       assertFalse(vm.state.value.isLoading)
     }
 
@@ -124,7 +130,7 @@ class SignInViewModelTest {
       vm.onIntent(SignInIntent.Submit)
       advanceUntilIdle()
 
-      assertEquals("Network error: offline", vm.state.value.errorToast)
+      assertEquals(Res.string.error_network.asUiText("offline"), vm.state.value.errorToast)
       assertNull(vm.state.value.error)
     }
 
@@ -139,7 +145,7 @@ class SignInViewModelTest {
       vm.onIntent(SignInIntent.Submit)
       advanceUntilIdle()
 
-      assertEquals("Something went wrong", vm.state.value.errorToast)
+      assertEquals(Res.string.error_unknown_fallback.asUiText(), vm.state.value.errorToast)
       assertNull(vm.state.value.error)
     }
 
@@ -153,7 +159,7 @@ class SignInViewModelTest {
       vm.onIntent(SignInIntent.PasswordChanged("p"))
       vm.onIntent(SignInIntent.Submit)
       advanceUntilIdle()
-      assertEquals("Network error: offline", vm.state.value.errorToast)
+      assertEquals(Res.string.error_network.asUiText("offline"), vm.state.value.errorToast)
 
       vm.onIntent(SignInIntent.ToastDismissed)
 

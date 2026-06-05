@@ -15,6 +15,7 @@ import com.frame.zero.dto.task.TaskPriority
 import com.frame.zero.feature.home.tab.schedule.DueLabel
 import com.frame.zero.feature.home.tab.schedule.ScheduleEventUiModel
 import com.frame.zero.feature.home.tab.schedule.ScheduleTaskUiModel
+import com.frame.zero.feature.home.ui.toShortDueLabel
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.widgets.HorizontalSpacer
@@ -91,7 +92,7 @@ private fun TasksList(
         title = task.title,
         dueLabel = when (val label = task.dueLabel) {
           is DueLabel.Today -> stringResource(Res.string.schedule_due_today)
-          is DueLabel.OtherDate -> label.formatted
+          is DueLabel.OtherDate -> label.date.toShortDueLabel()
         },
         productionTitle = task.productionTitle,
         priority = task.priority

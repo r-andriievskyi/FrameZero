@@ -109,24 +109,9 @@ class DashboardTabViewModel(
       id = id,
       title = title,
       productionTitle = productionTitle,
-      dueLabel = formatDueLabel(dueDate, dueUrgency),
+      dueDate = dueDate,
       dueUrgency = dueUrgency
     )
-
-  private fun formatDueLabel(
-    dueDate: LocalDate?,
-    urgency: DueUrgency
-  ): String? {
-    val date = dueDate ?: return null
-    return when (urgency) {
-      DueUrgency.Today -> "Today"
-      DueUrgency.Tomorrow -> "Tomorrow"
-      DueUrgency.Overdue, DueUrgency.Normal -> {
-        val month = date.month.name.take(3).lowercase().replaceFirstChar { it.uppercase() }
-        "$month ${date.day}"
-      }
-    }
-  }
 
   override fun onDestroy() {
     scope.cancel()

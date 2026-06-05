@@ -9,6 +9,7 @@ kotlin {
       implementation(libs.compose.components.resources)
       implementation(libs.decompose.extensionsCompose)
       implementation(projects.composeApp.shared.designSystem)
+      implementation(projects.composeApp.shared.uiText)
     }
     commonTest.dependencies { implementation(libs.kotlin.test) }
   }
