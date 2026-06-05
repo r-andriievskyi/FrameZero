@@ -36,8 +36,7 @@ fun LocalDate.formatMedium(): String = mediumDateFormat.format(this)
 /**
  * Abbreviated month name, e.g. "Jun".
  */
-fun LocalDate.formatMonthShort(): String =
-  MonthNames.ENGLISH_ABBREVIATED.names[month.ordinal]
+fun LocalDate.formatMonthShort(): String = MonthNames.ENGLISH_ABBREVIATED.names[month.ordinal]
 
 /**
  * Abbreviated day-of-week name, e.g. "Mon".

@@ -1,5 +1,7 @@
 package com.frame.zero.di
 
+import com.frame.zero.core.analytics.analyticsModule
+import com.frame.zero.core.logging.loggingModule
 import com.frame.zero.core.network.networkModule
 import com.frame.zero.core.session.sessionModule
 import com.frame.zero.feature.account.featureAccountModule
@@ -14,6 +16,8 @@ import org.koin.core.context.startKoin
 import org.koin.core.module.Module
 
 val appModules = listOf(
+  loggingModule,
+  analyticsModule,
   networkModule,
   sessionModule,
   authModule,
