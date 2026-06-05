@@ -70,19 +70,6 @@
   <!-- Budget input -->
   <string name="budget_placeholder">500,000</string>
 
-  <!-- Month short names -->
-  <string name="month_january_short">Jan</string>
-  <string name="month_february_short">Feb</string>
-  <string name="month_march_short">Mar</string>
-  <string name="month_april_short">Apr</string>
-  <string name="month_may_short">May</string>
-  <string name="month_june_short">Jun</string>
-  <string name="month_july_short">Jul</string>
-  <string name="month_august_short">Aug</string>
-  <string name="month_september_short">Sep</string>
-  <string name="month_october_short">Oct</string>
-  <string name="month_november_short">Nov</string>
-  <string name="month_december_short">Dec</string>
 
   <!-- Crew roles -->
   <string name="crew_role_director">Director</string>

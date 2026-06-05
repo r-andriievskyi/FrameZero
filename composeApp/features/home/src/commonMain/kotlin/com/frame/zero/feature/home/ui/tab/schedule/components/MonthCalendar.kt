@@ -28,28 +28,10 @@ import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.generated.resources.ic_chevron_left
 import com.frame.zero.shared.design_system.generated.resources.ic_chevron_right
+import com.frame.zero.core.format.calendarDayLabels
+import com.frame.zero.core.format.fullName
 import com.frame.zero.shared.design_system.modifier.clickableWithRipple
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer
-import framezero.composeapp.features.home.generated.resources.Res
-import framezero.composeapp.features.home.generated.resources.cal_day_fri
-import framezero.composeapp.features.home.generated.resources.cal_day_mon
-import framezero.composeapp.features.home.generated.resources.cal_day_sat
-import framezero.composeapp.features.home.generated.resources.cal_day_sun
-import framezero.composeapp.features.home.generated.resources.cal_day_thu
-import framezero.composeapp.features.home.generated.resources.cal_day_tue
-import framezero.composeapp.features.home.generated.resources.cal_day_wed
-import framezero.composeapp.features.home.generated.resources.month_april
-import framezero.composeapp.features.home.generated.resources.month_august
-import framezero.composeapp.features.home.generated.resources.month_december
-import framezero.composeapp.features.home.generated.resources.month_february
-import framezero.composeapp.features.home.generated.resources.month_january
-import framezero.composeapp.features.home.generated.resources.month_july
-import framezero.composeapp.features.home.generated.resources.month_june
-import framezero.composeapp.features.home.generated.resources.month_march
-import framezero.composeapp.features.home.generated.resources.month_may
-import framezero.composeapp.features.home.generated.resources.month_november
-import framezero.composeapp.features.home.generated.resources.month_october
-import framezero.composeapp.features.home.generated.resources.month_september
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
@@ -57,7 +39,6 @@ import kotlinx.datetime.Month
 import kotlinx.datetime.plus
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
-import org.jetbrains.compose.resources.stringResource
 import com.frame.zero.shared.design_system.generated.resources.Res as DesignSystemRes
 
 private val EventDotSize = 6.dp
@@ -83,22 +64,7 @@ internal fun MonthCalendar(
       verticalAlignment = Alignment.CenterVertically
     ) {
       MonthNavButton(iconRes = DesignSystemRes.drawable.ic_chevron_left, onClick = onPreviousMonth)
-      val monthName = stringResource(
-        when (month) {
-          Month.JANUARY -> Res.string.month_january
-          Month.FEBRUARY -> Res.string.month_february
-          Month.MARCH -> Res.string.month_march
-          Month.APRIL -> Res.string.month_april
-          Month.MAY -> Res.string.month_may
-          Month.JUNE -> Res.string.month_june
-          Month.JULY -> Res.string.month_july
-          Month.AUGUST -> Res.string.month_august
-          Month.SEPTEMBER -> Res.string.month_september
-          Month.OCTOBER -> Res.string.month_october
-          Month.NOVEMBER -> Res.string.month_november
-          Month.DECEMBER -> Res.string.month_december
-        }
-      )
+      val monthName = month.fullName()
       Text(
         text = "$monthName $year",
         style = AppTheme.typographySystem.titleMedium,
@@ -110,15 +76,7 @@ internal fun MonthCalendar(
 
     VerticalSpacer(AppTheme.spacingSystem.space16)
 
-    val dayLabels = listOf(
-      stringResource(Res.string.cal_day_mon),
-      stringResource(Res.string.cal_day_tue),
-      stringResource(Res.string.cal_day_wed),
-      stringResource(Res.string.cal_day_thu),
-      stringResource(Res.string.cal_day_fri),
-      stringResource(Res.string.cal_day_sat),
-      stringResource(Res.string.cal_day_sun)
-    )
+    val dayLabels = calendarDayLabels
     Row(
       modifier = Modifier.fillMaxWidth(),
       horizontalArrangement = Arrangement.SpaceEvenly
