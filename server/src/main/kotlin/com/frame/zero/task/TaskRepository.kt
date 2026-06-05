@@ -1,13 +1,15 @@
 package com.frame.zero.task
 
+import com.frame.zero.auth.UsersTable
 import com.frame.zero.common.decodeCursor
 import com.frame.zero.common.encodeCursor
-import com.frame.zero.auth.UsersTable
 import com.frame.zero.config.dbQuery
 import com.frame.zero.dto.task.TaskPriority
 import com.frame.zero.dto.task.TaskStatus
 import com.frame.zero.production.ProductionMembersTable
 import com.frame.zero.production.ProductionsTable
+import org.jetbrains.exposed.v1.core.JoinType
+import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and
@@ -15,9 +17,9 @@ import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.greaterEq
 import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.core.isNotNull
+import org.jetbrains.exposed.v1.core.isNull
 import org.jetbrains.exposed.v1.core.less
 import org.jetbrains.exposed.v1.core.lessEq
-import org.jetbrains.exposed.v1.core.JoinType
 import org.jetbrains.exposed.v1.core.or
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
@@ -108,12 +110,11 @@ class TaskRepositoryImpl : TaskRepository {
         it[TasksTable.assigneeUserId] = assigneeUserId
         it[createdAt] = now
       }
-      val prodTitle =
-        ProductionsTable
-          .selectAll()
-          .where { ProductionsTable.id eq productionId }
-          .singleOrNull()
-          ?.get(ProductionsTable.title) ?: ""
+      val prodTitle = ProductionsTable
+        .selectAll()
+        .where { ProductionsTable.id eq productionId }
+        .singleOrNull()
+        ?.get(ProductionsTable.title) ?: ""
       TaskRecord(
         id = newId,
         productionId = productionId,
@@ -148,30 +149,34 @@ class TaskRepositoryImpl : TaskRepository {
     cursor: String?
   ): Pair<List<TaskRecord>, String?> =
     dbQuery {
-      val rows =
-        tasksWithRelations
-          .selectAll()
-          .where {
-            var cond = TasksTable.id.isNotNull()
-            if (assigneeMe) cond = cond and (TasksTable.assigneeUserId eq userId)
-            if (status != null) cond = cond and (TasksTable.status eq status.name)
-            if (productionId != null) cond = cond and (TasksTable.productionId eq productionId)
-            if (cursor != null) {
-              val pc = decodeCursor(cursor)
-              if (pc != null) {
-                val cursorTs = Instant.ofEpochMilli(pc.epochMillis)
-                cond =
-                  cond and
+      val accessibleProductionIds = accessibleProductionIds(userId)
+      if (accessibleProductionIds.isEmpty()) return@dbQuery Pair(emptyList(), null)
+
+      val rows = tasksWithRelations
+        .selectAll()
+        .where {
+          // Always scope to productions the caller owns or is a member of; the
+          // optional filters below only narrow within that set, never widen it.
+          var cond: Op<Boolean> = TasksTable.productionId inList accessibleProductionIds
+          if (assigneeMe) cond = cond and (TasksTable.assigneeUserId eq userId)
+          if (status != null) cond = cond and (TasksTable.status eq status.name)
+          if (productionId != null) cond = cond and (TasksTable.productionId eq productionId)
+          if (cursor != null) {
+            val pc = decodeCursor(cursor)
+            if (pc != null) {
+              val cursorTs = Instant.ofEpochMilli(pc.epochMillis)
+              cond =
+                cond and
                   (
                     (TasksTable.createdAt less cursorTs) or
                       ((TasksTable.createdAt eq cursorTs) and (TasksTable.id less pc.id))
-                  )
-              }
+                    )
             }
-            cond
-          }.orderBy(TasksTable.dueDate to SortOrder.ASC_NULLS_LAST, TasksTable.id to SortOrder.ASC)
-          .limit(limit + 1)
-          .map { it.toRecord() }
+          }
+          cond
+        }.orderBy(TasksTable.dueDate to SortOrder.ASC_NULLS_LAST, TasksTable.id to SortOrder.ASC)
+        .limit(limit + 1)
+        .map { it.toRecord() }
 
       val hasMore = rows.size > limit
       val items = if (hasMore) rows.dropLast(1) else rows
@@ -205,11 +210,10 @@ class TaskRepositoryImpl : TaskRepository {
     rangeEnd: LocalDate
   ): List<TaskRecord> =
     dbQuery {
-      val memberProductionIds =
-        ProductionMembersTable
-          .selectAll()
-          .where { ProductionMembersTable.userId eq userId }
-          .map { it[ProductionMembersTable.productionId] }
+      val memberProductionIds = ProductionMembersTable
+        .selectAll()
+        .where { ProductionMembersTable.userId eq userId }
+        .map { it[ProductionMembersTable.productionId] }
       if (memberProductionIds.isEmpty()) return@dbQuery emptyList()
 
       tasksWithRelations
@@ -242,14 +246,13 @@ class TaskRepositoryImpl : TaskRepository {
     assigneeUserId: UUID?
   ): TaskRecord? =
     dbQuery {
-      val updated =
-        TasksTable.update({ TasksTable.id eq id }) { row ->
-          title?.let { row[TasksTable.title] = it }
-          description?.let { row[TasksTable.description] = it }
-          dueDate?.let { row[TasksTable.dueDate] = it }
-          status?.let { row[TasksTable.status] = it.name }
-          assigneeUserId?.let { row[TasksTable.assigneeUserId] = it }
-        }
+      val updated = TasksTable.update({ TasksTable.id eq id }) { row ->
+        title?.let { row[TasksTable.title] = it }
+        description?.let { row[TasksTable.description] = it }
+        dueDate?.let { row[TasksTable.dueDate] = it }
+        status?.let { row[TasksTable.status] = it.name }
+        assigneeUserId?.let { row[TasksTable.assigneeUserId] = it }
+      }
       if (updated == 0) {
         null
       } else {
@@ -265,6 +268,27 @@ class TaskRepositoryImpl : TaskRepository {
     dbQuery {
       TasksTable.deleteWhere { TasksTable.id eq id } > 0
     }
+
+  // Non-deleted productions the user owns or is a member of. Must be called
+  // inside a dbQuery transaction.
+  private fun accessibleProductionIds(userId: UUID): List<UUID> {
+    val memberProductionIds =
+      ProductionMembersTable
+        .selectAll()
+        .where { ProductionMembersTable.userId eq userId }
+        .map { it[ProductionMembersTable.productionId] }
+    return ProductionsTable
+      .selectAll()
+      .where {
+        val accessCond = if (memberProductionIds.isEmpty()) {
+          ProductionsTable.ownerUserId eq userId
+        } else {
+          (ProductionsTable.ownerUserId eq userId) or
+            (ProductionsTable.id inList memberProductionIds)
+        }
+        ProductionsTable.deletedAt.isNull() and accessCond
+      }.map { it[ProductionsTable.id] }
+  }
 
   // Tasks joined with their production (always present) and assignee user
   // (optional, hence a left join so unassigned tasks still return).
