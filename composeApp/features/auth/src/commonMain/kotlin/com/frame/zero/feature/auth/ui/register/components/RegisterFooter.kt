@@ -51,4 +51,3 @@ internal fun RegisterFooter(
 private fun RegisterFooterPreview() {
   AppTheme { RegisterFooter(isLoading = false, onSignInClick = {}) }
 }
-

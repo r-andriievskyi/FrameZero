@@ -11,7 +11,11 @@ kotlin {
       implementation(libs.koin.core)
       implementation(libs.kotlinx.coroutines.core)
     }
-    commonTest.dependencies { implementation(libs.kotlin.test) }
+    commonTest.dependencies {
+      implementation(libs.kotlin.test)
+      implementation(libs.kotlinx.coroutines.test)
+      implementation(libs.ktor.clientMock)
+    }
   }
 }
 

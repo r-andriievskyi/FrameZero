@@ -42,4 +42,3 @@ internal fun SignInHeader(modifier: Modifier = Modifier) {
 private fun SignInHeaderPreview() {
   AppTheme { SignInHeader() }
 }
-

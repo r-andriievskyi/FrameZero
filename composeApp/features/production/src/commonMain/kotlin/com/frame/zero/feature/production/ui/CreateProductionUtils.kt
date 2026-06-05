@@ -40,7 +40,6 @@ internal fun LocalDate.formatDisplay(): String {
   return "$monthName $day, $year"
 }
 
-
 internal fun parseDateInput(raw: String): LocalDate? {
   val parts = raw.split(".")
   if (parts.size == 3) {

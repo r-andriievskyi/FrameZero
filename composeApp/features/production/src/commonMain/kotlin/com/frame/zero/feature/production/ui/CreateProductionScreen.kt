@@ -33,7 +33,10 @@ import framezero.composeapp.features.production.generated.resources.create_title
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-fun CreateProductionScreen(component: CreateProductionComponent, modifier: Modifier = Modifier) {
+fun CreateProductionScreen(
+  component: CreateProductionComponent,
+  modifier: Modifier = Modifier
+) {
   val state by component.state.collectAsStateWithLifecycle()
   CreateProductionContent(
     state = state,

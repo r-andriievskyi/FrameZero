@@ -47,4 +47,3 @@ private fun BudgetInputFieldPreview() {
     BudgetInputField(budgetCents = 50_000_00L, onBudgetChange = {}, enabled = true)
   }
 }
-

@@ -17,5 +17,5 @@ data class ScheduleTabState(
   /** Displayed year in the month-calendar view. Persisted across tab switches. */
   val displayYear: Int = 0,
   /** Displayed month in the month-calendar view. Persisted across tab switches. */
-  val displayMonth: Month = Month.JANUARY,
+  val displayMonth: Month = Month.JANUARY
 )

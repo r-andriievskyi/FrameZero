@@ -69,4 +69,3 @@ private fun GenreChipUnselectedPreview() {
     GenreChip(label = "Comedy", isSelected = false, onClick = {})
   }
 }
-

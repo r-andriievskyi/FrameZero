@@ -24,4 +24,3 @@ internal fun LabeledField(
     content()
   }
 }
-
