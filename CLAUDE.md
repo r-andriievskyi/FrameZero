@@ -116,8 +116,9 @@ projects. Each concern has three parts:
 Instances: `SessionCleaner` (`shared/.../core/session/`), `LogSink` →
 `Logger`/`loggingModule` (`shared/.../core/logging/`), `AnalyticsSink` →
 `Analytics`/`analyticsModule` (`shared/.../core/analytics/`). Logging and analytics
-currently ship `NoOp*` sinks only — the scaffolding is wired end to end; real sinks and
-call-site consumption are a deliberate later step.
+currently ship **no sinks** — the facades fan out over whatever `getAll()` returns, and
+an empty list is a no-op, so real sinks and call-site consumption are a deliberate later
+step. Add a backend by implementing the sink interface and adding one `bind` line.
 
 ### Module placement
 
