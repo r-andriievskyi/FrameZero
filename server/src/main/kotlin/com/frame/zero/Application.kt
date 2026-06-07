@@ -55,7 +55,7 @@ fun main() {
   DatabaseFactory.init(config.database)
   embeddedServer(
     Netty,
-    port = SERVER_PORT,
+    port = 8080,
     host = "0.0.0.0"
   ) {
     module(config)

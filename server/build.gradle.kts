@@ -19,7 +19,11 @@ application {
 }
 
 dependencies {
-  implementation(projects.shared)
+  // No client-module dependency by design: server owns its own copy of the wire
+  // DTOs (com.frame.zero.dto.*, auth.dto.*, the wire enums, Constants) so it can be
+  // lifted into a standalone repo. Keep that copy in sync with shared/ by hand.
+  implementation(libs.kotlinx.serialization.json)
+  implementation(libs.kotlinx.datetime)
   implementation(libs.logback)
   implementation(libs.ktor.serverCore)
   implementation(libs.ktor.serverNetty)
