@@ -41,7 +41,7 @@ Composite Gradle build + native iOS wrapper.
 | `shared/repositories/<name>/` | Repository interfaces + impls (`auth`, `user`, `dashboard`, `productions`, `schedule`). `productions` is offline-first — see [Offline-first repositories](#offline-first-repositories). |
 | `composeApp/` | Compose Multiplatform UI host (Android, iOS). Owns `App.kt`, the Decompose `RootComponent`, platform entry points. |
 | `composeApp/features/<name>/` | Per-feature Compose UI rendering the matching shared component. |
-| `composeApp/shared/design_system/` | Design system library. Applies `crossplatform.kmp.library.compose`. |
+| `composeApp/shared/design_system/` | Design system library. Applies `crossplatform.library.compose`. |
 | `server/` | JVM Ktor backend (Netty + Exposed/Postgres + JWT via Koin). Packages: `auth`, `dashboard`, `notification`, `production`, `schedule`, `task`, `common`/`config`. Schema created from Exposed `Table` defs on boot. **Depends on no client module** — owns its own copy of the wire types (`com.frame.zero.dto.*`, `auth.dto.*`, the wire enums) under `server/src/main`, intentionally duplicated from `shared/`'s copy so the server can be lifted into a standalone repo. (`Constants`/`SERVER_PORT` is client-only — server hardcodes its bind port.) See [Wire contract duplication](#wire-contract-duplication). |
 | `iosApp/` | Swift/SwiftUI wrapper. Minimal — flag any Swift edits for manual review. |
 
@@ -165,10 +165,10 @@ drop code into `androidMain` "for now".
 
 ### Convention plugins (build-logic)
 
-- `crossplatform.kmp.library` — applies `com.android.library` + `kotlinMultiplatform`,
+- `crossplatform.library` — applies `com.android.library` + `kotlinMultiplatform`,
   registers `androidTarget`/`iosArm64`/`iosSimulatorArm64`, pulls SDK/JVM versions
   from the catalog, applies `crossplatform.code.quality`.
-- `crossplatform.kmp.library.compose` — above + Compose Multiplatform +
+- `crossplatform.library.compose` — above + Compose Multiplatform +
   compose-compiler + standard Compose deps in `commonMain`.
 
 New KMP library modules apply one of these instead of configuring targets by hand.

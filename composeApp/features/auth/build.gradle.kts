@@ -1,4 +1,4 @@
-plugins { id("crossplatform.kmp.library.compose") }
+plugins { id("crossplatform.library.compose") }
 
 base { archivesName = "ui-feature-auth" }
 

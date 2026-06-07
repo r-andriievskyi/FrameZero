@@ -1,5 +1,5 @@
 plugins {
-  id("crossplatform.kmp.library")
+  id("crossplatform.library")
   alias(libs.plugins.ksp)
   alias(libs.plugins.androidxRoom)
 }

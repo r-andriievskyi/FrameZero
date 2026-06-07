@@ -1,4 +1,4 @@
-plugins { id("crossplatform.kmp.library") }
+plugins { id("crossplatform.library") }
 
 base { archivesName = "feature-task-details" }
 

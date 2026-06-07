@@ -6,8 +6,8 @@ plugins {
     alias(libs.plugins.detekt) apply false
     alias(libs.plugins.kover)
     alias(libs.plugins.ktlint) apply false
-    id("crossplatform.kmp.library") apply false
-    id("crossplatform.kmp.library.compose") apply false
+    id("crossplatform.library") apply false
+    id("crossplatform.library.compose") apply false
     id("crossplatform.code.quality") apply false
     alias(libs.plugins.composeMultiplatform) apply false
     alias(libs.plugins.composeCompiler) apply false

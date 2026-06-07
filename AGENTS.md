@@ -9,15 +9,15 @@ FrameZero is a Kotlin Multiplatform (KMP) app targeting Android and iOS, with a 
 - **Maximise Kotlin sharing.** Default to `commonMain`; use platform source sets only when no multiplatform API exists.
 - **Decompose for navigation:** `RootComponent` in `composeApp/commonMain` owns a `StackNavigation`. Feature components live in `shared/features/<name>/`. Feature UI in `composeApp/features/<name>/` is stateless — all logic stays in `shared`.
 - **Shared wire types:** DTOs and constants used by both client and server are defined once in `shared/commonMain` (e.g. `shared/src/commonMain/kotlin/com/frame/zero/dto/`). The server depends on `shared` for these. DTOs are organised by domain subdirectory (`common/`, `dashboard/`, `production/`, `schedule/`, `notification/`, `task/`).
-- **Convention plugins** (`build-logic/`): `crossplatform.kmp.library`, `crossplatform.kmp.library.compose`, and `crossplatform.code.quality` configure targets, SDK versions, and code quality tooling. New KMP modules should apply one of the first two (they inherit code quality automatically).
+- **Convention plugins** (`build-logic/`): `crossplatform.library`, `crossplatform.library.compose`, and `crossplatform.code.quality` configure targets, SDK versions, and code quality tooling. New KMP modules should apply one of the first two (they inherit code quality automatically).
 - **Server DB migrations:** Flyway manages schema evolution. Migration files live in `server/src/main/resources/db/migration/` using the naming convention `V<N>__<description>.sql`.
 - **Offline-first repositories:** Paginated lists use Room (KMP) + Paging 3 `RemoteMediator`. `shared/repositories/productions/` is the reference impl. The repo returns `Flow<PagingData<DomainType>>`; UI observes Room, never the network directly. Room modules apply `libs.plugins.ksp` + `libs.plugins.androidxRoom` and register `ksp` configs for all targets.
 - **Sign-out cleanup:** Any module owning user-scoped local state (Room cache, in-memory user data) implements `SessionCleaner` (`shared/.../core/session/SessionCleaner.kt`) and registers in its Koin module with `single { … } bind SessionCleaner::class`. `SessionManager` invokes every registered cleaner — each under its own `runCatching` — before clearing tokens in `forceLogout()`, covering both user-initiated sign-out and the auto-logout path triggered by a failed refresh-token rotation. Reference impl: `ProductionsSessionCleaner` → `ProductionsDao.clearAll()`.
 
 ## Adding a New Feature
 
-1. Create `shared/features/<name>/` with a `build.gradle.kts` applying `crossplatform.kmp.library`.
-2. Create `composeApp/features/<name>/` with a `build.gradle.kts` applying `crossplatform.kmp.library.compose`.
+1. Create `shared/features/<name>/` with a `build.gradle.kts` applying `crossplatform.library`.
+2. Create `composeApp/features/<name>/` with a `build.gradle.kts` applying `crossplatform.library.compose`.
 3. Register both in `settings.gradle.kts` (e.g. `include(":shared:features:<name>")`, `include(":composeApp:features:<name>")`).
 4. Add a Koin module (see `shared/features/auth/src/commonMain/.../AuthModule.kt` as reference).
 5. Wire the new component into `RootComponent`'s `ChildStack`.
