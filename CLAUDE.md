@@ -36,13 +36,13 @@ Composite Gradle build + native iOS wrapper.
 | Module | Purpose |
 |--------|---------|
 | `build-logic/` | Convention plugins (composite build). |
-| `shared/` | Multiplatform business logic; no UI. `Constants`, domain models (`User`, `DomainError`, `Outcome`, `UseCase`), DTOs, DTO↔domain mappers, Ktor `HttpClient` (`core/network/`), session machine (`core/session/`), `multiplatform-settings` token storage. |
+| `shared/` | Multiplatform business logic; no UI. `Constants`, the **client copy** of the wire DTOs (`dto/`, `auth/dto/`) and wire enums (`Genre`, `ProductionPhase`, `ProductionSort`, `ScheduleEventKind`), domain models (`User`, `DomainError`, `Outcome`, `UseCase`, `Production`, `Schedule`, …), DTO↔domain mappers, Ktor `HttpClient` (`core/network/`), session machine (`core/session/`), `multiplatform-settings` token storage. |
 | `shared/features/<name>/` | Per-feature logic — Decompose `Component`, `ViewModel`, state/intent, feature-local Koin module. (`account`, `auth`, `home`, `production`, `production-details`, `task-details`.) |
 | `shared/repositories/<name>/` | Repository interfaces + impls (`auth`, `user`, `dashboard`, `productions`, `schedule`). `productions` is offline-first — see [Offline-first repositories](#offline-first-repositories). |
 | `composeApp/` | Compose Multiplatform UI host (Android, iOS). Owns `App.kt`, the Decompose `RootComponent`, platform entry points. |
 | `composeApp/features/<name>/` | Per-feature Compose UI rendering the matching shared component. |
 | `composeApp/shared/design_system/` | Design system library. Applies `crossplatform.kmp.library.compose`. |
-| `server/` | JVM Ktor backend (Netty + Exposed/Postgres + JWT via Koin). Packages: `auth`, `dashboard`, `notification`, `production`, `schedule`, `task`, `common`/`config`. Schema created from Exposed `Table` defs on boot. Depends on `shared` for wire types. |
+| `server/` | JVM Ktor backend (Netty + Exposed/Postgres + JWT via Koin). Packages: `auth`, `dashboard`, `notification`, `production`, `schedule`, `task`, `common`/`config`. Schema created from Exposed `Table` defs on boot. **Depends on no client module** — owns its own copy of the wire types (`com.frame.zero.dto.*`, `auth.dto.*`, the wire enums) under `server/src/main`, intentionally duplicated from `shared/`'s copy so the server can be lifted into a standalone repo. (`Constants`/`SERVER_PORT` is client-only — server hardcodes its bind port.) See [Wire contract duplication](#wire-contract-duplication). |
 | `iosApp/` | Swift/SwiftUI wrapper. Minimal — flag any Swift edits for manual review. |
 
 Navigation is **Decompose**. `RootComponent` (`composeApp/commonMain`) owns a
@@ -67,6 +67,26 @@ react to `SessionManager`, not constructor props.
   `.../domain/<feature>/`. Map via sibling `*Mapper.kt`.
 - UI hints (accent colors, badge labels) are extension functions on the domain
   enum, never DTO fields.
+
+### Wire contract duplication
+
+The wire DTOs are **deliberately duplicated**, not shared via a common module:
+
+- **Client copy** lives in `shared/commonMain` (`com.frame.zero.dto.*`, `auth.dto.*`,
+  the wire enums `Genre`/`ProductionPhase`/`ProductionSort`/`ScheduleEventKind`).
+- **Server copy** lives in `server/src/main` under the **same package names**.
+
+`Constants`/`SERVER_PORT` is **not** duplicated — it's client-only (`shared`'s
+`NetworkConfig` builds the base URL from it); the server hardcodes its bind port.
+
+Both sides use identical FQNs but compile from their own source, so neither has a
+build dependency on the other. `server` depends on **no client module** — this keeps
+it self-contained so it can be lifted into a standalone repo without untangling a
+shared dependency. The price: the contract is **kept in sync by hand**. When you
+change a wire shape (add/remove/rename a field, change an enum), **edit both copies**
+in the same change, or client and server silently drift. They never share a classpath
+(server is a leaf; nothing client-side depends on it), so the same FQN in two modules
+is not a collision.
 
 ### Offline-first repositories
 
@@ -128,7 +148,10 @@ step. Add a backend by implementing the sink interface and adding one `bind` lin
 - Feature UI → `composeApp/features/<name>/`.
 - Root nav, theming hookup → `composeApp/commonMain`.
 - Server routes/handlers/persistence → `server/`.
-- DTOs & shared constants → `shared/commonMain` — define once, reference both sides.
+- DTOs & wire-facing enums → **two copies**, one per side: client copy in
+  `shared/commonMain` (`com.frame.zero.dto.*`, `auth.dto.*`, the wire enums), server
+  copy in `server/src/main` under the **same package names**. (`Constants`/`SERVER_PORT`
+  stays client-only — not duplicated.) See [Wire contract duplication](#wire-contract-duplication).
 
 New feature = both halves (`shared/features/<name>` + `composeApp/features/<name>`),
 registered in `settings.gradle.kts`.
@@ -154,9 +177,9 @@ New KMP library modules apply one of these instead of configuring targets by han
 
 For platform-specific behaviour (HTTP engine, secure storage, Room builder),
 declare `expect` in `commonMain` and provide `androidMain` **and** `iosMain`
-actuals in the same change. `shared` also retains a `jvm()` target (for `:server`),
-so any `expect` there also needs a `jvmMain` actual. No TODO actuals. Don't
-`if/when` on runtime OS.
+actuals in the same change. No module targets the JVM anymore (`shared` dropped its
+`jvm()` target once `:server` was decoupled), so an `expect` needs exactly those two
+actuals — no `jvmMain`. No TODO actuals. Don't `if/when` on runtime OS.
 
 ### Tests
 
@@ -288,9 +311,8 @@ Rules:
 - **Interface + Impl naming:** single-impl interfaces use `<Interface>Impl` in a
   same-named file, side-by-side in the same package (`ProductionsRepository` →
   `ProductionsRepositoryImpl`). No technology/strategy suffixes (`*Exposed`, `Ktor*`,
-  `OfflineFirst*`). **Exception:** platform actuals in `androidMain`/`iosMain` (and
-  `shared`'s `jvmMain`) keep the platform prefix (`AndroidDatabaseBuilderFactory`) to
-  avoid DI/stack-trace collisions.
+  `OfflineFirst*`). **Exception:** platform actuals in `androidMain`/`iosMain` keep the
+  platform prefix (`AndroidDatabaseBuilderFactory`) to avoid DI/stack-trace collisions.
 - **HTTP engine** via `expect/actual` in `shared/.../core/network/HttpClientFactory.kt`
   — OkHttp on Android, Darwin on iOS.
 - **Resources:** Compose resources in `composeApp/src/commonMain/composeResources/`,
