@@ -1,6 +1,7 @@
 package com.frame.zero.feature.home.tab.dashboard
 
 import com.arkivanov.essenty.instancekeeper.InstanceKeeper
+import com.frame.zero.core.collections.mapImmutable
 import com.frame.zero.domain.Outcome
 import com.frame.zero.domain.dashboard.Dashboard
 import com.frame.zero.domain.dashboard.DashboardStats
@@ -98,7 +99,7 @@ class DashboardTabViewModel(
     DashboardUi(
       displayName = displayName,
       stats = stats.toUi(),
-      myTasks = myTasks.map { it.toUi(resolveUrgency(it, today)) }
+      myTasks = myTasks.mapImmutable { it.toUi(resolveUrgency(it, today)) }
     )
 
   private fun DashboardStats.toUi(): DashboardStatsUi =

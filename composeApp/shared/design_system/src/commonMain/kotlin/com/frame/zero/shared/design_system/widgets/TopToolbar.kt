@@ -22,6 +22,7 @@ import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.generated.resources.Res
 import com.frame.zero.shared.design_system.generated.resources.ic_chevron_left
 import com.frame.zero.shared.design_system.modifier.clickableWithRipple
+import kotlinx.collections.immutable.persistentListOf
 import org.jetbrains.compose.resources.painterResource
 
 private val BackButtonSize = 40.dp
@@ -94,7 +95,7 @@ private fun TopToolbarWithOverflowPreview() {
       onBack = {},
       trailingContent = {
         OverflowMenu(
-          items = listOf(
+          items = persistentListOf(
             OverflowMenuItem(text = "Delete", isDestructive = true, onClick = {})
           )
         )

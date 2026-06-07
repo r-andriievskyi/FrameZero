@@ -27,6 +27,8 @@ import framezero.composeapp.features.home.generated.resources.Res
 import framezero.composeapp.features.home.generated.resources.tab_dashboard
 import framezero.composeapp.features.home.generated.resources.tab_productions
 import framezero.composeapp.features.home.generated.resources.tab_schedule
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
 import org.jetbrains.compose.resources.stringResource
 
 private val FloatingBottomNavHeight = 65.dp
@@ -43,7 +45,7 @@ private fun HomeTab.label(): String =
 
 @Composable
 fun FloatingBottomNav(
-  tabs: List<HomeTab>,
+  tabs: ImmutableList<HomeTab>,
   selectedTab: HomeTab,
   onSelect: (HomeTab) -> Unit,
   modifier: Modifier = Modifier
@@ -108,7 +110,7 @@ private fun FloatingBottomNavPreview() {
   AppTheme {
     var selected by remember { mutableStateOf(HomeTab.DASHBOARD) }
     FloatingBottomNav(
-      tabs = HomeTab.entries,
+      tabs = HomeTab.entries.toImmutableList(),
       selectedTab = selected,
       onSelect = { selected = it }
     )

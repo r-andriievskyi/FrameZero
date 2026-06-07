@@ -22,6 +22,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.modifier.clickableWithRipple
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 
 private val TriggerSize = 40.dp
 private val MenuWidth = 200.dp
@@ -35,7 +37,7 @@ data class OverflowMenuItem(
 
 @Composable
 fun OverflowMenu(
-  items: List<OverflowMenuItem>,
+  items: ImmutableList<OverflowMenuItem>,
   modifier: Modifier = Modifier
 ) {
   if (items.isEmpty()) return
@@ -101,7 +103,7 @@ fun OverflowMenu(
 private fun OverflowMenuPreview() {
   AppTheme(darkTheme = true) {
     OverflowMenu(
-      items = listOf(
+      items = persistentListOf(
         OverflowMenuItem(text = "Edit", onClick = {}),
         OverflowMenuItem(text = "Delete", isDestructive = true, onClick = {})
       )
