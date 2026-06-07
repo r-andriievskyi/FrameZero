@@ -32,6 +32,8 @@ import com.frame.zero.core.format.calendarDayLabels
 import com.frame.zero.core.format.fullName
 import com.frame.zero.shared.design_system.modifier.clickableWithRipple
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer
+import kotlinx.collections.immutable.ImmutableSet
+import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
@@ -51,7 +53,7 @@ internal fun MonthCalendar(
   month: Month,
   selectedDate: LocalDate,
   today: LocalDate,
-  daysWithEvents: Set<LocalDate>,
+  daysWithEvents: ImmutableSet<LocalDate>,
   onDayClick: (LocalDate) -> Unit,
   onPreviousMonth: () -> Unit,
   onNextMonth: () -> Unit,
@@ -236,7 +238,7 @@ private fun MonthCalendarPreview() {
         month = Month.APRIL,
         selectedDate = today,
         today = today,
-        daysWithEvents = setOf(
+        daysWithEvents = persistentSetOf(
           LocalDate(2026, 4, 8),
           LocalDate(2026, 4, 14),
           LocalDate(2026, 4, 15),

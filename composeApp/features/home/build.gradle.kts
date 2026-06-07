@@ -6,6 +6,7 @@ kotlin {
   sourceSets {
     commonMain.dependencies {
       api(projects.shared.features.home)
+      implementation(libs.kotlinx.collections.immutable)
       implementation(libs.androidx.paging.compose)
       implementation(libs.compose.components.resources)
       implementation(projects.composeApp.shared.designSystem)

@@ -26,11 +26,14 @@ import com.frame.zero.feature.home.tab.HomeTab
 import com.frame.zero.feature.home.ui.tab.dashboard.DashboardTab
 import com.frame.zero.feature.home.ui.tab.productions.ProductionsTab
 import com.frame.zero.feature.home.ui.tab.schedule.ScheduleTab
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
+
+private val HomeTabs = HomeTab.entries.toImmutableList()
 
 @Composable
 fun HomeContent(component: HomeComponent) {
-  val tabs = HomeTab.entries
+  val tabs = HomeTabs
   val pagerState = rememberPagerState(initialPage = 0, pageCount = { tabs.size })
   val scope = rememberCoroutineScope()
   val activeTab = tabs[pagerState.currentPage]

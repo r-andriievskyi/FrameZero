@@ -24,6 +24,8 @@ import androidx.compose.ui.unit.dp
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer
+import kotlinx.collections.immutable.ImmutableSet
+import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
@@ -35,7 +37,7 @@ private val EventDotSize = 6.dp
 internal fun WeekDayStrip(
   weekStart: LocalDate,
   selectedDate: LocalDate,
-  daysWithEvents: Set<LocalDate>,
+  daysWithEvents: ImmutableSet<LocalDate>,
   onDayClick: (LocalDate) -> Unit,
   modifier: Modifier = Modifier
 ) {
@@ -163,7 +165,7 @@ private fun WeekDayStripPreview() {
       WeekDayStrip(
         weekStart = weekStartFor(today),
         selectedDate = today,
-        daysWithEvents = setOf(
+        daysWithEvents = persistentSetOf(
           LocalDate(2026, 4, 22),
           LocalDate(2026, 4, 24),
           LocalDate(2026, 4, 26)

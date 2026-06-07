@@ -54,6 +54,12 @@ kotlin {
   }
 }
 
+composeCompiler {
+  stabilityConfigurationFiles.add(
+    rootProject.layout.projectDirectory.file("stability_config.conf")
+  )
+}
+
 android {
   namespace = "com.frame.zero"
   compileSdk =

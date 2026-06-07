@@ -15,6 +15,7 @@ import com.frame.zero.feature.home.ui.tab.dashboard.DashboardTestTags.STAT_ACTIV
 import com.frame.zero.feature.home.ui.tab.dashboard.DashboardTestTags.STAT_OPEN_TASKS
 import com.frame.zero.feature.home.ui.tab.dashboard.DashboardTestTags.taskRow
 import com.frame.zero.shared.design_system.AppTheme
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.datetime.LocalDate
 import org.junit.Rule
 import org.junit.Test
@@ -205,7 +206,7 @@ class DashboardTabContentTest {
     displayName: String = "Maya",
     stats: DashboardStatsUi = DashboardStatsUi(activeProjects = 3, openTasks = 12),
     myTasks: List<DashboardTaskUi> = listOf(task())
-  ): DashboardUi = DashboardUi(displayName = displayName, stats = stats, myTasks = myTasks)
+  ): DashboardUi = DashboardUi(displayName = displayName, stats = stats, myTasks = myTasks.toImmutableList())
 
   private fun task(
     id: String = "1",

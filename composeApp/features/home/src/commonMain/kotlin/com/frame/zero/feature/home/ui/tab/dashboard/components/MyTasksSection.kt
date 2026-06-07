@@ -31,13 +31,15 @@ import framezero.composeapp.features.home.generated.resources.my_tasks_see_all
 import framezero.composeapp.features.home.generated.resources.my_tasks_title
 import framezero.composeapp.features.home.generated.resources.today
 import framezero.composeapp.features.home.generated.resources.tomorrow
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
 internal fun MyTasksSection(
-  tasks: List<DashboardTaskUi>,
+  tasks: ImmutableList<DashboardTaskUi>,
   onTaskClick: (taskId: String) -> Unit,
   modifier: Modifier = Modifier
 ) {
@@ -137,7 +139,7 @@ private fun MyTasksSectionPreview() {
     ) {
       MyTasksSection(
         onTaskClick = {},
-        tasks = listOf(
+        tasks = persistentListOf(
           DashboardTaskUi(
             id = "1",
             title = "Review Scene 12 script revisions",

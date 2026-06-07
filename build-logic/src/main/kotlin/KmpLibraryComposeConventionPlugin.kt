@@ -4,6 +4,7 @@ import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.getByType
+import org.jetbrains.kotlin.compose.compiler.gradle.ComposeCompilerGradlePluginExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 
 class KmpLibraryComposeConventionPlugin : Plugin<Project> {
@@ -12,6 +13,12 @@ class KmpLibraryComposeConventionPlugin : Plugin<Project> {
       pluginManager.apply("crossplatform.kmp.library")
       pluginManager.apply("org.jetbrains.compose")
       pluginManager.apply("org.jetbrains.kotlin.plugin.compose")
+
+      extensions.configure<ComposeCompilerGradlePluginExtension> {
+        stabilityConfigurationFiles.add(
+          rootProject.layout.projectDirectory.file("stability_config.conf")
+        )
+      }
 
       val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
 

@@ -11,6 +11,7 @@ kotlin {
       api(projects.shared.repositories.productions)
       api(projects.shared.repositories.schedule)
       api(libs.decompose)
+      api(libs.kotlinx.collections.immutable)
       implementation(libs.koin.core)
       implementation(libs.kotlinx.coroutines.core)
       implementation(libs.ktor.clientContentNegotiation)

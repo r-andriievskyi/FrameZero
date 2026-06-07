@@ -1,11 +1,12 @@
 package com.frame.zero.feature.home.tab.dashboard
 
+import kotlinx.collections.immutable.ImmutableList
 import kotlinx.datetime.LocalDate
 
 data class DashboardUi(
   val displayName: String,
   val stats: DashboardStatsUi,
-  val myTasks: List<DashboardTaskUi>
+  val myTasks: ImmutableList<DashboardTaskUi>
 )
 
 data class DashboardStatsUi(
