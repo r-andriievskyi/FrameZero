@@ -1,4 +1,10 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
+
+val releaseKeystoreProps = Properties().apply {
+  val propsFile = rootProject.file("key.properties")
+  if (propsFile.exists()) propsFile.inputStream().use { load(it) }
+}
 
 plugins {
   alias(libs.plugins.kotlinMultiplatform)
@@ -62,26 +68,45 @@ composeCompiler {
 
 android {
   namespace = "com.frame.zero"
-  compileSdk =
-    libs.versions.android.compileSdk
-      .get()
-      .toInt()
+  compileSdk = libs.versions.android.compileSdk.get().toInt()
 
   defaultConfig {
     applicationId = "com.frame.zero"
-    minSdk =
-      libs.versions.android.minSdk
-        .get()
-        .toInt()
-    targetSdk =
-      libs.versions.android.targetSdk
-        .get()
-        .toInt()
+    minSdk = libs.versions.android.minSdk.get().toInt()
+    targetSdk = libs.versions.android.targetSdk.get().toInt()
     versionCode = 1
     versionName = "1.0"
   }
   packaging { resources { excludes += "/META-INF/{AL2.0,LGPL2.1}" } }
-  buildTypes { getByName("release") { isMinifyEnabled = false } }
+  signingConfigs {
+    getByName("debug") {
+      storeFile = rootProject.file("keystores/debug.keystore")
+      storePassword = "android"
+      keyAlias = "androiddebugkey"
+      keyPassword = "android"
+    }
+    if (releaseKeystoreProps.isNotEmpty()) {
+      create("release") {
+        storeFile = file(releaseKeystoreProps.getProperty("storeFile"))
+        storePassword = releaseKeystoreProps.getProperty("storePassword")
+        keyAlias = releaseKeystoreProps.getProperty("keyAlias")
+        keyPassword = releaseKeystoreProps.getProperty("keyPassword")
+      }
+    }
+  }
+  buildTypes {
+    getByName("release") {
+      if (releaseKeystoreProps.isNotEmpty()) {
+        signingConfig = signingConfigs.getByName("release")
+      }
+      isMinifyEnabled = true
+      isShrinkResources = true
+      proguardFiles(
+        getDefaultProguardFile("proguard-android-optimize.txt"),
+        "proguard-rules.pro",
+      )
+    }
+  }
   compileOptions {
     sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
