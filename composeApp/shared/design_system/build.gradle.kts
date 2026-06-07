@@ -1,4 +1,4 @@
-plugins { id("crossplatform.kmp.library.compose") }
+plugins { id("crossplatform.library.compose") }
 
 android { namespace = "com.frame.zero.shared.design_system" }
 
