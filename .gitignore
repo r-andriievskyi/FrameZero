@@ -16,6 +16,7 @@ captures/
 # ─── Credentials & secrets (never commit) ────────────────────────────────────
 *.jks
 *.keystore
+!keystores/debug.keystore
 key.properties
 google-services.json
 agconnect-services.json

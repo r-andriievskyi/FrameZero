@@ -1,0 +1,12 @@
+# Release signing config — template. Copy to `key.properties` (gitignored) and fill in.
+#
+#   cp key.properties.example key.properties
+#
+# The release keystore (.jks) and these passwords must NEVER be committed.
+# Store the keystore outside the repo and back it up in a password manager / vault.
+# Losing it means you cannot ship app updates (unless enrolled in Play App Signing).
+
+storeFile=/absolute/path/to/framezero-release.jks
+storePassword=CHANGE_ME
+keyAlias=framezero
+keyPassword=CHANGE_ME
