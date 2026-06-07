@@ -24,6 +24,7 @@ import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import framezero.composeapp.features.home.generated.resources.Res
 import framezero.composeapp.features.home.generated.resources.greeting_good_morning
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.stringResource
 
@@ -74,7 +75,7 @@ private fun DashboardContentPreview() {
       dashboard = DashboardUi(
         displayName = "Maya",
         stats = DashboardStatsUi(activeProjects = 3, openTasks = 12),
-        myTasks = listOf(
+        myTasks = persistentListOf(
           DashboardTaskUi(
             id = "1",
             title = "Review Scene 12 script revisions",

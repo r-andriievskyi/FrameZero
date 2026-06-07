@@ -26,12 +26,14 @@ import framezero.composeapp.features.home.generated.resources.ic_task
 import framezero.composeapp.features.home.generated.resources.schedule_due_today
 import framezero.composeapp.features.home.generated.resources.schedule_events_header
 import framezero.composeapp.features.home.generated.resources.schedule_tasks_due_header
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
 internal fun ScheduleTimeline(
-  events: List<ScheduleEventUiModel>,
-  tasks: List<ScheduleTaskUiModel>,
+  events: ImmutableList<ScheduleEventUiModel>,
+  tasks: ImmutableList<ScheduleTaskUiModel>,
   modifier: Modifier = Modifier
 ) {
   Column(modifier = modifier.fillMaxWidth()) {
@@ -62,7 +64,7 @@ internal fun ScheduleTimeline(
 
 @Composable
 private fun EventsTimeline(
-  events: List<ScheduleEventUiModel>,
+  events: ImmutableList<ScheduleEventUiModel>,
   modifier: Modifier = Modifier
 ) {
   Column(modifier = modifier.fillMaxWidth()) {
@@ -83,7 +85,7 @@ private fun EventsTimeline(
 
 @Composable
 private fun TasksList(
-  tasks: List<ScheduleTaskUiModel>,
+  tasks: ImmutableList<ScheduleTaskUiModel>,
   modifier: Modifier = Modifier
 ) {
   Column(modifier = modifier.fillMaxWidth()) {
@@ -138,7 +140,7 @@ private fun ScheduleTimelinePreview() {
         .padding(AppTheme.spacingSystem.space16)
     ) {
       ScheduleTimeline(
-        events = listOf(
+        events = persistentListOf(
           ScheduleEventUiModel(
             id = "1",
             title = "Scene 14 – Interior Office",
@@ -172,7 +174,7 @@ private fun ScheduleTimelinePreview() {
             timeRangeLabel = "16:30 – 17:30"
           )
         ),
-        tasks = listOf(
+        tasks = persistentListOf(
           ScheduleTaskUiModel(
             id = "5",
             title = "Review Scene 12 script revisions",

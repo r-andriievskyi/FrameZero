@@ -28,13 +28,15 @@ import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import com.frame.zero.domain.production.ProductionPhase
 import com.frame.zero.domain.production.ProductionPipelinePhase
 import com.frame.zero.shared.design_system.LightDarkPreview
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 
 private val PhaseBarSegmentHeight = 6.dp
 private val PhaseDotSize = 16.dp
 
 @Composable
 internal fun PipelineCard(
-  pipeline: List<ProductionPipelinePhase>,
+  pipeline: ImmutableList<ProductionPipelinePhase>,
   currentPhase: ProductionPhase,
   modifier: Modifier = Modifier
 ) {
@@ -116,7 +118,7 @@ internal fun PipelineCard(
 @LightDarkPreview
 @Composable
 private fun PipelineCardPreview() {
-  val pipeline = listOf(
+  val pipeline = persistentListOf(
     ProductionPipelinePhase(
       phase = ProductionPhase.DEVELOPMENT,
       label = "Development",

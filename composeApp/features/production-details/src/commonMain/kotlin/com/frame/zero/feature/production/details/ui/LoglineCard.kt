@@ -32,6 +32,7 @@ import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.domain.production.ProductionDetail
 import com.frame.zero.domain.production.ProductionPhase
 import com.frame.zero.domain.production.Genre
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.datetime.LocalDate
 import kotlin.time.Instant
 
@@ -207,7 +208,7 @@ private fun LoglineCardPreview() {
         budgetCents = 240_000_000L,
         membersCount = 12,
         keyCrew = emptyList(),
-        pipeline = emptyList(),
+        pipeline = persistentListOf(),
         createdAt = PreviewInstant,
         updatedAt = PreviewInstant,
         viewerCrew = null
@@ -235,7 +236,7 @@ private fun LoglineCardNoLoglinePreview() {
         budgetCents = 500_000_000L,
         membersCount = 8,
         keyCrew = emptyList(),
-        pipeline = emptyList(),
+        pipeline = persistentListOf(),
         createdAt = PreviewInstant,
         updatedAt = PreviewInstant,
         viewerCrew = null

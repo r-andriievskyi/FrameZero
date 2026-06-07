@@ -15,6 +15,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.frame.zero.core.collections.mapImmutableSet
+import com.frame.zero.core.collections.orEmpty
 import com.frame.zero.domain.schedule.Schedule
 import com.frame.zero.domain.schedule.ScheduleDay
 import com.frame.zero.domain.schedule.ScheduleEvent
@@ -40,6 +42,7 @@ import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import framezero.composeapp.features.home.generated.resources.Res
 import framezero.composeapp.features.home.generated.resources.schedule_screen_title
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.stringResource
 import kotlin.time.Instant
@@ -69,8 +72,7 @@ private fun ScheduleContent(
   val daysWithItems = remember(schedule) {
     schedule?.days
       ?.filter { it.events.isNotEmpty() || it.tasks.isNotEmpty() }
-      ?.map { it.date }
-      ?.toSet()
+      ?.mapImmutableSet { it.date }
       .orEmpty()
   }
 
@@ -211,7 +213,7 @@ private val previewSchedule = Schedule(
   )
 )
 
-private val previewEventUiModels = listOf(
+private val previewEventUiModels = persistentListOf(
   ScheduleEventUiModel(
     id = "1",
     title = "Scene 14 – Interior Office",
@@ -246,7 +248,7 @@ private val previewEventUiModels = listOf(
   )
 )
 
-private val previewTaskUiModels = listOf(
+private val previewTaskUiModels = persistentListOf(
   ScheduleTaskUiModel(
     id = "5",
     title = "Review Scene 12 script revisions",

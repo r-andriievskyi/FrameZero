@@ -2,6 +2,8 @@ package com.frame.zero.feature.home.tab.schedule
 
 import com.frame.zero.domain.schedule.Schedule
 import com.frame.zero.domain.schedule.ScheduleView
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.Month
 
@@ -11,8 +13,8 @@ data class ScheduleTabState(
   val schedule: Schedule? = null,
   val selectedDate: LocalDate? = null,
   val isSelectedDateToday: Boolean = false,
-  val selectedDayEvents: List<ScheduleEventUiModel> = emptyList(),
-  val selectedDayTasks: List<ScheduleTaskUiModel> = emptyList(),
+  val selectedDayEvents: ImmutableList<ScheduleEventUiModel> = persistentListOf(),
+  val selectedDayTasks: ImmutableList<ScheduleTaskUiModel> = persistentListOf(),
   val error: String? = null,
   /** Displayed year in the month-calendar view. Persisted across tab switches. */
   val displayYear: Int = 0,

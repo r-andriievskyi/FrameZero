@@ -6,6 +6,7 @@ kotlin {
   sourceSets {
     commonMain.dependencies {
       api(projects.shared.features.productionDetails)
+      implementation(libs.kotlinx.collections.immutable)
       implementation(libs.compose.components.resources)
       implementation(projects.composeApp.shared.designSystem)
     }

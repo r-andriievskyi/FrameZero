@@ -1,6 +1,8 @@
 package com.frame.zero.feature.home.tab.schedule
 
 import com.arkivanov.essenty.instancekeeper.InstanceKeeper
+import com.frame.zero.core.collections.mapImmutable
+import com.frame.zero.core.collections.orEmpty
 import com.frame.zero.domain.Outcome
 import com.frame.zero.domain.schedule.Schedule
 import com.frame.zero.domain.schedule.ScheduleEvent
@@ -17,6 +19,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.collections.immutable.ImmutableList
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
@@ -118,13 +121,14 @@ class ScheduleTabViewModel(
       .toLocalDateTime(TimeZone.currentSystemDefault())
       .date
 
-  private fun Schedule?.eventsFor(date: LocalDate): List<ScheduleEventUiModel> =
-    this?.days?.find { it.date == date }?.events?.map { it.toUiModel() }.orEmpty()
+  private fun Schedule?.eventsFor(date: LocalDate): ImmutableList<ScheduleEventUiModel> =
+    this?.days?.find { it.date == date }?.events?.mapImmutable { it.toUiModel() }.orEmpty()
 
   private fun Schedule?.tasksFor(
     date: LocalDate,
     today: LocalDate
-  ): List<ScheduleTaskUiModel> = this?.days?.find { it.date == date }?.tasks?.map { it.toUiModel(today) }.orEmpty()
+  ): ImmutableList<ScheduleTaskUiModel> =
+    this?.days?.find { it.date == date }?.tasks?.mapImmutable { it.toUiModel(today) }.orEmpty()
 
   private fun ScheduleEvent.toUiModel() =
     ScheduleEventUiModel(

@@ -1,9 +1,11 @@
 package com.frame.zero.domain.production
 
+import com.frame.zero.core.collections.mapImmutable
 import com.frame.zero.dto.production.PipelinePhaseDto
 import com.frame.zero.dto.production.ProductionDetailDto
 import com.frame.zero.dto.production.ProductionMemberDto
 import com.frame.zero.dto.production.ViewerCrewDto
+import kotlinx.collections.immutable.ImmutableList
 import kotlinx.datetime.LocalDate
 import kotlin.time.Instant
 
@@ -20,7 +22,7 @@ data class ProductionDetail(
   val budgetCents: Long?,
   val membersCount: Int,
   val keyCrew: List<ProductionMember>,
-  val pipeline: List<ProductionPipelinePhase>,
+  val pipeline: ImmutableList<ProductionPipelinePhase>,
   val createdAt: Instant,
   val updatedAt: Instant,
   val viewerCrew: ViewerCrew?
@@ -65,7 +67,7 @@ fun ProductionDetailDto.toProductionDetail(): ProductionDetail =
     budgetCents = budgetCents,
     membersCount = membersCount,
     keyCrew = keyCrew.map { it.toProductionMember() },
-    pipeline = pipeline.map { it.toProductionPipelinePhase() },
+    pipeline = pipeline.mapImmutable { it.toProductionPipelinePhase() },
     createdAt = createdAt,
     updatedAt = updatedAt,
     viewerCrew = viewerCrew?.toViewerCrew()

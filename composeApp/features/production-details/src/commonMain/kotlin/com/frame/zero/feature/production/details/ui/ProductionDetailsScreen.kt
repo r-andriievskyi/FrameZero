@@ -15,6 +15,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Modifier
+import com.frame.zero.core.collections.mapImmutable
 import com.frame.zero.domain.production.Genre
 import com.frame.zero.domain.production.ProductionDetail
 import com.frame.zero.domain.production.ProductionMember
@@ -30,6 +31,7 @@ import com.frame.zero.shared.design_system.widgets.OverflowMenu
 import com.frame.zero.shared.design_system.widgets.OverflowMenuItem
 import com.frame.zero.shared.design_system.widgets.TopToolbar
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer
+import kotlinx.collections.immutable.persistentListOf
 import framezero.composeapp.features.production_details.generated.resources.Res
 import framezero.composeapp.features.production_details.generated.resources.delete_production_menu
 import kotlinx.datetime.LocalDate
@@ -67,7 +69,7 @@ private fun ProductionDetailsContent(
         onBack = onBack,
         trailingContent = {
           OverflowMenu(
-            items = listOf(
+            items = persistentListOf(
               OverflowMenuItem(
                 text = stringResource(Res.string.delete_production_menu),
                 isDestructive = true,
@@ -194,7 +196,7 @@ private fun ProductionDetailsLoadedPreview() {
           budgetCents = 240_000_000L,
           membersCount = 12,
           keyCrew = emptyList(),
-          pipeline = ProductionPhase.entries.map { p ->
+          pipeline = ProductionPhase.entries.mapImmutable { p ->
             ProductionPipelinePhase(
               phase = p,
               label = p.displayLabel(),
