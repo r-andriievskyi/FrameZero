@@ -15,8 +15,6 @@ kotlin {
   iosArm64()
   iosSimulatorArm64()
 
-  jvm()
-
   sourceSets {
     commonMain.dependencies {
       api(libs.kotlinx.serialization.json)
@@ -35,7 +33,6 @@ kotlin {
       implementation(libs.ktor.clientOkHttp)
     }
     iosMain.dependencies { implementation(libs.ktor.clientDarwin) }
-    jvmMain.dependencies { implementation(libs.ktor.clientOkHttp) }
     commonTest.dependencies {
       implementation(libs.kotlin.test)
       implementation(libs.kotlinx.coroutines.test)
