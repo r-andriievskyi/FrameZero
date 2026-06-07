@@ -143,7 +143,7 @@ private fun MonthNavButton(
     modifier = modifier
       .size(NavButtonSize)
       .clip(shape)
-      .background(color = AppTheme.colorSystem.inputBackground, shape = shape)
+      .background(color = AppTheme.colorSystem.inputBackground)
       .border(width = AppTheme.borderSystem.hairline, color = AppTheme.colorSystem.border, shape = shape)
       .clickableWithRipple(color = AppTheme.colorSystem.accentDim, onClick = onClick),
     contentAlignment = Alignment.Center
