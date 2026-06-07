@@ -10,7 +10,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 class KmpLibraryComposeConventionPlugin : Plugin<Project> {
   override fun apply(target: Project) {
     with(target) {
-      pluginManager.apply("crossplatform.kmp.library")
+      pluginManager.apply("crossplatform.library")
       pluginManager.apply("org.jetbrains.compose")
       pluginManager.apply("org.jetbrains.kotlin.plugin.compose")
 
@@ -32,7 +32,6 @@ class KmpLibraryComposeConventionPlugin : Plugin<Project> {
         }
       }
 
-      // compose-uiTooling ships the Android PreviewActivity; debug-only on Android
       dependencies {
         add("debugImplementation", libs.findLibrary("compose-uiTooling").get())
       }

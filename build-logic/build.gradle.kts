@@ -28,11 +28,11 @@ dependencies {
 gradlePlugin {
   plugins {
     register("kmpLibrary") {
-      id = "crossplatform.kmp.library"
+      id = "crossplatform.library"
       implementationClass = "KmpLibraryConventionPlugin"
     }
     register("kmpLibraryCompose") {
-      id = "crossplatform.kmp.library.compose"
+      id = "crossplatform.library.compose"
       implementationClass = "KmpLibraryComposeConventionPlugin"
     }
     register("codeQuality") {
