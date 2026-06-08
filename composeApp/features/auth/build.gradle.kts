@@ -12,7 +12,18 @@ kotlin {
       implementation(projects.composeApp.shared.uiText)
     }
     commonTest.dependencies { implementation(libs.kotlin.test) }
+    androidUnitTest.dependencies {
+      implementation(libs.kotlin.testJunit)
+      implementation(libs.junit)
+      implementation(libs.robolectric)
+      implementation(libs.compose.uiTestJUnit4)
+    }
   }
 }
 
-android { namespace = "com.frame.zero.feature.auth.ui" }
+android {
+  namespace = "com.frame.zero.feature.auth.ui"
+  testOptions { unitTests.isIncludeAndroidResources = true }
+}
+
+dependencies { debugImplementation(libs.compose.uiTestManifest) }

@@ -15,6 +15,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import com.frame.zero.feature.home.tab.dashboard.DashboardTaskUi
 import com.frame.zero.feature.home.tab.dashboard.DueUrgency
 import com.frame.zero.feature.home.ui.tab.dashboard.DashboardTestTags
@@ -49,6 +52,7 @@ internal fun MyTasksSection(
     verticalAlignment = Alignment.CenterVertically
   ) {
     Text(
+      modifier = Modifier.semantics { heading() },
       text = stringResource(Res.string.my_tasks_title),
       style = AppTheme.typographySystem.titleMedium,
       color = AppTheme.colorSystem.textPrimary
@@ -84,7 +88,8 @@ private fun TaskCard(
     modifier = modifier
       .fillMaxWidth()
       .clip(shape)
-      .clickableWithRipple(color = colorSystem.accentDim, onClick = onClick)
+      .clickableWithRipple(color = colorSystem.accentDim, role = Role.Button, onClick = onClick)
+      .semantics(mergeDescendants = true) {}
       .background(colorSystem.cardBackground)
       .border(AppTheme.borderSystem.hairline, colorSystem.border, shape)
       .padding(spacingSystem.space16),

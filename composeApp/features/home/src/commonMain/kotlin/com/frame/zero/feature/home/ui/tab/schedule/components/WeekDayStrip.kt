@@ -19,6 +19,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.frame.zero.shared.design_system.AppTheme
@@ -99,6 +103,10 @@ private fun WeekDayCell(
         indication = null,
         onClick = onClick
       )
+      .semantics(mergeDescendants = true) {
+        selected = isSelected
+        role = Role.Button
+      }
       .padding(vertical = AppTheme.spacingSystem.space8),
     horizontalAlignment = Alignment.CenterHorizontally
   ) {

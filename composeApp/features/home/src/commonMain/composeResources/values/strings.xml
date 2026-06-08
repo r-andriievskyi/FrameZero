@@ -44,6 +44,8 @@
   <string name="schedule_view_day">Day</string>
   <string name="schedule_view_week">Week</string>
   <string name="schedule_view_month">Month</string>
+  <string name="cd_previous_month">Previous month</string>
+  <string name="cd_next_month">Next month</string>
   <string name="today">Today</string>
   <string name="tomorrow">Tomorrow</string>
   <string name="schedule_events_header">EVENTS</string>

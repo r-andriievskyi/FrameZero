@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -18,12 +18,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.modifier.clickableWithRipple
 
-private val MinHeight = 48.dp
+private val Height = 48.dp
 private val LoadingIndicatorSize = 36.dp
 
 @Composable
@@ -84,15 +86,18 @@ private fun CtaButtonInternal(
   val spacingSystem = AppTheme.spacingSystem
   Box(
     modifier = modifier
-      .heightIn(min = MinHeight)
+      .height(Height)
       .clip(shape)
       .background(color = backgroundColor, shape = shape)
       .then(if (border != null) Modifier.border(border, shape) else Modifier)
       .clickableWithRipple(
         color = rippleColor,
         enabled = !loading,
+        role = Role.Button,
         onClick = onClick
-      ).padding(
+      )
+      .semantics(mergeDescendants = true) {}
+      .padding(
         horizontal = spacingSystem.space8,
         vertical = spacingSystem.space8
       ),

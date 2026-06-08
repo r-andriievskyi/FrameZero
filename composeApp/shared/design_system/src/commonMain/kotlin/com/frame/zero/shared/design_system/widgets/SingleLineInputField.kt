@@ -24,6 +24,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.error
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
@@ -39,6 +42,8 @@ fun SingleLineInputField(
   onValueChange: (String) -> Unit,
   modifier: Modifier = Modifier,
   placeholder: String = "",
+  contentDescription: String? = null,
+  errorMessage: String? = null,
   leadingContent: (@Composable () -> Unit)? = null,
   trailingContent: (@Composable () -> Unit)? = null,
   enabled: Boolean = true,
@@ -62,7 +67,13 @@ fun SingleLineInputField(
       textFieldValue = it
       onValueChange(it.text)
     },
-    modifier = modifier.fillMaxWidth().heightIn(min = MinHeight),
+    modifier = modifier
+      .fillMaxWidth()
+      .heightIn(min = MinHeight)
+      .semantics {
+        if (contentDescription != null) this.contentDescription = contentDescription
+        if (errorMessage != null) error(errorMessage)
+      },
     enabled = enabled,
     singleLine = true,
     textStyle = typography.bodyLarge.copy(color = colors.textPrimary),

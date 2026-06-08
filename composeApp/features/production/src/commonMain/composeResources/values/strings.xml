@@ -29,6 +29,8 @@
   <string name="create_placeholder_name">Full name</string>
   <string name="create_field_role">ROLE</string>
   <string name="create_crew_empty">No crew added yet</string>
+  <string name="cd_add_crew_member">Add crew member</string>
+  <string name="cd_remove_crew_member">Remove %1$s</string>
   <string name="create_crew_owner_note">You\'ll be added as the project owner automatically</string>
   <string name="create_button_skip_continue">Skip &amp; continue</string>
 
