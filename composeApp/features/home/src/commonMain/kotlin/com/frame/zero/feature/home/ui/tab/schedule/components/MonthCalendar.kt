@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -22,6 +23,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.frame.zero.shared.design_system.AppTheme
@@ -32,6 +39,10 @@ import com.frame.zero.core.format.calendarDayLabels
 import com.frame.zero.core.format.fullName
 import com.frame.zero.shared.design_system.modifier.clickableWithRipple
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer
+import framezero.composeapp.features.home.generated.resources.Res
+import framezero.composeapp.features.home.generated.resources.cd_next_month
+import framezero.composeapp.features.home.generated.resources.cd_previous_month
+import org.jetbrains.compose.resources.stringResource
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.datetime.DateTimeUnit
@@ -65,15 +76,24 @@ internal fun MonthCalendar(
       horizontalArrangement = Arrangement.SpaceBetween,
       verticalAlignment = Alignment.CenterVertically
     ) {
-      MonthNavButton(iconRes = DesignSystemRes.drawable.ic_chevron_left, onClick = onPreviousMonth)
+      MonthNavButton(
+        iconRes = DesignSystemRes.drawable.ic_chevron_left,
+        contentDescription = stringResource(Res.string.cd_previous_month),
+        onClick = onPreviousMonth
+      )
       val monthName = month.fullName()
       Text(
+        modifier = Modifier.semantics { heading() },
         text = "$monthName $year",
         style = AppTheme.typographySystem.titleMedium,
         color = AppTheme.colorSystem.textPrimary,
         textAlign = TextAlign.Center
       )
-      MonthNavButton(iconRes = DesignSystemRes.drawable.ic_chevron_right, onClick = onNextMonth)
+      MonthNavButton(
+        iconRes = DesignSystemRes.drawable.ic_chevron_right,
+        contentDescription = stringResource(Res.string.cd_next_month),
+        onClick = onNextMonth
+      )
     }
 
     VerticalSpacer(AppTheme.spacingSystem.space16)
@@ -135,17 +155,24 @@ internal fun MonthCalendar(
 @Composable
 private fun MonthNavButton(
   iconRes: DrawableResource,
+  contentDescription: String,
   onClick: () -> Unit,
   modifier: Modifier = Modifier
 ) {
   val shape = RoundedCornerShape(AppTheme.radiusSystem.radius8)
   Box(
     modifier = modifier
+      .minimumInteractiveComponentSize()
       .size(NavButtonSize)
       .clip(shape)
       .background(color = AppTheme.colorSystem.inputBackground)
       .border(width = AppTheme.borderSystem.hairline, color = AppTheme.colorSystem.border, shape = shape)
-      .clickableWithRipple(color = AppTheme.colorSystem.accentDim, onClick = onClick),
+      .clickableWithRipple(
+        color = AppTheme.colorSystem.accentDim,
+        role = Role.Button,
+        onClick = onClick
+      )
+      .semantics { this.contentDescription = contentDescription },
     contentAlignment = Alignment.Center
   ) {
     Image(
@@ -186,7 +213,11 @@ private fun MonthDayCell(
         interactionSource = remember { MutableInteractionSource() },
         indication = null,
         onClick = onClick
-      ),
+      )
+      .semantics(mergeDescendants = true) {
+        selected = isSelected
+        role = Role.Button
+      },
     horizontalAlignment = Alignment.CenterHorizontally,
     verticalArrangement = Arrangement.Center
   ) {

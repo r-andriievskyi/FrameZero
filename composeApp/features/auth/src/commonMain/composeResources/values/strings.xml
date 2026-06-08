@@ -7,6 +7,9 @@
   <string name="field_password">PASSWORD</string>
   <string name="placeholder_email">you@studio.com</string>
   <string name="placeholder_password">******</string>
+  <string name="cd_password_visibility">Toggle password visibility</string>
+  <string name="state_password_visible">Password visible</string>
+  <string name="state_password_hidden">Password hidden</string>
   <string name="btn_sign_in">Sign in</string>
   <string name="btn_create_account">Create account</string>
 

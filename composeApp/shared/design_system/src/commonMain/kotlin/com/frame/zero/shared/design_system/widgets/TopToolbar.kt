@@ -10,20 +10,24 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.generated.resources.Res
+import com.frame.zero.shared.design_system.generated.resources.cd_back
 import com.frame.zero.shared.design_system.generated.resources.ic_chevron_left
 import com.frame.zero.shared.design_system.modifier.clickableWithRipple
 import kotlinx.collections.immutable.persistentListOf
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 private val BackButtonSize = 40.dp
 
@@ -67,6 +71,7 @@ private fun BackButton(
   val colorSystem = AppTheme.colorSystem
   Box(
     modifier = modifier
+      .minimumInteractiveComponentSize()
       .size(BackButtonSize)
       .clip(shape)
       .background(colorSystem.cardBackground)
@@ -74,6 +79,7 @@ private fun BackButton(
       .clickableWithRipple(
         color = colorSystem.accentDim,
         bounded = true,
+        role = Role.Button,
         onClick = onClick
       ),
     contentAlignment = Alignment.Center
@@ -81,7 +87,7 @@ private fun BackButton(
     Image(
       painter = painterResource(Res.drawable.ic_chevron_left),
       colorFilter = ColorFilter.tint(colorSystem.textPrimary),
-      contentDescription = null
+      contentDescription = stringResource(Res.string.cd_back)
     )
   }
 }

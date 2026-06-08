@@ -10,6 +10,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.widgets.HorizontalSpacer
@@ -40,6 +42,7 @@ internal fun ScheduleSectionHeader(
     )
     HorizontalSpacer(AppTheme.spacingSystem.space8)
     Text(
+      modifier = Modifier.semantics { heading() },
       text = title,
       style = AppTheme.typographySystem.titleSmall,
       color = AppTheme.colorSystem.textPrimary

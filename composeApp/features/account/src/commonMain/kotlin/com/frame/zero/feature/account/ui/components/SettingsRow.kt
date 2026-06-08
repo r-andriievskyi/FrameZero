@@ -16,6 +16,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.frame.zero.shared.design_system.AppTheme
@@ -49,8 +51,10 @@ internal fun SettingsRow(
       .clickableWithRipple(
         color = colorSystem.accentDim,
         bounded = true,
+        role = Role.Button,
         onClick = onClick
       )
+      .semantics(mergeDescendants = true) {}
       .padding(
         horizontal = spacingSystem.space16,
         vertical = spacingSystem.space16
@@ -66,7 +70,7 @@ internal fun SettingsRow(
     ) {
       Icon(
         painter = painterResource(icon),
-        contentDescription = title,
+        contentDescription = null,
         tint = colorSystem.accent
       )
     }

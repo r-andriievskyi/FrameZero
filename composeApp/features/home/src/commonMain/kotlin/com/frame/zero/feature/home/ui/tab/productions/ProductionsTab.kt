@@ -25,6 +25,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.paging.PagingData
@@ -94,6 +96,7 @@ private fun ProductionsContent(
       verticalAlignment = Alignment.CenterVertically
     ) {
       Text(
+        modifier = Modifier.semantics { heading() },
         text = stringResource(Res.string.projects_title),
         style = AppTheme.typographySystem.displayMedium,
         color = AppTheme.colorSystem.textPrimary

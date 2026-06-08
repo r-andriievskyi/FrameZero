@@ -12,13 +12,13 @@ internal val TokenColorNeutral780 = Color(0xFF141823)
 internal val TokenColorNeutral750 = Color(0xFF191D26)
 internal val TokenColorNeutral700 = Color(0xFF1E232E)
 internal val TokenColorNeutral600 = Color(0xFF20242F)
-internal val TokenColorNeutral400 = Color(0xFF6B7383)
+internal val TokenColorNeutral400 = Color(0xFF767E8E) // muted text on dark bg — 4.75:1 (WCAG AA)
 internal val TokenColorNeutral300 = Color(0xFFA4ABB9)
 internal val TokenColorNeutral100 = Color(0xFFF0F2F7)
 internal val TokenColorNeutral050 = Color(0xFFF5F6FA)
 internal val TokenColorNeutral100L = Color(0xFFEAEDF5)
 internal val TokenColorNeutral200L = Color(0xFFCFD7E7)
-internal val TokenColorNeutral500L = Color(0xFF828A9A)
+internal val TokenColorNeutral500L = Color(0xFF687085) // muted text on light bg — 4.58:1 (WCAG AA)
 internal val TokenColorNeutral600L = Color(0xFF4D5468)
 internal val TokenColorNeutral900L = Color(0xFF0F1219)
 
@@ -28,7 +28,7 @@ internal val TokenColorBeacon600 = Color(0xFF1652B8) // oklch(48% 0.20 250) — 
 internal val TokenColorBeaconSoftD = Color(0xFF131F38) // oklch(22% 0.08 250) — accent bg on dark
 internal val TokenColorBeaconSoftL = Color(0xFFDCE6F6) // oklch(92% 0.05 250) — accent bg on light
 internal val TokenColorBeaconTextD = Color(0xFF98BAF6) // oklch(84% 0.13 250) — accent text on dark (~12:1)
-internal val TokenColorBeaconTextL = Color(0xFF2A6FDB) // same as Beacon500
+internal val TokenColorBeaconTextL = Color(0xFF1F63CF) // accent text on light — 5.2:1 AA (Beacon500 is 4.4:1)
 
 // Status — success (teal) — unchanged
 internal val TokenColorTealSoftD = Color(0xFF0E2B1C)

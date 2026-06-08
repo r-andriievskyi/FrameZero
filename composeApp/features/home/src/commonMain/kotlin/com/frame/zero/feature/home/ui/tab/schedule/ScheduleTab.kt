@@ -14,6 +14,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.frame.zero.core.collections.mapImmutableSet
 import com.frame.zero.core.collections.orEmpty
@@ -91,6 +93,7 @@ private fun ScheduleContent(
       )
   ) {
     Text(
+      modifier = Modifier.semantics { heading() },
       text = stringResource(Res.string.schedule_screen_title),
       style = AppTheme.typographySystem.displayMedium,
       color = colorSystem.textPrimary

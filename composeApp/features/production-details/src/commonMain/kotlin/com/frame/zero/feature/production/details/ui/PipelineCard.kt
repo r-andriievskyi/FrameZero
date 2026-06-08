@@ -17,6 +17,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.frame.zero.shared.design_system.AppTheme
 import framezero.composeapp.features.production_details.generated.resources.Res
@@ -62,6 +64,7 @@ internal fun PipelineCard(
       verticalAlignment = Alignment.CenterVertically
     ) {
       Text(
+        modifier = Modifier.semantics { heading() },
         text = stringResource(Res.string.pipeline_header),
         style = AppTheme.typographySystem.caption,
         color = AppTheme.colorSystem.textMuted
