@@ -18,6 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.frame.zero.domain.production.Genre
 import com.frame.zero.domain.production.ProductionPhase
@@ -55,7 +57,12 @@ internal fun ProductionCard(
         AppTheme.colorSystem.border,
         RoundedCornerShape(AppTheme.radiusSystem.radius16)
       )
-      .clickableWithRipple(color = AppTheme.colorSystem.accentDim, onClick = onClick)
+      .clickableWithRipple(
+        color = AppTheme.colorSystem.accentDim,
+        role = Role.Button,
+        onClick = onClick
+      )
+      .semantics(mergeDescendants = true) {}
       .padding(AppTheme.spacingSystem.space16)
   ) {
     Row(

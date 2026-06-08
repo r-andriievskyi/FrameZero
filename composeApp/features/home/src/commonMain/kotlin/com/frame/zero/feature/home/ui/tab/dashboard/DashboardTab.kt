@@ -10,6 +10,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.platform.testTag
 import com.frame.zero.feature.home.tab.dashboard.DashboardStatsUi
@@ -51,7 +53,9 @@ internal fun DashboardContent(
   ) {
     if (dashboard != null) {
       Text(
-        modifier = Modifier.testTag(DashboardTestTags.GREETING),
+        modifier = Modifier
+          .testTag(DashboardTestTags.GREETING)
+          .semantics { heading() },
         text = stringResource(Res.string.greeting_good_morning, dashboard.displayName),
         style = AppTheme.typographySystem.displayMedium,
         color = AppTheme.colorSystem.textPrimary

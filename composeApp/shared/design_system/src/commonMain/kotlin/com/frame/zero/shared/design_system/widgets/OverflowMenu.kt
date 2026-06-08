@@ -8,7 +8,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
@@ -18,12 +20,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.frame.zero.shared.design_system.AppTheme
+import com.frame.zero.shared.design_system.LightDarkPreview
+import com.frame.zero.shared.design_system.generated.resources.Res
+import com.frame.zero.shared.design_system.generated.resources.cd_more_options
+import com.frame.zero.shared.design_system.generated.resources.ic_dots_vertical
 import com.frame.zero.shared.design_system.modifier.clickableWithRipple
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 private val TriggerSize = 40.dp
 private val MenuWidth = 200.dp
@@ -44,10 +54,12 @@ fun OverflowMenu(
 
   var expanded by remember { mutableStateOf(false) }
   val shape = RoundedCornerShape(AppTheme.radiusSystem.radius8)
+  val moreOptionsLabel = stringResource(Res.string.cd_more_options)
 
   Box(modifier = modifier) {
     Box(
       modifier = Modifier
+        .minimumInteractiveComponentSize()
         .size(TriggerSize)
         .clip(shape)
         .border(
@@ -58,14 +70,16 @@ fun OverflowMenu(
         .clickableWithRipple(
           color = AppTheme.colorSystem.accentDim,
           bounded = true,
+          role = Role.Button,
           onClick = { expanded = true }
-        ),
+        )
+        .semantics { contentDescription = moreOptionsLabel },
       contentAlignment = Alignment.Center
     ) {
-      Text(
-        text = "···",
-        style = AppTheme.typographySystem.titleMedium,
-        color = AppTheme.colorSystem.textPrimary
+      Icon(
+        painterResource(Res.drawable.ic_dots_vertical),
+        tint = AppTheme.colorSystem.textPrimary,
+        contentDescription = null
       )
     }
     DropdownMenu(
@@ -98,10 +112,10 @@ fun OverflowMenu(
   }
 }
 
-@Preview
+@LightDarkPreview
 @Composable
 private fun OverflowMenuPreview() {
-  AppTheme(darkTheme = true) {
+  AppTheme {
     OverflowMenu(
       items = persistentListOf(
         OverflowMenuItem(text = "Edit", onClick = {}),

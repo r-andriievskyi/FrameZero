@@ -15,6 +15,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
@@ -69,6 +72,7 @@ fun AppToast(
   Row(
     modifier = modifier
       .fillMaxWidth()
+      .semantics { liveRegion = LiveRegionMode.Polite }
       .clip(shape)
       .border(
         width = AppTheme.borderSystem.hairline,

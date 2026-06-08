@@ -18,6 +18,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.frame.zero.shared.design_system.AppTheme
@@ -34,6 +37,7 @@ import com.frame.zero.feature.production.ui.widgets.ErrorText
 import com.frame.zero.feature.production.ui.widgets.FieldLabel
 import com.frame.zero.shared.design_system.LightDarkPreview
 import framezero.composeapp.features.production.generated.resources.Res
+import framezero.composeapp.features.production.generated.resources.cd_add_crew_member
 import framezero.composeapp.features.production.generated.resources.create_button_continue
 import framezero.composeapp.features.production.generated.resources.create_button_skip_continue
 import framezero.composeapp.features.production.generated.resources.create_crew_empty
@@ -98,16 +102,21 @@ internal fun Step2Content(
           onSelect = { onIntent(CreateProductionIntent.CrewRoleChanged(it)) }
         )
       }
+      val addCrewLabel = stringResource(Res.string.cd_add_crew_member)
       Box(
         modifier = Modifier
           .size(AddCrewButtonSize)
           .clip(RoundedCornerShape(AppTheme.radiusSystem.radius8))
           .background(AppTheme.colorSystem.accent)
-          .clickableWithRipple(color = AppTheme.colorSystem.textOnAccent) {
+          .clickableWithRipple(
+            color = AppTheme.colorSystem.textOnAccent,
+            role = Role.Button
+          ) {
             if (state.crewNameInput.isNotBlank()) {
               onIntent(CreateProductionIntent.AddCrewMember)
             }
-          },
+          }
+          .semantics { contentDescription = addCrewLabel },
         contentAlignment = Alignment.Center
       ) {
         Image(

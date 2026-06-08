@@ -17,6 +17,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.frame.zero.feature.home.tab.HomeTab
 import com.frame.zero.shared.design_system.AppTheme
@@ -87,8 +90,10 @@ private fun NavItem(
       .clip(itemShape)
       .clickableWithRipple(
         color = AppTheme.colorSystem.accentDim,
+        role = Role.Tab,
         onClick = onClick
       )
+      .semantics(mergeDescendants = true) { this.selected = selected }
       .background(color = if (selected) colorSystem.accent else Color.Transparent)
       .padding(
         horizontal = spacingSystem.space16,
