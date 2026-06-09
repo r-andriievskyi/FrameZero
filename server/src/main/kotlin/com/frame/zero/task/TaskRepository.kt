@@ -167,10 +167,10 @@ class TaskRepositoryImpl : TaskRepository {
               val cursorTs = Instant.ofEpochMilli(pc.epochMillis)
               cond =
                 cond and
-                  (
-                    (TasksTable.createdAt less cursorTs) or
-                      ((TasksTable.createdAt eq cursorTs) and (TasksTable.id less pc.id))
-                    )
+                (
+                  (TasksTable.createdAt less cursorTs) or
+                    ((TasksTable.createdAt eq cursorTs) and (TasksTable.id less pc.id))
+                )
             }
           }
           cond
