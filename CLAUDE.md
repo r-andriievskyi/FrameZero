@@ -20,6 +20,11 @@ docker compose down -v                 # wipe DB volume entirely
 ./gradlew test                                                   # all modules
 ./gradlew :shared:test --tests "com.frame.zero.SharedCommonTest" # single class
 
+# Screenshot tests (Roborazzi) — see "Screenshot tests" below
+./gradlew :composeApp:shared:design_system:recordRoborazziDebug  # (re)generate goldens
+./gradlew :composeApp:shared:design_system:verifyRoborazziDebug  # fail on visual drift
+./gradlew :composeApp:shared:design_system:compareRoborazziDebug # diff only, don't fail
+
 # Code quality
 ./gradlew ktlintFormat                 # auto-format
 ./gradlew check                        # ktlintCheck + detekt + tests
@@ -187,6 +192,15 @@ actuals — no `jvmMain`. No TODO actuals. Don't `if/when` on runtime OS.
 `testing/Fakes.kt` (see `shared/features/auth/.../testing/Fakes.kt`). No
 mockito/mockk in shared code.
 
+### Screenshot tests
+
+Roborazzi golden coverage, piloted in `composeApp/shared/design_system`: `PreviewScreenshotTest`
+auto-captures every `@LightDarkPreview`/`@Preview` (Light + Dark) — no per-component code. Goldens
+are committed under `<module>/src/androidUnitTest/screenshots/`; `record` regenerates, `verify`
+fails on drift (`./gradlew check` does **not** — run `verifyRoborazziDebug` explicitly).
+Suite is exact-match: exclude flaky animated previews by `methodName` via the test's
+`ANIMATED_PREVIEWS` set (e.g. `CtaButtonPreview` → Material3 `LoadingIndicator`).
+
 ## Key dependencies
 
 All versions in `gradle/libs.versions.toml` — add new deps to the catalog, not
@@ -200,6 +214,8 @@ module scripts.
 - AndroidX Room **2.8.4** (KMP) + Paging **3.5.0** + SQLite bundled **2.6.2** — offline-first
 - Server: Exposed **1.2.0** + HikariCP **7.0.2** + PostgreSQL **42.7.11**, H2 **2.4.240**
   (tests), JWT via `ktor-server-auth-jwt`, bcrypt for passwords
+- Tests: Robolectric **4.16.1** + `compose-uiTestJUnit4`; Roborazzi **1.63.0** +
+  ComposablePreviewScanner **0.9.0** for screenshot goldens (see [Screenshot tests](#screenshot-tests))
 - Android minSdk **29**, targetSdk **36**, JVM target **11**
 
 ## Server config
