@@ -1,4 +1,7 @@
-plugins { id("crossplatform.library.compose") }
+plugins {
+  id("crossplatform.library.compose")
+  alias(libs.plugins.roborazzi)
+}
 
 base { archivesName = "ui-feature-auth" }
 
@@ -17,6 +20,11 @@ kotlin {
       implementation(libs.junit)
       implementation(libs.robolectric)
       implementation(libs.compose.uiTestJUnit4)
+      implementation(libs.roborazzi)
+      implementation(libs.roborazzi.compose)
+      implementation(libs.roborazzi.junitRule)
+      implementation(libs.roborazzi.composePreviewScannerSupport)
+      implementation(libs.composablePreviewScanner.android)
     }
   }
 }
