@@ -59,7 +59,12 @@ class TaskService(
   ): TaskDetailDto {
     val errors = mutableMapOf<String, String>()
     if (request.title.isBlank()) errors["title"] = "Required"
-    if (request.title.length > 200) errors["title"] = "Max 200 characters"
+    if (request.title.length > MAX_TITLE_LENGTH) {
+      errors["title"] = "Max $MAX_TITLE_LENGTH characters"
+    }
+    if ((request.description?.length ?: 0) > MAX_DESCRIPTION_LENGTH) {
+      errors["description"] = "Max $MAX_DESCRIPTION_LENGTH characters"
+    }
     if (errors.isNotEmpty()) throw AppException(AppError.ValidationError(errors))
 
     val productionId =
@@ -94,10 +99,16 @@ class TaskService(
     val task = tasks.findById(taskId) ?: throw AppException(AppError.NotFound)
     access.requireAccess(userId, task.productionId, AccessLevel.WRITE)
 
+    val errors = mutableMapOf<String, String>()
     val requestTitle = request.title
-    if (requestTitle != null && requestTitle.isBlank()) {
-      throw AppException(AppError.ValidationError(mapOf("title" to "Cannot be empty")))
+    if (requestTitle != null && requestTitle.isBlank()) errors["title"] = "Cannot be empty"
+    if (requestTitle != null && requestTitle.length > MAX_TITLE_LENGTH) {
+      errors["title"] = "Max $MAX_TITLE_LENGTH characters"
     }
+    if ((request.description?.length ?: 0) > MAX_DESCRIPTION_LENGTH) {
+      errors["description"] = "Max $MAX_DESCRIPTION_LENGTH characters"
+    }
+    if (errors.isNotEmpty()) throw AppException(AppError.ValidationError(errors))
 
     val assigneeId =
       request.assigneeUserId?.let {
@@ -155,4 +166,11 @@ class TaskService(
       },
       createdAt = createdAt.toKotlinInstant()
     )
+
+  private companion object {
+    // Title matches the TasksTable column size; description is an unbounded
+    // text column, so the cap is a request-sanity bound rather than a schema one.
+    const val MAX_TITLE_LENGTH = 200
+    const val MAX_DESCRIPTION_LENGTH = 10_000
+  }
 }

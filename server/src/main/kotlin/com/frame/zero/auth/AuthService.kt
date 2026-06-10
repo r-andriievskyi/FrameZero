@@ -27,15 +27,16 @@ class AuthService(
   ): AuthResponse {
     validateEmail(email)
     validatePassword(password)
+    validateName(firstName, "firstName")
+    validateName(lastName, "lastName")
     val normalized = email.trim().lowercase()
     if (users.findByEmail(normalized) != null) throw AuthException(EmailAlreadyExists)
-    val user =
-      users.create(
-        email = normalized,
-        passwordHash = passwordHasher.hash(password),
-        firstName = firstName.trim(),
-        lastName = lastName.trim()
-      )
+    val user = users.create(
+      email = normalized,
+      passwordHash = passwordHasher.hash(password),
+      firstName = firstName.trim(),
+      lastName = lastName.trim()
+    )
     return issueTokens(user)
   }
 
@@ -52,9 +53,17 @@ class AuthService(
   suspend fun refresh(refreshToken: String): RefreshResponse {
     val hash = tokenHasher.sha256(refreshToken)
     val now = Instant.now()
-    val record =
-      refreshTokens.findActiveByHash(hash, now) ?: throw AuthException(InvalidRefreshToken)
-    refreshTokens.revoke(hash)
+    val record = refreshTokens.claim(hash, now)
+    if (record == null) {
+      // A refresh attempt with an already-revoked token means it was rotated
+      // before — either replayed by a racing client or stolen. Treat it as
+      // theft and kill every session for that user.
+      val known = refreshTokens.findByHash(hash)
+      if (known != null && known.revoked) {
+        refreshTokens.revokeAllForUser(known.userId)
+      }
+      throw AuthException(InvalidRefreshToken)
+    }
     val user = users.findById(record.userId) ?: throw AuthException(InvalidRefreshToken)
     val (newRefresh, newRefreshHash, expiresAt) = newRefreshToken()
     refreshTokens.create(userId = user.id, tokenHash = newRefreshHash, expiresAt = expiresAt)
@@ -91,7 +100,11 @@ class AuthService(
     UserDto(id = id.toString(), email = email, firstName = firstName, lastName = lastName)
 
   private fun validateEmail(email: String) {
-    if (!EMAIL_REGEX.matches(email.trim())) {
+    val trimmed = email.trim()
+    if (trimmed.length > MAX_EMAIL_LENGTH) {
+      throw AuthException(InvalidInput("Email must be at most $MAX_EMAIL_LENGTH characters"))
+    }
+    if (!EMAIL_REGEX.matches(trimmed)) {
       throw AuthException(InvalidInput("Invalid email format"))
     }
   }
@@ -102,8 +115,22 @@ class AuthService(
     }
   }
 
+  private fun validateName(
+    name: String,
+    field: String
+  ) {
+    if (name.isBlank()) throw AuthException(InvalidInput("$field is required"))
+    if (name.trim().length > MAX_NAME_LENGTH) {
+      throw AuthException(InvalidInput("$field must be at most $MAX_NAME_LENGTH characters"))
+    }
+  }
+
   private companion object {
     const val MIN_PASSWORD_LENGTH = 8
+
+    // match the column sizes in UsersTable.
+    const val MAX_EMAIL_LENGTH = 320
+    const val MAX_NAME_LENGTH = 100
     val EMAIL_REGEX = Regex("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
   }
 }

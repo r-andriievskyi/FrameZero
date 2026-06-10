@@ -2,7 +2,6 @@ package com.frame.zero.auth
 
 import com.frame.zero.common.testing.H2TestDatabase
 import kotlinx.coroutines.runBlocking
-import org.jetbrains.exposed.v1.exceptions.ExposedSQLException
 import java.util.UUID
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -88,11 +87,12 @@ class UserRepositoryTest {
     }
 
   @Test
-  fun `inserting a duplicate email throws a SQL exception`() {
+  fun `inserting a duplicate email maps to EmailAlreadyExists`() {
     runBlocking { repository.create("u@x.com", "hash-1", "", "") }
 
-    assertFailsWith<ExposedSQLException> {
+    val ex = assertFailsWith<AuthException> {
       runBlocking { repository.create("u@x.com", "hash-2", "", "") }
     }
+    assertEquals(AuthError.EmailAlreadyExists, ex.error)
   }
 }

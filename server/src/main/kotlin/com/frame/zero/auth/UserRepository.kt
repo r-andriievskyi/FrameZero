@@ -5,8 +5,12 @@ import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
+import java.sql.SQLException
 import java.time.Instant
 import java.util.UUID
+
+// SQLSTATE for unique-constraint violations (Postgres and H2 alike).
+private const val UNIQUE_VIOLATION_SQL_STATE = "23505"
 
 data class UserRecord(
   val id: UUID,
@@ -58,13 +62,21 @@ class UserRepositoryImpl : UserRepository {
     dbQuery {
       val newId = UUID.randomUUID()
       val now = Instant.now()
-      UsersTable.insert {
-        it[id] = newId
-        it[UsersTable.email] = email.lowercase()
-        it[UsersTable.passwordHash] = passwordHash
-        it[UsersTable.firstName] = firstName
-        it[UsersTable.lastName] = lastName
-        it[createdAt] = now
+      try {
+        UsersTable.insert {
+          it[id] = newId
+          it[UsersTable.email] = email.lowercase()
+          it[UsersTable.passwordHash] = passwordHash
+          it[UsersTable.firstName] = firstName
+          it[UsersTable.lastName] = lastName
+          it[createdAt] = now
+        }
+      } catch (e: SQLException) {
+        // Two concurrent registrations can both pass the service-level
+        // findByEmail check; the loser hits the unique index here and must
+        // surface as the same 409 as the pre-checked path.
+        if (e.isUniqueViolation()) throw AuthException(AuthError.EmailAlreadyExists)
+        throw e
       }
       UserRecord(
         id = newId,
@@ -75,6 +87,11 @@ class UserRepositoryImpl : UserRepository {
         createdAt = now
       )
     }
+
+  private fun SQLException.isUniqueViolation(): Boolean =
+    generateSequence(this as Throwable) { it.cause }
+      .filterIsInstance<SQLException>()
+      .any { it.sqlState == UNIQUE_VIOLATION_SQL_STATE }
 
   private fun ResultRow.toRecord(): UserRecord =
     UserRecord(
