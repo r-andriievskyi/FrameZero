@@ -2,11 +2,22 @@ package com.frame.zero.config
 
 data class AppConfig(
   val database: DatabaseConfig,
-  val jwt: JwtConfig
+  val jwt: JwtConfig,
+  val corsAllowedOrigins: List<String> = emptyList(),
+  val isDevelopment: Boolean = false
 ) {
   companion object {
     fun fromEnv(): AppConfig {
-      val config = AppConfig(database = DatabaseConfig.fromEnv(), jwt = JwtConfig.fromEnv())
+      val config = AppConfig(
+        database = DatabaseConfig.fromEnv(),
+        jwt = JwtConfig.fromEnv(),
+        corsAllowedOrigins = System.getenv("CORS_ALLOWED_ORIGINS")
+          .orEmpty()
+          .split(',')
+          .map { it.trim() }
+          .filter { it.isNotEmpty() },
+        isDevelopment = System.getProperty("io.ktor.development")?.toBoolean() == true
+      )
       config.validate()
       return config
     }

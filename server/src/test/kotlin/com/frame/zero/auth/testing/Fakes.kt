@@ -69,10 +69,38 @@ internal class FakeRefreshTokenRepository : RefreshTokenRepository {
       it.tokenHash == tokenHash && !it.revoked && it.expiresAt.isAfter(now)
     }
 
+  override suspend fun findByHash(tokenHash: String): RefreshTokenRecord? =
+    records.firstOrNull { it.tokenHash == tokenHash }
+
+  override suspend fun claim(
+    tokenHash: String,
+    now: Instant
+  ): RefreshTokenRecord? {
+    val idx = records.indexOfFirst {
+      it.tokenHash == tokenHash && !it.revoked && it.expiresAt.isAfter(now)
+    }
+    if (idx < 0) return null
+    records[idx] = records[idx].copy(revoked = true)
+    return records[idx]
+  }
+
   override suspend fun revoke(tokenHash: String): Boolean {
     val idx = records.indexOfFirst { it.tokenHash == tokenHash }
     if (idx < 0) return false
     records[idx] = records[idx].copy(revoked = true)
     return true
+  }
+
+  override suspend fun revokeAllForUser(userId: UUID): Int {
+    var count = 0
+    records.replaceAll { record ->
+      if (record.userId == userId && !record.revoked) {
+        count++
+        record.copy(revoked = true)
+      } else {
+        record
+      }
+    }
+    return count
   }
 }

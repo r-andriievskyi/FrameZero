@@ -99,4 +99,44 @@ class RefreshTokenRepositoryImplTest {
     runBlocking {
       assertFalse(refreshTokens.revoke("never-issued"))
     }
+
+  @Test
+  fun `claim succeeds exactly once for an active token`() =
+    runBlocking {
+      val userId = users.create("u@x.com", "hash", "", "").id
+      refreshTokens.create(userId, "hash-1", Instant.now().plusSeconds(3600))
+
+      val first = refreshTokens.claim("hash-1", Instant.now())
+      val second = refreshTokens.claim("hash-1", Instant.now())
+
+      assertNotNull(first)
+      assertTrue(first.revoked)
+      assertNull(second, "a second claim of the same token must fail")
+    }
+
+  @Test
+  fun `claim returns null for an expired token`() =
+    runBlocking {
+      val userId = users.create("u@x.com", "hash", "", "").id
+      refreshTokens.create(userId, "hash-expired", Instant.now().minusSeconds(60))
+
+      assertNull(refreshTokens.claim("hash-expired", Instant.now()))
+    }
+
+  @Test
+  fun `revokeAllForUser revokes every active token for that user only`() =
+    runBlocking {
+      val userId = users.create("u@x.com", "hash", "", "").id
+      val otherId = users.create("other@x.com", "hash", "", "").id
+      refreshTokens.create(userId, "hash-1", Instant.now().plusSeconds(3600))
+      refreshTokens.create(userId, "hash-2", Instant.now().plusSeconds(3600))
+      refreshTokens.create(otherId, "hash-other", Instant.now().plusSeconds(3600))
+
+      val revokedCount = refreshTokens.revokeAllForUser(userId)
+
+      assertEquals(2, revokedCount)
+      assertNotNull(refreshTokens.findActiveByHash("hash-other", Instant.now()))
+      assertNull(refreshTokens.findActiveByHash("hash-1", Instant.now()))
+      assertNull(refreshTokens.findActiveByHash("hash-2", Instant.now()))
+    }
 }
