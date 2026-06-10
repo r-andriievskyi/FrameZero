@@ -31,7 +31,21 @@ interface RefreshTokenRepository {
     now: Instant
   ): RefreshTokenRecord?
 
+  suspend fun findByHash(tokenHash: String): RefreshTokenRecord?
+
+  /**
+   * Atomically revokes the token if it is still active. Returns the claimed
+   * record, or null when the token is unknown, expired, or already revoked —
+   * concurrent claims of the same token succeed at most once.
+   */
+  suspend fun claim(
+    tokenHash: String,
+    now: Instant
+  ): RefreshTokenRecord?
+
   suspend fun revoke(tokenHash: String): Boolean
+
+  suspend fun revokeAllForUser(userId: UUID): Int
 }
 
 class RefreshTokenRepositoryImpl : RefreshTokenRepository {
@@ -75,11 +89,52 @@ class RefreshTokenRepositoryImpl : RefreshTokenRepository {
         ?.toRecord()
     }
 
+  override suspend fun findByHash(tokenHash: String): RefreshTokenRecord? =
+    dbQuery {
+      RefreshTokensTable
+        .selectAll()
+        .where { RefreshTokensTable.tokenHash eq tokenHash }
+        .singleOrNull()
+        ?.toRecord()
+    }
+
+  override suspend fun claim(
+    tokenHash: String,
+    now: Instant
+  ): RefreshTokenRecord? =
+    dbQuery {
+      val claimed = RefreshTokensTable.update({
+        (RefreshTokensTable.tokenHash eq tokenHash) and
+          (RefreshTokensTable.revoked eq false) and
+          (RefreshTokensTable.expiresAt greater now)
+      }) {
+        it[revoked] = true
+      } > 0
+      if (claimed) {
+        RefreshTokensTable
+          .selectAll()
+          .where { RefreshTokensTable.tokenHash eq tokenHash }
+          .singleOrNull()
+          ?.toRecord()
+      } else {
+        null
+      }
+    }
+
   override suspend fun revoke(tokenHash: String): Boolean =
     dbQuery {
       RefreshTokensTable.update({ RefreshTokensTable.tokenHash eq tokenHash }) {
         it[revoked] = true
       } > 0
+    }
+
+  override suspend fun revokeAllForUser(userId: UUID): Int =
+    dbQuery {
+      RefreshTokensTable.update({
+        (RefreshTokensTable.userId eq userId) and (RefreshTokensTable.revoked eq false)
+      }) {
+        it[revoked] = true
+      }
     }
 
   private fun ResultRow.toRecord(): RefreshTokenRecord =

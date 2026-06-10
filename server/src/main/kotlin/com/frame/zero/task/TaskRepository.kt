@@ -14,11 +14,11 @@ import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.greater
 import org.jetbrains.exposed.v1.core.greaterEq
 import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.core.isNotNull
 import org.jetbrains.exposed.v1.core.isNull
-import org.jetbrains.exposed.v1.core.less
 import org.jetbrains.exposed.v1.core.lessEq
 import org.jetbrains.exposed.v1.core.or
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
@@ -28,6 +28,10 @@ import org.jetbrains.exposed.v1.jdbc.update
 import java.time.Instant
 import java.time.LocalDate
 import java.util.UUID
+
+// Cursor sentinel for tasks without a due date; they sort after every real
+// date (NULLS LAST), so the sentinel must be the maximum encodable value.
+private const val NULL_DUE_DATE_CURSOR = Long.MAX_VALUE
 
 data class TaskRecord(
   val id: UUID,
@@ -164,13 +168,18 @@ class TaskRepositoryImpl : TaskRepository {
           if (cursor != null) {
             val pc = decodeCursor(cursor)
             if (pc != null) {
-              val cursorTs = Instant.ofEpochMilli(pc.epochMillis)
-              cond =
-                cond and
-                (
-                  (TasksTable.createdAt less cursorTs) or
-                    ((TasksTable.createdAt eq cursorTs) and (TasksTable.id less pc.id))
-                )
+              // Keyset predicate must match the (dueDate ASC NULLS LAST, id ASC)
+              // sort below. Null due dates sort last and are encoded as the
+              // NULL_DUE_DATE_CURSOR sentinel.
+              cond = cond and
+                if (pc.epochMillis == NULL_DUE_DATE_CURSOR) {
+                  TasksTable.dueDate.isNull() and (TasksTable.id greater pc.id)
+                } else {
+                  val cursorDue = LocalDate.ofEpochDay(pc.epochMillis)
+                  (TasksTable.dueDate greater cursorDue) or
+                    ((TasksTable.dueDate eq cursorDue) and (TasksTable.id greater pc.id)) or
+                    TasksTable.dueDate.isNull()
+                }
             }
           }
           cond
@@ -183,7 +192,7 @@ class TaskRepositoryImpl : TaskRepository {
       val nextCursor =
         if (hasMore) {
           val last = items.last()
-          encodeCursor(last.createdAt.toEpochMilli(), last.id)
+          encodeCursor(last.dueDate?.toEpochDay() ?: NULL_DUE_DATE_CURSOR, last.id)
         } else {
           null
         }
@@ -198,7 +207,9 @@ class TaskRepositoryImpl : TaskRepository {
       tasksWithRelations
         .selectAll()
         .where {
-          (TasksTable.assigneeUserId eq userId) and (TasksTable.status eq TaskStatus.OPEN.name)
+          (TasksTable.assigneeUserId eq userId) and
+            (TasksTable.status eq TaskStatus.OPEN.name) and
+            ProductionsTable.deletedAt.isNull()
         }.orderBy(TasksTable.dueDate to SortOrder.ASC_NULLS_LAST)
         .limit(limit)
         .map { it.toRecord() }
@@ -222,17 +233,20 @@ class TaskRepositoryImpl : TaskRepository {
           TasksTable.dueDate.isNotNull() and
             (TasksTable.dueDate greaterEq rangeStart) and
             (TasksTable.dueDate lessEq rangeEnd) and
-            (TasksTable.productionId inList memberProductionIds)
+            (TasksTable.productionId inList memberProductionIds) and
+            ProductionsTable.deletedAt.isNull()
         }.orderBy(TasksTable.dueDate to SortOrder.ASC, TasksTable.id to SortOrder.ASC)
         .map { it.toRecord() }
     }
 
   override suspend fun countOpenForUser(userId: UUID): Int =
     dbQuery {
-      TasksTable
+      (TasksTable innerJoin ProductionsTable)
         .selectAll()
         .where {
-          (TasksTable.assigneeUserId eq userId) and (TasksTable.status eq TaskStatus.OPEN.name)
+          (TasksTable.assigneeUserId eq userId) and
+            (TasksTable.status eq TaskStatus.OPEN.name) and
+            ProductionsTable.deletedAt.isNull()
         }.count()
         .toInt()
     }

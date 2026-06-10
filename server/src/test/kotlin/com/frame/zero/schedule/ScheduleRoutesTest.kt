@@ -63,6 +63,38 @@ class ScheduleRoutesTest {
     }
 
   @Test
+  fun `GET schedule with malformed date returns 400`() =
+    testApplication {
+      val env = TestAppEnv()
+      application { env.configure(this) }
+      val userId = UUID.randomUUID()
+      val token = env.tokenFor(userId)
+
+      val response =
+        client.get("/api/v1/schedule?view=day&date=garbage") {
+          header(HttpHeaders.Authorization, "Bearer $token")
+        }
+
+      assertEquals(HttpStatusCode.BadRequest, response.status)
+    }
+
+  @Test
+  fun `GET schedule with malformed month returns 400`() =
+    testApplication {
+      val env = TestAppEnv()
+      application { env.configure(this) }
+      val userId = UUID.randomUUID()
+      val token = env.tokenFor(userId)
+
+      val response =
+        client.get("/api/v1/schedule?view=month&date=2026-13") {
+          header(HttpHeaders.Authorization, "Bearer $token")
+        }
+
+      assertEquals(HttpStatusCode.BadRequest, response.status)
+    }
+
+  @Test
   fun `GET schedule week view returns 7 days`() =
     testApplication {
       val env = TestAppEnv()

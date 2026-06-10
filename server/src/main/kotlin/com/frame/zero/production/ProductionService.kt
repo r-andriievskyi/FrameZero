@@ -57,13 +57,14 @@ class ProductionService(
     )
 
     request.crew.forEach { crewEntry ->
-      val existingUser = crewEntry.email?.let { userRepository.findByEmail(it) }
+      val normalizedEmail = crewEntry.email?.trim()?.lowercase()
+      val existingUser = normalizedEmail?.let { userRepository.findByEmail(it) }
       productionMemberRepository.add(
         productionId = production.id,
         userId = existingUser?.id,
         name = crewEntry.name.trim(),
         role = crewEntry.role.trim(),
-        email = crewEntry.email
+        email = normalizedEmail
       )
     }
 
@@ -163,17 +164,17 @@ class ProductionService(
   ): ProductionMemberDto {
     productionAccessService.requireAccess(userId, productionId, AccessLevel.WRITE)
     val errors = mutableMapOf<String, String>()
-    if (request.name.isBlank()) errors["name"] = "Required"
-    if (request.role.isBlank()) errors["role"] = "Required"
+    validateMemberFields(request.name, request.role, request.email, errors, fieldPrefix = "")
     if (errors.isNotEmpty()) throw AppException(AppError.ValidationError(errors))
 
-    val existingUser = request.email?.let { userRepository.findByEmail(it) }
+    val normalizedEmail = request.email?.trim()?.lowercase()
+    val existingUser = normalizedEmail?.let { userRepository.findByEmail(it) }
     val record = productionMemberRepository.add(
       productionId = productionId,
       userId = existingUser?.id,
       name = request.name.trim(),
       role = request.role.trim(),
-      email = request.email
+      email = normalizedEmail
     )
     return record.toDto()
   }
@@ -261,7 +262,41 @@ class ProductionService(
     }
     if (request.wrapDate < request.startDate) errors["wrapDate"] = "Must be on or after startDate"
     if (budgetCents != null && budgetCents < 0) errors["budgetCents"] = "Must be >= 0"
+    request.crew.forEachIndexed { index, crewEntry ->
+      validateMemberFields(
+        name = crewEntry.name,
+        role = crewEntry.role,
+        email = crewEntry.email,
+        errors = errors,
+        fieldPrefix = "crew[$index]."
+      )
+    }
     if (errors.isNotEmpty()) throw AppException(AppError.ValidationError(errors))
+  }
+
+  private fun validateMemberFields(
+    name: String,
+    role: String,
+    email: String?,
+    errors: MutableMap<String, String>,
+    fieldPrefix: String
+  ) {
+    if (name.isBlank()) errors["${fieldPrefix}name"] = "Required"
+    if (name.trim().length > MAX_MEMBER_NAME_LENGTH) {
+      errors["${fieldPrefix}name"] = "Max $MAX_MEMBER_NAME_LENGTH characters"
+    }
+    if (role.isBlank()) errors["${fieldPrefix}role"] = "Required"
+    if (role.trim().length > MAX_MEMBER_ROLE_LENGTH) {
+      errors["${fieldPrefix}role"] = "Max $MAX_MEMBER_ROLE_LENGTH characters"
+    }
+    val trimmedEmail = email?.trim()
+    if (trimmedEmail != null) {
+      if (trimmedEmail.length > MAX_MEMBER_EMAIL_LENGTH) {
+        errors["${fieldPrefix}email"] = "Max $MAX_MEMBER_EMAIL_LENGTH characters"
+      } else if (!EMAIL_REGEX.matches(trimmedEmail)) {
+        errors["${fieldPrefix}email"] = "Invalid email format"
+      }
+    }
   }
 
   private suspend fun validateUpdateRequest(
@@ -401,6 +436,12 @@ class ProductionService(
     const val MAX_LOGLINE_LENGTH = 280
     const val MAX_PAGE_SIZE = 50
     const val KEY_CREW_LIMIT = 6
+
+    // Match the column sizes in ProductionMembersTable.
+    const val MAX_MEMBER_NAME_LENGTH = 200
+    const val MAX_MEMBER_ROLE_LENGTH = 100
+    const val MAX_MEMBER_EMAIL_LENGTH = 320
+    val EMAIL_REGEX = Regex("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
 
     fun buildPipelinePhases(currentPhase: ProductionPhase): List<PipelinePhaseDto> =
       ProductionPhase.entries.map { phase ->

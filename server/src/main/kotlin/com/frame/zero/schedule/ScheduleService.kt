@@ -36,17 +36,17 @@ class ScheduleService(
     val (rangeStart, rangeEnd) =
       when (view) {
         "day" -> {
-          val date = LocalDate.parse(dateParam)
+          val date = parseDate(dateParam)
           Pair(date, date)
         }
         "week" -> {
-          val date = LocalDate.parse(dateParam)
+          val date = parseDate(dateParam)
           val monday = date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
           val sunday = monday.plusDays(6)
           Pair(monday, sunday)
         }
         "month" -> {
-          val ym = YearMonth.parse(dateParam)
+          val ym = parseYearMonth(dateParam)
           Pair(ym.atDay(1), ym.atEndOfMonth())
         }
         else ->
@@ -86,6 +86,12 @@ class ScheduleService(
   ): ScheduleEventDto {
     val errors = mutableMapOf<String, String>()
     if (request.title.isBlank()) errors["title"] = "Required"
+    if (request.title.length > MAX_TITLE_LENGTH) {
+      errors["title"] = "Max $MAX_TITLE_LENGTH characters"
+    }
+    if ((request.location?.length ?: 0) > MAX_LOCATION_LENGTH) {
+      errors["location"] = "Max $MAX_LOCATION_LENGTH characters"
+    }
     val productionId =
       runCatching { UUID.fromString(request.productionId) }.getOrNull()
         ?: run {
@@ -120,10 +126,16 @@ class ScheduleService(
     val event = events.findById(eventId) ?: throw AppException(AppError.NotFound)
     access.requireAccess(userId, event.productionId, AccessLevel.WRITE)
 
+    val errors = mutableMapOf<String, String>()
     val requestTitle = request.title
-    if (requestTitle != null && requestTitle.isBlank()) {
-      throw AppException(AppError.ValidationError(mapOf("title" to "Cannot be empty")))
+    if (requestTitle != null && requestTitle.isBlank()) errors["title"] = "Cannot be empty"
+    if (requestTitle != null && requestTitle.length > MAX_TITLE_LENGTH) {
+      errors["title"] = "Max $MAX_TITLE_LENGTH characters"
     }
+    if ((request.location?.length ?: 0) > MAX_LOCATION_LENGTH) {
+      errors["location"] = "Max $MAX_LOCATION_LENGTH characters"
+    }
+    if (errors.isNotEmpty()) throw AppException(AppError.ValidationError(errors))
 
     val startsAt = request.startsAt?.toJavaInstant()
     val endsAt = request.endsAt?.toJavaInstant()
@@ -151,6 +163,16 @@ class ScheduleService(
     access.requireAccess(userId, event.productionId, AccessLevel.WRITE)
     events.delete(eventId)
   }
+
+  private fun parseDate(value: String): LocalDate =
+    runCatching { LocalDate.parse(value) }.getOrElse {
+      throw AppException(AppError.ValidationError(mapOf("date" to "Must be an ISO date (yyyy-MM-dd)")))
+    }
+
+  private fun parseYearMonth(value: String): YearMonth =
+    runCatching { YearMonth.parse(value) }.getOrElse {
+      throw AppException(AppError.ValidationError(mapOf("date" to "Must be an ISO month (yyyy-MM)")))
+    }
 
   private fun generateDays(
     start: LocalDate,
@@ -187,4 +209,10 @@ class ScheduleService(
       status = status,
       priority = priority
     )
+
+  private companion object {
+    // Match the column sizes in ScheduleEventsTable.
+    const val MAX_TITLE_LENGTH = 200
+    const val MAX_LOCATION_LENGTH = 300
+  }
 }

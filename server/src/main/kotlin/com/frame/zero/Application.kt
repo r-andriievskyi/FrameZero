@@ -88,18 +88,7 @@ fun Application.module(config: AppConfig) {
 
   install(ContentNegotiation) { json() }
 
-  install(CORS) {
-    allowMethod(HttpMethod.Get)
-    allowMethod(HttpMethod.Post)
-    allowMethod(HttpMethod.Patch)
-    allowMethod(HttpMethod.Delete)
-    allowMethod(HttpMethod.Options)
-    allowHeader(HttpHeaders.Authorization)
-    allowHeader(HttpHeaders.ContentType)
-    allowHeader(HttpHeaders.XRequestId)
-    allowHeader("X-Timezone")
-    anyHost() // TODO: restrict to known origins in production
-  }
+  installCors(config)
 
   install(RateLimit) {
     register(AUTH_RATE_LIMIT_NAME) {
@@ -122,6 +111,22 @@ fun Application.module(config: AppConfig) {
     }
   }
 
+  installStatusPages()
+
+  routing {
+    get("/health") {
+      call.respond(HttpStatusCode.OK, mapOf("status" to "ok"))
+    }
+    authRoutes()
+    dashboardRoutes()
+    productionRoutes()
+    taskRoutes()
+    scheduleRoutes()
+    notificationRoutes()
+  }
+}
+
+private fun Application.installStatusPages() {
   install(StatusPages) {
     exception<AppException> { call, cause ->
       call.application.environment.log
@@ -161,16 +166,39 @@ fun Application.module(config: AppConfig) {
       )
     }
   }
+}
 
-  routing {
-    get("/health") {
-      call.respond(HttpStatusCode.OK, mapOf("status" to "ok"))
+private fun Application.installCors(config: AppConfig) {
+  val appLog = environment.log
+  install(CORS) {
+    allowMethod(HttpMethod.Get)
+    allowMethod(HttpMethod.Post)
+    allowMethod(HttpMethod.Patch)
+    allowMethod(HttpMethod.Delete)
+    allowMethod(HttpMethod.Options)
+    allowHeader(HttpHeaders.Authorization)
+    allowHeader(HttpHeaders.ContentType)
+    allowHeader(HttpHeaders.XRequestId)
+    allowHeader("X-Timezone")
+    when {
+      config.corsAllowedOrigins.isNotEmpty() ->
+        config.corsAllowedOrigins.forEach { origin ->
+          val scheme = origin.substringBefore("://", missingDelimiterValue = "")
+          val host = origin.substringAfter("://")
+          if (scheme.isEmpty()) {
+            allowHost(host, schemes = listOf("https"))
+          } else {
+            allowHost(host, schemes = listOf(scheme))
+          }
+        }
+      config.isDevelopment -> anyHost()
+      else ->
+        // No origins configured outside dev: allow no cross-origin browser
+        // callers. Requests without an Origin header (mobile clients, curl)
+        // are unaffected by CORS.
+        appLog.warn(
+          "CORS_ALLOWED_ORIGINS is not set; all cross-origin browser requests will be rejected"
+        )
     }
-    authRoutes()
-    dashboardRoutes()
-    productionRoutes()
-    taskRoutes()
-    scheduleRoutes()
-    notificationRoutes()
   }
 }
