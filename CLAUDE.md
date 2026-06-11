@@ -43,11 +43,13 @@ Composite Gradle build + native iOS wrapper.
 | `build-logic/` | Convention plugins (composite build). |
 | `shared/` | Multiplatform business logic; no UI. `Constants`, the **client copy** of the wire DTOs (`dto/`, `auth/dto/`) and wire enums (`Genre`, `ProductionPhase`, `ProductionSort`, `ScheduleEventKind`), domain models (`User`, `DomainError`, `Outcome`, `UseCase`, `Production`, `Schedule`, …), DTO↔domain mappers, Ktor `HttpClient` (`core/network/`), session machine (`core/session/`), `multiplatform-settings` token storage. |
 | `shared/features/<name>/` | Per-feature logic — Decompose `Component`, `ViewModel`, state/intent, feature-local Koin module. (`account`, `auth`, `home`, `production`, `production-details`, `task-details`.) |
-| `shared/repositories/<name>/` | Repository interfaces + impls (`auth`, `user`, `dashboard`, `productions`, `schedule`). `productions` is offline-first — see [Offline-first repositories](#offline-first-repositories). |
+| `shared/repositories/<name>/` | Repository interfaces + impls (`auth`, `user`, `dashboard`, `productions`, `schedule`, `tasks`). `productions` is offline-first — see [Offline-first repositories](#offline-first-repositories). |
+| `shared/ui_text/` | Platform-agnostic `UiText` sealed type (`Dynamic` string / `Resource` + args) so shared ViewModels can carry strings without depending on Compose. No UI. |
 | `composeApp/` | Compose Multiplatform UI host (Android, iOS). Owns `App.kt`, the Decompose `RootComponent`, platform entry points. |
 | `composeApp/features/<name>/` | Per-feature Compose UI rendering the matching shared component. |
 | `composeApp/shared/design_system/` | Design system library. Applies `crossplatform.library.compose`. |
-| `server/` | JVM Ktor backend (Netty + Exposed/Postgres + JWT via Koin). Packages: `auth`, `dashboard`, `notification`, `production`, `schedule`, `task`, `common`/`config`. Schema created from Exposed `Table` defs on boot. **Depends on no client module** — owns its own copy of the wire types (`com.frame.zero.dto.*`, `auth.dto.*`, the wire enums) under `server/src/main`, intentionally duplicated from `shared/`'s copy so the server can be lifted into a standalone repo. (`Constants`/`SERVER_PORT` is client-only — server hardcodes its bind port.) See [Wire contract duplication](#wire-contract-duplication). |
+| `composeApp/shared/ui_text/` | Compose-side resolver for `UiText` — `@Composable UiText.asString()` turns a `UiText.Resource` into a `stringResource(...)`. Pairs with `shared/ui_text`. |
+| `server/` | JVM Ktor backend (Netty + Exposed/Postgres + JWT via Koin). Packages: `auth`, `dashboard`, `notification`, `production`, `schedule`, `task`, `domain`, `dto`, `common`/`config`. Schema created from Exposed `Table` defs on boot. **Depends on no client module** — owns its own copy of the wire types (`com.frame.zero.dto.*`, `auth.dto.*`, the wire enums) under `server/src/main`, intentionally duplicated from `shared/`'s copy so the server can be lifted into a standalone repo. (`Constants`/`SERVER_PORT` is client-only — server hardcodes its bind port.) See [Wire contract duplication](#wire-contract-duplication). |
 | `iosApp/` | Swift/SwiftUI wrapper. Minimal — flag any Swift edits for manual review. |
 
 Navigation is **Decompose**. `RootComponent` (`composeApp/commonMain`) owns a
@@ -84,14 +86,11 @@ The wire DTOs are **deliberately duplicated**, not shared via a common module:
 `Constants`/`SERVER_PORT` is **not** duplicated — it's client-only (`shared`'s
 `NetworkConfig` builds the base URL from it); the server hardcodes its bind port.
 
-Both sides use identical FQNs but compile from their own source, so neither has a
-build dependency on the other. `server` depends on **no client module** — this keeps
-it self-contained so it can be lifted into a standalone repo without untangling a
-shared dependency. The price: the contract is **kept in sync by hand**. When you
-change a wire shape (add/remove/rename a field, change an enum), **edit both copies**
-in the same change, or client and server silently drift. They never share a classpath
-(server is a leaf; nothing client-side depends on it), so the same FQN in two modules
-is not a collision.
+Identical FQNs compiled from separate source = no build dependency either way; they
+never share a classpath (server is a leaf), so the duplicated FQN is not a collision.
+The price: the contract is **kept in sync by hand** — when you change a wire shape
+(add/remove/rename a field, change an enum), **edit both copies** in the same change
+or client and server silently drift.
 
 ### Offline-first repositories
 
@@ -143,7 +142,7 @@ Instances: `SessionCleaner` (`shared/.../core/session/`), `LogSink` →
 `Analytics`/`analyticsModule` (`shared/.../core/analytics/`). Logging and analytics
 currently ship **no sinks** — the facades fan out over whatever `getAll()` returns, and
 an empty list is a no-op, so real sinks and call-site consumption are a deliberate later
-step. Add a backend by implementing the sink interface and adding one `bind` line.
+step.
 
 ### Module placement
 
@@ -153,10 +152,9 @@ step. Add a backend by implementing the sink interface and adding one `bind` lin
 - Feature UI → `composeApp/features/<name>/`.
 - Root nav, theming hookup → `composeApp/commonMain`.
 - Server routes/handlers/persistence → `server/`.
-- DTOs & wire-facing enums → **two copies**, one per side: client copy in
-  `shared/commonMain` (`com.frame.zero.dto.*`, `auth.dto.*`, the wire enums), server
-  copy in `server/src/main` under the **same package names**. (`Constants`/`SERVER_PORT`
-  stays client-only — not duplicated.) See [Wire contract duplication](#wire-contract-duplication).
+- DTOs & wire-facing enums → **two hand-synced copies**, one per side (client in
+  `shared/commonMain`, server in `server/src/main`, same package names) — see
+  [Wire contract duplication](#wire-contract-duplication).
 
 New feature = both halves (`shared/features/<name>` + `composeApp/features/<name>`),
 registered in `settings.gradle.kts`.
@@ -333,6 +331,11 @@ Rules:
   — OkHttp on Android, Darwin on iOS.
 - **Resources:** Compose resources in `composeApp/src/commonMain/composeResources/`,
   via generated `Res`.
+- **Strings from shared code:** a shared ViewModel can't call `stringResource` (no
+  Compose), so it emits `UiText` (`shared/ui_text`) — `UiText.Dynamic(text)` for an
+  already-resolved string, `someRes.asUiText(args…)` for a resource reference. The UI
+  resolves it with `UiText.asString()` (`composeApp/shared/ui_text`) at render time.
+  Never resolve resources into raw `String`s inside `shared`.
 - **Lifecycle/ViewModel:** JetBrains multiplatform lifecycle
   (`androidx.lifecycle.viewmodel.compose.viewModel { ... }`).
 - **No `LocalContext.current`** in `composeApp/commonMain` (Android-only) — design an
@@ -345,5 +348,4 @@ Rules:
 - `java.time.*` in shared code — use `kotlinx-datetime`.
 - Exposing Compose UI types from `shared/` — it's pure logic so iOS/server can consume it.
 - SwiftUI changes unless explicitly asked.
-- Duplicating request/response models between `server` and clients — define once in `shared`.
 - Domain logic on a DTO — map DTO→domain in a `*Mapper.kt`; keep the DTO a dumb wire shape.
