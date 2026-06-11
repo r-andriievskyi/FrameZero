@@ -137,7 +137,7 @@ class ProductionsRemoteMediatorTest {
     }
 
   @Test
-  fun `CancellationException is rethrown, not converted to Error`() =
+  fun `CancellationException is rethrown instead of converted to Error`() =
     runTest {
       val api = FakeProductionsApi(error = CancellationException("cancelled"))
       val mediator = ProductionsRemoteMediator(remoteApi = api, dao = FakeProductionsDao())

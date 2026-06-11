@@ -4,6 +4,7 @@ import com.frame.zero.auth.dto.UserDto
 import com.frame.zero.core.session.LogoutSignal
 import com.frame.zero.core.session.SessionManager
 import com.frame.zero.core.session.TokenStorage
+import com.frame.zero.core.session.UserCache
 import com.frame.zero.domain.DomainError
 import com.frame.zero.domain.DomainException
 import com.frame.zero.domain.User
@@ -120,7 +121,7 @@ class SignInViewModelTest {
     }
 
   @Test
-  fun `Network error surfaces as a toast, not an inline error`() =
+  fun `Network error surfaces as a toast instead of an inline error`() =
     runTest {
       val repo = FakeAuthRepository(loginThrows = DomainException(DomainError.Network("offline")))
       val vm = makeViewModel(this, repo)
@@ -199,6 +200,7 @@ class SignInViewModelTest {
       SessionManager(
         tokenStorage = TokenStorage(MapSettings()),
         authOperations = NoopSessionAuthOperations,
+        userCache = UserCache(MapSettings()),
         logoutSignal = LogoutSignal(),
         scope = scope.backgroundScope
       )

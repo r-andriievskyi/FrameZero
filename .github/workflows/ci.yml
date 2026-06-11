@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ktlint + detekt + unit tests for every module (server included). iOS
+  # targets are skipped automatically on a Linux host.
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Build and check
+        run: ./gradlew check
+
+  # Goldens are recorded on macOS; Robolectric Native Graphics renders
+  # consistently across hosts, so verification runs on Linux. If this job ever
+  # drifts on fonts alone, re-record the goldens from CI.
+  screenshot-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Verify screenshot goldens
+        run: ./gradlew :composeApp:shared:design_system:verifyRoborazziDebug
+      - name: Upload diff report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: roborazzi-diffs
+          path: '**/build/outputs/roborazzi/'
+
+  # Asserts a release artifact can never ship dev config: BuildKonfig must
+  # resolve DEBUG=false and an https BASE_URL, and the minified release APK
+  # must assemble. The URL below is a placeholder for the config check only —
+  # real release builds supply the production URL.
+  release-config:
+    runs-on: ubuntu-latest
+    env:
+      FRAMEZERO_API_BASE_URL: https://api.framezero.invalid
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Generate release BuildKonfig
+        run: ./gradlew :shared:generateBuildKonfig -Pbuildkonfig.flavor=release
+      - name: Assert release flags
+        run: |
+          GENERATED=shared/build/generated/source/buildkonfig/commonMain/com/frame/zero/core/network/BuildKonfig.kt
+          grep -q 'DEBUG: Boolean = false' "$GENERATED" || { echo "DEBUG is not false in release config"; exit 1; }
+          grep -q 'BASE_URL: String = "https://' "$GENERATED" || { echo "BASE_URL is not https in release config"; exit 1; }
+      - name: Assemble release APK
+        run: ./gradlew :composeApp:assembleRelease

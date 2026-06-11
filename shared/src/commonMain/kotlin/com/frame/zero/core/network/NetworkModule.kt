@@ -34,7 +34,7 @@ import org.koin.dsl.module
 private val UNAUTHENTICATED_PATHS = setOf("/auth/login", "/auth/register", "/auth/refresh", "/auth/logout")
 
 val networkModule: Module = module {
-  single { NetworkConfig.localhost() }
+  single { NetworkConfig.fromBuildConfig() }
   single { provideHttpClient(get(), get(), get(), isDebug = BuildKonfig.DEBUG) }
 }
 

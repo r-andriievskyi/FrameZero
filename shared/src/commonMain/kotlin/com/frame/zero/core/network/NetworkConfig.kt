@@ -6,7 +6,16 @@ data class NetworkConfig(
   val baseUrl: String
 ) {
   companion object {
-    fun localhost(): NetworkConfig = NetworkConfig(baseUrl = "http://${localhostHost()}:$SERVER_PORT")
+    /**
+     * The build-time base URL when one is configured (release builds, via
+     * BuildKonfig), otherwise the platform-specific localhost dev server.
+     */
+    fun fromBuildConfig(): NetworkConfig =
+      if (BuildKonfig.BASE_URL.isNotEmpty()) {
+        NetworkConfig(baseUrl = BuildKonfig.BASE_URL)
+      } else {
+        NetworkConfig(baseUrl = "http://${localhostHost()}:$SERVER_PORT")
+      }
   }
 }
 
