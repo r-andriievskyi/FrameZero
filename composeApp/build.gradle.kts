@@ -60,12 +60,6 @@ kotlin {
   }
 }
 
-composeCompiler {
-  stabilityConfigurationFiles.add(
-    rootProject.layout.projectDirectory.file("stability_config.conf")
-  )
-}
-
 android {
   namespace = "com.frame.zero"
   compileSdk = libs.versions.android.compileSdk.get().toInt()
@@ -105,6 +99,7 @@ android {
         getDefaultProguardFile("proguard-android-optimize.txt"),
         "proguard-rules.pro"
       )
+      signingConfig = signingConfigs.getByName("debug")
     }
   }
   compileOptions {

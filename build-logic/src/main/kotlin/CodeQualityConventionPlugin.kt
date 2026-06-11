@@ -24,6 +24,9 @@ class CodeQualityConventionPlugin : Plugin<Project> {
       extensions.configure<DetektExtension> {
         buildUponDefaultConfig = true
         config.setFrom(rootProject.files("config/detekt/detekt.yml"))
+        // Per-module baseline grandfathers pre-existing findings so only new
+        // ones fail the build. Regenerate with `./gradlew <module>:detektBaseline`.
+        baseline = file("detekt-baseline.xml")
       }
     }
   }

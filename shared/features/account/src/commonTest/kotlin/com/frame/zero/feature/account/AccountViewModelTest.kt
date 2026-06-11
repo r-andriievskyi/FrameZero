@@ -6,6 +6,7 @@ import com.frame.zero.core.session.SessionAuthOperations
 import com.frame.zero.core.session.SessionManager
 import com.frame.zero.core.session.SessionState
 import com.frame.zero.core.session.TokenStorage
+import com.frame.zero.core.session.UserCache
 import com.frame.zero.domain.User
 import com.russhwolf.settings.MapSettings
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -63,6 +64,7 @@ class AccountViewModelTest {
     SessionManager(
       tokenStorage = TokenStorage(MapSettings()),
       authOperations = FakeAuthOps,
+      userCache = UserCache(MapSettings()),
       logoutSignal = LogoutSignal(),
       scope = scope.backgroundScope
     )

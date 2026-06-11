@@ -74,7 +74,7 @@ class TaskDetailsViewModelTest {
     }
 
   @Test
-  fun `null due date and assignee map to null, blank description maps to empty string`() =
+  fun `null due date and assignee map to null and blank description maps to empty string`() =
     runTest {
       val repo = FakeTasksRepository(
         task = openTask.copy(dueDate = null, assignee = null, description = null)
