@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>CyclomaticComplexMethod:ProductionService.kt$ProductionService$private suspend fun validateUpdateRequest( request: UpdateProductionRequest, productionId: UUID )</ID>
+    <ID>CyclomaticComplexMethod:ProductionService.kt$ProductionService$suspend fun updateMember( userId: UUID, productionId: UUID, memberId: UUID, request: UpdateMemberRequest ): ProductionMemberDto</ID>
+    <ID>LongMethod:ProductionRepository.kt$ProductionRepositoryImpl$override suspend fun findAccessible( userId: UUID, phases: List&lt;ProductionPhase>, query: String?, sort: ProductionSort, limit: Int, cursor: String? ): Pair&lt;List&lt;ProductionRecord>, String?></ID>
+    <ID>LongMethod:ProductionRoutes.kt$fun Route.productionRoutes()</ID>
+    <ID>LongMethod:TaskRoutes.kt$fun Route.taskRoutes()</ID>
+    <ID>LongParameterList:ProductionRepository.kt$ProductionRepository$( title: String, genre: Genre, logline: String?, phase: ProductionPhase, startDate: LocalDate, wrapDate: LocalDate, budgetCents: Long?, ownerUserId: UUID )</ID>
+    <ID>MatchingDeclarationName:CursorPagination.kt$PageCursor</ID>
+    <ID>ThrowsCount:ProductionAccessService.kt$ProductionAccessService$suspend fun requireAccess( userId: UUID, productionId: UUID, level: AccessLevel )</ID>
+    <ID>ThrowsCount:ProductionService.kt$ProductionService$suspend fun advancePhase( userId: UUID, productionId: UUID, request: PhaseTransitionRequest ): ProductionDetailDto</ID>
+    <ID>ThrowsCount:ProductionService.kt$ProductionService$suspend fun removeMember( userId: UUID, productionId: UUID, memberId: UUID )</ID>
+    <ID>ThrowsCount:ProductionService.kt$ProductionService$suspend fun updateMember( userId: UUID, productionId: UUID, memberId: UUID, request: UpdateMemberRequest ): ProductionMemberDto</ID>
+    <ID>ThrowsCount:ScheduleService.kt$ScheduleService$suspend fun update( userId: UUID, eventId: UUID, request: UpdateScheduleEventRequest ): ScheduleEventDto</ID>
+    <ID>ThrowsCount:TaskService.kt$TaskService$suspend fun create( userId: UUID, request: CreateTaskRequest, timezone: ZoneId ): TaskDetailDto</ID>
+    <ID>ThrowsCount:TaskService.kt$TaskService$suspend fun update( userId: UUID, taskId: UUID, request: UpdateTaskRequest, timezone: ZoneId ): TaskDetailDto</ID>
+    <ID>UnusedParameter:DashboardService.kt$DashboardService$tz: ZoneId</ID>
+    <ID>UnusedParameter:TaskService.kt$TaskService$timezone: ZoneId</ID>
+  </CurrentIssues>
+</SmellBaseline>

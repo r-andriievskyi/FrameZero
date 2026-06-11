@@ -5,6 +5,7 @@ import com.frame.zero.core.session.LogoutSignal
 import com.frame.zero.core.session.SessionManager
 import com.frame.zero.core.session.SessionState
 import com.frame.zero.core.session.TokenStorage
+import com.frame.zero.core.session.UserCache
 import com.frame.zero.domain.DomainError
 import com.frame.zero.domain.DomainException
 import com.frame.zero.domain.Outcome
@@ -86,6 +87,7 @@ class RegisterUseCaseTest {
     SessionManager(
       tokenStorage = TokenStorage(MapSettings()),
       authOperations = NoopSessionAuthOperations,
+      userCache = UserCache(MapSettings()),
       logoutSignal = LogoutSignal(),
       scope = backgroundScope
     )
