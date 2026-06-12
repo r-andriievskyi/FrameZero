@@ -22,8 +22,7 @@ class AndroidConnectivityObserver(
     Context.CONNECTIVITY_SERVICE
   ) as? ConnectivityManager
 
-  override fun isCurrentlyOnline(): Boolean =
-    connectivityManager?.hasValidatedInternet() ?: false
+  override fun isCurrentlyOnline(): Boolean = connectivityManager?.hasValidatedInternet() ?: false
 
   override val isOnline: Flow<Boolean>
     get() {

@@ -16,8 +16,11 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
 class ConnectivityGuardTest {
-  private class FixedConnectivity(private val online: Boolean) : ConnectivityObserver {
+  private class FixedConnectivity(
+    private val online: Boolean
+  ) : ConnectivityObserver {
     override val isOnline: Flow<Boolean> = flowOf(online)
+
     override fun isCurrentlyOnline(): Boolean = online
   }
 

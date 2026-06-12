@@ -65,7 +65,11 @@ class SessionManagerTest {
       val storage = TokenStorage(MapSettings()).also { it.saveTokens("a", "r") }
       val cache = UserCache(MapSettings()).also { it.save(user) }
       val manager = SessionManager(
-        storage, FakeAuthOps(fetchThrows = true), cache, LogoutSignal(), scope = backgroundScope
+        storage,
+        FakeAuthOps(fetchThrows = true),
+        cache,
+        LogoutSignal(),
+        scope = backgroundScope
       )
 
       manager.initialize()
