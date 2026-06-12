@@ -20,4 +20,6 @@ class ScheduleTabComponent(
   fun onDateSelected(date: LocalDate) = viewModel.onDateSelected(date)
 
   fun onMonthNavigated(offset: Int) = viewModel.onMonthNavigated(offset)
+
+  fun retry() = viewModel.retry()
 }

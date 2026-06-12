@@ -20,7 +20,7 @@ val featureHomeModule: Module =
     factory { GetMeUseCase(get()) }
     factory { GetDashboardUseCase(get()) }
     factory { GetScheduleUseCase(get()) }
-    factory { DashboardTabViewModel(get(), get()) }
+    factory { DashboardTabViewModel(get(), get(), get()) }
     factory { ProductionsTabViewModel(get()) }
-    factory { ScheduleTabViewModel(get()) }
+    factory { ScheduleTabViewModel(get(), get()) }
   }

@@ -2,10 +2,13 @@ package com.frame.zero.feature.home.tab.dashboard
 
 import com.arkivanov.essenty.instancekeeper.InstanceKeeper
 import com.frame.zero.core.collections.mapImmutable
+import com.frame.zero.core.network.connectivity.ConnectivityObserver
+import com.frame.zero.domain.DomainError
 import com.frame.zero.domain.Outcome
 import com.frame.zero.domain.dashboard.Dashboard
 import com.frame.zero.domain.dashboard.DashboardStats
 import com.frame.zero.domain.dashboard.DashboardTask
+import com.frame.zero.feature.home.LoadErrorKind
 import com.frame.zero.feature.home.usecase.GetDashboardUseCase
 import com.frame.zero.feature.home.usecase.GetMeUseCase
 import kotlinx.coroutines.CoroutineScope
@@ -16,6 +19,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.DateTimeUnit
@@ -30,6 +34,7 @@ import kotlin.time.ExperimentalTime
 class DashboardTabViewModel(
   private val getMeUseCase: GetMeUseCase,
   private val getDashboardUseCase: GetDashboardUseCase,
+  connectivityObserver: ConnectivityObserver,
   dispatcher: CoroutineContext = Dispatchers.Main.immediate
 ) : InstanceKeeper.Instance {
   private val scope = CoroutineScope(dispatcher + SupervisorJob())
@@ -39,6 +44,15 @@ class DashboardTabViewModel(
 
   init {
     load()
+    // Auto-recover from an offline failure: when connectivity returns and we're
+    // still showing the network-error state, reload without user action.
+    scope.launch {
+      connectivityObserver.isOnline
+        .filter { online -> online }
+        .collect {
+          if (_state.value.error == LoadErrorKind.Network) load()
+        }
+    }
   }
 
   fun retry() {
@@ -76,11 +90,17 @@ class DashboardTabViewModel(
                 .copy(displayName = userName)
             )
           }
-          is Outcome.Failure -> DashboardTabState(isLoading = false, isError = true)
+          is Outcome.Failure -> DashboardTabState(
+            isLoading = false,
+            error = dashResult.error.toLoadErrorKind()
+          )
         }
       }
     }
   }
+
+  private fun DomainError.toLoadErrorKind(): LoadErrorKind =
+    if (this is DomainError.Network) LoadErrorKind.Network else LoadErrorKind.Generic
 
   private fun resolveUrgency(
     task: DashboardTask,

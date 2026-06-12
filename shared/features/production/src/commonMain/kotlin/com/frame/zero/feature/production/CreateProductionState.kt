@@ -24,5 +24,6 @@ data class CreateProductionState(
   val crewMembers: List<CrewMemberEntry> = emptyList(),
   val canAdvanceStep1: Boolean = false,
   val isLoading: Boolean = false,
-  val error: UiText? = null
+  val error: UiText? = null,
+  val errorToast: UiText? = null
 )

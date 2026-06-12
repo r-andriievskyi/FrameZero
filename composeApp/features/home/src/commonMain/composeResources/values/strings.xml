@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+  <!-- Load error states -->
+  <string name="error_offline_message">No internet connection.\nWe'll refresh automatically once you're back online.</string>
+  <string name="error_generic_message">Something went wrong</string>
+
   <!-- Bottom nav tabs -->
   <string name="tab_dashboard">Dashboard</string>
   <string name="tab_productions">Productions</string>

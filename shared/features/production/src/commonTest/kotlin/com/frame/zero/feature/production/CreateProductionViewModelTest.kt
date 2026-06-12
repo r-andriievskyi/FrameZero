@@ -2,11 +2,11 @@ package com.frame.zero.feature.production
 
 import com.frame.zero.feature.production.domain.CreateProductionUseCase
 import com.frame.zero.feature.production.testing.FakeProductionsRepository
-import com.frame.zero.ui.UiText
 import com.frame.zero.ui.asUiText
 import framezero.shared.features.production.generated.resources.Res
 import framezero.shared.features.production.generated.resources.error_invalid_dates
 import framezero.shared.features.production.generated.resources.error_missing_dates
+import framezero.shared.features.production.generated.resources.error_network
 import framezero.shared.features.production.generated.resources.error_title_required
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
@@ -176,7 +176,7 @@ class CreateProductionViewModelTest {
     }
 
   @Test
-  fun `submit failure maps network error to dynamic text`() =
+  fun `submit network failure surfaces a toast, not an inline error`() =
     runTest {
       val viewModel = makeViewModel(FakeProductionsRepository(createThrows = IOException("offline")))
       viewModel.onIntent(CreateProductionIntent.TitleChanged("Pilot"))
@@ -186,8 +186,24 @@ class CreateProductionViewModelTest {
       viewModel.onIntent(CreateProductionIntent.Submit)
       advanceUntilIdle()
 
-      assertEquals(UiText.Dynamic("offline"), viewModel.state.value.error)
+      assertEquals(Res.string.error_network.asUiText(), viewModel.state.value.errorToast)
+      assertNull(viewModel.state.value.error)
       assertEquals(false, viewModel.state.value.isLoading)
+    }
+
+  @Test
+  fun `dismissing the toast clears it`() =
+    runTest {
+      val viewModel = makeViewModel(FakeProductionsRepository(createThrows = IOException("offline")))
+      viewModel.onIntent(CreateProductionIntent.TitleChanged("Pilot"))
+      viewModel.onIntent(CreateProductionIntent.StartDateChanged(start))
+      viewModel.onIntent(CreateProductionIntent.WrapDateChanged(wrap))
+      viewModel.onIntent(CreateProductionIntent.Submit)
+      advanceUntilIdle()
+
+      viewModel.onIntent(CreateProductionIntent.ToastDismissed)
+
+      assertNull(viewModel.state.value.errorToast)
     }
 
   private fun TestScope.makeViewModel(repo: FakeProductionsRepository): CreateProductionViewModel =

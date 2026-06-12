@@ -2,4 +2,7 @@
 <resources>
   <string name="cd_back">Back</string>
   <string name="cd_more_options">More options</string>
+  <string name="error_generic_message">Something went wrong</string>
+  <string name="error_network_message">No internet connection. Check your connection and try again.</string>
+  <string name="action_retry">Retry</string>
 </resources>

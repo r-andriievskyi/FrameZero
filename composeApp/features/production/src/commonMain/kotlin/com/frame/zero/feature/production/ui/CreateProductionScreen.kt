@@ -5,6 +5,7 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -27,6 +28,8 @@ import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.widgets.TopToolbar
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer
+import com.frame.zero.shared.design_system.widgets.toast.ToastHost
+import com.frame.zero.ui.asString
 import framezero.composeapp.features.production.generated.resources.Res
 import framezero.composeapp.features.production.generated.resources.create_step_indicator
 import framezero.composeapp.features.production.generated.resources.create_title
@@ -38,12 +41,17 @@ fun CreateProductionScreen(
   modifier: Modifier = Modifier
 ) {
   val state by component.state.collectAsStateWithLifecycle()
-  CreateProductionContent(
-    state = state,
-    onIntent = component::onIntent,
-    onBack = component::navigateBack,
-    modifier = modifier
-  )
+  Box(modifier = modifier.fillMaxSize()) {
+    CreateProductionContent(
+      state = state,
+      onIntent = component::onIntent,
+      onBack = component::navigateBack
+    )
+    ToastHost(
+      message = state.errorToast?.asString(),
+      onDismiss = { component.onIntent(CreateProductionIntent.ToastDismissed) }
+    )
+  }
 }
 
 @Composable

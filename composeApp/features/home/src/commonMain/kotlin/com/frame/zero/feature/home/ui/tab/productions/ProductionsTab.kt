@@ -44,6 +44,7 @@ import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.modifier.clickableWithRipple
 import com.frame.zero.shared.design_system.widgets.DefaultInlineRefreshIndicator
+import com.frame.zero.shared.design_system.widgets.FullScreenError
 import com.frame.zero.shared.design_system.widgets.PagingLazyColumn
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import com.frame.zero.shared.design_system.widgets.rememberPagingListUiState
@@ -62,7 +63,7 @@ private val AddButtonSize = 40.dp
 private const val ContentFadeInMillis = 150
 private const val ContentFadeOutMillis = 140
 
-private enum class ProductionsContentState { Skeleton, Empty, List }
+private enum class ProductionsContentState { Skeleton, Empty, Error, List }
 
 @Composable
 fun ProductionsTab(component: ProductionsTabComponent) {
@@ -101,14 +102,15 @@ private fun ProductionsContent(
         style = AppTheme.typographySystem.displayMedium,
         color = AppTheme.colorSystem.textPrimary
       )
+      val hideAddButton = pagingState.isEmpty || pagingState.isInitialError
       AnimatedContent(
-        targetState = pagingState.isEmpty,
+        targetState = hideAddButton,
         transitionSpec = {
           fadeIn(animationSpec = tween(durationMillis = ContentFadeInMillis)) togetherWith
             fadeOut(animationSpec = tween(durationMillis = ContentFadeOutMillis))
         }
-      ) { isEmpty ->
-        if (isEmpty) {
+      ) { hidden ->
+        if (hidden) {
           Spacer(
             modifier = Modifier.size(AddButtonSize)
           )
@@ -134,6 +136,7 @@ private fun ProductionsContent(
 
     val contentState = when {
       pagingState.isInitialLoad -> ProductionsContentState.Skeleton
+      pagingState.isInitialError -> ProductionsContentState.Error
       pagingState.isEmpty -> ProductionsContentState.Empty
       else -> ProductionsContentState.List
     }
@@ -150,6 +153,7 @@ private fun ProductionsContent(
       when (target) {
         ProductionsContentState.Skeleton -> ProductionsSkeleton()
         ProductionsContentState.Empty -> EmptyState(onCreateProductionClick = onCreateProductionClick)
+        ProductionsContentState.Error -> FullScreenError(onRetry = lazyPagingItems::refresh)
         ProductionsContentState.List -> {
           val count = lazyPagingItems.itemCount
           PagingLazyColumn(

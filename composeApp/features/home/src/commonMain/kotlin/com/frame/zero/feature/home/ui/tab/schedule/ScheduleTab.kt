@@ -1,6 +1,7 @@
 package com.frame.zero.feature.home.ui.tab.schedule
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
@@ -27,6 +28,7 @@ import com.frame.zero.domain.schedule.ScheduleTask
 import com.frame.zero.domain.schedule.ScheduleView
 import com.frame.zero.dto.task.TaskPriority
 import com.frame.zero.dto.task.TaskStatus
+import com.frame.zero.feature.home.LoadErrorKind
 import com.frame.zero.feature.home.tab.schedule.DueLabel
 import com.frame.zero.feature.home.tab.schedule.ScheduleEventUiModel
 import com.frame.zero.feature.home.tab.schedule.ScheduleTabComponent
@@ -41,8 +43,12 @@ import com.frame.zero.feature.home.ui.tab.schedule.components.WeekDayStrip
 import com.frame.zero.feature.home.ui.tab.schedule.components.weekStartFor
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
+import com.frame.zero.shared.design_system.widgets.FullScreenError
+import com.frame.zero.shared.design_system.widgets.FullScreenProgress
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import framezero.composeapp.features.home.generated.resources.Res
+import framezero.composeapp.features.home.generated.resources.error_generic_message
+import framezero.composeapp.features.home.generated.resources.error_offline_message
 import framezero.composeapp.features.home.generated.resources.schedule_screen_title
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.datetime.LocalDate
@@ -52,12 +58,30 @@ import kotlin.time.Instant
 @Composable
 fun ScheduleTab(component: ScheduleTabComponent) {
   val state by component.state.collectAsStateWithLifecycle()
-  ScheduleContent(
-    state = state,
-    onViewChanged = component::onViewChanged,
-    onDateSelected = component::onDateSelected,
-    onMonthNavigated = component::onMonthNavigated
-  )
+  Box(
+    modifier = Modifier
+      .fillMaxSize()
+      .background(AppTheme.colorSystem.background)
+  ) {
+    when {
+      // Only take over the whole tab when there's nothing cached to show; once a
+      // schedule is loaded, keep rendering it.
+      state.schedule == null && state.error == LoadErrorKind.Network -> FullScreenError(
+        message = stringResource(Res.string.error_offline_message)
+      )
+      state.schedule == null && state.error == LoadErrorKind.Generic -> FullScreenError(
+        message = stringResource(Res.string.error_generic_message),
+        onRetry = component::retry
+      )
+      state.schedule == null && state.isLoading -> FullScreenProgress()
+      else -> ScheduleContent(
+        state = state,
+        onViewChanged = component::onViewChanged,
+        onDateSelected = component::onDateSelected,
+        onMonthNavigated = component::onMonthNavigated
+      )
+    }
+  }
 }
 
 @Composable
