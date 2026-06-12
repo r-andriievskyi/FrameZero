@@ -2,6 +2,8 @@ package com.frame.zero.feature.home.tab.schedule
 
 import com.frame.zero.domain.schedule.ScheduleView
 import com.frame.zero.dto.schedule.ScheduleResponse
+import com.frame.zero.feature.home.LoadErrorKind
+import com.frame.zero.feature.home.testing.FakeConnectivityObserver
 import com.frame.zero.feature.home.testing.FakeScheduleRepository
 import com.frame.zero.feature.home.usecase.GetScheduleUseCase
 import com.frame.zero.repository.schedule.ScheduleRepository
@@ -67,7 +69,7 @@ class ScheduleTabViewModelTest {
     }
 
   @Test
-  fun `repository failure sets error and leaves schedule null`() =
+  fun `offline failure sets a Network error and leaves schedule null`() =
     runTest(testDispatcher) {
       val repo = FakeScheduleRepository(throws = IOException("offline"))
       val viewModel = makeViewModel(repo)
@@ -75,8 +77,43 @@ class ScheduleTabViewModelTest {
       advanceUntilIdle()
 
       assertNull(viewModel.state.value.schedule)
-      assertNotNull(viewModel.state.value.error)
+      assertEquals(LoadErrorKind.Network, viewModel.state.value.error)
       assertFalse(viewModel.state.value.isLoading)
+    }
+
+  @Test
+  fun `reconnecting after a network failure auto-reloads the schedule`() =
+    runTest(testDispatcher) {
+      var shouldFail = true
+      val repo = object : ScheduleRepository {
+        var calls = 0
+
+        override suspend fun getSchedule(
+          view: String,
+          date: String
+        ): ScheduleResponse {
+          calls++
+          if (shouldFail) throw IOException("offline")
+          return scheduleResponse
+        }
+      }
+      val connectivity = FakeConnectivityObserver(initiallyOnline = false)
+      val viewModel = ScheduleTabViewModel(
+        getScheduleUseCase = GetScheduleUseCase(repo),
+        connectivityObserver = connectivity,
+        dispatcher = testDispatcher
+      )
+
+      advanceUntilIdle()
+      assertEquals(LoadErrorKind.Network, viewModel.state.value.error)
+
+      shouldFail = false
+      connectivity.online.value = true
+      advanceUntilIdle()
+
+      assertNull(viewModel.state.value.error)
+      assertNotNull(viewModel.state.value.schedule)
+      assertEquals(2, repo.calls)
     }
 
   @Test
@@ -161,6 +198,7 @@ class ScheduleTabViewModelTest {
   private fun makeViewModel(repository: ScheduleRepository): ScheduleTabViewModel =
     ScheduleTabViewModel(
       getScheduleUseCase = GetScheduleUseCase(repository),
+      connectivityObserver = FakeConnectivityObserver(),
       dispatcher = testDispatcher
     )
 

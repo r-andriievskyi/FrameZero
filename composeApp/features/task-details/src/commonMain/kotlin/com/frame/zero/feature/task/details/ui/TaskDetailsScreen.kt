@@ -14,7 +14,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -35,6 +34,8 @@ import com.frame.zero.feature.task.details.TaskStatus
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.widgets.CtaButton
+import com.frame.zero.shared.design_system.widgets.FullScreenError
+import com.frame.zero.shared.design_system.widgets.FullScreenProgress
 import com.frame.zero.shared.design_system.widgets.HorizontalSpacer
 import com.frame.zero.shared.design_system.widgets.TopToolbar
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer
@@ -86,10 +87,12 @@ internal fun TaskDetailsContent(
       )
 
       when {
-        state.isLoading -> CenteredProgress(modifier = Modifier.weight(1f))
-        state.isError -> CenteredError(
+        state.isLoading -> FullScreenProgress(modifier = Modifier.weight(1f))
+        state.isError -> FullScreenError(
+          modifier = Modifier.weight(1f),
+          message = stringResource(Res.string.task_details_error),
           onRetry = { onIntent(TaskDetailsIntent.Refresh) },
-          modifier = Modifier.weight(1f)
+          retryLabel = stringResource(Res.string.task_details_retry)
         )
         else -> {
           Column(
@@ -254,41 +257,6 @@ private fun AssigneeDueRow(
         }
       }
     }
-  }
-}
-
-@Composable
-private fun CenteredProgress(modifier: Modifier = Modifier) {
-  Box(
-    modifier = modifier.fillMaxSize(),
-    contentAlignment = Alignment.Center
-  ) {
-    CircularProgressIndicator(color = AppTheme.colorSystem.accent)
-  }
-}
-
-@Composable
-private fun CenteredError(
-  onRetry: () -> Unit,
-  modifier: Modifier = Modifier
-) {
-  Column(
-    modifier = modifier
-      .fillMaxSize()
-      .padding(AppTheme.spacingSystem.space16),
-    horizontalAlignment = Alignment.CenterHorizontally,
-    verticalArrangement = Arrangement.Center
-  ) {
-    Text(
-      text = stringResource(Res.string.task_details_error),
-      style = AppTheme.typographySystem.bodyLarge,
-      color = AppTheme.colorSystem.textSecondary
-    )
-    VerticalSpacer(AppTheme.spacingSystem.space16)
-    CtaButton(
-      text = stringResource(Res.string.task_details_retry),
-      onClick = onRetry
-    )
   }
 }
 

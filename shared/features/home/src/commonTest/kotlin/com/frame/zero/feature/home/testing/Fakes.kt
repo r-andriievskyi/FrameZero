@@ -2,6 +2,7 @@ package com.frame.zero.feature.home.testing
 
 import androidx.paging.PagingData
 import com.frame.zero.auth.dto.UserDto
+import com.frame.zero.core.network.connectivity.ConnectivityObserver
 import com.frame.zero.domain.production.Production
 import com.frame.zero.dto.dashboard.DashboardResponse
 import com.frame.zero.dto.dashboard.GreetingDto
@@ -14,8 +15,21 @@ import com.frame.zero.repository.productions.ProductionsRepository
 import com.frame.zero.repository.schedule.ScheduleRepository
 import com.frame.zero.repository.user.UserRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.datetime.LocalDate
+
+/**
+ * Controllable [ConnectivityObserver] for tests. Flip [online] to simulate
+ * connectivity changes and assert the auto-reload behaviour.
+ */
+internal class FakeConnectivityObserver(
+  initiallyOnline: Boolean = true
+) : ConnectivityObserver {
+  val online: MutableStateFlow<Boolean> = MutableStateFlow(initiallyOnline)
+  override val isOnline: Flow<Boolean> = online
+  override fun isCurrentlyOnline(): Boolean = online.value
+}
 
 internal class FakeUserRepository(
   private val userDto: UserDto = UserDto(id = "", email = "", firstName = "", lastName = ""),
