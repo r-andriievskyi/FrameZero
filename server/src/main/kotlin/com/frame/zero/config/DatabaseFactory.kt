@@ -9,11 +9,17 @@ import com.frame.zero.schedule.ScheduleEventsTable
 import com.frame.zero.task.TasksTable
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.withContext
 import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import javax.sql.DataSource
+
+private const val MAX_POOL_SIZE = 10
 
 object DatabaseFactory {
   fun init(config: DatabaseConfig): Database {
@@ -47,8 +53,22 @@ object DatabaseFactory {
         validate()
       }
     )
-
-  private const val MAX_POOL_SIZE = 10
 }
 
-suspend fun <T> dbQuery(block: suspend () -> T): T = suspendTransaction { block() }
+// DB work runs on a dispatcher whose parallelism is capped to the connection-pool
+// size, so blocking JDBC calls can't starve other coroutines and in-flight queries
+// never outnumber the connections available to serve them.
+@OptIn(ExperimentalCoroutinesApi::class)
+private val dbDispatcher = Dispatchers.IO.limitedParallelism(MAX_POOL_SIZE)
+
+/**
+ * Runs [block] inside a transaction on the bounded DB dispatcher. When invoked
+ * within an existing `dbQuery` the call joins the outer transaction instead of
+ * opening its own, so a service method that wraps several repository calls in one
+ * `dbQuery` commits or rolls back all of them atomically.
+ */
+suspend fun <T> dbQuery(block: suspend JdbcTransaction.() -> T): T =
+  withContext(dbDispatcher) { suspendTransaction { block() } }
+
+/** Readiness check: returns true only if a trivial query reaches the database. */
+suspend fun pingDatabase(): Boolean = runCatching { dbQuery { exec("SELECT 1") } }.isSuccess

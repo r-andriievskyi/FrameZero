@@ -1,5 +1,7 @@
 package com.frame.zero.auth
 
+import com.frame.zero.AppError
+import com.frame.zero.AppException
 import com.frame.zero.config.dbQuery
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.eq
@@ -75,7 +77,7 @@ class UserRepositoryImpl : UserRepository {
         // Two concurrent registrations can both pass the service-level
         // findByEmail check; the loser hits the unique index here and must
         // surface as the same 409 as the pre-checked path.
-        if (e.isUniqueViolation()) throw AuthException(AuthError.EmailAlreadyExists)
+        if (e.isUniqueViolation()) throw AppException(AppError.EmailAlreadyExists)
         throw e
       }
       UserRecord(

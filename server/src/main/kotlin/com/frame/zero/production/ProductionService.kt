@@ -3,6 +3,8 @@ package com.frame.zero.production
 import com.frame.zero.AppError
 import com.frame.zero.AppException
 import com.frame.zero.auth.UserRepository
+import com.frame.zero.common.Transactor
+import com.frame.zero.common.Validators
 import com.frame.zero.common.computeProgressPercent
 import com.frame.zero.common.toJava
 import com.frame.zero.common.toKotlin
@@ -29,47 +31,49 @@ class ProductionService(
   private val productionMemberRepository: ProductionMemberRepository,
   private val userRepository: UserRepository,
   private val productionAccessService: ProductionAccessService,
+  private val transactor: Transactor,
   private val clock: Clock = Clock.systemUTC()
 ) {
   suspend fun createProduction(
     userId: UUID,
     request: CreateProductionRequest
-  ): ProductionDetailDto {
-    validateCreateRequest(request)
-    val production = productionRepository.create(
-      title = request.title.trim(),
-      genre = request.genre,
-      logline = request.logline?.trim(),
-      phase = ProductionPhase.IDEA,
-      startDate = request.startDate.toJava(),
-      wrapDate = request.wrapDate.toJava(),
-      budgetCents = request.budgetCents,
-      ownerUserId = userId
-    )
+  ): ProductionDetailDto =
+    transactor.transaction {
+      validateCreateRequest(request)
+      val production = productionRepository.create(
+        title = request.title.trim(),
+        genre = request.genre,
+        logline = request.logline?.trim(),
+        phase = ProductionPhase.IDEA,
+        startDate = request.startDate.toJava(),
+        wrapDate = request.wrapDate.toJava(),
+        budgetCents = request.budgetCents,
+        ownerUserId = userId
+      )
 
-    val owner = userRepository.findById(userId)
-    productionMemberRepository.add(
-      productionId = production.id,
-      userId = userId,
-      name = owner?.let { "${it.firstName} ${it.lastName}".trim() } ?: "",
-      role = "Owner",
-      email = owner?.email
-    )
-
-    request.crew.forEach { crewEntry ->
-      val normalizedEmail = crewEntry.email?.trim()?.lowercase()
-      val existingUser = normalizedEmail?.let { userRepository.findByEmail(it) }
+      val owner = userRepository.findById(userId)
       productionMemberRepository.add(
         productionId = production.id,
-        userId = existingUser?.id,
-        name = crewEntry.name.trim(),
-        role = crewEntry.role.trim(),
-        email = normalizedEmail
+        userId = userId,
+        name = owner?.let { "${it.firstName} ${it.lastName}".trim() } ?: "",
+        role = "Owner",
+        email = owner?.email
       )
-    }
 
-    return buildDetailDto(production, userId)
-  }
+      request.crew.forEach { crewEntry ->
+        val normalizedEmail = crewEntry.email?.trim()?.lowercase()
+        val existingUser = normalizedEmail?.let { userRepository.findByEmail(it) }
+        productionMemberRepository.add(
+          productionId = production.id,
+          userId = existingUser?.id,
+          name = crewEntry.name.trim(),
+          role = crewEntry.role.trim(),
+          email = normalizedEmail
+        )
+      }
+
+      buildDetailDto(production, userId)
+    }
 
   suspend fun listProductions(
     userId: UUID,
@@ -78,175 +82,184 @@ class ProductionService(
     sort: ProductionSort,
     limit: Int,
     cursor: String?
-  ): Pair<List<ProductionSummaryDto>, String?> {
-    val boundedLimit = limit.coerceIn(1, MAX_PAGE_SIZE)
-    val (productions, nextCursor) = productionRepository.findAccessible(
-      userId,
-      phases,
-      query,
-      sort,
-      boundedLimit,
-      cursor
-    )
-    val today = LocalDate.now(clock)
-    val productionIds = productions.map { it.id }
-    val membersCounts = productionMemberRepository.countByProductions(productionIds)
-    val summaries = productions.map { production ->
-      production.toSummaryDto(membersCounts[production.id] ?: 0, today)
+  ): Pair<List<ProductionSummaryDto>, String?> =
+    transactor.transaction {
+      val boundedLimit = limit.coerceIn(1, MAX_PAGE_SIZE)
+      val (productions, nextCursor) = productionRepository.findAccessible(
+        userId,
+        phases,
+        query,
+        sort,
+        boundedLimit,
+        cursor
+      )
+      val today = LocalDate.now(clock)
+      val productionIds = productions.map { it.id }
+      val membersCounts = productionMemberRepository.countByProductions(productionIds)
+      val summaries = productions.map { production ->
+        production.toSummaryDto(membersCounts[production.id] ?: 0, today)
+      }
+      Pair(summaries, nextCursor)
     }
-    return Pair(summaries, nextCursor)
-  }
 
   suspend fun getProduction(
     userId: UUID,
     productionId: UUID
-  ): ProductionDetailDto {
-    productionAccessService.requireAccess(userId, productionId, AccessLevel.READ)
-    val production = productionRepository.findById(productionId)
-      ?: throw AppException(AppError.NotFound)
-    return buildDetailDto(production, userId)
-  }
+  ): ProductionDetailDto =
+    transactor.transaction {
+      productionAccessService.requireAccess(userId, productionId, AccessLevel.READ)
+      val production = productionRepository.findById(productionId)
+        ?: throw AppException(AppError.NotFound)
+      buildDetailDto(production, userId)
+    }
 
   suspend fun updateProduction(
     userId: UUID,
     productionId: UUID,
     request: UpdateProductionRequest
-  ): ProductionDetailDto {
-    productionAccessService.requireAccess(userId, productionId, AccessLevel.WRITE)
-    validateUpdateRequest(request, productionId)
-    val updatedProduction = productionRepository.update(
-      id = productionId,
-      title = request.title?.trim(),
-      logline = request.logline?.trim(),
-      startDate = request.startDate?.toJava(),
-      wrapDate = request.wrapDate?.toJava(),
-      budgetCents = request.budgetCents
-    ) ?: throw AppException(AppError.NotFound)
-    return buildDetailDto(updatedProduction, userId)
-  }
+  ): ProductionDetailDto =
+    transactor.transaction {
+      productionAccessService.requireAccess(userId, productionId, AccessLevel.WRITE)
+      validateUpdateRequest(request, productionId)
+      val updatedProduction = productionRepository.update(
+        id = productionId,
+        title = request.title?.trim(),
+        logline = request.logline?.trim(),
+        startDate = request.startDate?.toJava(),
+        wrapDate = request.wrapDate?.toJava(),
+        budgetCents = request.budgetCents
+      ) ?: throw AppException(AppError.NotFound)
+      buildDetailDto(updatedProduction, userId)
+    }
 
   suspend fun advancePhase(
     userId: UUID,
     productionId: UUID,
     request: PhaseTransitionRequest
-  ): ProductionDetailDto {
-    productionAccessService.requireAccess(userId, productionId, AccessLevel.WRITE)
-    val production = productionRepository.findById(productionId)
-      ?: throw AppException(AppError.NotFound)
-    if (!request.phase.isForwardFrom(production.phase)) {
-      throw AppException(AppError.InvalidPhaseTransition)
+  ): ProductionDetailDto =
+    transactor.transaction {
+      productionAccessService.requireAccess(userId, productionId, AccessLevel.WRITE)
+      val production = productionRepository.findById(productionId)
+        ?: throw AppException(AppError.NotFound)
+      if (!request.phase.isForwardFrom(production.phase)) {
+        throw AppException(AppError.InvalidPhaseTransition)
+      }
+      val updatedProduction = productionRepository.updatePhase(productionId, request.phase)
+        ?: throw AppException(AppError.NotFound)
+      buildDetailDto(updatedProduction, userId)
     }
-    val updatedProduction = productionRepository.updatePhase(productionId, request.phase)
-      ?: throw AppException(AppError.NotFound)
-    return buildDetailDto(updatedProduction, userId)
-  }
 
   suspend fun deleteProduction(
     userId: UUID,
     productionId: UUID
-  ) {
-    productionAccessService.requireAccess(userId, productionId, AccessLevel.OWNER)
-    productionRepository.softDelete(productionId)
-  }
+  ): Unit =
+    transactor.transaction {
+      productionAccessService.requireAccess(userId, productionId, AccessLevel.OWNER)
+      productionRepository.softDelete(productionId)
+    }
 
   suspend fun listMembers(
     userId: UUID,
     productionId: UUID
-  ): List<ProductionMemberDto> {
-    productionAccessService.requireAccess(userId, productionId, AccessLevel.READ)
-    return productionMemberRepository.findByProduction(productionId).map { it.toDto() }
-  }
+  ): List<ProductionMemberDto> =
+    transactor.transaction {
+      productionAccessService.requireAccess(userId, productionId, AccessLevel.READ)
+      productionMemberRepository.findByProduction(productionId).map { it.toDto() }
+    }
 
   suspend fun addMember(
     userId: UUID,
     productionId: UUID,
     request: AddMemberRequest
-  ): ProductionMemberDto {
-    productionAccessService.requireAccess(userId, productionId, AccessLevel.WRITE)
-    val errors = mutableMapOf<String, String>()
-    validateMemberFields(request.name, request.role, request.email, errors, fieldPrefix = "")
-    if (errors.isNotEmpty()) throw AppException(AppError.ValidationError(errors))
+  ): ProductionMemberDto =
+    transactor.transaction {
+      productionAccessService.requireAccess(userId, productionId, AccessLevel.WRITE)
+      val errors = mutableMapOf<String, String>()
+      validateMemberFields(request.name, request.role, request.email, errors, fieldPrefix = "")
+      if (errors.isNotEmpty()) throw AppException(AppError.ValidationError(errors))
 
-    val normalizedEmail = request.email?.trim()?.lowercase()
-    val existingUser = normalizedEmail?.let { userRepository.findByEmail(it) }
-    val record = productionMemberRepository.add(
-      productionId = productionId,
-      userId = existingUser?.id,
-      name = request.name.trim(),
-      role = request.role.trim(),
-      email = normalizedEmail
-    )
-    return record.toDto()
-  }
+      val normalizedEmail = request.email?.trim()?.lowercase()
+      val existingUser = normalizedEmail?.let { userRepository.findByEmail(it) }
+      val record = productionMemberRepository.add(
+        productionId = productionId,
+        userId = existingUser?.id,
+        name = request.name.trim(),
+        role = request.role.trim(),
+        email = normalizedEmail
+      )
+      record.toDto()
+    }
 
   suspend fun updateMember(
     userId: UUID,
     productionId: UUID,
     memberId: UUID,
     request: UpdateMemberRequest
-  ): ProductionMemberDto {
-    productionAccessService.requireAccess(userId, productionId, AccessLevel.WRITE)
-    val role = request.role
-    val reportsToMemberId = request.reportsToMemberId
-    if (role == null && reportsToMemberId == null) {
-      throw AppException(
-        AppError.ValidationError(mapOf("body" to "Provide role or reportsToMemberId"))
-      )
-    }
-    if (role != null && role.isBlank()) {
-      throw AppException(AppError.ValidationError(mapOf("role" to "Required")))
-    }
-    val parsedReportsTo = reportsToMemberId?.let {
-      runCatching { UUID.fromString(it) }.getOrNull()
-        ?: throw AppException(
-          AppError.ValidationError(mapOf("reportsToMemberId" to "Invalid UUID"))
-        )
-    }
-    if (parsedReportsTo != null && parsedReportsTo == memberId) {
-      throw AppException(
-        AppError.ValidationError(mapOf("reportsToMemberId" to "Cannot report to self"))
-      )
-    }
-    var current = productionMemberRepository.findById(memberId)
-      ?: throw AppException(AppError.NotFound)
-    if (current.productionId != productionId) {
-      throw AppException(AppError.NotFound)
-    }
-    if (role != null) {
-      current = productionMemberRepository.updateRole(memberId, role.trim())
-        ?: throw AppException(AppError.NotFound)
-    }
-    if (parsedReportsTo != null) {
-      val target = productionMemberRepository.findById(parsedReportsTo)
-        ?: throw AppException(
-          AppError.ValidationError(mapOf("reportsToMemberId" to "Unknown member"))
-        )
-      if (target.productionId != productionId) {
+  ): ProductionMemberDto =
+    transactor.transaction {
+      productionAccessService.requireAccess(userId, productionId, AccessLevel.WRITE)
+      val role = request.role
+      val reportsToMemberId = request.reportsToMemberId
+      if (role == null && reportsToMemberId == null) {
         throw AppException(
-          AppError.ValidationError(mapOf("reportsToMemberId" to "Member is on a different production"))
+          AppError.ValidationError(mapOf("body" to "Provide role or reportsToMemberId"))
         )
       }
-      current = productionMemberRepository.updateReportsTo(memberId, parsedReportsTo)
+      if (role != null && role.isBlank()) {
+        throw AppException(AppError.ValidationError(mapOf("role" to "Required")))
+      }
+      val parsedReportsTo = reportsToMemberId?.let {
+        runCatching { UUID.fromString(it) }.getOrNull()
+          ?: throw AppException(
+            AppError.ValidationError(mapOf("reportsToMemberId" to "Invalid UUID"))
+          )
+      }
+      if (parsedReportsTo != null && parsedReportsTo == memberId) {
+        throw AppException(
+          AppError.ValidationError(mapOf("reportsToMemberId" to "Cannot report to self"))
+        )
+      }
+      var current = productionMemberRepository.findById(memberId)
         ?: throw AppException(AppError.NotFound)
+      if (current.productionId != productionId) {
+        throw AppException(AppError.NotFound)
+      }
+      if (role != null) {
+        current = productionMemberRepository.updateRole(memberId, role.trim())
+          ?: throw AppException(AppError.NotFound)
+      }
+      if (parsedReportsTo != null) {
+        val target = productionMemberRepository.findById(parsedReportsTo)
+          ?: throw AppException(
+            AppError.ValidationError(mapOf("reportsToMemberId" to "Unknown member"))
+          )
+        if (target.productionId != productionId) {
+          throw AppException(
+            AppError.ValidationError(mapOf("reportsToMemberId" to "Member is on a different production"))
+          )
+        }
+        current = productionMemberRepository.updateReportsTo(memberId, parsedReportsTo)
+          ?: throw AppException(AppError.NotFound)
+      }
+      current.toDto()
     }
-    return current.toDto()
-  }
 
   suspend fun removeMember(
     userId: UUID,
     productionId: UUID,
     memberId: UUID
-  ) {
-    productionAccessService.requireAccess(userId, productionId, AccessLevel.WRITE)
-    val member = productionMemberRepository.findById(memberId)
-      ?: throw AppException(AppError.NotFound)
-    val production = productionRepository.findById(productionId)
-      ?: throw AppException(AppError.NotFound)
-    if (member.userId == production.ownerUserId) {
-      throw AppException(AppError.Conflict("Cannot remove the production owner"))
+  ): Unit =
+    transactor.transaction {
+      productionAccessService.requireAccess(userId, productionId, AccessLevel.WRITE)
+      val member = productionMemberRepository.findById(memberId)
+        ?: throw AppException(AppError.NotFound)
+      val production = productionRepository.findById(productionId)
+        ?: throw AppException(AppError.NotFound)
+      if (member.userId == production.ownerUserId) {
+        throw AppException(AppError.Conflict("Cannot remove the production owner"))
+      }
+      productionMemberRepository.remove(memberId)
     }
-    productionMemberRepository.remove(memberId)
-  }
 
   // -- Validation ----------------------------------------------------------
 
@@ -293,7 +306,7 @@ class ProductionService(
     if (trimmedEmail != null) {
       if (trimmedEmail.length > MAX_MEMBER_EMAIL_LENGTH) {
         errors["${fieldPrefix}email"] = "Max $MAX_MEMBER_EMAIL_LENGTH characters"
-      } else if (!EMAIL_REGEX.matches(trimmedEmail)) {
+      } else if (!Validators.isValidEmail(trimmedEmail)) {
         errors["${fieldPrefix}email"] = "Invalid email format"
       }
     }
@@ -441,7 +454,6 @@ class ProductionService(
     const val MAX_MEMBER_NAME_LENGTH = 200
     const val MAX_MEMBER_ROLE_LENGTH = 100
     const val MAX_MEMBER_EMAIL_LENGTH = 320
-    val EMAIL_REGEX = Regex("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
 
     fun buildPipelinePhases(currentPhase: ProductionPhase): List<PipelinePhaseDto> =
       ProductionPhase.entries.map { phase ->

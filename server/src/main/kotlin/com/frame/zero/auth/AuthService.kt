@@ -1,12 +1,12 @@
 package com.frame.zero.auth
 
-import com.frame.zero.auth.AuthError.EmailAlreadyExists
-import com.frame.zero.auth.AuthError.InvalidCredentials
-import com.frame.zero.auth.AuthError.InvalidInput
-import com.frame.zero.auth.AuthError.InvalidRefreshToken
+import com.frame.zero.AppError
+import com.frame.zero.AppException
 import com.frame.zero.auth.dto.AuthResponse
 import com.frame.zero.auth.dto.RefreshResponse
 import com.frame.zero.auth.dto.UserDto
+import com.frame.zero.common.Transactor
+import com.frame.zero.common.Validators
 import com.frame.zero.config.JwtConfig
 import java.time.Instant
 import java.util.UUID
@@ -17,7 +17,8 @@ class AuthService(
   private val passwordHasher: PasswordHasher,
   private val tokenHasher: TokenHasher,
   private val jwtService: JwtService,
-  private val jwtConfig: JwtConfig
+  private val jwtConfig: JwtConfig,
+  private val transactor: Transactor
 ) {
   suspend fun register(
     email: String,
@@ -25,19 +26,20 @@ class AuthService(
     firstName: String,
     lastName: String
   ): AuthResponse {
-    validateEmail(email)
-    validatePassword(password)
-    validateName(firstName, "firstName")
-    validateName(lastName, "lastName")
+    validateRegistration(email, password, firstName, lastName)
     val normalized = email.trim().lowercase()
-    if (users.findByEmail(normalized) != null) throw AuthException(EmailAlreadyExists)
-    val user = users.create(
-      email = normalized,
-      passwordHash = passwordHasher.hash(password),
-      firstName = firstName.trim(),
-      lastName = lastName.trim()
-    )
-    return issueTokens(user)
+    // Hash before opening the transaction so bcrypt never holds a DB connection.
+    val passwordHash = passwordHasher.hash(password)
+    return transactor.transaction {
+      if (users.findByEmail(normalized) != null) throw AppException(AppError.EmailAlreadyExists)
+      val user = users.create(
+        email = normalized,
+        passwordHash = passwordHash,
+        firstName = firstName.trim(),
+        lastName = lastName.trim()
+      )
+      issueTokens(user)
+    }
   }
 
   suspend fun login(
@@ -45,32 +47,40 @@ class AuthService(
     password: String
   ): AuthResponse {
     val normalized = email.trim().lowercase()
-    val user = users.findByEmail(normalized) ?: throw AuthException(InvalidCredentials)
-    if (!passwordHasher.verify(password, user.passwordHash)) throw AuthException(InvalidCredentials)
-    return issueTokens(user)
+    val user =
+      transactor.transaction { users.findByEmail(normalized) } ?: throw AppException(AppError.InvalidCredentials)
+    // Verify outside the transaction — bcrypt is CPU-bound, not DB work.
+    if (!passwordHasher.verify(password, user.passwordHash)) throw AppException(AppError.InvalidCredentials)
+    return transactor.transaction { issueTokens(user) }
   }
 
   suspend fun refresh(refreshToken: String): RefreshResponse {
     val hash = tokenHasher.sha256(refreshToken)
     val now = Instant.now()
-    val record = refreshTokens.claim(hash, now)
-    if (record == null) {
-      // A refresh attempt with an already-revoked token means it was rotated
-      // before — either replayed by a racing client or stolen. Treat it as
-      // theft and kill every session for that user.
-      val known = refreshTokens.findByHash(hash)
-      if (known != null && known.revoked) {
-        refreshTokens.revokeAllForUser(known.userId)
-      }
-      throw AuthException(InvalidRefreshToken)
+
+    // Claim + rotate atomically. A successful claim revokes the old token and
+    // issues a new pair in the same transaction.
+    val rotated = transactor.transaction {
+      val record = refreshTokens.claim(hash, now) ?: return@transaction null
+      val user = users.findById(record.userId) ?: return@transaction null
+      val (newRefresh, newRefreshHash, expiresAt) = newRefreshToken()
+      refreshTokens.create(userId = user.id, tokenHash = newRefreshHash, expiresAt = expiresAt)
+      RefreshResponse(
+        accessToken = jwtService.createAccessToken(user.id, user.email),
+        refreshToken = newRefresh
+      )
     }
-    val user = users.findById(record.userId) ?: throw AuthException(InvalidRefreshToken)
-    val (newRefresh, newRefreshHash, expiresAt) = newRefreshToken()
-    refreshTokens.create(userId = user.id, tokenHash = newRefreshHash, expiresAt = expiresAt)
-    return RefreshResponse(
-      accessToken = jwtService.createAccessToken(user.id, user.email),
-      refreshToken = newRefresh
-    )
+    if (rotated != null) return rotated
+
+    // Claim failed: a refresh attempt with an already-revoked token means it was
+    // rotated before — either replayed by a racing client or stolen. Treat it as
+    // theft and kill every session for that user, in its own committed
+    // transaction so the revocation survives the rejection below.
+    transactor.transaction {
+      val known = refreshTokens.findByHash(hash)
+      if (known != null && known.revoked) refreshTokens.revokeAllForUser(known.userId)
+    }
+    throw AppException(AppError.InvalidRefreshToken)
   }
 
   suspend fun logout(refreshToken: String) {
@@ -99,29 +109,35 @@ class AuthService(
   private fun UserRecord.toDto(): UserDto =
     UserDto(id = id.toString(), email = email, firstName = firstName, lastName = lastName)
 
-  private fun validateEmail(email: String) {
-    val trimmed = email.trim()
-    if (trimmed.length > MAX_EMAIL_LENGTH) {
-      throw AuthException(InvalidInput("Email must be at most $MAX_EMAIL_LENGTH characters"))
+  private fun validateRegistration(
+    email: String,
+    password: String,
+    firstName: String,
+    lastName: String
+  ) {
+    val errors = mutableMapOf<String, String>()
+    val trimmedEmail = email.trim()
+    when {
+      trimmedEmail.length > MAX_EMAIL_LENGTH ->
+        errors["email"] = "Email must be at most $MAX_EMAIL_LENGTH characters"
+      !Validators.isValidEmail(trimmedEmail) -> errors["email"] = "Invalid email format"
     }
-    if (!EMAIL_REGEX.matches(trimmed)) {
-      throw AuthException(InvalidInput("Invalid email format"))
-    }
-  }
-
-  private fun validatePassword(password: String) {
     if (password.length < MIN_PASSWORD_LENGTH) {
-      throw AuthException(InvalidInput("Password must be at least $MIN_PASSWORD_LENGTH characters"))
+      errors["password"] = "Password must be at least $MIN_PASSWORD_LENGTH characters"
     }
+    validateName(firstName, "firstName", errors)
+    validateName(lastName, "lastName", errors)
+    if (errors.isNotEmpty()) throw AppException(AppError.ValidationError(errors))
   }
 
   private fun validateName(
     name: String,
-    field: String
+    field: String,
+    errors: MutableMap<String, String>
   ) {
-    if (name.isBlank()) throw AuthException(InvalidInput("$field is required"))
-    if (name.trim().length > MAX_NAME_LENGTH) {
-      throw AuthException(InvalidInput("$field must be at most $MAX_NAME_LENGTH characters"))
+    when {
+      name.isBlank() -> errors[field] = "$field is required"
+      name.trim().length > MAX_NAME_LENGTH -> errors[field] = "$field must be at most $MAX_NAME_LENGTH characters"
     }
   }
 
@@ -131,6 +147,5 @@ class AuthService(
     // match the column sizes in UsersTable.
     const val MAX_EMAIL_LENGTH = 320
     const val MAX_NAME_LENGTH = 100
-    val EMAIL_REGEX = Regex("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
   }
 }

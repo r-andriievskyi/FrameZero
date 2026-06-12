@@ -61,14 +61,6 @@ internal class FakeRefreshTokenRepository : RefreshTokenRepository {
     return record
   }
 
-  override suspend fun findActiveByHash(
-    tokenHash: String,
-    now: Instant
-  ): RefreshTokenRecord? =
-    records.firstOrNull {
-      it.tokenHash == tokenHash && !it.revoked && it.expiresAt.isAfter(now)
-    }
-
   override suspend fun findByHash(tokenHash: String): RefreshTokenRecord? =
     records.firstOrNull { it.tokenHash == tokenHash }
 

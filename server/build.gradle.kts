@@ -33,6 +33,7 @@ dependencies {
   implementation(libs.ktor.serverCallLogging)
   implementation(libs.ktor.serverContentNegotiation)
   implementation(libs.ktor.serverCors)
+  implementation(libs.ktor.serverForwardedHeader)
   implementation(libs.ktor.serverStatusPages)
   implementation(libs.ktor.serverRateLimit)
   implementation(libs.ktor.serializationKotlinxJson)
