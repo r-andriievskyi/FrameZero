@@ -19,7 +19,7 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 17
+          java-version: 21
       - uses: gradle/actions/setup-gradle@v4
       - name: Build and check
         run: ./gradlew check
@@ -34,7 +34,7 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 17
+          java-version: 21
       - uses: gradle/actions/setup-gradle@v4
       - name: Verify screenshot goldens
         run: ./gradlew :composeApp:shared:design_system:verifyRoborazziDebug
@@ -58,7 +58,7 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 17
+          java-version: 21
       - uses: gradle/actions/setup-gradle@v4
       - name: Generate release BuildKonfig
         run: ./gradlew :shared:generateBuildKonfig -Pbuildkonfig.flavor=release
