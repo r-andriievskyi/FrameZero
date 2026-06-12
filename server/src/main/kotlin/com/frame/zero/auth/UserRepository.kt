@@ -7,9 +7,9 @@ import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import java.sql.SQLException
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 import java.util.UUID
 
-// SQLSTATE for unique-constraint violations (Postgres and H2 alike).
 private const val UNIQUE_VIOLATION_SQL_STATE = "23505"
 
 data class UserRecord(
@@ -61,7 +61,7 @@ class UserRepositoryImpl : UserRepository {
   ): UserRecord =
     dbQuery {
       val newId = UUID.randomUUID()
-      val now = Instant.now()
+      val now = Instant.now().truncatedTo(ChronoUnit.MICROS)
       try {
         UsersTable.insert {
           it[id] = newId
