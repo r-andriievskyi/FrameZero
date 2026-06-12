@@ -1,5 +1,7 @@
 package com.frame.zero.auth
 
+import com.frame.zero.AppError
+import com.frame.zero.AppException
 import com.frame.zero.common.testing.H2TestDatabase
 import kotlinx.coroutines.runBlocking
 import java.util.UUID
@@ -90,9 +92,9 @@ class UserRepositoryTest {
   fun `inserting a duplicate email maps to EmailAlreadyExists`() {
     runBlocking { repository.create("u@x.com", "hash-1", "", "") }
 
-    val ex = assertFailsWith<AuthException> {
+    val ex = assertFailsWith<AppException> {
       runBlocking { repository.create("u@x.com", "hash-2", "", "") }
     }
-    assertEquals(AuthError.EmailAlreadyExists, ex.error)
+    assertEquals(AppError.EmailAlreadyExists, ex.error)
   }
 }

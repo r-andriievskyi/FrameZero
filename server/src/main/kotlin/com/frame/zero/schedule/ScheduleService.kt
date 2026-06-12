@@ -2,6 +2,7 @@ package com.frame.zero.schedule
 
 import com.frame.zero.AppError
 import com.frame.zero.AppException
+import com.frame.zero.common.Transactor
 import com.frame.zero.common.toKotlin
 import com.frame.zero.dto.schedule.CreateScheduleEventRequest
 import com.frame.zero.dto.schedule.ScheduleDayDto
@@ -25,144 +26,149 @@ import kotlin.time.toKotlinInstant
 class ScheduleService(
   private val events: ScheduleEventRepository,
   private val tasks: TaskRepository,
-  private val access: ProductionAccessService
+  private val access: ProductionAccessService,
+  private val transactor: Transactor
 ) {
   suspend fun get(
     userId: UUID,
     view: String,
     dateParam: String,
     timezone: ZoneId
-  ): ScheduleResponse {
-    val (rangeStart, rangeEnd) =
-      when (view) {
-        "day" -> {
-          val date = parseDate(dateParam)
-          Pair(date, date)
+  ): ScheduleResponse =
+    transactor.transaction {
+      val (rangeStart, rangeEnd) =
+        when (view) {
+          "day" -> {
+            val date = parseDate(dateParam)
+            Pair(date, date)
+          }
+          "week" -> {
+            val date = parseDate(dateParam)
+            val monday = date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+            val sunday = monday.plusDays(6)
+            Pair(monday, sunday)
+          }
+          "month" -> {
+            val ym = parseYearMonth(dateParam)
+            Pair(ym.atDay(1), ym.atEndOfMonth())
+          }
+          else ->
+            throw AppException(
+              AppError.ValidationError(mapOf("view" to "Must be day, week, or month"))
+            )
         }
-        "week" -> {
-          val date = parseDate(dateParam)
-          val monday = date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-          val sunday = monday.plusDays(6)
-          Pair(monday, sunday)
+
+      val rangeStartInstant = rangeStart.atStartOfDay(timezone).toInstant()
+      val rangeEndInstant = rangeEnd.plusDays(1).atStartOfDay(timezone).toInstant()
+
+      val eventRecords = events.findInRangeForUser(userId, rangeStartInstant, rangeEndInstant)
+      val taskRecords = tasks.findInRangeForUser(userId, rangeStart, rangeEnd)
+
+      val days =
+        generateDays(rangeStart, rangeEnd).map { date ->
+          val dayStart = date.atStartOfDay(timezone).toInstant()
+          val dayEnd = date.plusDays(1).atStartOfDay(timezone).toInstant()
+          val dayEvents =
+            eventRecords
+              .filter { it.startsAt >= dayStart && it.startsAt < dayEnd }
+              .map { it.toDto() }
+          val dayTasks = taskRecords.filter { it.dueDate == date }.map { it.toScheduleTaskDto() }
+          ScheduleDayDto(date = date.toKotlin(), events = dayEvents, tasks = dayTasks)
         }
-        "month" -> {
-          val ym = parseYearMonth(dateParam)
-          Pair(ym.atDay(1), ym.atEndOfMonth())
-        }
-        else ->
-          throw AppException(
-            AppError.ValidationError(mapOf("view" to "Must be day, week, or month"))
-          )
-      }
 
-    val rangeStartInstant = rangeStart.atStartOfDay(timezone).toInstant()
-    val rangeEndInstant = rangeEnd.plusDays(1).atStartOfDay(timezone).toInstant()
-
-    val eventRecords = events.findInRangeForUser(userId, rangeStartInstant, rangeEndInstant)
-    val taskRecords = tasks.findInRangeForUser(userId, rangeStart, rangeEnd)
-
-    val days =
-      generateDays(rangeStart, rangeEnd).map { date ->
-        val dayStart = date.atStartOfDay(timezone).toInstant()
-        val dayEnd = date.plusDays(1).atStartOfDay(timezone).toInstant()
-        val dayEvents =
-          eventRecords
-            .filter { it.startsAt >= dayStart && it.startsAt < dayEnd }
-            .map { it.toDto() }
-        val dayTasks = taskRecords.filter { it.dueDate == date }.map { it.toScheduleTaskDto() }
-        ScheduleDayDto(date = date.toKotlin(), events = dayEvents, tasks = dayTasks)
-      }
-
-    return ScheduleResponse(
-      rangeStart = rangeStart.toKotlin(),
-      rangeEnd = rangeEnd.toKotlin(),
-      days = days
-    )
-  }
+      ScheduleResponse(
+        rangeStart = rangeStart.toKotlin(),
+        rangeEnd = rangeEnd.toKotlin(),
+        days = days
+      )
+    }
 
   suspend fun create(
     userId: UUID,
     request: CreateScheduleEventRequest
-  ): ScheduleEventDto {
-    val errors = mutableMapOf<String, String>()
-    if (request.title.isBlank()) errors["title"] = "Required"
-    if (request.title.length > MAX_TITLE_LENGTH) {
-      errors["title"] = "Max $MAX_TITLE_LENGTH characters"
-    }
-    if ((request.location?.length ?: 0) > MAX_LOCATION_LENGTH) {
-      errors["location"] = "Max $MAX_LOCATION_LENGTH characters"
-    }
-    val productionId =
-      runCatching { UUID.fromString(request.productionId) }.getOrNull()
-        ?: run {
-          errors["productionId"] = "Invalid UUID"
-          null
-        }
-    if (errors.isNotEmpty()) throw AppException(AppError.ValidationError(errors))
+  ): ScheduleEventDto =
+    transactor.transaction {
+      val errors = mutableMapOf<String, String>()
+      if (request.title.isBlank()) errors["title"] = "Required"
+      if (request.title.length > MAX_TITLE_LENGTH) {
+        errors["title"] = "Max $MAX_TITLE_LENGTH characters"
+      }
+      if ((request.location?.length ?: 0) > MAX_LOCATION_LENGTH) {
+        errors["location"] = "Max $MAX_LOCATION_LENGTH characters"
+      }
+      val productionId =
+        runCatching { UUID.fromString(request.productionId) }.getOrNull()
+          ?: run {
+            errors["productionId"] = "Invalid UUID"
+            null
+          }
+      if (errors.isNotEmpty()) throw AppException(AppError.ValidationError(errors))
 
-    access.requireAccess(userId, productionId!!, AccessLevel.WRITE)
+      access.requireAccess(userId, productionId!!, AccessLevel.WRITE)
 
-    if (request.endsAt <= request.startsAt) {
-      throw AppException(AppError.ValidationError(mapOf("endsAt" to "Must be after startsAt")))
+      if (request.endsAt <= request.startsAt) {
+        throw AppException(AppError.ValidationError(mapOf("endsAt" to "Must be after startsAt")))
+      }
+
+      val record =
+        events.create(
+          productionId = productionId,
+          title = request.title.trim(),
+          location = request.location?.trim(),
+          startsAt = request.startsAt.toJavaInstant(),
+          endsAt = request.endsAt.toJavaInstant(),
+          kind = request.kind
+        )
+      record.toDto()
     }
-
-    val record =
-      events.create(
-        productionId = productionId,
-        title = request.title.trim(),
-        location = request.location?.trim(),
-        startsAt = request.startsAt.toJavaInstant(),
-        endsAt = request.endsAt.toJavaInstant(),
-        kind = request.kind
-      )
-    return record.toDto()
-  }
 
   suspend fun update(
     userId: UUID,
     eventId: UUID,
     request: UpdateScheduleEventRequest
-  ): ScheduleEventDto {
-    val event = events.findById(eventId) ?: throw AppException(AppError.NotFound)
-    access.requireAccess(userId, event.productionId, AccessLevel.WRITE)
+  ): ScheduleEventDto =
+    transactor.transaction {
+      val event = events.findById(eventId) ?: throw AppException(AppError.NotFound)
+      access.requireAccess(userId, event.productionId, AccessLevel.WRITE)
 
-    val errors = mutableMapOf<String, String>()
-    val requestTitle = request.title
-    if (requestTitle != null && requestTitle.isBlank()) errors["title"] = "Cannot be empty"
-    if (requestTitle != null && requestTitle.length > MAX_TITLE_LENGTH) {
-      errors["title"] = "Max $MAX_TITLE_LENGTH characters"
-    }
-    if ((request.location?.length ?: 0) > MAX_LOCATION_LENGTH) {
-      errors["location"] = "Max $MAX_LOCATION_LENGTH characters"
-    }
-    if (errors.isNotEmpty()) throw AppException(AppError.ValidationError(errors))
+      val errors = mutableMapOf<String, String>()
+      val requestTitle = request.title
+      if (requestTitle != null && requestTitle.isBlank()) errors["title"] = "Cannot be empty"
+      if (requestTitle != null && requestTitle.length > MAX_TITLE_LENGTH) {
+        errors["title"] = "Max $MAX_TITLE_LENGTH characters"
+      }
+      if ((request.location?.length ?: 0) > MAX_LOCATION_LENGTH) {
+        errors["location"] = "Max $MAX_LOCATION_LENGTH characters"
+      }
+      if (errors.isNotEmpty()) throw AppException(AppError.ValidationError(errors))
 
-    val startsAt = request.startsAt?.toJavaInstant()
-    val endsAt = request.endsAt?.toJavaInstant()
-    if (startsAt != null && endsAt != null && endsAt <= startsAt) {
-      throw AppException(AppError.ValidationError(mapOf("endsAt" to "Must be after startsAt")))
-    }
+      val startsAt = request.startsAt?.toJavaInstant()
+      val endsAt = request.endsAt?.toJavaInstant()
+      if (startsAt != null && endsAt != null && endsAt <= startsAt) {
+        throw AppException(AppError.ValidationError(mapOf("endsAt" to "Must be after startsAt")))
+      }
 
-    val updated =
-      events.update(
-        id = eventId,
-        title = request.title?.trim(),
-        location = request.location?.trim(),
-        startsAt = startsAt,
-        endsAt = endsAt,
-        kind = request.kind
-      ) ?: throw AppException(AppError.NotFound)
-    return updated.toDto()
-  }
+      val updated =
+        events.update(
+          id = eventId,
+          title = request.title?.trim(),
+          location = request.location?.trim(),
+          startsAt = startsAt,
+          endsAt = endsAt,
+          kind = request.kind
+        ) ?: throw AppException(AppError.NotFound)
+      updated.toDto()
+    }
 
   suspend fun delete(
     userId: UUID,
     eventId: UUID
-  ) {
-    val event = events.findById(eventId) ?: throw AppException(AppError.NotFound)
-    access.requireAccess(userId, event.productionId, AccessLevel.WRITE)
-    events.delete(eventId)
-  }
+  ): Unit =
+    transactor.transaction {
+      val event = events.findById(eventId) ?: throw AppException(AppError.NotFound)
+      access.requireAccess(userId, event.productionId, AccessLevel.WRITE)
+      events.delete(eventId)
+    }
 
   private fun parseDate(value: String): LocalDate =
     runCatching { LocalDate.parse(value) }.getOrElse {

@@ -4,5 +4,5 @@ import org.koin.dsl.module
 
 fun dashboardModule() =
   module {
-    single { DashboardService(get(), get(), get()) }
+    single { DashboardService(get(), get(), get(), get()) }
   }

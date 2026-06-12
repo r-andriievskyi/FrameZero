@@ -1,11 +1,11 @@
 package com.frame.zero
 
-import com.frame.zero.auth.AuthException
 import com.frame.zero.auth.JwtService
 import com.frame.zero.auth.authModule
 import com.frame.zero.auth.authRoutes
 import com.frame.zero.config.AppConfig
 import com.frame.zero.config.DatabaseFactory
+import com.frame.zero.config.pingDatabase
 import com.frame.zero.dashboard.dashboardModule
 import com.frame.zero.dashboard.dashboardRoutes
 import com.frame.zero.notification.notificationModule
@@ -32,11 +32,13 @@ import io.ktor.server.plugins.callid.callIdMdc
 import io.ktor.server.plugins.calllogging.CallLogging
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.cors.routing.CORS
+import io.ktor.server.plugins.forwardedheaders.XForwardedHeaders
 import io.ktor.server.plugins.origin
 import io.ktor.server.plugins.ratelimit.RateLimit
 import io.ktor.server.plugins.ratelimit.RateLimitName
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.response.respond
+import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
 import kotlinx.serialization.SerializationException
@@ -81,6 +83,12 @@ fun Application.module(config: AppConfig) {
     verify { it.isNotEmpty() && it.length <= MAX_CALL_ID_LENGTH }
   }
 
+  // Trust X-Forwarded-* so request.origin.remoteHost is the real client IP rather
+  // than the proxy/LB, which the per-client auth rate limit below keys on. Only
+  // safe when the server sits behind a proxy that sets these headers; do not
+  // expose this listener directly to untrusted clients.
+  install(XForwardedHeaders)
+
   install(CallLogging) {
     level = Level.INFO
     callIdMdc("callId")
@@ -114,9 +122,7 @@ fun Application.module(config: AppConfig) {
   installStatusPages()
 
   routing {
-    get("/health") {
-      call.respond(HttpStatusCode.OK, mapOf("status" to "ok"))
-    }
+    healthRoutes()
     authRoutes()
     dashboardRoutes()
     productionRoutes()
@@ -126,20 +132,28 @@ fun Application.module(config: AppConfig) {
   }
 }
 
+private fun Route.healthRoutes() {
+  // Liveness: the process is up and serving. Cheap and dependency-free.
+  get("/health") {
+    call.respond(HttpStatusCode.OK, mapOf("status" to "ok"))
+  }
+  // Readiness: only "ready" when the database is actually reachable, so
+  // orchestrators stop routing traffic here if Postgres is down.
+  get("/health/ready") {
+    if (pingDatabase()) {
+      call.respond(HttpStatusCode.OK, mapOf("status" to "ready"))
+    } else {
+      call.respond(HttpStatusCode.ServiceUnavailable, mapOf("status" to "unavailable"))
+    }
+  }
+}
+
 private fun Application.installStatusPages() {
   install(StatusPages) {
     exception<AppException> { call, cause ->
       call.application.environment.log
         .debug("AppException: {}", cause.error.humanMessage)
       call.respond(cause.error.status, cause.error.toResponse())
-    }
-    exception<AuthException> { call, cause ->
-      call.application.environment.log
-        .debug("AuthException: {}", cause.error.message)
-      call.respond(
-        cause.error.status,
-        ErrorResponse(error = "UNAUTHORIZED", message = cause.error.message)
-      )
     }
     exception<SerializationException> { call, cause ->
       call.application.environment.log

@@ -42,47 +42,6 @@ class RefreshTokenRepositoryImplTest {
     }
 
   @Test
-  fun `findActiveByHash returns the row when token is active`() =
-    runBlocking {
-      val userId = users.create("u@x.com", "hash", "", "").id
-      refreshTokens.create(userId, "hash-active", Instant.now().plusSeconds(3600))
-
-      val found = refreshTokens.findActiveByHash("hash-active", Instant.now())
-
-      assertNotNull(found)
-      assertEquals("hash-active", found.tokenHash)
-    }
-
-  @Test
-  fun `findActiveByHash returns null when token has been revoked`() =
-    runBlocking {
-      val userId = users.create("u@x.com", "hash", "", "").id
-      refreshTokens.create(userId, "hash-revoked", Instant.now().plusSeconds(3600))
-      refreshTokens.revoke("hash-revoked")
-
-      val found = refreshTokens.findActiveByHash("hash-revoked", Instant.now())
-
-      assertNull(found)
-    }
-
-  @Test
-  fun `findActiveByHash returns null when token has expired`() =
-    runBlocking {
-      val userId = users.create("u@x.com", "hash", "", "").id
-      refreshTokens.create(userId, "hash-expired", Instant.now().minusSeconds(60))
-
-      val found = refreshTokens.findActiveByHash("hash-expired", Instant.now())
-
-      assertNull(found)
-    }
-
-  @Test
-  fun `findActiveByHash returns null for an unknown hash`() =
-    runBlocking {
-      assertNull(refreshTokens.findActiveByHash("never-issued", Instant.now()))
-    }
-
-  @Test
   fun `revoke flips the flag and returns true`() =
     runBlocking {
       val userId = users.create("u@x.com", "hash", "", "").id
@@ -91,7 +50,7 @@ class RefreshTokenRepositoryImplTest {
       val revoked = refreshTokens.revoke("hash-1")
 
       assertTrue(revoked)
-      assertNull(refreshTokens.findActiveByHash("hash-1", Instant.now()))
+      assertTrue(refreshTokens.findByHash("hash-1")!!.revoked)
     }
 
   @Test
@@ -135,8 +94,8 @@ class RefreshTokenRepositoryImplTest {
       val revokedCount = refreshTokens.revokeAllForUser(userId)
 
       assertEquals(2, revokedCount)
-      assertNotNull(refreshTokens.findActiveByHash("hash-other", Instant.now()))
-      assertNull(refreshTokens.findActiveByHash("hash-1", Instant.now()))
-      assertNull(refreshTokens.findActiveByHash("hash-2", Instant.now()))
+      assertFalse(refreshTokens.findByHash("hash-other")!!.revoked)
+      assertTrue(refreshTokens.findByHash("hash-1")!!.revoked)
+      assertTrue(refreshTokens.findByHash("hash-2")!!.revoked)
     }
 }

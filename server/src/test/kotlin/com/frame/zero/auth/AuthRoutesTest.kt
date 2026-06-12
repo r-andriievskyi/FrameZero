@@ -1,5 +1,7 @@
 package com.frame.zero.auth
 
+import com.frame.zero.AppException
+import com.frame.zero.common.testing.NoopTransactor
 import com.frame.zero.auth.dto.AuthResponse
 import com.frame.zero.auth.dto.LoginRequest
 import com.frame.zero.auth.dto.LogoutRequest
@@ -302,7 +304,8 @@ class AuthRoutesTest {
         passwordHasher = PasswordHasher(),
         tokenHasher = TokenHasher(),
         jwtService = jwtService,
-        jwtConfig = jwtConfig
+        jwtConfig = jwtConfig,
+        transactor = NoopTransactor()
       )
 
     fun configure(app: Application) {
@@ -327,8 +330,8 @@ class AuthRoutesTest {
         }
       }
       app.install(StatusPages) {
-        exception<AuthException> { call, cause ->
-          call.respond(cause.error.status, mapOf("error" to cause.error.message))
+        exception<AppException> { call, cause ->
+          call.respond(cause.error.status, mapOf("error" to cause.error.humanMessage))
         }
         exception<SerializationException> { call, _ ->
           call.respond(HttpStatusCode.BadRequest, mapOf("error" to "Malformed request body"))

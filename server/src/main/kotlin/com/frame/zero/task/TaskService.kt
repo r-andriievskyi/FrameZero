@@ -2,6 +2,7 @@ package com.frame.zero.task
 
 import com.frame.zero.AppError
 import com.frame.zero.AppException
+import com.frame.zero.common.Transactor
 import com.frame.zero.common.toJava
 import com.frame.zero.common.toKotlin
 import com.frame.zero.dto.task.CreateTaskRequest
@@ -18,7 +19,8 @@ import kotlin.time.toKotlinInstant
 
 class TaskService(
   private val tasks: TaskRepository,
-  private val access: ProductionAccessService
+  private val access: ProductionAccessService,
+  private val transactor: Transactor
 ) {
   suspend fun list(
     userId: UUID,
@@ -28,10 +30,10 @@ class TaskService(
     limit: Int,
     cursor: String?,
     timezone: ZoneId
-  ): Pair<List<TaskSummaryDto>, String?> {
-    if (productionId != null) access.requireAccess(userId, productionId, AccessLevel.READ)
-    val (items, nextCursor) =
-      tasks.findForUser(
+  ): Pair<List<TaskSummaryDto>, String?> =
+    transactor.transaction {
+      if (productionId != null) access.requireAccess(userId, productionId, AccessLevel.READ)
+      val (items, nextCursor) = tasks.findForUser(
         userId = userId,
         assigneeMe = assigneeMe,
         status = status,
@@ -39,103 +41,104 @@ class TaskService(
         limit = limit,
         cursor = cursor
       )
-    return Pair(items.map { it.toSummaryDto() }, nextCursor)
-  }
+      Pair(items.map { it.toSummaryDto() }, nextCursor)
+    }
 
   suspend fun get(
     userId: UUID,
     taskId: UUID,
     timezone: ZoneId
-  ): TaskDetailDto {
-    val task = tasks.findById(taskId) ?: throw AppException(AppError.NotFound)
-    access.requireAccess(userId, task.productionId, AccessLevel.READ)
-    return task.toDetailDto()
-  }
+  ): TaskDetailDto =
+    transactor.transaction {
+      val task = tasks.findById(taskId) ?: throw AppException(AppError.NotFound)
+      access.requireAccess(userId, task.productionId, AccessLevel.READ)
+      task.toDetailDto()
+    }
 
   suspend fun create(
     userId: UUID,
     request: CreateTaskRequest,
     timezone: ZoneId
-  ): TaskDetailDto {
-    val errors = mutableMapOf<String, String>()
-    if (request.title.isBlank()) errors["title"] = "Required"
-    if (request.title.length > MAX_TITLE_LENGTH) {
-      errors["title"] = "Max $MAX_TITLE_LENGTH characters"
-    }
-    if ((request.description?.length ?: 0) > MAX_DESCRIPTION_LENGTH) {
-      errors["description"] = "Max $MAX_DESCRIPTION_LENGTH characters"
-    }
-    if (errors.isNotEmpty()) throw AppException(AppError.ValidationError(errors))
+  ): TaskDetailDto =
+    transactor.transaction {
+      val errors = mutableMapOf<String, String>()
+      if (request.title.isBlank()) errors["title"] = "Required"
+      if (request.title.length > MAX_TITLE_LENGTH) {
+        errors["title"] = "Max $MAX_TITLE_LENGTH characters"
+      }
+      if ((request.description?.length ?: 0) > MAX_DESCRIPTION_LENGTH) {
+        errors["description"] = "Max $MAX_DESCRIPTION_LENGTH characters"
+      }
+      if (errors.isNotEmpty()) throw AppException(AppError.ValidationError(errors))
 
-    val productionId =
-      runCatching { UUID.fromString(request.productionId) }.getOrNull()
+      val productionId = runCatching { UUID.fromString(request.productionId) }.getOrNull()
         ?: throw AppException(AppError.ValidationError(mapOf("productionId" to "Invalid UUID")))
 
-    access.requireAccess(userId, productionId, AccessLevel.WRITE)
+      access.requireAccess(userId, productionId, AccessLevel.WRITE)
 
-    val assigneeId =
-      request.assigneeUserId?.let {
+      val assigneeId = request.assigneeUserId?.let {
         runCatching { UUID.fromString(it) }.getOrNull()
           ?: throw AppException(AppError.ValidationError(mapOf("assigneeUserId" to "Invalid UUID")))
       }
 
-    val task =
-      tasks.create(
+      val task = tasks.create(
         productionId = productionId,
         title = request.title.trim(),
         description = request.description?.trim(),
         dueDate = request.dueDate?.toJava(),
         assigneeUserId = assigneeId
       )
-    return task.toDetailDto()
-  }
+      task.toDetailDto()
+    }
 
   suspend fun update(
     userId: UUID,
     taskId: UUID,
     request: UpdateTaskRequest,
     timezone: ZoneId
-  ): TaskDetailDto {
-    val task = tasks.findById(taskId) ?: throw AppException(AppError.NotFound)
-    access.requireAccess(userId, task.productionId, AccessLevel.WRITE)
+  ): TaskDetailDto =
+    transactor.transaction {
+      val task = tasks.findById(taskId) ?: throw AppException(AppError.NotFound)
+      access.requireAccess(userId, task.productionId, AccessLevel.WRITE)
 
-    val errors = mutableMapOf<String, String>()
-    val requestTitle = request.title
-    if (requestTitle != null && requestTitle.isBlank()) errors["title"] = "Cannot be empty"
-    if (requestTitle != null && requestTitle.length > MAX_TITLE_LENGTH) {
-      errors["title"] = "Max $MAX_TITLE_LENGTH characters"
-    }
-    if ((request.description?.length ?: 0) > MAX_DESCRIPTION_LENGTH) {
-      errors["description"] = "Max $MAX_DESCRIPTION_LENGTH characters"
-    }
-    if (errors.isNotEmpty()) throw AppException(AppError.ValidationError(errors))
-
-    val assigneeId =
-      request.assigneeUserId?.let {
-        runCatching { UUID.fromString(it) }.getOrNull()
-          ?: throw AppException(AppError.ValidationError(mapOf("assigneeUserId" to "Invalid UUID")))
+      val errors = mutableMapOf<String, String>()
+      val requestTitle = request.title
+      if (requestTitle != null && requestTitle.isBlank()) errors["title"] = "Cannot be empty"
+      if (requestTitle != null && requestTitle.length > MAX_TITLE_LENGTH) {
+        errors["title"] = "Max $MAX_TITLE_LENGTH characters"
       }
+      if ((request.description?.length ?: 0) > MAX_DESCRIPTION_LENGTH) {
+        errors["description"] = "Max $MAX_DESCRIPTION_LENGTH characters"
+      }
+      if (errors.isNotEmpty()) throw AppException(AppError.ValidationError(errors))
 
-    val updated =
-      tasks.update(
-        id = taskId,
-        title = request.title?.trim(),
-        description = request.description?.trim(),
-        dueDate = request.dueDate?.toJava(),
-        status = request.status,
-        assigneeUserId = assigneeId
-      ) ?: throw AppException(AppError.NotFound)
-    return updated.toDetailDto()
-  }
+      val assigneeId =
+        request.assigneeUserId?.let {
+          runCatching { UUID.fromString(it) }.getOrNull()
+            ?: throw AppException(AppError.ValidationError(mapOf("assigneeUserId" to "Invalid UUID")))
+        }
+
+      val updated =
+        tasks.update(
+          id = taskId,
+          title = request.title?.trim(),
+          description = request.description?.trim(),
+          dueDate = request.dueDate?.toJava(),
+          status = request.status,
+          assigneeUserId = assigneeId
+        ) ?: throw AppException(AppError.NotFound)
+      updated.toDetailDto()
+    }
 
   suspend fun delete(
     userId: UUID,
     taskId: UUID
-  ) {
-    val task = tasks.findById(taskId) ?: throw AppException(AppError.NotFound)
-    access.requireAccess(userId, task.productionId, AccessLevel.WRITE)
-    tasks.delete(taskId)
-  }
+  ): Unit =
+    transactor.transaction {
+      val task = tasks.findById(taskId) ?: throw AppException(AppError.NotFound)
+      access.requireAccess(userId, task.productionId, AccessLevel.WRITE)
+      tasks.delete(taskId)
+    }
 
   private fun TaskRecord.toSummaryDto(): TaskSummaryDto =
     TaskSummaryDto(

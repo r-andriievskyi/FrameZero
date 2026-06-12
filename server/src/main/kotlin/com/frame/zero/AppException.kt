@@ -10,6 +10,15 @@ sealed class AppError(
 ) {
   data object Unauthorized : AppError(HttpStatusCode.Unauthorized, "UNAUTHORIZED", "Unauthorized")
 
+  data object InvalidCredentials :
+    AppError(HttpStatusCode.Unauthorized, "INVALID_CREDENTIALS", "Invalid email or password")
+
+  data object InvalidRefreshToken :
+    AppError(HttpStatusCode.Unauthorized, "INVALID_REFRESH_TOKEN", "Refresh token is invalid or expired")
+
+  data object EmailAlreadyExists :
+    AppError(HttpStatusCode.Conflict, "EMAIL_ALREADY_EXISTS", "Email already in use")
+
   data object Forbidden : AppError(HttpStatusCode.Forbidden, "FORBIDDEN", "Access denied")
 
   data object NotFound : AppError(HttpStatusCode.NotFound, "NOT_FOUND", "Resource not found")

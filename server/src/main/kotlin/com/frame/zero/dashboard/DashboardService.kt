@@ -1,6 +1,7 @@
 package com.frame.zero.dashboard
 
 import com.frame.zero.auth.UserRepository
+import com.frame.zero.common.Transactor
 import com.frame.zero.common.toKotlin
 import com.frame.zero.dto.dashboard.DashboardResponse
 import com.frame.zero.dto.dashboard.GreetingDto
@@ -17,27 +18,27 @@ private const val DASHBOARD_TASKS_LIMIT = 3
 class DashboardService(
   private val users: UserRepository,
   private val productions: ProductionRepository,
-  private val tasks: TaskRepository
+  private val tasks: TaskRepository,
+  private val transactor: Transactor
 ) {
   suspend fun get(
     userId: UUID,
     timezone: ZoneId
-  ): DashboardResponse {
+  ): DashboardResponse = transactor.transaction {
     val user = users.findById(userId)
-    val displayName = user?.let { "${it.firstName} ${it.lastName}".trim() } ?: ""
+    val displayName = user?.let { "${it.firstName} ${it.lastName}".trim() }.orEmpty()
 
     val activeCount = productions.countActiveForUser(userId)
     val openTaskCount = tasks.countOpenForUser(userId)
 
     val myTasks = tasks.findForUserLimit(userId, DASHBOARD_TASKS_LIMIT).map { it.toSummaryDto(timezone) }
 
-    return DashboardResponse(
-      greeting =
-        GreetingDto(
-          displayName = displayName,
-          activeProductionsCount = activeCount,
-          openTasksCount = openTaskCount
-        ),
+    DashboardResponse(
+      greeting = GreetingDto(
+        displayName = displayName,
+        activeProductionsCount = activeCount,
+        openTasksCount = openTaskCount
+      ),
       stats = StatsDto(activeProjects = activeCount, openTasks = openTaskCount),
       myTasks = myTasks
     )
