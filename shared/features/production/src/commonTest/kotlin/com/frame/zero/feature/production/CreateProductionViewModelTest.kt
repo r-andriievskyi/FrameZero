@@ -176,7 +176,7 @@ class CreateProductionViewModelTest {
     }
 
   @Test
-  fun `submit network failure surfaces a toast, not an inline error`() =
+  fun `submit network failure surfaces a toast not an inline error`() =
     runTest {
       val viewModel = makeViewModel(FakeProductionsRepository(createThrows = IOException("offline")))
       viewModel.onIntent(CreateProductionIntent.TitleChanged("Pilot"))
