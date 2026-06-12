@@ -2,6 +2,7 @@ package com.frame.zero.production
 
 import com.frame.zero.common.decodeCursor
 import com.frame.zero.common.encodeCursor
+import com.frame.zero.common.nowTruncatedToMicros
 import com.frame.zero.config.dbQuery
 import com.frame.zero.domain.production.Genre
 import com.frame.zero.domain.production.ProductionPhase
@@ -22,9 +23,9 @@ import org.jetbrains.exposed.v1.core.or
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.update
-import java.time.Instant
-import java.time.LocalDate
 import java.util.UUID
+import kotlin.time.Instant
+import kotlinx.datetime.LocalDate
 
 data class ProductionRecord(
   val id: UUID,
@@ -96,7 +97,7 @@ class ProductionRepositoryImpl : ProductionRepository {
   ): ProductionRecord =
     dbQuery {
       val newId = UUID.randomUUID()
-      val now = Instant.now()
+      val now = nowTruncatedToMicros()
       ProductionsTable.insert {
         it[id] = newId
         it[ProductionsTable.title] = title
@@ -179,7 +180,7 @@ class ProductionRepositoryImpl : ProductionRepository {
                 cond and
                 when (sort) {
                   ProductionSort.DUE_DATE -> {
-                    val cursorDate = LocalDate.ofEpochDay(pc.epochMillis)
+                    val cursorDate = LocalDate.fromEpochDays(pc.sortKey)
                     (ProductionsTable.wrapDate greater cursorDate) or
                       (
                         (ProductionsTable.wrapDate eq cursorDate) and
@@ -187,7 +188,7 @@ class ProductionRepositoryImpl : ProductionRepository {
                       )
                   }
                   ProductionSort.RECENT -> {
-                    val cursorTs = Instant.ofEpochMilli(pc.epochMillis)
+                    val cursorTs = Instant.fromEpochMilliseconds(pc.sortKey)
                     (ProductionsTable.updatedAt less cursorTs) or
                       (
                         (ProductionsTable.updatedAt eq cursorTs) and
@@ -223,8 +224,8 @@ class ProductionRepositoryImpl : ProductionRepository {
         if (hasMore) {
           val last = items.last()
           when (sort) {
-            ProductionSort.DUE_DATE -> encodeCursor(last.wrapDate.toEpochDay(), last.id)
-            ProductionSort.RECENT -> encodeCursor(last.updatedAt.toEpochMilli(), last.id)
+            ProductionSort.DUE_DATE -> encodeCursor(last.wrapDate.toEpochDays(), last.id)
+            ProductionSort.RECENT -> encodeCursor(last.updatedAt.toEpochMilliseconds(), last.id)
           }
         } else {
           null
@@ -262,7 +263,7 @@ class ProductionRepositoryImpl : ProductionRepository {
     budgetCents: Long?
   ): ProductionRecord? =
     dbQuery {
-      val now = Instant.now()
+      val now = nowTruncatedToMicros()
       val updated =
         ProductionsTable.update({ ProductionsTable.id eq id }) { row ->
           title?.let { row[ProductionsTable.title] = it }
@@ -288,7 +289,7 @@ class ProductionRepositoryImpl : ProductionRepository {
     phase: ProductionPhase
   ): ProductionRecord? =
     dbQuery {
-      val now = Instant.now()
+      val now = nowTruncatedToMicros()
       ProductionsTable.update({ ProductionsTable.id eq id }) {
         it[ProductionsTable.phase] = phase.name
         it[updatedAt] = now
@@ -302,7 +303,7 @@ class ProductionRepositoryImpl : ProductionRepository {
 
   override suspend fun softDelete(id: UUID): Unit =
     dbQuery {
-      ProductionsTable.update({ ProductionsTable.id eq id }) { it[deletedAt] = Instant.now() }
+      ProductionsTable.update({ ProductionsTable.id eq id }) { it[deletedAt] = nowTruncatedToMicros() }
     }
 
   private fun ResultRow.toRecord(): ProductionRecord =

@@ -3,7 +3,6 @@ package com.frame.zero.schedule
 import com.frame.zero.AppError
 import com.frame.zero.AppException
 import com.frame.zero.common.Transactor
-import com.frame.zero.common.toKotlin
 import com.frame.zero.dto.schedule.CreateScheduleEventRequest
 import com.frame.zero.dto.schedule.ScheduleDayDto
 import com.frame.zero.dto.schedule.ScheduleEventDto
@@ -14,14 +13,14 @@ import com.frame.zero.production.AccessLevel
 import com.frame.zero.production.ProductionAccessService
 import com.frame.zero.task.TaskRecord
 import com.frame.zero.task.TaskRepository
-import java.time.DayOfWeek
-import java.time.LocalDate
-import java.time.YearMonth
-import java.time.ZoneId
-import java.time.temporal.TemporalAdjusters
 import java.util.UUID
-import kotlin.time.toJavaInstant
-import kotlin.time.toKotlinInstant
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atStartOfDayIn
+import kotlinx.datetime.isoDayNumber
+import kotlinx.datetime.minus
+import kotlinx.datetime.plus
 
 class ScheduleService(
   private val events: ScheduleEventRepository,
@@ -33,52 +32,49 @@ class ScheduleService(
     userId: UUID,
     view: String,
     dateParam: String,
-    timezone: ZoneId
+    timezone: TimeZone
   ): ScheduleResponse =
     transactor.transaction {
       val (rangeStart, rangeEnd) =
         when (view) {
           "day" -> {
             val date = parseDate(dateParam)
-            Pair(date, date)
+            date to date
           }
           "week" -> {
             val date = parseDate(dateParam)
-            val monday = date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-            val sunday = monday.plusDays(6)
-            Pair(monday, sunday)
+            val monday = date.minus(date.dayOfWeek.isoDayNumber - 1, DateTimeUnit.DAY)
+            val sunday = monday.plus(6, DateTimeUnit.DAY)
+            monday to sunday
           }
-          "month" -> {
-            val ym = parseYearMonth(dateParam)
-            Pair(ym.atDay(1), ym.atEndOfMonth())
-          }
+          "month" -> monthRange(dateParam)
           else ->
             throw AppException(
               AppError.ValidationError(mapOf("view" to "Must be day, week, or month"))
             )
         }
 
-      val rangeStartInstant = rangeStart.atStartOfDay(timezone).toInstant()
-      val rangeEndInstant = rangeEnd.plusDays(1).atStartOfDay(timezone).toInstant()
+      val rangeStartInstant = rangeStart.atStartOfDayIn(timezone)
+      val rangeEndInstant = rangeEnd.plus(1, DateTimeUnit.DAY).atStartOfDayIn(timezone)
 
       val eventRecords = events.findInRangeForUser(userId, rangeStartInstant, rangeEndInstant)
       val taskRecords = tasks.findInRangeForUser(userId, rangeStart, rangeEnd)
 
       val days =
         generateDays(rangeStart, rangeEnd).map { date ->
-          val dayStart = date.atStartOfDay(timezone).toInstant()
-          val dayEnd = date.plusDays(1).atStartOfDay(timezone).toInstant()
+          val dayStart = date.atStartOfDayIn(timezone)
+          val dayEnd = date.plus(1, DateTimeUnit.DAY).atStartOfDayIn(timezone)
           val dayEvents =
             eventRecords
               .filter { it.startsAt >= dayStart && it.startsAt < dayEnd }
               .map { it.toDto() }
           val dayTasks = taskRecords.filter { it.dueDate == date }.map { it.toScheduleTaskDto() }
-          ScheduleDayDto(date = date.toKotlin(), events = dayEvents, tasks = dayTasks)
+          ScheduleDayDto(date = date, events = dayEvents, tasks = dayTasks)
         }
 
       ScheduleResponse(
-        rangeStart = rangeStart.toKotlin(),
-        rangeEnd = rangeEnd.toKotlin(),
+        rangeStart = rangeStart,
+        rangeEnd = rangeEnd,
         days = days
       )
     }
@@ -115,8 +111,8 @@ class ScheduleService(
           productionId = productionId,
           title = request.title.trim(),
           location = request.location?.trim(),
-          startsAt = request.startsAt.toJavaInstant(),
-          endsAt = request.endsAt.toJavaInstant(),
+          startsAt = request.startsAt,
+          endsAt = request.endsAt,
           kind = request.kind
         )
       record.toDto()
@@ -142,8 +138,8 @@ class ScheduleService(
       }
       if (errors.isNotEmpty()) throw AppException(AppError.ValidationError(errors))
 
-      val startsAt = request.startsAt?.toJavaInstant()
-      val endsAt = request.endsAt?.toJavaInstant()
+      val startsAt = request.startsAt
+      val endsAt = request.endsAt
       if (startsAt != null && endsAt != null && endsAt <= startsAt) {
         throw AppException(AppError.ValidationError(mapOf("endsAt" to "Must be after startsAt")))
       }
@@ -175,10 +171,14 @@ class ScheduleService(
       throw AppException(AppError.ValidationError(mapOf("date" to "Must be an ISO date (yyyy-MM-dd)")))
     }
 
-  private fun parseYearMonth(value: String): YearMonth =
-    runCatching { YearMonth.parse(value) }.getOrElse {
-      throw AppException(AppError.ValidationError(mapOf("date" to "Must be an ISO month (yyyy-MM)")))
-    }
+  private fun monthRange(value: String): Pair<LocalDate, LocalDate> {
+    val firstDay =
+      runCatching { LocalDate.parse("$value-01") }.getOrElse {
+        throw AppException(AppError.ValidationError(mapOf("date" to "Must be an ISO month (yyyy-MM)")))
+      }
+    val lastDay = firstDay.plus(1, DateTimeUnit.MONTH).minus(1, DateTimeUnit.DAY)
+    return firstDay to lastDay
+  }
 
   private fun generateDays(
     start: LocalDate,
@@ -186,9 +186,9 @@ class ScheduleService(
   ): List<LocalDate> {
     val days = mutableListOf<LocalDate>()
     var current = start
-    while (!current.isAfter(end)) {
+    while (current <= end) {
       days += current
-      current = current.plusDays(1)
+      current = current.plus(1, DateTimeUnit.DAY)
     }
     return days
   }
@@ -198,8 +198,8 @@ class ScheduleService(
       id = id.toString(),
       title = title,
       location = location,
-      startsAt = startsAt.toKotlinInstant(),
-      endsAt = endsAt.toKotlinInstant(),
+      startsAt = startsAt,
+      endsAt = endsAt,
       kind = kind,
       productionId = productionId.toString(),
       productionTitle = productionTitle
@@ -211,7 +211,7 @@ class ScheduleService(
       title = title,
       productionId = productionId.toString(),
       productionTitle = productionTitle,
-      dueDate = requireNotNull(dueDate) { "Schedule task must have a due date" }.toKotlin(),
+      dueDate = requireNotNull(dueDate) { "Schedule task must have a due date" },
       status = status,
       priority = priority
     )

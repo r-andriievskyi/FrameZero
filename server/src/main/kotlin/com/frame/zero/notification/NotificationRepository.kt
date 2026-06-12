@@ -2,6 +2,7 @@ package com.frame.zero.notification
 
 import com.frame.zero.common.decodeCursor
 import com.frame.zero.common.encodeCursor
+import com.frame.zero.common.nowTruncatedToMicros
 import com.frame.zero.config.dbQuery
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.SortOrder
@@ -14,8 +15,8 @@ import org.jetbrains.exposed.v1.core.or
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.update
-import java.time.Instant
 import java.util.UUID
+import kotlin.time.Instant
 
 data class NotificationRecord(
   val id: UUID,
@@ -63,7 +64,7 @@ class NotificationRepositoryImpl : NotificationRepository {
           if (cursor != null) {
             val pc = decodeCursor(cursor)
             if (pc != null) {
-              val cursorTs = Instant.ofEpochMilli(pc.epochMillis)
+              val cursorTs = Instant.fromEpochMilliseconds(pc.sortKey)
               cond =
                 cond and
                 (
@@ -87,7 +88,7 @@ class NotificationRepositoryImpl : NotificationRepository {
       val nextCursor =
         if (hasMore) {
           val last = items.last()
-          encodeCursor(last.createdAt.toEpochMilli(), last.id)
+          encodeCursor(last.createdAt.toEpochMilliseconds(), last.id)
         } else {
           null
         }
@@ -109,7 +110,7 @@ class NotificationRepositoryImpl : NotificationRepository {
   ): Unit =
     dbQuery {
       if (ids.isEmpty()) return@dbQuery
-      val now = Instant.now()
+      val now = nowTruncatedToMicros()
       NotificationsTable.update({
         (NotificationsTable.userId eq userId) and
           (NotificationsTable.id inList ids) and
@@ -121,7 +122,7 @@ class NotificationRepositoryImpl : NotificationRepository {
 
   override suspend fun markAllRead(userId: UUID): Unit =
     dbQuery {
-      val now = Instant.now()
+      val now = nowTruncatedToMicros()
       NotificationsTable.update({
         (NotificationsTable.userId eq userId) and NotificationsTable.readAt.isNull()
       }) {
@@ -136,7 +137,7 @@ class NotificationRepositoryImpl : NotificationRepository {
   ): NotificationRecord =
     dbQuery {
       val newId = UUID.randomUUID()
-      val now = Instant.now()
+      val now = nowTruncatedToMicros()
       NotificationsTable.insert {
         it[id] = newId
         it[NotificationsTable.userId] = userId

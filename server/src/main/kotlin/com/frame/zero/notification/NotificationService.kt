@@ -3,11 +3,11 @@ package com.frame.zero.notification
 import com.frame.zero.AppError
 import com.frame.zero.AppException
 import com.frame.zero.common.Transactor
+import com.frame.zero.common.parseUuidField
 import com.frame.zero.dto.notification.MarkReadRequest
 import com.frame.zero.dto.notification.NotificationDto
 import com.frame.zero.dto.notification.NotificationsResponse
 import java.util.UUID
-import kotlin.time.toKotlinInstant
 
 class NotificationService(
   private val notifications: NotificationRepository,
@@ -27,8 +27,8 @@ class NotificationService(
             id = n.id.toString(),
             title = n.title,
             body = n.body,
-            readAt = n.readAt?.toKotlinInstant(),
-            createdAt = n.createdAt.toKotlinInstant()
+            readAt = n.readAt,
+            createdAt = n.createdAt
           )
         },
         unreadCount = unread,
@@ -48,10 +48,7 @@ class NotificationService(
       if (request.ids.isEmpty()) {
         throw AppException(AppError.ValidationError(mapOf("ids" to "Provide ids or set all=true")))
       }
-      val uuids = request.ids.map {
-        runCatching { UUID.fromString(it) }.getOrNull()
-          ?: throw AppException(AppError.ValidationError(mapOf("ids" to "Invalid UUID: $it")))
-      }
+      val uuids = request.ids.map { parseUuidField("ids", it) }
       notifications.markRead(userId, uuids)
     }
 }

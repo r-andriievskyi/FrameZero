@@ -7,8 +7,8 @@ import com.frame.zero.production.ProductionMemberRecord
 import com.frame.zero.production.ProductionMemberRepository
 import com.frame.zero.production.ProductionRecord
 import com.frame.zero.production.ProductionRepository
-import java.time.Instant
-import java.time.LocalDate
+import kotlin.time.Clock
+import kotlinx.datetime.LocalDate
 import java.util.UUID
 
 internal class FakeProductionRepository : ProductionRepository {
@@ -36,8 +36,8 @@ internal class FakeProductionRepository : ProductionRepository {
         budgetCents = budgetCents,
         ownerUserId = ownerUserId,
         deletedAt = null,
-        createdAt = Instant.now(),
-        updatedAt = Instant.now()
+        createdAt = Clock.System.now(),
+        updatedAt = Clock.System.now()
       )
     productions += record
     return record
@@ -99,7 +99,7 @@ internal class FakeProductionRepository : ProductionRepository {
         startDate = startDate ?: productions[idx].startDate,
         wrapDate = wrapDate ?: productions[idx].wrapDate,
         budgetCents = budgetCents ?: productions[idx].budgetCents,
-        updatedAt = Instant.now()
+        updatedAt = Clock.System.now()
       )
     productions[idx] = updated
     return updated
@@ -111,14 +111,14 @@ internal class FakeProductionRepository : ProductionRepository {
   ): ProductionRecord? {
     val idx = productions.indexOfFirst { it.id == id }
     if (idx < 0) return null
-    val updated = productions[idx].copy(phase = phase, updatedAt = Instant.now())
+    val updated = productions[idx].copy(phase = phase, updatedAt = Clock.System.now())
     productions[idx] = updated
     return updated
   }
 
   override suspend fun softDelete(id: UUID) {
     val idx = productions.indexOfFirst { it.id == id }
-    if (idx >= 0) productions[idx] = productions[idx].copy(deletedAt = Instant.now())
+    if (idx >= 0) productions[idx] = productions[idx].copy(deletedAt = Clock.System.now())
   }
 }
 
@@ -167,7 +167,7 @@ internal class FakeProductionMemberRepository : ProductionMemberRepository {
         role = role,
         email = email,
         avatarColorHex = null,
-        addedAt = Instant.now(),
+        addedAt = Clock.System.now(),
         reportsToMemberId = null
       )
     members += record

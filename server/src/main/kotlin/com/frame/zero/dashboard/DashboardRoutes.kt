@@ -1,6 +1,5 @@
 package com.frame.zero.dashboard
 
-import com.frame.zero.common.timezone
 import com.frame.zero.common.userId
 import io.ktor.server.auth.authenticate
 import io.ktor.server.response.respond
@@ -15,8 +14,7 @@ fun Route.dashboardRoutes() {
       get("/dashboard") {
         val service by call.inject<DashboardService>()
         val userId = call.userId()
-        val tz = call.timezone()
-        call.respond(service.get(userId, tz))
+        call.respond(service.get(userId))
       }
     }
   }

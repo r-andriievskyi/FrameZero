@@ -1,45 +1,36 @@
 package com.frame.zero.config
 
-import com.frame.zero.auth.RefreshTokensTable
-import com.frame.zero.auth.UsersTable
-import com.frame.zero.notification.NotificationsTable
-import com.frame.zero.production.ProductionMembersTable
-import com.frame.zero.production.ProductionsTable
-import com.frame.zero.schedule.ScheduleEventsTable
-import com.frame.zero.task.TasksTable
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import com.zaxxer.hikari.metrics.micrometer.MicrometerMetricsTrackerFactory
+import io.micrometer.core.instrument.MeterRegistry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.withContext
+import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
-import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import javax.sql.DataSource
 
 private const val MAX_POOL_SIZE = 10
 
 object DatabaseFactory {
-  fun init(config: DatabaseConfig): Database {
-    val ds = dataSource(config)
-    val database = Database.connect(ds)
-    transaction(database) {
-      SchemaUtils.create(
-        UsersTable,
-        RefreshTokensTable,
-        ProductionsTable,
-        ProductionMembersTable,
-        TasksTable,
-        ScheduleEventsTable,
-        NotificationsTable
-      )
-    }
-    return database
+  fun init(
+    config: DatabaseConfig,
+    meterRegistry: MeterRegistry? = null
+  ): Database {
+    val ds = dataSource(config, meterRegistry)
+    // Flyway owns DDL via versioned SQL migrations (src/main/resources/db/migration).
+    // The Exposed tables remain the typed query surface only.
+    Flyway.configure().dataSource(ds).load().migrate()
+    return Database.connect(ds)
   }
 
-  private fun dataSource(config: DatabaseConfig): DataSource =
+  private fun dataSource(
+    config: DatabaseConfig,
+    meterRegistry: MeterRegistry?
+  ): DataSource =
     HikariDataSource(
       HikariConfig().apply {
         driverClassName = "org.postgresql.Driver"
@@ -47,9 +38,14 @@ object DatabaseFactory {
         username = config.user
         password = config.password
         maximumPoolSize = MAX_POOL_SIZE
-        // Exposed manages transactions explicitly via suspendTransaction
+        // exposed manages transactions explicitly via suspendTransaction
         isAutoCommit = false
         transactionIsolation = "TRANSACTION_READ_COMMITTED"
+        // Publish pool stats (active/idle/pending connections, acquire timing) to
+        // Prometheus when a registry is supplied.
+        if (meterRegistry != null) {
+          metricsTrackerFactory = MicrometerMetricsTrackerFactory(meterRegistry)
+        }
         validate()
       }
     )
@@ -70,5 +66,4 @@ private val dbDispatcher = Dispatchers.IO.limitedParallelism(MAX_POOL_SIZE)
 suspend fun <T> dbQuery(block: suspend JdbcTransaction.() -> T): T =
   withContext(dbDispatcher) { suspendTransaction { block() } }
 
-/** Readiness check: returns true only if a trivial query reaches the database. */
 suspend fun pingDatabase(): Boolean = runCatching { dbQuery { exec("SELECT 1") } }.isSuccess

@@ -1,8 +1,9 @@
 package com.frame.zero.auth
 
-import com.frame.zero.common.testing.H2TestDatabase
+import com.frame.zero.common.testing.PostgresTestDatabase
 import kotlinx.coroutines.runBlocking
-import java.time.Instant
+import kotlin.time.Clock
+import kotlin.time.Duration.Companion.seconds
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -13,7 +14,7 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class RefreshTokenRepositoryImplTest {
-  private val db = H2TestDatabase()
+  private val db = PostgresTestDatabase()
   private val users = UserRepositoryImpl()
   private val refreshTokens = RefreshTokenRepositoryImpl()
 
@@ -31,7 +32,7 @@ class RefreshTokenRepositoryImplTest {
   fun `create persists a refresh token row`() =
     runBlocking {
       val userId = users.create("u@x.com", "hash", "", "").id
-      val expiresAt = Instant.now().plusSeconds(3600)
+      val expiresAt = Clock.System.now() + 3600.seconds
 
       val record = refreshTokens.create(userId, "hash-1", expiresAt)
 
@@ -45,7 +46,7 @@ class RefreshTokenRepositoryImplTest {
   fun `revoke flips the flag and returns true`() =
     runBlocking {
       val userId = users.create("u@x.com", "hash", "", "").id
-      refreshTokens.create(userId, "hash-1", Instant.now().plusSeconds(3600))
+      refreshTokens.create(userId, "hash-1", Clock.System.now() + 3600.seconds)
 
       val revoked = refreshTokens.revoke("hash-1")
 
@@ -63,10 +64,10 @@ class RefreshTokenRepositoryImplTest {
   fun `claim succeeds exactly once for an active token`() =
     runBlocking {
       val userId = users.create("u@x.com", "hash", "", "").id
-      refreshTokens.create(userId, "hash-1", Instant.now().plusSeconds(3600))
+      refreshTokens.create(userId, "hash-1", Clock.System.now() + 3600.seconds)
 
-      val first = refreshTokens.claim("hash-1", Instant.now())
-      val second = refreshTokens.claim("hash-1", Instant.now())
+      val first = refreshTokens.claim("hash-1", Clock.System.now())
+      val second = refreshTokens.claim("hash-1", Clock.System.now())
 
       assertNotNull(first)
       assertTrue(first.revoked)
@@ -77,9 +78,9 @@ class RefreshTokenRepositoryImplTest {
   fun `claim returns null for an expired token`() =
     runBlocking {
       val userId = users.create("u@x.com", "hash", "", "").id
-      refreshTokens.create(userId, "hash-expired", Instant.now().minusSeconds(60))
+      refreshTokens.create(userId, "hash-expired", Clock.System.now() - 60.seconds)
 
-      assertNull(refreshTokens.claim("hash-expired", Instant.now()))
+      assertNull(refreshTokens.claim("hash-expired", Clock.System.now()))
     }
 
   @Test
@@ -87,9 +88,9 @@ class RefreshTokenRepositoryImplTest {
     runBlocking {
       val userId = users.create("u@x.com", "hash", "", "").id
       val otherId = users.create("other@x.com", "hash", "", "").id
-      refreshTokens.create(userId, "hash-1", Instant.now().plusSeconds(3600))
-      refreshTokens.create(userId, "hash-2", Instant.now().plusSeconds(3600))
-      refreshTokens.create(otherId, "hash-other", Instant.now().plusSeconds(3600))
+      refreshTokens.create(userId, "hash-1", Clock.System.now() + 3600.seconds)
+      refreshTokens.create(userId, "hash-2", Clock.System.now() + 3600.seconds)
+      refreshTokens.create(otherId, "hash-other", Clock.System.now() + 3600.seconds)
 
       val revokedCount = refreshTokens.revokeAllForUser(userId)
 
