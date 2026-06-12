@@ -26,6 +26,7 @@ import io.ktor.server.auth.Authentication
 import io.ktor.server.auth.jwt.JWTPrincipal
 import io.ktor.server.auth.jwt.jwt
 import io.ktor.server.engine.embeddedServer
+import io.ktor.server.metrics.micrometer.MicrometerMetrics
 import io.ktor.server.netty.Netty
 import io.ktor.server.plugins.callid.CallId
 import io.ktor.server.plugins.callid.callIdMdc
@@ -41,6 +42,8 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
+import io.micrometer.prometheusmetrics.PrometheusConfig
+import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import kotlinx.serialization.SerializationException
 import org.koin.ktor.plugin.Koin
 import org.koin.logger.slf4jLogger
@@ -54,17 +57,21 @@ val AUTH_RATE_LIMIT_NAME = RateLimitName("auth")
 
 fun main() {
   val config = AppConfig.fromEnv()
-  DatabaseFactory.init(config.database)
+  val metricsRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
+  DatabaseFactory.init(config.database, metricsRegistry)
   embeddedServer(
     Netty,
     port = 8080,
     host = "0.0.0.0"
   ) {
-    module(config)
+    module(config, metricsRegistry)
   }.start(wait = true)
 }
 
-fun Application.module(config: AppConfig) {
+fun Application.module(
+  config: AppConfig,
+  metricsRegistry: PrometheusMeterRegistry
+) {
   install(Koin) {
     slf4jLogger()
     modules(
@@ -95,6 +102,8 @@ fun Application.module(config: AppConfig) {
   }
 
   install(ContentNegotiation) { json() }
+
+  installMetrics(metricsRegistry)
 
   installCors(config)
 
@@ -132,12 +141,24 @@ fun Application.module(config: AppConfig) {
   }
 }
 
+private fun Application.installMetrics(metricsRegistry: PrometheusMeterRegistry) {
+  install(MicrometerMetrics) {
+    registry = metricsRegistry
+  }
+  routing {
+    // Prometheus scrape endpoint. Pair with a request latency/throughput
+    // dashboard; Hikari pool stats are bound in DatabaseFactory.
+    get("/metrics") {
+      call.respond(metricsRegistry.scrape())
+    }
+  }
+}
+
 private fun Route.healthRoutes() {
-  // Liveness: the process is up and serving. Cheap and dependency-free.
   get("/health") {
     call.respond(HttpStatusCode.OK, mapOf("status" to "ok"))
   }
-  // Readiness: only "ready" when the database is actually reachable, so
+  // only "ready" when the database is actually reachable, so
   // orchestrators stop routing traffic here if Postgres is down.
   get("/health/ready") {
     if (pingDatabase()) {

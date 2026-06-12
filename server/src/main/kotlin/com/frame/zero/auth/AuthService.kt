@@ -7,9 +7,10 @@ import com.frame.zero.auth.dto.RefreshResponse
 import com.frame.zero.auth.dto.UserDto
 import com.frame.zero.common.Transactor
 import com.frame.zero.common.Validators
+import com.frame.zero.common.nowTruncatedToMicros
 import com.frame.zero.config.JwtConfig
-import java.time.Instant
 import java.util.UUID
+import kotlin.time.Instant
 
 class AuthService(
   private val users: UserRepository,
@@ -56,7 +57,7 @@ class AuthService(
 
   suspend fun refresh(refreshToken: String): RefreshResponse {
     val hash = tokenHasher.sha256(refreshToken)
-    val now = Instant.now()
+    val now = nowTruncatedToMicros()
 
     // Claim + rotate atomically. A successful claim revokes the old token and
     // issues a new pair in the same transaction.
@@ -102,7 +103,7 @@ class AuthService(
   private fun newRefreshToken(): Triple<String, String, Instant> {
     val token = tokenHasher.generateOpaqueToken()
     val hash = tokenHasher.sha256(token)
-    val expiresAt = Instant.now().plusMillis(jwtConfig.refreshTokenTtl.inWholeMilliseconds)
+    val expiresAt = nowTruncatedToMicros() + jwtConfig.refreshTokenTtl
     return Triple(token, hash, expiresAt)
   }
 

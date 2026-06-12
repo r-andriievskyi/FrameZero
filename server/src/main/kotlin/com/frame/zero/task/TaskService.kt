@@ -3,8 +3,7 @@ package com.frame.zero.task
 import com.frame.zero.AppError
 import com.frame.zero.AppException
 import com.frame.zero.common.Transactor
-import com.frame.zero.common.toJava
-import com.frame.zero.common.toKotlin
+import com.frame.zero.common.parseUuidField
 import com.frame.zero.dto.task.CreateTaskRequest
 import com.frame.zero.dto.task.TaskAssigneeDto
 import com.frame.zero.dto.task.TaskDetailDto
@@ -13,9 +12,7 @@ import com.frame.zero.dto.task.TaskSummaryDto
 import com.frame.zero.dto.task.UpdateTaskRequest
 import com.frame.zero.production.AccessLevel
 import com.frame.zero.production.ProductionAccessService
-import java.time.ZoneId
 import java.util.UUID
-import kotlin.time.toKotlinInstant
 
 class TaskService(
   private val tasks: TaskRepository,
@@ -28,8 +25,7 @@ class TaskService(
     status: TaskStatus?,
     productionId: UUID?,
     limit: Int,
-    cursor: String?,
-    timezone: ZoneId
+    cursor: String?
   ): Pair<List<TaskSummaryDto>, String?> =
     transactor.transaction {
       if (productionId != null) access.requireAccess(userId, productionId, AccessLevel.READ)
@@ -46,8 +42,7 @@ class TaskService(
 
   suspend fun get(
     userId: UUID,
-    taskId: UUID,
-    timezone: ZoneId
+    taskId: UUID
   ): TaskDetailDto =
     transactor.transaction {
       val task = tasks.findById(taskId) ?: throw AppException(AppError.NotFound)
@@ -57,8 +52,7 @@ class TaskService(
 
   suspend fun create(
     userId: UUID,
-    request: CreateTaskRequest,
-    timezone: ZoneId
+    request: CreateTaskRequest
   ): TaskDetailDto =
     transactor.transaction {
       val errors = mutableMapOf<String, String>()
@@ -71,21 +65,17 @@ class TaskService(
       }
       if (errors.isNotEmpty()) throw AppException(AppError.ValidationError(errors))
 
-      val productionId = runCatching { UUID.fromString(request.productionId) }.getOrNull()
-        ?: throw AppException(AppError.ValidationError(mapOf("productionId" to "Invalid UUID")))
+      val productionId = parseUuidField("productionId", request.productionId)
 
       access.requireAccess(userId, productionId, AccessLevel.WRITE)
 
-      val assigneeId = request.assigneeUserId?.let {
-        runCatching { UUID.fromString(it) }.getOrNull()
-          ?: throw AppException(AppError.ValidationError(mapOf("assigneeUserId" to "Invalid UUID")))
-      }
+      val assigneeId = request.assigneeUserId?.let { parseUuidField("assigneeUserId", it) }
 
       val task = tasks.create(
         productionId = productionId,
         title = request.title.trim(),
         description = request.description?.trim(),
-        dueDate = request.dueDate?.toJava(),
+        dueDate = request.dueDate,
         assigneeUserId = assigneeId
       )
       task.toDetailDto()
@@ -94,8 +84,7 @@ class TaskService(
   suspend fun update(
     userId: UUID,
     taskId: UUID,
-    request: UpdateTaskRequest,
-    timezone: ZoneId
+    request: UpdateTaskRequest
   ): TaskDetailDto =
     transactor.transaction {
       val task = tasks.findById(taskId) ?: throw AppException(AppError.NotFound)
@@ -112,18 +101,14 @@ class TaskService(
       }
       if (errors.isNotEmpty()) throw AppException(AppError.ValidationError(errors))
 
-      val assigneeId =
-        request.assigneeUserId?.let {
-          runCatching { UUID.fromString(it) }.getOrNull()
-            ?: throw AppException(AppError.ValidationError(mapOf("assigneeUserId" to "Invalid UUID")))
-        }
+      val assigneeId = request.assigneeUserId?.let { parseUuidField("assigneeUserId", it) }
 
       val updated =
         tasks.update(
           id = taskId,
           title = request.title?.trim(),
           description = request.description?.trim(),
-          dueDate = request.dueDate?.toJava(),
+          dueDate = request.dueDate,
           status = request.status,
           assigneeUserId = assigneeId
         ) ?: throw AppException(AppError.NotFound)
@@ -145,7 +130,7 @@ class TaskService(
       id = id.toString(),
       title = title,
       productionTitle = productionTitle,
-      dueDate = dueDate?.toKotlin(),
+      dueDate = dueDate,
       status = status
     )
 
@@ -156,7 +141,7 @@ class TaskService(
       productionTitle = productionTitle,
       title = title,
       description = description,
-      dueDate = dueDate?.toKotlin(),
+      dueDate = dueDate,
       status = status,
       priority = priority,
       assigneeUserId = assigneeUserId?.toString(),
@@ -167,7 +152,7 @@ class TaskService(
           avatarColorHex = assigneeAvatarColorHex
         )
       },
-      createdAt = createdAt.toKotlinInstant()
+      createdAt = createdAt
     )
 
   private companion object {

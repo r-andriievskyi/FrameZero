@@ -2,15 +2,15 @@ package com.frame.zero.auth
 
 import com.frame.zero.AppError
 import com.frame.zero.AppException
+import com.frame.zero.common.nowTruncatedToMicros
 import com.frame.zero.config.dbQuery
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import java.sql.SQLException
-import java.time.Instant
-import java.time.temporal.ChronoUnit
 import java.util.UUID
+import kotlin.time.Instant
 
 private const val UNIQUE_VIOLATION_SQL_STATE = "23505"
 
@@ -63,7 +63,7 @@ class UserRepositoryImpl : UserRepository {
   ): UserRecord =
     dbQuery {
       val newId = UUID.randomUUID()
-      val now = Instant.now().truncatedTo(ChronoUnit.MICROS)
+      val now = nowTruncatedToMicros()
       try {
         UsersTable.insert {
           it[id] = newId

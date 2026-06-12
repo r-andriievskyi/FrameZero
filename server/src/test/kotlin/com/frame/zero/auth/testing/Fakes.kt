@@ -4,8 +4,9 @@ import com.frame.zero.auth.RefreshTokenRecord
 import com.frame.zero.auth.RefreshTokenRepository
 import com.frame.zero.auth.UserRecord
 import com.frame.zero.auth.UserRepository
-import java.time.Instant
 import java.util.UUID
+import kotlin.time.Clock
+import kotlin.time.Instant
 
 internal class FakeUserRepository : UserRepository {
   val users: MutableList<UserRecord> = mutableListOf()
@@ -30,7 +31,7 @@ internal class FakeUserRepository : UserRepository {
         passwordHash = passwordHash,
         firstName = firstName,
         lastName = lastName,
-        createdAt = Instant.now()
+        createdAt = Clock.System.now()
       )
     users += record
     return record
@@ -69,7 +70,7 @@ internal class FakeRefreshTokenRepository : RefreshTokenRepository {
     now: Instant
   ): RefreshTokenRecord? {
     val idx = records.indexOfFirst {
-      it.tokenHash == tokenHash && !it.revoked && it.expiresAt.isAfter(now)
+      it.tokenHash == tokenHash && !it.revoked && it.expiresAt > now
     }
     if (idx < 0) return null
     records[idx] = records[idx].copy(revoked = true)

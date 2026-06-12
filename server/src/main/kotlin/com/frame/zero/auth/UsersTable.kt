@@ -2,7 +2,7 @@ package com.frame.zero.auth
 
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.java.javaUUID
-import org.jetbrains.exposed.v1.javatime.timestamp
+import org.jetbrains.exposed.v1.datetime.timestamp
 
 object UsersTable : Table("users") {
   val id = javaUUID("id")

@@ -5,8 +5,8 @@ import com.frame.zero.AppException
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.auth.jwt.JWTPrincipal
 import io.ktor.server.auth.principal
-import java.time.ZoneId
 import java.util.UUID
+import kotlinx.datetime.TimeZone
 
 fun ApplicationCall.userId(): UUID {
   val subject = principal<JWTPrincipal>()?.subject ?: throw AppException(AppError.Unauthorized)
@@ -18,7 +18,14 @@ fun ApplicationCall.pathUuid(name: String): UUID =
   runCatching { UUID.fromString(parameters[name]) }
     .getOrElse { throw AppException(AppError.NotFound) }
 
-fun ApplicationCall.timezone(): ZoneId =
+fun parseUuidField(
+  field: String,
+  value: String
+): UUID =
+  runCatching { UUID.fromString(value) }
+    .getOrElse { throw AppException(AppError.ValidationError(mapOf(field to "Invalid UUID"))) }
+
+fun ApplicationCall.timezone(): TimeZone =
   request.headers["X-Timezone"]?.let {
-    runCatching { ZoneId.of(it) }.getOrDefault(ZoneId.of("UTC"))
-  } ?: ZoneId.of("UTC")
+    runCatching { TimeZone.of(it) }.getOrDefault(TimeZone.UTC)
+  } ?: TimeZone.UTC

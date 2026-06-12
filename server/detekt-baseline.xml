@@ -10,13 +10,7 @@
     <ID>LongParameterList:ProductionRepository.kt$ProductionRepository$( title: String, genre: Genre, logline: String?, phase: ProductionPhase, startDate: LocalDate, wrapDate: LocalDate, budgetCents: Long?, ownerUserId: UUID )</ID>
     <ID>MatchingDeclarationName:CursorPagination.kt$PageCursor</ID>
     <ID>ThrowsCount:ProductionAccessService.kt$ProductionAccessService$suspend fun requireAccess( userId: UUID, productionId: UUID, level: AccessLevel )</ID>
-    <ID>ThrowsCount:ProductionService.kt$ProductionService$suspend fun advancePhase( userId: UUID, productionId: UUID, request: PhaseTransitionRequest ): ProductionDetailDto</ID>
-    <ID>ThrowsCount:ProductionService.kt$ProductionService$suspend fun removeMember( userId: UUID, productionId: UUID, memberId: UUID )</ID>
-    <ID>ThrowsCount:ProductionService.kt$ProductionService$suspend fun updateMember( userId: UUID, productionId: UUID, memberId: UUID, request: UpdateMemberRequest ): ProductionMemberDto</ID>
-    <ID>ThrowsCount:ScheduleService.kt$ScheduleService$suspend fun update( userId: UUID, eventId: UUID, request: UpdateScheduleEventRequest ): ScheduleEventDto</ID>
-    <ID>ThrowsCount:TaskService.kt$TaskService$suspend fun create( userId: UUID, request: CreateTaskRequest, timezone: ZoneId ): TaskDetailDto</ID>
-    <ID>ThrowsCount:TaskService.kt$TaskService$suspend fun update( userId: UUID, taskId: UUID, request: UpdateTaskRequest, timezone: ZoneId ): TaskDetailDto</ID>
-    <ID>UnusedParameter:DashboardService.kt$DashboardService$tz: ZoneId</ID>
-    <ID>UnusedParameter:TaskService.kt$TaskService$timezone: ZoneId</ID>
+    <ID>UnusedParameter:DashboardService.kt$DashboardService$timezone: TimeZone</ID>
+    <ID>UnusedParameter:TaskService.kt$TaskService$timezone: TimeZone</ID>
   </CurrentIssues>
 </SmellBaseline>

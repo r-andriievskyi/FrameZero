@@ -4,8 +4,8 @@ import com.frame.zero.dto.task.TaskPriority
 import com.frame.zero.dto.task.TaskStatus
 import com.frame.zero.task.TaskRecord
 import com.frame.zero.task.TaskRepository
-import java.time.Instant
-import java.time.LocalDate
+import kotlin.time.Clock
+import kotlinx.datetime.LocalDate
 import java.util.UUID
 
 internal class FakeTaskRepository : TaskRepository {
@@ -31,7 +31,7 @@ internal class FakeTaskRepository : TaskRepository {
         assigneeUserId = assigneeUserId,
         assigneeName = null,
         assigneeAvatarColorHex = null,
-        createdAt = Instant.now()
+        createdAt = Clock.System.now()
       )
     tasks += record
     return record
@@ -69,7 +69,7 @@ internal class FakeTaskRepository : TaskRepository {
   ): List<TaskRecord> =
     tasks.filter { t ->
       val due = t.dueDate ?: return@filter false
-      !due.isBefore(rangeStart) && !due.isAfter(rangeEnd)
+      due >= rangeStart && due <= rangeEnd
     }
 
   override suspend fun countOpenForUser(userId: UUID): Int =

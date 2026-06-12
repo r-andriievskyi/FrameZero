@@ -3,7 +3,7 @@ package com.frame.zero.schedule.testing
 import com.frame.zero.domain.schedule.ScheduleEventKind
 import com.frame.zero.schedule.ScheduleEventRecord
 import com.frame.zero.schedule.ScheduleEventRepository
-import java.time.Instant
+import kotlin.time.Instant
 import java.util.UUID
 
 internal class FakeScheduleEventRepository : ScheduleEventRepository {

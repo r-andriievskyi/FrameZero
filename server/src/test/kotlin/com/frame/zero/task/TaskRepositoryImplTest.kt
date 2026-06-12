@@ -1,13 +1,13 @@
 package com.frame.zero.task
 
 import com.frame.zero.auth.UserRepositoryImpl
-import com.frame.zero.common.testing.H2TestDatabase
+import com.frame.zero.common.testing.PostgresTestDatabase
 import com.frame.zero.domain.production.Genre
 import com.frame.zero.domain.production.ProductionPhase
 import com.frame.zero.production.ProductionMemberRepositoryImpl
 import com.frame.zero.production.ProductionRepositoryImpl
 import kotlinx.coroutines.runBlocking
-import java.time.LocalDate
+import kotlinx.datetime.LocalDate
 import java.util.UUID
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -16,7 +16,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class TaskRepositoryImplTest {
-  private val db = H2TestDatabase()
+  private val db = PostgresTestDatabase()
   private val users = UserRepositoryImpl()
   private val productions = ProductionRepositoryImpl()
   private val members = ProductionMemberRepositoryImpl()
@@ -38,8 +38,8 @@ class TaskRepositoryImplTest {
       genre = Genre.DRAMA,
       logline = null,
       phase = ProductionPhase.IDEA,
-      startDate = LocalDate.of(2026, 1, 1),
-      wrapDate = LocalDate.of(2026, 12, 31),
+      startDate = LocalDate(2026, 1, 1),
+      wrapDate = LocalDate(2026, 12, 31),
       budgetCents = null,
       ownerUserId = ownerId
     )
@@ -81,10 +81,10 @@ class TaskRepositoryImplTest {
       val prod = newProduction(ownerId)
       // Insert in an order unrelated to due dates, including a task without one;
       // the cursor must follow the (dueDate, id) sort, not creation time.
-      tasks.create(prod.id, "due-3", null, LocalDate.of(2026, 3, 3), null)
-      tasks.create(prod.id, "due-1", null, LocalDate.of(2026, 1, 1), null)
+      tasks.create(prod.id, "due-3", null, LocalDate(2026, 3, 3), null)
+      tasks.create(prod.id, "due-1", null, LocalDate(2026, 1, 1), null)
       tasks.create(prod.id, "no-due", null, null, null)
-      tasks.create(prod.id, "due-2", null, LocalDate.of(2026, 2, 2), null)
+      tasks.create(prod.id, "due-2", null, LocalDate(2026, 2, 2), null)
 
       val collected = mutableListOf<String>()
       var cursor: String? = null
@@ -103,14 +103,14 @@ class TaskRepositoryImplTest {
       val ownerId = users.create("owner@x.com", "h", "Own", "Er").id
       val prod = newProduction(ownerId)
       members.add(prod.id, ownerId, "Own Er", "Owner", "owner@x.com")
-      tasks.create(prod.id, "Doomed", null, LocalDate.of(2026, 6, 1), ownerId)
+      tasks.create(prod.id, "Doomed", null, LocalDate(2026, 6, 1), ownerId)
       productions.softDelete(prod.id)
 
       assertTrue(tasks.findForUserLimit(ownerId, 10).isEmpty(), "dashboard list must be empty")
       assertEquals(0, tasks.countOpenForUser(ownerId), "dashboard count must be zero")
       assertTrue(
         tasks
-          .findInRangeForUser(ownerId, LocalDate.of(2026, 1, 1), LocalDate.of(2026, 12, 31))
+          .findInRangeForUser(ownerId, LocalDate(2026, 1, 1), LocalDate(2026, 12, 31))
           .isEmpty(),
         "schedule range query must be empty"
       )

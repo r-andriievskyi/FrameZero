@@ -2,7 +2,7 @@ package com.frame.zero.notification.testing
 
 import com.frame.zero.notification.NotificationRecord
 import com.frame.zero.notification.NotificationRepository
-import java.time.Instant
+import kotlin.time.Clock
 import java.util.UUID
 
 internal class FakeNotificationRepository : NotificationRepository {
@@ -26,7 +26,7 @@ internal class FakeNotificationRepository : NotificationRepository {
     userId: UUID,
     ids: List<UUID>
   ) {
-    val now = Instant.now()
+    val now = Clock.System.now()
     ids.forEach { id ->
       val idx = notifications.indexOfFirst { it.id == id && it.userId == userId }
       if (idx >= 0) notifications[idx] = notifications[idx].copy(readAt = now)
@@ -34,7 +34,7 @@ internal class FakeNotificationRepository : NotificationRepository {
   }
 
   override suspend fun markAllRead(userId: UUID) {
-    val now = Instant.now()
+    val now = Clock.System.now()
     notifications.replaceAll { n ->
       if (n.userId == userId && n.readAt == null) n.copy(readAt = now) else n
     }
@@ -52,7 +52,7 @@ internal class FakeNotificationRepository : NotificationRepository {
         title = title,
         body = body,
         readAt = null,
-        createdAt = Instant.now()
+        createdAt = Clock.System.now()
       )
     notifications += record
     return record
