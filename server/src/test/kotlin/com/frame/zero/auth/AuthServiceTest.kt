@@ -339,12 +339,13 @@ class AuthServiceTest {
     passwordHasher: PasswordHasher = PasswordHasher(),
     tokenHasher: TokenHasher = TokenHasher(),
     jwtConfig: JwtConfig = baseJwtConfig
-  ): AuthService = AuthService(
-    users = users,
-    refreshTokens = tokens,
-    passwordHasher = passwordHasher,
-    tokenHasher = tokenHasher,
-    jwtService = JwtService(jwtConfig),
-    jwtConfig = jwtConfig
-  )
+  ): AuthService =
+    AuthService(
+      users = users,
+      refreshTokens = tokens,
+      passwordHasher = passwordHasher,
+      tokenHasher = tokenHasher,
+      jwtService = JwtService(jwtConfig),
+      jwtConfig = jwtConfig
+    )
 }

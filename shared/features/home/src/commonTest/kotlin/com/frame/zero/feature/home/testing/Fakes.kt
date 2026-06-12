@@ -28,6 +28,7 @@ internal class FakeConnectivityObserver(
 ) : ConnectivityObserver {
   val online: MutableStateFlow<Boolean> = MutableStateFlow(initiallyOnline)
   override val isOnline: Flow<Boolean> = online
+
   override fun isCurrentlyOnline(): Boolean = online.value
 }
 
