@@ -28,8 +28,9 @@ class PreviewScreenshotTest(
 
     // Previews containing an indeterminate/animated indicator never reach an idle frame, so the
     // capture lands on a different animation phase each run → flaky pixel diffs. Keep the suite
-    // exact-match by excluding them. (CtaButtonPreview shows Material3's morphing LoadingIndicator.)
-    private val ANIMATED_PREVIEWS = setOf("CtaButtonPreview")
+    // exact-match by excluding them. Both render Material3's morphing LoadingIndicator
+    // (CtaButtonPreview via its loading variant, FullScreenProgressPreview directly).
+    private val ANIMATED_PREVIEWS = setOf("CtaButtonPreview", "FullScreenProgressPreview")
 
     @JvmStatic
     @ParameterizedRobolectricTestRunner.Parameters(name = "{0}")
