@@ -6,5 +6,6 @@
   <string name="error_missing_dates">Start and wrap dates are required</string>
   <string name="error_auth_failed">Authentication failed. Please sign in again.</string>
   <string name="error_email_exists">Email already exists.</string>
+  <string name="error_network">No internet connection. Check your connection and try again.</string>
   <string name="error_unknown_fallback">Something went wrong. Please try again.</string>
 </resources>

@@ -48,10 +48,15 @@ import androidx.paging.compose.itemKey
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import com.frame.zero.shared.design_system.AppTheme
+import com.frame.zero.shared.design_system.generated.resources.Res
+import com.frame.zero.shared.design_system.generated.resources.action_retry
+import com.frame.zero.shared.design_system.generated.resources.error_network_message
+import org.jetbrains.compose.resources.stringResource
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlin.math.min
 
 private const val AppendLoadingItemKey = "append-loading"
+private const val AppendErrorItemKey = "append-error"
 private const val RefreshIndicatorItemKey = "inline-refresh-indicator"
 private val InlineIndicatorIconSize = 44.dp
 private const val InlineSpinnerCycleMillis = 900
@@ -75,15 +80,22 @@ class PagingListUiState internal constructor(
 ) {
   val isLoading: Boolean get() = refreshState is LoadState.Loading
 
+  /** Refresh failed (e.g. offline). */
+  val isError: Boolean get() = refreshState is LoadState.Error
+
   /** First load with no items to show. Suppressed during a filter transition so the list
    *  doesn't flicker into the skeleton when Room has cached items for the new key. */
   val isInitialLoad: Boolean get() = isLoading && itemCount == 0 && !isFilterTransition
 
+  /** Refresh failed with no cached items to fall back on — drives the full-screen error. */
+  val isInitialError: Boolean get() = isError && itemCount == 0 && !isFilterTransition
+
   /** Reload while items are already visible (drives pull-to-refresh). */
   val isRefreshing: Boolean get() = isLoading && itemCount > 0 && !isFilterTransition
 
-  /** Finished loading and there is nothing to show. */
-  val isEmpty: Boolean get() = !isLoading && !isFilterTransition && itemCount == 0
+  /** Finished loading and there is nothing to show. Excludes the error case so a failed
+   *  refresh surfaces an error state, not a misleading "empty" state. */
+  val isEmpty: Boolean get() = !isLoading && !isError && !isFilterTransition && itemCount == 0
 }
 
 /**
@@ -177,6 +189,11 @@ fun <T : Any> PagingLazyColumn(
       }
       if (lazyPagingItems.loadState.append is LoadState.Loading) {
         item(key = AppendLoadingItemKey) { AppendLoadingIndicator() }
+      }
+      if (lazyPagingItems.loadState.append is LoadState.Error) {
+        item(key = AppendErrorItemKey) {
+          AppendErrorRetry(onRetry = lazyPagingItems::retry)
+        }
       }
     }
   }
@@ -356,5 +373,28 @@ private fun AppendLoadingIndicator() {
     contentAlignment = Alignment.Center
   ) {
     CircularProgressIndicator(color = AppTheme.colorSystem.accent)
+  }
+}
+
+/** Footer shown when paging the next page fails (e.g. offline). Lets the user retry
+ *  the append without reloading the whole list. */
+@Composable
+private fun AppendErrorRetry(onRetry: () -> Unit) {
+  Column(
+    modifier = Modifier
+      .fillMaxWidth()
+      .padding(AppTheme.spacingSystem.space16),
+    horizontalAlignment = Alignment.CenterHorizontally
+  ) {
+    Text(
+      text = stringResource(Res.string.error_network_message),
+      style = AppTheme.typographySystem.bodySmall,
+      color = AppTheme.colorSystem.textSecondary
+    )
+    VerticalSpacer(AppTheme.spacingSystem.space8)
+    CtaButton(
+      text = stringResource(Res.string.action_retry),
+      onClick = onRetry
+    )
   }
 }

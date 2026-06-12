@@ -12,6 +12,7 @@ import framezero.shared.features.production.generated.resources.error_auth_faile
 import framezero.shared.features.production.generated.resources.error_email_exists
 import framezero.shared.features.production.generated.resources.error_invalid_dates
 import framezero.shared.features.production.generated.resources.error_missing_dates
+import framezero.shared.features.production.generated.resources.error_network
 import framezero.shared.features.production.generated.resources.error_title_required
 import framezero.shared.features.production.generated.resources.error_unknown_fallback
 import kotlinx.coroutines.CoroutineScope
@@ -85,6 +86,7 @@ class CreateProductionViewModel(
           }
         }
       CreateProductionIntent.Submit -> submit()
+      CreateProductionIntent.ToastDismissed -> _state.update { it.copy(errorToast = null) }
     }
   }
 
@@ -153,17 +155,26 @@ class CreateProductionViewModel(
           _navigationEvents.tryEmit(Unit)
         }
         is Outcome.Failure -> _state.update {
-          it.copy(isLoading = false, error = outcome.error.toUiText())
+          val message = outcome.error.toUiText()
+          // Network/server failures are transient → toast; validation/auth errors are
+          // user-fixable → inline. Mirrors the auth feature's split.
+          if (outcome.error.isNetworkOrServerError) {
+            it.copy(isLoading = false, errorToast = message)
+          } else {
+            it.copy(isLoading = false, error = message)
+          }
         }
       }
     }
   }
 
+  private val DomainError.isNetworkOrServerError: Boolean
+    get() = this is DomainError.Network || this is DomainError.Unknown
+
   private fun DomainError.toUiText(): UiText =
     when (this) {
-      is DomainError.Network -> UiText.Dynamic(message)
-      is DomainError.Unknown -> message?.let(UiText::Dynamic)
-        ?: Res.string.error_unknown_fallback.asUiText()
+      is DomainError.Network -> Res.string.error_network.asUiText()
+      is DomainError.Unknown -> Res.string.error_unknown_fallback.asUiText()
       DomainError.InvalidCredentials -> Res.string.error_auth_failed.asUiText()
       DomainError.EmailAlreadyExists -> Res.string.error_email_exists.asUiText()
     }

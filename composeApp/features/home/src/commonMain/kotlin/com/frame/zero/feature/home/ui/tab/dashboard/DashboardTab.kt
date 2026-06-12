@@ -1,6 +1,7 @@
 package com.frame.zero.feature.home.ui.tab.dashboard
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -14,6 +15,7 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.platform.testTag
+import com.frame.zero.feature.home.LoadErrorKind
 import com.frame.zero.feature.home.tab.dashboard.DashboardStatsUi
 import com.frame.zero.feature.home.tab.dashboard.DashboardTabComponent
 import com.frame.zero.feature.home.tab.dashboard.DashboardTaskUi
@@ -23,8 +25,12 @@ import com.frame.zero.feature.home.ui.tab.dashboard.components.MyTasksSection
 import com.frame.zero.feature.home.ui.tab.dashboard.components.StatsRow
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
+import com.frame.zero.shared.design_system.widgets.FullScreenError
+import com.frame.zero.shared.design_system.widgets.FullScreenProgress
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import framezero.composeapp.features.home.generated.resources.Res
+import framezero.composeapp.features.home.generated.resources.error_generic_message
+import framezero.composeapp.features.home.generated.resources.error_offline_message
 import framezero.composeapp.features.home.generated.resources.greeting_good_morning
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.datetime.LocalDate
@@ -33,7 +39,26 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 fun DashboardTab(component: DashboardTabComponent) {
   val state by component.state.collectAsStateWithLifecycle()
-  DashboardContent(dashboard = state.dashboard, onTaskClick = component.onTaskClick)
+  Box(
+    modifier = Modifier
+      .fillMaxSize()
+      .background(AppTheme.colorSystem.background)
+  ) {
+    when (state.error) {
+      LoadErrorKind.Network -> FullScreenError(
+        message = stringResource(Res.string.error_offline_message)
+      )
+      LoadErrorKind.Generic -> FullScreenError(
+        message = stringResource(Res.string.error_generic_message),
+        onRetry = component::retry
+      )
+      null -> if (state.isLoading) {
+        FullScreenProgress()
+      } else {
+        DashboardContent(dashboard = state.dashboard, onTaskClick = component.onTaskClick)
+      }
+    }
+  }
 }
 
 @Composable

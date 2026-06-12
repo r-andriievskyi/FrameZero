@@ -6,6 +6,8 @@ import com.frame.zero.dto.dashboard.GreetingDto
 import com.frame.zero.dto.dashboard.StatsDto
 import com.frame.zero.dto.task.TaskStatus
 import com.frame.zero.dto.task.TaskSummaryDto
+import com.frame.zero.feature.home.LoadErrorKind
+import com.frame.zero.feature.home.testing.FakeConnectivityObserver
 import com.frame.zero.feature.home.testing.FakeDashboardRepository
 import com.frame.zero.feature.home.testing.FakeUserRepository
 import com.frame.zero.feature.home.usecase.GetDashboardUseCase
@@ -20,6 +22,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.LocalDate
+import kotlinx.io.IOException
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -54,7 +57,7 @@ class DashboardTabViewModelTest {
       advanceUntilIdle()
 
       assertFalse(viewModel.state.value.isLoading)
-      assertFalse(viewModel.state.value.isError)
+      assertNull(viewModel.state.value.error)
       val dashboard = assertNotNull(viewModel.state.value.dashboard)
       assertEquals("Ada Lovelace", dashboard.displayName)
       assertEquals(2, dashboard.stats.activeProjects)
@@ -120,12 +123,12 @@ class DashboardTabViewModelTest {
       val dashboard = assertNotNull(viewModel.state.value.dashboard)
       assertEquals("Ada", dashboard.displayName)
       assertFalse(viewModel.state.value.isLoading)
-      assertFalse(viewModel.state.value.isError)
+      assertNull(viewModel.state.value.error)
       assertEquals(1, dashboardRepo.getDashboardCalls)
     }
 
   @Test
-  fun `getDashboard failure sets isError true and leaves dashboard null`() =
+  fun `non-network failure sets a Generic error and leaves dashboard null`() =
     runTest {
       val userRepo = FakeUserRepository(userDto = userDto)
       val dashboardRepo = FakeDashboardRepository(throws = RuntimeException("boom"))
@@ -134,8 +137,55 @@ class DashboardTabViewModelTest {
       advanceUntilIdle()
 
       assertNull(viewModel.state.value.dashboard)
-      assertTrue(viewModel.state.value.isError)
+      assertEquals(LoadErrorKind.Generic, viewModel.state.value.error)
       assertFalse(viewModel.state.value.isLoading)
+    }
+
+  @Test
+  fun `offline failure sets a Network error`() =
+    runTest {
+      val userRepo = FakeUserRepository(userDto = userDto)
+      val dashboardRepo = FakeDashboardRepository(throws = IOException("offline"))
+      val viewModel = makeViewModel(this, userRepo, dashboardRepo)
+
+      advanceUntilIdle()
+
+      assertNull(viewModel.state.value.dashboard)
+      assertEquals(LoadErrorKind.Network, viewModel.state.value.error)
+    }
+
+  @Test
+  fun `reconnecting after a network failure auto-reloads`() =
+    runTest {
+      var shouldFail = true
+      val dashboardRepo = object : DashboardRepository {
+        var calls = 0
+
+        override suspend fun getDashboard(): DashboardResponse {
+          calls++
+          if (shouldFail) throw IOException("offline")
+          return dashboardResponse
+        }
+      }
+      val connectivity = FakeConnectivityObserver(initiallyOnline = false)
+      val viewModel = makeViewModel(
+        this,
+        FakeUserRepository(userDto = userDto),
+        dashboardRepo,
+        connectivity
+      )
+
+      advanceUntilIdle()
+      assertEquals(LoadErrorKind.Network, viewModel.state.value.error)
+
+      // Connectivity returns → the VM reloads without any user action.
+      shouldFail = false
+      connectivity.online.value = true
+      advanceUntilIdle()
+
+      assertNull(viewModel.state.value.error)
+      assertNotNull(viewModel.state.value.dashboard)
+      assertEquals(2, dashboardRepo.calls)
     }
 
   @Test
@@ -168,13 +218,13 @@ class DashboardTabViewModelTest {
       val viewModel = makeViewModel(this, userRepo, dashboardRepo)
 
       advanceUntilIdle()
-      assertTrue(viewModel.state.value.isError)
+      assertEquals(LoadErrorKind.Generic, viewModel.state.value.error)
 
       shouldFail = false
       viewModel.retry()
       advanceUntilIdle()
 
-      assertFalse(viewModel.state.value.isError)
+      assertNull(viewModel.state.value.error)
       assertNotNull(viewModel.state.value.dashboard)
       assertEquals(2, dashboardRepo.calls)
     }
@@ -188,6 +238,7 @@ class DashboardTabViewModelTest {
         DashboardTabViewModel(
           getMeUseCase = GetMeUseCase(userRepo),
           getDashboardUseCase = GetDashboardUseCase(dashboardRepo),
+          connectivityObserver = FakeConnectivityObserver(),
           dispatcher = StandardTestDispatcher(testScheduler)
         )
 
@@ -206,11 +257,13 @@ class DashboardTabViewModelTest {
   private fun makeViewModel(
     scope: TestScope,
     userRepo: UserRepository = FakeUserRepository(userDto = userDto),
-    dashboardRepo: DashboardRepository = FakeDashboardRepository(response = dashboardResponse)
+    dashboardRepo: DashboardRepository = FakeDashboardRepository(response = dashboardResponse),
+    connectivityObserver: FakeConnectivityObserver = FakeConnectivityObserver()
   ): DashboardTabViewModel =
     DashboardTabViewModel(
       getMeUseCase = GetMeUseCase(userRepo),
       getDashboardUseCase = GetDashboardUseCase(dashboardRepo),
+      connectivityObserver = connectivityObserver,
       dispatcher = StandardTestDispatcher(scope.testScheduler)
     )
 

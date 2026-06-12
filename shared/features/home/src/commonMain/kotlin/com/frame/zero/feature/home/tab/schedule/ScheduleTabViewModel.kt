@@ -3,11 +3,14 @@ package com.frame.zero.feature.home.tab.schedule
 import com.arkivanov.essenty.instancekeeper.InstanceKeeper
 import com.frame.zero.core.collections.mapImmutable
 import com.frame.zero.core.collections.orEmpty
+import com.frame.zero.core.network.connectivity.ConnectivityObserver
+import com.frame.zero.domain.DomainError
 import com.frame.zero.domain.Outcome
 import com.frame.zero.domain.schedule.Schedule
 import com.frame.zero.domain.schedule.ScheduleEvent
 import com.frame.zero.domain.schedule.ScheduleTask
 import com.frame.zero.domain.schedule.ScheduleView
+import com.frame.zero.feature.home.LoadErrorKind
 import com.frame.zero.feature.home.usecase.GetScheduleUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -17,6 +20,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.collections.immutable.ImmutableList
@@ -32,6 +36,7 @@ import kotlin.time.Instant
 
 class ScheduleTabViewModel(
   private val getScheduleUseCase: GetScheduleUseCase,
+  connectivityObserver: ConnectivityObserver,
   dispatcher: CoroutineContext = Dispatchers.Main.immediate
 ) : InstanceKeeper.Instance {
   private val scope = CoroutineScope(dispatcher + SupervisorJob())
@@ -52,6 +57,17 @@ class ScheduleTabViewModel(
 
   init {
     load(view = _state.value.view, date = _state.value.selectedDate!!)
+    // Auto-recover from an offline failure: reload when connectivity returns and the
+    // tab is still showing the network-error state.
+    scope.launch {
+      connectivityObserver.isOnline
+        .filter { online -> online }
+        .collect {
+          if (_state.value.error == LoadErrorKind.Network) {
+            load(view = _state.value.view, date = _state.value.selectedDate ?: today())
+          }
+        }
+    }
   }
 
   fun onViewChanged(view: ScheduleView) {
@@ -73,6 +89,10 @@ class ScheduleTabViewModel(
       )
     }
     load(view = _state.value.view, date = date)
+  }
+
+  fun retry() {
+    load(view = _state.value.view, date = _state.value.selectedDate ?: today())
   }
 
   fun onMonthNavigated(offset: Int) {
@@ -105,7 +125,7 @@ class ScheduleTabViewModel(
         }
 
         is Outcome.Failure -> _state.update {
-          it.copy(isLoading = false, error = outcome.error.toString())
+          it.copy(isLoading = false, error = outcome.error.toLoadErrorKind())
         }
       }
     }
@@ -114,6 +134,9 @@ class ScheduleTabViewModel(
   override fun onDestroy() {
     scope.cancel()
   }
+
+  private fun DomainError.toLoadErrorKind(): LoadErrorKind =
+    if (this is DomainError.Network) LoadErrorKind.Network else LoadErrorKind.Generic
 
   @OptIn(ExperimentalTime::class)
   private fun today(): LocalDate =

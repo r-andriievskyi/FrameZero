@@ -2,11 +2,13 @@ package com.frame.zero.core.network
 
 import com.frame.zero.auth.dto.RefreshRequest
 import com.frame.zero.auth.dto.RefreshResponse
+import com.frame.zero.core.network.connectivity.ConnectivityObserver
 import com.frame.zero.core.session.LogoutSignal
 import com.frame.zero.core.session.TokenStorage
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.HttpRequestRetry
+import io.ktor.client.plugins.api.createClientPlugin
 import io.ktor.client.plugins.HttpResponseValidator
 import io.ktor.client.plugins.ResponseException
 import io.ktor.client.plugins.auth.Auth
@@ -27,24 +29,37 @@ import io.ktor.http.HttpMethod
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.json.json
+import kotlinx.io.IOException
 import kotlinx.serialization.json.Json
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
 private val UNAUTHENTICATED_PATHS = setOf("/auth/login", "/auth/register", "/auth/refresh", "/auth/logout")
 
+internal fun connectivityGuard(connectivityObserver: ConnectivityObserver) =
+  createClientPlugin("ConnectivityGuard") {
+    onRequest { _, _ ->
+      if (!connectivityObserver.isCurrentlyOnline()) {
+        throw IOException("No internet connection")
+      }
+    }
+  }
+
 val networkModule: Module = module {
   single { NetworkConfig.fromBuildConfig() }
-  single { provideHttpClient(get(), get(), get(), isDebug = BuildKonfig.DEBUG) }
+  single { provideHttpClient(get(), get(), get(), get(), isDebug = BuildKonfig.DEBUG) }
 }
 
 private fun provideHttpClient(
   config: NetworkConfig,
   tokenStorage: TokenStorage,
   logoutSignal: LogoutSignal,
+  connectivityObserver: ConnectivityObserver,
   isDebug: Boolean
 ): HttpClient =
   httpClient {
+    install(connectivityGuard(connectivityObserver))
+
     defaultRequest {
       contentType(ContentType.Application.Json)
       accept(ContentType.Application.Json)
