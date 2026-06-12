@@ -59,12 +59,13 @@ internal class TestAppEnv {
   val notificationsRepo = FakeNotificationRepository()
 
   val jwtService = JwtService(testJwtConfig)
+  val transactor = NoopTransactor()
   val access = ProductionAccessService(productions, productionMembers)
-  val productionService = ProductionService(productions, productionMembers, users, access)
-  val dashboardService = DashboardService(users, productions, tasks)
-  val taskService = TaskService(tasks, access)
-  val scheduleService = ScheduleService(scheduleEvents, tasks, access)
-  val notificationService = NotificationService(notificationsRepo)
+  val productionService = ProductionService(productions, productionMembers, users, access, transactor)
+  val dashboardService = DashboardService(users, productions, tasks, transactor)
+  val taskService = TaskService(tasks, access, transactor)
+  val scheduleService = ScheduleService(scheduleEvents, tasks, access, transactor)
+  val notificationService = NotificationService(notificationsRepo, transactor)
 
   fun tokenFor(userId: UUID): String = jwtService.createAccessToken(userId, "test@test.com")
 

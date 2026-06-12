@@ -10,6 +10,7 @@ import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.exists
 import org.jetbrains.exposed.v1.core.greater
 import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.core.isNull
@@ -143,21 +144,18 @@ class ProductionRepositoryImpl : ProductionRepository {
     cursor: String?
   ): Pair<List<ProductionRecord>, String?> =
     dbQuery {
-      val memberProductionIds =
-        ProductionMembersTable
-          .selectAll()
-          .where { ProductionMembersTable.userId eq userId }
-          .map { it[ProductionMembersTable.productionId] }
-
       val baseQuery =
         ProductionsTable.selectAll().where {
+          // A correlated EXISTS against the membership table avoids materializing
+          // every member-production id into an IN (...) list.
           val accessCond =
-            if (memberProductionIds.isEmpty()) {
-              ProductionsTable.ownerUserId eq userId
-            } else {
-              (ProductionsTable.ownerUserId eq userId) or
-                (ProductionsTable.id inList memberProductionIds)
-            }
+            (ProductionsTable.ownerUserId eq userId) or
+              exists(
+                ProductionMembersTable.selectAll().where {
+                  (ProductionMembersTable.userId eq userId) and
+                    (ProductionMembersTable.productionId eq ProductionsTable.id)
+                }
+              )
 
           var cond = ProductionsTable.deletedAt.isNull() and accessCond
 
@@ -236,22 +234,17 @@ class ProductionRepositoryImpl : ProductionRepository {
 
   override suspend fun countActiveForUser(userId: UUID): Int =
     dbQuery {
-      val memberProductionIds =
-        ProductionMembersTable
-          .selectAll()
-          .where { ProductionMembersTable.userId eq userId }
-          .map { it[ProductionMembersTable.productionId] }
-
+      val accessCond =
+        (ProductionsTable.ownerUserId eq userId) or
+          exists(
+            ProductionMembersTable.selectAll().where {
+              (ProductionMembersTable.userId eq userId) and
+                (ProductionMembersTable.productionId eq ProductionsTable.id)
+            }
+          )
       ProductionsTable
         .selectAll()
         .where {
-          val accessCond =
-            if (memberProductionIds.isEmpty()) {
-              ProductionsTable.ownerUserId eq userId
-            } else {
-              (ProductionsTable.ownerUserId eq userId) or
-                (ProductionsTable.id inList memberProductionIds)
-            }
           ProductionsTable.deletedAt.isNull() and
             (ProductionsTable.phase neq ProductionPhase.DISTRIBUTION.name) and
             (ProductionsTable.phase neq ProductionPhase.ARCHIVED.name) and

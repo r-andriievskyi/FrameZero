@@ -1,14 +1,24 @@
 package com.frame.zero.auth
 
 import at.favre.lib.crypto.bcrypt.BCrypt
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class PasswordHasher {
-  fun hash(password: String): String = BCrypt.withDefaults().hashToString(BCRYPT_COST, password.toCharArray())
+  // bcrypt at cost 12 is ~200-300ms of CPU per call. Run it on the default
+  // (CPU) dispatcher so it never blocks a Ktor request thread or a DB connection.
+  suspend fun hash(password: String): String =
+    withContext(Dispatchers.Default) {
+      BCrypt.withDefaults().hashToString(BCRYPT_COST, password.toCharArray())
+    }
 
-  fun verify(
+  suspend fun verify(
     password: String,
     hash: String
-  ): Boolean = BCrypt.verifyer().verify(password.toCharArray(), hash).verified
+  ): Boolean =
+    withContext(Dispatchers.Default) {
+      BCrypt.verifyer().verify(password.toCharArray(), hash).verified
+    }
 
   private companion object {
     const val BCRYPT_COST = 12

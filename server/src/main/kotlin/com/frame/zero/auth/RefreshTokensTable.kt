@@ -14,5 +14,10 @@ object RefreshTokensTable : Table("refresh_tokens") {
 
   override val primaryKey = PrimaryKey(id)
 
+  init {
+    // Covers revokeAllForUser, which filters by user_id.
+    index(isUnique = false, userId)
+  }
+
   private const val HASH_MAX = 64
 }

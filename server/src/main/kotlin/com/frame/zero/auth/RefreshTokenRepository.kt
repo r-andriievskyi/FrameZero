@@ -26,11 +26,6 @@ interface RefreshTokenRepository {
     expiresAt: Instant
   ): RefreshTokenRecord
 
-  suspend fun findActiveByHash(
-    tokenHash: String,
-    now: Instant
-  ): RefreshTokenRecord?
-
   suspend fun findByHash(tokenHash: String): RefreshTokenRecord?
 
   /**
@@ -72,21 +67,6 @@ class RefreshTokenRepositoryImpl : RefreshTokenRepository {
         expiresAt = expiresAt,
         revoked = false
       )
-    }
-
-  override suspend fun findActiveByHash(
-    tokenHash: String,
-    now: Instant
-  ): RefreshTokenRecord? =
-    dbQuery {
-      RefreshTokensTable
-        .selectAll()
-        .where {
-          (RefreshTokensTable.tokenHash eq tokenHash) and
-            (RefreshTokensTable.revoked eq false) and
-            (RefreshTokensTable.expiresAt greater now)
-        }.singleOrNull()
-        ?.toRecord()
     }
 
   override suspend fun findByHash(tokenHash: String): RefreshTokenRecord? =

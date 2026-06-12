@@ -1,5 +1,8 @@
 package com.frame.zero.auth
 
+import com.frame.zero.AppError
+import com.frame.zero.AppException
+import com.frame.zero.common.testing.NoopTransactor
 import com.frame.zero.auth.testing.FakeRefreshTokenRepository
 import com.frame.zero.auth.testing.FakeUserRepository
 import com.frame.zero.config.JwtConfig
@@ -32,9 +35,10 @@ class AuthServiceTest {
     runTest {
       val service = makeService()
 
-      val ex = assertFailsWith<AuthException> { service.register("", "password123", "Test", "User") }
+      val ex = assertFailsWith<AppException> { service.register("", "password123", "Test", "User") }
 
-      assertEquals(AuthError.InvalidInput("Invalid email format"), ex.error)
+      val error = assertIs<AppError.ValidationError>(ex.error)
+      assertEquals("Invalid email format", error.fields["email"])
     }
 
   @Test
@@ -42,11 +46,12 @@ class AuthServiceTest {
     runTest {
       val service = makeService()
 
-      val ex = assertFailsWith<AuthException> {
+      val ex = assertFailsWith<AppException> {
         service.register("not-an-email", "password123", "Test", "User")
       }
 
-      assertEquals(AuthError.InvalidInput("Invalid email format"), ex.error)
+      val error = assertIs<AppError.ValidationError>(ex.error)
+      assertEquals("Invalid email format", error.fields["email"])
     }
 
   @Test
@@ -54,12 +59,12 @@ class AuthServiceTest {
     runTest {
       val service = makeService()
 
-      val ex = assertFailsWith<AuthException> {
+      val ex = assertFailsWith<AppException> {
         service.register("u@x.com", "short", "Test", "User")
       }
 
-      val invalid = assertIs<AuthError.InvalidInput>(ex.error)
-      assertEquals("Password must be at least 8 characters", invalid.reason)
+      val error = assertIs<AppError.ValidationError>(ex.error)
+      assertEquals("Password must be at least 8 characters", error.fields["password"])
     }
 
   @Test
@@ -80,11 +85,11 @@ class AuthServiceTest {
       val service = makeService(users = users)
       service.register("u@x.com", "password123", "Test", "User")
 
-      val ex = assertFailsWith<AuthException> {
+      val ex = assertFailsWith<AppException> {
         service.register("U@X.com", "password456", "Test", "User")
       }
 
-      assertEquals(AuthError.EmailAlreadyExists, ex.error)
+      assertEquals(AppError.EmailAlreadyExists, ex.error)
     }
 
   @Test
@@ -125,9 +130,9 @@ class AuthServiceTest {
     runTest {
       val service = makeService()
 
-      val ex = assertFailsWith<AuthException> { service.login("nobody@x.com", "password123") }
+      val ex = assertFailsWith<AppException> { service.login("nobody@x.com", "password123") }
 
-      assertEquals(AuthError.InvalidCredentials, ex.error)
+      assertEquals(AppError.InvalidCredentials, ex.error)
     }
 
   @Test
@@ -136,9 +141,9 @@ class AuthServiceTest {
       val service = makeService()
       service.register("u@x.com", "correct-password", "Test", "User")
 
-      val ex = assertFailsWith<AuthException> { service.login("u@x.com", "wrong-password") }
+      val ex = assertFailsWith<AppException> { service.login("u@x.com", "wrong-password") }
 
-      assertEquals(AuthError.InvalidCredentials, ex.error)
+      assertEquals(AppError.InvalidCredentials, ex.error)
     }
 
   @Test
@@ -171,9 +176,9 @@ class AuthServiceTest {
     runTest {
       val service = makeService()
 
-      val ex = assertFailsWith<AuthException> { service.refresh("never-issued") }
+      val ex = assertFailsWith<AppException> { service.refresh("never-issued") }
 
-      assertEquals(AuthError.InvalidRefreshToken, ex.error)
+      assertEquals(AppError.InvalidRefreshToken, ex.error)
     }
 
   @Test
@@ -183,9 +188,9 @@ class AuthServiceTest {
       val auth = service.register("u@x.com", "password123", "Test", "User")
       service.logout(auth.refreshToken)
 
-      val ex = assertFailsWith<AuthException> { service.refresh(auth.refreshToken) }
+      val ex = assertFailsWith<AppException> { service.refresh(auth.refreshToken) }
 
-      assertEquals(AuthError.InvalidRefreshToken, ex.error)
+      assertEquals(AppError.InvalidRefreshToken, ex.error)
     }
 
   @Test
@@ -194,9 +199,9 @@ class AuthServiceTest {
       val service = makeService(jwtConfig = baseJwtConfig.copy(refreshTokenTtl = (-1).milliseconds))
       val auth = service.register("u@x.com", "password123", "Test", "User")
 
-      val ex = assertFailsWith<AuthException> { service.refresh(auth.refreshToken) }
+      val ex = assertFailsWith<AppException> { service.refresh(auth.refreshToken) }
 
-      assertEquals(AuthError.InvalidRefreshToken, ex.error)
+      assertEquals(AppError.InvalidRefreshToken, ex.error)
     }
 
   @Test
@@ -224,9 +229,9 @@ class AuthServiceTest {
       val auth = service.register("u@x.com", "password123", "Test", "User")
       users.deleteAll()
 
-      val ex = assertFailsWith<AuthException> { service.refresh(auth.refreshToken) }
+      val ex = assertFailsWith<AppException> { service.refresh(auth.refreshToken) }
 
-      assertEquals(AuthError.InvalidRefreshToken, ex.error)
+      assertEquals(AppError.InvalidRefreshToken, ex.error)
     }
 
   @Test
@@ -238,16 +243,16 @@ class AuthServiceTest {
       val rotated = service.refresh(auth.refreshToken)
 
       // replaying the already-rotated token is the standard theft signal.
-      val ex = assertFailsWith<AuthException> { service.refresh(auth.refreshToken) }
+      val ex = assertFailsWith<AppException> { service.refresh(auth.refreshToken) }
 
-      assertEquals(AuthError.InvalidRefreshToken, ex.error)
+      assertEquals(AppError.InvalidRefreshToken, ex.error)
       assertTrue(
         tokens.records.all { it.revoked },
         "all refresh tokens for the user must be revoked on reuse detection"
       )
       // The freshly rotated token must be dead too.
-      val replayEx = assertFailsWith<AuthException> { service.refresh(rotated.refreshToken) }
-      assertEquals(AuthError.InvalidRefreshToken, replayEx.error)
+      val replayEx = assertFailsWith<AppException> { service.refresh(rotated.refreshToken) }
+      assertEquals(AppError.InvalidRefreshToken, replayEx.error)
     }
 
   @Test
@@ -255,11 +260,12 @@ class AuthServiceTest {
     runTest {
       val service = makeService()
 
-      val ex = assertFailsWith<AuthException> {
+      val ex = assertFailsWith<AppException> {
         service.register("u@x.com", "password123", " ", "User")
       }
 
-      assertEquals(AuthError.InvalidInput("firstName is required"), ex.error)
+      val error = assertIs<AppError.ValidationError>(ex.error)
+      assertEquals("firstName is required", error.fields["firstName"])
     }
 
   @Test
@@ -268,11 +274,12 @@ class AuthServiceTest {
       val service = makeService()
       val longName = "a".repeat(101)
 
-      val ex = assertFailsWith<AuthException> {
+      val ex = assertFailsWith<AppException> {
         service.register("u@x.com", "password123", "Test", longName)
       }
 
-      assertEquals(AuthError.InvalidInput("lastName must be at most 100 characters"), ex.error)
+      val error = assertIs<AppError.ValidationError>(ex.error)
+      assertEquals("lastName must be at most 100 characters", error.fields["lastName"])
     }
 
   @Test
@@ -281,11 +288,12 @@ class AuthServiceTest {
       val service = makeService()
       val longEmail = "a".repeat(320) + "@x.com"
 
-      val ex = assertFailsWith<AuthException> {
+      val ex = assertFailsWith<AppException> {
         service.register(longEmail, "password123", "Test", "User")
       }
 
-      assertEquals(AuthError.InvalidInput("Email must be at most 320 characters"), ex.error)
+      val error = assertIs<AppError.ValidationError>(ex.error)
+      assertEquals("Email must be at most 320 characters", error.fields["email"])
     }
 
   @Test
@@ -346,6 +354,7 @@ class AuthServiceTest {
       passwordHasher = passwordHasher,
       tokenHasher = tokenHasher,
       jwtService = JwtService(jwtConfig),
-      jwtConfig = jwtConfig
+      jwtConfig = jwtConfig,
+      transactor = NoopTransactor()
     )
 }

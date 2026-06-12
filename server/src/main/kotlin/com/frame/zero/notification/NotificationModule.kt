@@ -5,5 +5,5 @@ import org.koin.dsl.module
 fun notificationModule() =
   module {
     single<NotificationRepository> { NotificationRepositoryImpl() }
-    single { NotificationService(get()) }
+    single { NotificationService(get(), get()) }
   }
