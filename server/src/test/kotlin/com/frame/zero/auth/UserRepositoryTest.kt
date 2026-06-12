@@ -2,7 +2,7 @@ package com.frame.zero.auth
 
 import com.frame.zero.AppError
 import com.frame.zero.AppException
-import com.frame.zero.common.testing.H2TestDatabase
+import com.frame.zero.common.testing.PostgresTestDatabase
 import kotlinx.coroutines.runBlocking
 import java.util.UUID
 import kotlin.test.AfterTest
@@ -14,7 +14,7 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
 class UserRepositoryTest {
-  private val db = H2TestDatabase()
+  private val db = PostgresTestDatabase()
   private val repository = UserRepositoryImpl()
 
   @BeforeTest

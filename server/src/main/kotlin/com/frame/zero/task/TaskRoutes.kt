@@ -2,8 +2,8 @@ package com.frame.zero.task
 
 import com.frame.zero.AppError
 import com.frame.zero.AppException
+import com.frame.zero.common.parseUuidField
 import com.frame.zero.common.pathUuid
-import com.frame.zero.common.timezone
 import com.frame.zero.common.userId
 import com.frame.zero.dto.common.CursorPagedResponse
 import com.frame.zero.dto.task.CreateTaskRequest
@@ -20,7 +20,6 @@ import io.ktor.server.routing.patch
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import org.koin.ktor.ext.inject
-import java.util.UUID
 
 fun Route.taskRoutes() {
   authenticate("auth-jwt") {
@@ -28,7 +27,6 @@ fun Route.taskRoutes() {
       get {
         val service by call.inject<TaskService>()
         val userId = call.userId()
-        val tz = call.timezone()
         val assigneeMe = call.request.queryParameters["assignee"] == "me"
         val status =
           call.request.queryParameters["status"]?.let {
@@ -38,30 +36,22 @@ fun Route.taskRoutes() {
               }
           }
         val productionId =
-          call.request.queryParameters["productionId"]?.let {
-            runCatching { UUID.fromString(it) }
-              .getOrElse {
-                throw AppException(
-                  AppError.ValidationError(mapOf("productionId" to "Invalid UUID"))
-                )
-              }
-          }
+          call.request.queryParameters["productionId"]?.let { parseUuidField("productionId", it) }
         val limit =
           call.request.queryParameters["limit"]
             ?.toIntOrNull()
             ?.coerceIn(1, 100) ?: 20
         val cursor = call.request.queryParameters["cursor"]
         val (items, nextCursor) =
-          service.list(userId, assigneeMe, status, productionId, limit, cursor, tz)
+          service.list(userId, assigneeMe, status, productionId, limit, cursor)
         call.respond(CursorPagedResponse(items = items, nextCursor = nextCursor))
       }
 
       post {
         val service by call.inject<TaskService>()
         val userId = call.userId()
-        val tz = call.timezone()
         val request = call.receive<CreateTaskRequest>()
-        val task = service.create(userId, request, tz)
+        val task = service.create(userId, request)
         call.respond(HttpStatusCode.Created, task)
       }
 
@@ -70,17 +60,15 @@ fun Route.taskRoutes() {
           val service by call.inject<TaskService>()
           val userId = call.userId()
           val taskId = call.pathUuid("id")
-          val tz = call.timezone()
-          call.respond(service.get(userId, taskId, tz))
+          call.respond(service.get(userId, taskId))
         }
 
         patch {
           val service by call.inject<TaskService>()
           val userId = call.userId()
           val taskId = call.pathUuid("id")
-          val tz = call.timezone()
           val request = call.receive<UpdateTaskRequest>()
-          call.respond(service.update(userId, taskId, request, tz))
+          call.respond(service.update(userId, taskId, request))
         }
 
         delete {

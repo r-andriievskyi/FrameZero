@@ -136,8 +136,7 @@ class TaskRoutesTest {
       val prod = env.productionService.createProduction(userId, productionRequest)
       env.taskService.create(
         userId,
-        CreateTaskRequest(productionId = prod.id, title = "T1"),
-        java.time.ZoneId.of("UTC")
+        CreateTaskRequest(productionId = prod.id, title = "T1")
       )
 
       val response = client.get(
@@ -157,8 +156,7 @@ class TaskRoutesTest {
       val prod = env.productionService.createProduction(userId, productionRequest)
       val task = env.taskService.create(
         userId,
-        CreateTaskRequest(productionId = prod.id, title = "T"),
-        java.time.ZoneId.of("UTC")
+        CreateTaskRequest(productionId = prod.id, title = "T")
       )
 
       val response = client.delete("/api/v1/tasks/${task.id}") {

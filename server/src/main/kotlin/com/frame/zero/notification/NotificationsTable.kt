@@ -3,7 +3,7 @@ package com.frame.zero.notification
 import com.frame.zero.auth.UsersTable
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.java.javaUUID
-import org.jetbrains.exposed.v1.javatime.timestamp
+import org.jetbrains.exposed.v1.datetime.timestamp
 
 object NotificationsTable : Table("notifications") {
   val id = javaUUID("id")

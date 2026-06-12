@@ -3,7 +3,7 @@ package com.frame.zero.schedule
 import com.frame.zero.production.ProductionsTable
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.java.javaUUID
-import org.jetbrains.exposed.v1.javatime.timestamp
+import org.jetbrains.exposed.v1.datetime.timestamp
 
 object ScheduleEventsTable : Table("schedule_events") {
   val id = javaUUID("id")

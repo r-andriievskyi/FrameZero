@@ -1,42 +1,38 @@
 package com.frame.zero.common
 
-import java.time.ZoneId
-import java.time.temporal.ChronoUnit
-import java.time.LocalDate as JavaLocalDate
-import kotlinx.datetime.LocalDate as KotlinLocalDate
-import kotlinx.datetime.number
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.daysUntil
+import kotlin.time.Clock
+import kotlin.time.Instant
 
-fun JavaLocalDate.toKotlin(): KotlinLocalDate = KotlinLocalDate(year, monthValue, dayOfMonth)
+private const val NANOS_PER_MICRO = 1_000
 
-fun KotlinLocalDate.toJava(): JavaLocalDate = JavaLocalDate.of(year, month.number, day)
-
-fun dueLabelFor(
-  date: JavaLocalDate,
-  tz: ZoneId
-): String {
-  val today = JavaLocalDate.now(tz)
-  return when (date) {
-    today -> "Today"
-    today.plusDays(1) -> "Tomorrow"
-    else ->
-      date.format(
-        java.time.format.DateTimeFormatter
-          .ofPattern("MMM d")
-      )
-  }
+/**
+ * Current instant truncated to microsecond precision — the precision of a
+ * Postgres `timestamp` column. Use this (never raw [Clock.System.now]) for any
+ * instant that is persisted or compared against persisted values, so in-memory
+ * and round-tripped timestamps stay equal.
+ */
+fun nowTruncatedToMicros(): Instant {
+  val now = Clock.System.now()
+  return Instant.fromEpochSeconds(
+    now.epochSeconds,
+    now.nanosecondsOfSecond / NANOS_PER_MICRO * NANOS_PER_MICRO
+  )
 }
 
+/**
+ * Percentage of a production's [start]..[wrap] window elapsed as of [today],
+ * clamped to 0..100. Returns 0 before the window starts and 100 once it ends.
+ */
 fun computeProgressPercent(
-  start: JavaLocalDate,
-  wrap: JavaLocalDate,
-  today: JavaLocalDate
+  start: LocalDate,
+  wrap: LocalDate,
+  today: LocalDate
 ): Int {
-  if (!today.isAfter(start)) return 0
-  if (!today.isBefore(wrap)) return 100
-  val totalDays = ChronoUnit.DAYS
-    .between(start, wrap)
-    .coerceAtLeast(1)
-  val elapsedDays = ChronoUnit.DAYS
-    .between(start, today)
-  return (elapsedDays * 100 / totalDays).toInt().coerceIn(0, 100)
+  if (today <= start) return 0
+  if (today >= wrap) return 100
+  val totalDays = start.daysUntil(wrap).coerceAtLeast(1)
+  val elapsedDays = start.daysUntil(today)
+  return (elapsedDays.toLong() * 100 / totalDays).toInt().coerceIn(0, 100)
 }

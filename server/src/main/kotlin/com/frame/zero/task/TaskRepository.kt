@@ -3,6 +3,7 @@ package com.frame.zero.task
 import com.frame.zero.auth.UsersTable
 import com.frame.zero.common.decodeCursor
 import com.frame.zero.common.encodeCursor
+import com.frame.zero.common.nowTruncatedToMicros
 import com.frame.zero.config.dbQuery
 import com.frame.zero.dto.task.TaskPriority
 import com.frame.zero.dto.task.TaskStatus
@@ -25,9 +26,9 @@ import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.update
-import java.time.Instant
-import java.time.LocalDate
 import java.util.UUID
+import kotlin.time.Instant
+import kotlinx.datetime.LocalDate
 
 // Cursor sentinel for tasks without a due date; they sort after every real
 // date (NULLS LAST), so the sentinel must be the maximum encodable value.
@@ -103,7 +104,7 @@ class TaskRepositoryImpl : TaskRepository {
   ): TaskRecord =
     dbQuery {
       val newId = UUID.randomUUID()
-      val now = Instant.now()
+      val now = nowTruncatedToMicros()
       TasksTable.insert {
         it[id] = newId
         it[TasksTable.productionId] = productionId
@@ -172,10 +173,10 @@ class TaskRepositoryImpl : TaskRepository {
               // sort below. Null due dates sort last and are encoded as the
               // NULL_DUE_DATE_CURSOR sentinel.
               cond = cond and
-                if (pc.epochMillis == NULL_DUE_DATE_CURSOR) {
+                if (pc.sortKey == NULL_DUE_DATE_CURSOR) {
                   TasksTable.dueDate.isNull() and (TasksTable.id greater pc.id)
                 } else {
-                  val cursorDue = LocalDate.ofEpochDay(pc.epochMillis)
+                  val cursorDue = LocalDate.fromEpochDays(pc.sortKey)
                   (TasksTable.dueDate greater cursorDue) or
                     ((TasksTable.dueDate eq cursorDue) and (TasksTable.id greater pc.id)) or
                     TasksTable.dueDate.isNull()
@@ -192,7 +193,7 @@ class TaskRepositoryImpl : TaskRepository {
       val nextCursor =
         if (hasMore) {
           val last = items.last()
-          encodeCursor(last.dueDate?.toEpochDay() ?: NULL_DUE_DATE_CURSOR, last.id)
+          encodeCursor(last.dueDate?.toEpochDays() ?: NULL_DUE_DATE_CURSOR, last.id)
         } else {
           null
         }

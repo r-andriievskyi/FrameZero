@@ -3,8 +3,8 @@ package com.frame.zero.production
 import com.frame.zero.auth.UsersTable
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.java.javaUUID
-import org.jetbrains.exposed.v1.javatime.date
-import org.jetbrains.exposed.v1.javatime.timestamp
+import org.jetbrains.exposed.v1.datetime.date
+import org.jetbrains.exposed.v1.datetime.timestamp
 
 object ProductionsTable : Table("productions") {
   val id = javaUUID("id")

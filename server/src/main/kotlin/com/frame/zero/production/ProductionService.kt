@@ -5,9 +5,8 @@ import com.frame.zero.AppException
 import com.frame.zero.auth.UserRepository
 import com.frame.zero.common.Transactor
 import com.frame.zero.common.Validators
+import com.frame.zero.common.parseUuidField
 import com.frame.zero.common.computeProgressPercent
-import com.frame.zero.common.toJava
-import com.frame.zero.common.toKotlin
 import com.frame.zero.domain.production.ProductionPhase
 import com.frame.zero.domain.production.ProductionSort
 import com.frame.zero.dto.production.AddMemberRequest
@@ -20,11 +19,12 @@ import com.frame.zero.dto.production.ProductionSummaryDto
 import com.frame.zero.dto.production.UpdateMemberRequest
 import com.frame.zero.dto.production.UpdateProductionRequest
 import com.frame.zero.dto.production.ViewerCrewDto
-import java.time.Clock
-import java.time.LocalDate
-import java.time.temporal.ChronoUnit
 import java.util.UUID
-import kotlin.time.toKotlinInstant
+import kotlin.time.Clock
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.daysUntil
+import kotlinx.datetime.todayIn
 
 class ProductionService(
   private val productionRepository: ProductionRepository,
@@ -32,7 +32,7 @@ class ProductionService(
   private val userRepository: UserRepository,
   private val productionAccessService: ProductionAccessService,
   private val transactor: Transactor,
-  private val clock: Clock = Clock.systemUTC()
+  private val clock: Clock = Clock.System
 ) {
   suspend fun createProduction(
     userId: UUID,
@@ -45,8 +45,8 @@ class ProductionService(
         genre = request.genre,
         logline = request.logline?.trim(),
         phase = ProductionPhase.IDEA,
-        startDate = request.startDate.toJava(),
-        wrapDate = request.wrapDate.toJava(),
+        startDate = request.startDate,
+        wrapDate = request.wrapDate,
         budgetCents = request.budgetCents,
         ownerUserId = userId
       )
@@ -93,7 +93,7 @@ class ProductionService(
         boundedLimit,
         cursor
       )
-      val today = LocalDate.now(clock)
+      val today = clock.todayIn(TimeZone.UTC)
       val productionIds = productions.map { it.id }
       val membersCounts = productionMemberRepository.countByProductions(productionIds)
       val summaries = productions.map { production ->
@@ -125,8 +125,8 @@ class ProductionService(
         id = productionId,
         title = request.title?.trim(),
         logline = request.logline?.trim(),
-        startDate = request.startDate?.toJava(),
-        wrapDate = request.wrapDate?.toJava(),
+        startDate = request.startDate,
+        wrapDate = request.wrapDate,
         budgetCents = request.budgetCents
       ) ?: throw AppException(AppError.NotFound)
       buildDetailDto(updatedProduction, userId)
@@ -208,12 +208,7 @@ class ProductionService(
       if (role != null && role.isBlank()) {
         throw AppException(AppError.ValidationError(mapOf("role" to "Required")))
       }
-      val parsedReportsTo = reportsToMemberId?.let {
-        runCatching { UUID.fromString(it) }.getOrNull()
-          ?: throw AppException(
-            AppError.ValidationError(mapOf("reportsToMemberId" to "Invalid UUID"))
-          )
-      }
+      val parsedReportsTo = reportsToMemberId?.let { parseUuidField("reportsToMemberId", it) }
       if (parsedReportsTo != null && parsedReportsTo == memberId) {
         throw AppException(
           AppError.ValidationError(mapOf("reportsToMemberId" to "Cannot report to self"))
@@ -333,8 +328,8 @@ class ProductionService(
     if (request.startDate != null || request.wrapDate != null) {
       val existing = productionRepository.findById(productionId)
         ?: throw AppException(AppError.NotFound)
-      val effectiveStart = request.startDate?.toJava() ?: existing.startDate
-      val effectiveWrap = request.wrapDate?.toJava() ?: existing.wrapDate
+      val effectiveStart = request.startDate ?: existing.startDate
+      val effectiveWrap = request.wrapDate ?: existing.wrapDate
       if (effectiveWrap < effectiveStart) {
         errors["wrapDate"] = "Must be on or after startDate"
       }
@@ -352,7 +347,7 @@ class ProductionService(
     val allMembers = productionMemberRepository.findByProduction(production.id)
     val keyCrew = allMembers.sortedWith(keyCrewComparator).take(KEY_CREW_LIMIT).map { it.toDto() }
     val viewerCrew = buildViewerCrew(viewerUserId, allMembers)
-    val today = LocalDate.now(clock)
+    val today = clock.todayIn(TimeZone.UTC)
     return production.toDetailDto(
       membersCount = allMembers.size,
       keyCrew = keyCrew,
@@ -389,9 +384,7 @@ class ProductionService(
     today: LocalDate
   ): ProductionDetailDto {
     val progressPercent = computeProgressPercent(startDate, wrapDate, today)
-    val daysUntilWrap = ChronoUnit.DAYS
-      .between(today, wrapDate)
-      .toInt()
+    val daysUntilWrap = today.daysUntil(wrapDate)
     return ProductionDetailDto(
       id = id.toString(),
       title = title,
@@ -400,14 +393,14 @@ class ProductionService(
       phase = phase,
       progressPercent = progressPercent,
       daysLeft = daysUntilWrap,
-      startDate = startDate.toKotlin(),
-      wrapDate = wrapDate.toKotlin(),
+      startDate = startDate,
+      wrapDate = wrapDate,
       budgetCents = budgetCents,
       membersCount = membersCount,
       keyCrew = keyCrew,
       pipeline = buildPipelinePhases(phase),
-      createdAt = createdAt.toKotlinInstant(),
-      updatedAt = updatedAt.toKotlinInstant(),
+      createdAt = createdAt,
+      updatedAt = updatedAt,
       viewerCrew = viewerCrew
     )
   }
@@ -417,9 +410,7 @@ class ProductionService(
     today: LocalDate
   ): ProductionSummaryDto {
     val progressPercent = computeProgressPercent(startDate, wrapDate, today)
-    val daysUntilWrap = ChronoUnit.DAYS
-      .between(today, wrapDate)
-      .toInt()
+    val daysUntilWrap = today.daysUntil(wrapDate)
     return ProductionSummaryDto(
       id = id.toString(),
       title = title,
@@ -428,7 +419,7 @@ class ProductionService(
       progressPercent = progressPercent,
       daysLeft = daysUntilWrap,
       membersCount = membersCount,
-      updatedAt = updatedAt.toKotlinInstant()
+      updatedAt = updatedAt
     )
   }
 
@@ -440,7 +431,7 @@ class ProductionService(
       role = role,
       initials = extractInitials(name),
       avatarColorHex = avatarColorHex,
-      addedAt = addedAt.toKotlinInstant(),
+      addedAt = addedAt,
       reportsToMemberId = reportsToMemberId?.toString()
     )
 

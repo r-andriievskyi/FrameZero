@@ -1,5 +1,6 @@
 package com.frame.zero.auth
 
+import com.frame.zero.common.nowTruncatedToMicros
 import com.frame.zero.config.dbQuery
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.and
@@ -8,8 +9,8 @@ import org.jetbrains.exposed.v1.core.greater
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.update
-import java.time.Instant
 import java.util.UUID
+import kotlin.time.Instant
 
 data class RefreshTokenRecord(
   val id: UUID,
@@ -51,7 +52,7 @@ class RefreshTokenRepositoryImpl : RefreshTokenRepository {
   ): RefreshTokenRecord =
     dbQuery {
       val newId = UUID.randomUUID()
-      val now = Instant.now()
+      val now = nowTruncatedToMicros()
       RefreshTokensTable.insert {
         it[id] = newId
         it[RefreshTokensTable.userId] = userId

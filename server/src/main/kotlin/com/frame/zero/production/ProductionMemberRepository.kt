@@ -1,6 +1,7 @@
 package com.frame.zero.production
 
 import com.frame.zero.auth.UsersTable
+import com.frame.zero.common.nowTruncatedToMicros
 import com.frame.zero.config.dbQuery
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.and
@@ -10,8 +11,8 @@ import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.update
-import java.time.Instant
 import java.util.UUID
+import kotlin.time.Instant
 
 data class ProductionMemberRecord(
   val id: UUID,
@@ -123,7 +124,7 @@ class ProductionMemberRepositoryImpl : ProductionMemberRepository {
   ): ProductionMemberRecord =
     dbQuery {
       val newId = UUID.randomUUID()
-      val now = Instant.now()
+      val now = nowTruncatedToMicros()
       ProductionMembersTable.insert {
         it[id] = newId
         it[ProductionMembersTable.productionId] = productionId
