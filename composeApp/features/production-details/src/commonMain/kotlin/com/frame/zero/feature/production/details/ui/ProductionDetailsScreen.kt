@@ -31,6 +31,7 @@ import com.frame.zero.shared.design_system.widgets.OverflowMenu
 import com.frame.zero.shared.design_system.widgets.OverflowMenuItem
 import com.frame.zero.shared.design_system.widgets.TopToolbar
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer
+import com.frame.zero.ui.asString
 import kotlinx.collections.immutable.persistentListOf
 import framezero.composeapp.features.production_details.generated.resources.Res
 import framezero.composeapp.features.production_details.generated.resources.delete_production_menu
@@ -83,7 +84,7 @@ private fun ProductionDetailsContent(
       val loadError = state.error
       when {
         state.isLoading && state.detail == null -> CenteredProgress()
-        loadError != null && state.detail == null -> CenteredMessage(loadError)
+        loadError != null && state.detail == null -> CenteredMessage(loadError.asString())
         state.detail != null -> DetailBody(detail = state.detail!!)
         else -> Box(modifier = Modifier.fillMaxSize())
       }
@@ -113,7 +114,7 @@ private fun ProductionDetailsContent(
 
   state.deleteError?.let { message ->
     DeleteErrorDialog(
-      message = message,
+      message = message.asString(),
       onDismiss = { onIntent(ProductionDetailsIntent.DeleteErrorDismissed) }
     )
   }
