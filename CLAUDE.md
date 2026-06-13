@@ -49,7 +49,7 @@ Composite Gradle build + native iOS wrapper.
 | `composeApp/features/<name>/` | Per-feature Compose UI rendering the matching shared component. |
 | `composeApp/shared/design_system/` | Design system library. Applies `crossplatform.library.compose`. |
 | `composeApp/shared/ui_text/` | Compose-side resolver for `UiText` — `@Composable UiText.asString()` turns a `UiText.Resource` into a `stringResource(...)`. Pairs with `shared/ui_text`. |
-| `server/` | JVM Ktor backend (Netty + Exposed/Postgres + JWT via Koin). Packages: `auth`, `dashboard`, `notification`, `production`, `schedule`, `task`, `domain`, `dto`, `common`/`config`. Schema created from Exposed `Table` defs on boot. **Depends on no client module** — owns its own copy of the wire types (`com.frame.zero.dto.*`, `auth.dto.*`, the wire enums) under `server/src/main`, intentionally duplicated from `shared/`'s copy so the server can be lifted into a standalone repo. (`Constants`/`SERVER_PORT` is client-only — server hardcodes its bind port.) See [Wire contract duplication](#wire-contract-duplication). |
+| `server/` | JVM Ktor backend (Netty + Exposed/Postgres + JWT via Koin). Packages: `auth`, `dashboard`, `notification`, `production`, `schedule`, `task`, `domain`, `dto`, `common`/`config`. Schema is created by Flyway migrations on boot (Exposed `Table` defs are the read/write mapping). **Depends on no client module** — owns its own copy of the wire types (`com.frame.zero.dto.*`, `auth.dto.*`, the wire enums) under `server/src/main`, intentionally duplicated from `shared/`'s copy so the server can be lifted into a standalone repo. (`Constants`/`SERVER_PORT` is client-only — server hardcodes its bind port.) See [Wire contract duplication](#wire-contract-duplication). |
 | `iosApp/` | Swift/SwiftUI wrapper. Minimal — flag any Swift edits for manual review. |
 
 Navigation is **Decompose**. `RootComponent` (`composeApp/commonMain`) owns a
@@ -204,17 +204,17 @@ Suite is exact-match: exclude flaky animated previews by `methodName` via the te
 All versions in `gradle/libs.versions.toml` — add new deps to the catalog, not
 module scripts.
 
-- Kotlin **2.3.21**, Compose Multiplatform **1.10.3**, AGP **8.11.2**, KSP **2.3.8**
-- Ktor **3.4.3** (Netty server; OkHttp on Android, Darwin on iOS for the client)
+- Kotlin **2.4.0**, Compose Multiplatform **1.11.1**, AGP **9.2.1**, KSP **2.3.8**
+- Ktor **3.5.0** (Netty server; OkHttp on Android, Darwin on iOS for the client)
 - Material3 `1.10.0-alpha05`, Decompose **3.5.0**, Koin **4.2.1**
-- `multiplatform-settings` **1.3.0**, `kotlinx-datetime` **0.7.1** (`Instant`/`LocalDate`
-  in DTOs — never `java.time.*`)
+- `multiplatform-settings` **1.3.0**, `kotlinx-datetime` **0.8.0** (`LocalDate` in DTOs;
+  timestamps are `kotlin.time.Instant` — never `java.time.*`)
 - AndroidX Room **2.8.4** (KMP) + Paging **3.5.0** + SQLite bundled **2.6.2** — offline-first
-- Server: Exposed **1.2.0** + HikariCP **7.0.2** + PostgreSQL **42.7.11**, H2 **2.4.240**
-  (tests), JWT via `ktor-server-auth-jwt`, bcrypt for passwords
+- Server: Exposed **1.3.0** + HikariCP **7.0.2** + PostgreSQL **42.7.11** + Flyway (DDL),
+  JWT via `ktor-server-auth-jwt`, bcrypt for passwords; tests use Testcontainers Postgres
 - Tests: Robolectric **4.16.1** + `compose-uiTestJUnit4`; Roborazzi **1.63.0** +
   ComposablePreviewScanner **0.9.0** for screenshot goldens (see [Screenshot tests](#screenshot-tests))
-- Android minSdk **29**, targetSdk **36**, JVM target **11**
+- Android minSdk **29**, compileSdk/targetSdk **37**, JVM target **11**
 
 ## Server config
 
@@ -240,11 +240,13 @@ export DATABASE_USER=... DATABASE_PASSWORD=...
 
 ### Schema
 
-`DatabaseFactory.init` runs `SchemaUtils.create(...)` over the Exposed `Table`
-defs on boot (`CREATE TABLE IF NOT EXISTS`) — schema (incl. declared indexes) comes
-from Kotlin, not SQL migrations. Adding schema: edit the `Table` (columns + any
-`index(...)` in an `init` block), verify on H2 PostgreSQL-mode via `:server:test`.
-`create` won't alter existing columns, so drop/recreate the dev DB on a schema change.
+**Flyway owns DDL.** `DatabaseFactory.init` runs `Flyway.configure()...migrate()` on boot
+against the versioned SQL migrations in `server/src/main/resources/db/migration`
+(`V1__baseline_schema.sql`, …). The Exposed `Table` defs are the read/write mapping only —
+they no longer create the schema. Adding schema: add a new `V<n>__*.sql` migration **and**
+update the matching Exposed `Table` in the same change (keep them in sync, like the wire
+DTOs). Repo tests run against Testcontainers Postgres (`:server:test`, needs Docker), so the
+migration is exercised on real Postgres.
 
 ## Client storage
 
@@ -336,8 +338,10 @@ Rules:
   already-resolved string, `someRes.asUiText(args…)` for a resource reference. The UI
   resolves it with `UiText.asString()` (`composeApp/shared/ui_text`) at render time.
   Never resolve resources into raw `String`s inside `shared`.
-- **Lifecycle/ViewModel:** JetBrains multiplatform lifecycle
-  (`androidx.lifecycle.viewmodel.compose.viewModel { ... }`).
+- **Lifecycle/ViewModel:** shared ViewModels implement Essenty
+  `InstanceKeeper.Instance` (manual `CoroutineScope` cancelled in `onDestroy()`); the
+  owning Decompose `Component` creates one via `instanceKeeper.getOrCreate { factory() }`
+  so it survives config changes. Not the `androidx.lifecycle … viewModel { }` helper.
 - **No `LocalContext.current`** in `composeApp/commonMain` (Android-only) — design an
   `expect`/`actual` in `shared` instead.
 
