@@ -11,6 +11,7 @@ plugins {
   alias(libs.plugins.androidApplication)
   alias(libs.plugins.composeMultiplatform)
   alias(libs.plugins.composeCompiler)
+  alias(libs.plugins.kotlinSerialization)
   id("crossplatform.code.quality")
 }
 
@@ -52,6 +53,7 @@ kotlin {
       implementation(projects.composeApp.features.productionDetails)
       implementation(projects.composeApp.features.taskDetails)
       implementation(libs.koin.core)
+      implementation(libs.kotlinx.serialization.json)
       implementation(libs.decompose)
       implementation(libs.decompose.extensionsCompose)
       implementation(projects.composeApp.shared.designSystem)
