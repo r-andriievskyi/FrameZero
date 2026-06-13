@@ -2,6 +2,7 @@ package com.frame.zero.core.network
 
 import com.frame.zero.auth.dto.RefreshRequest
 import com.frame.zero.auth.dto.RefreshResponse
+import com.frame.zero.core.logging.Logger as AppLogger
 import com.frame.zero.core.network.connectivity.ConnectivityObserver
 import com.frame.zero.core.session.LogoutSignal
 import com.frame.zero.core.session.TokenStorage
@@ -47,7 +48,7 @@ internal fun connectivityGuard(connectivityObserver: ConnectivityObserver) =
 
 val networkModule: Module = module {
   single { NetworkConfig.fromBuildConfig() }
-  single { provideHttpClient(get(), get(), get(), get(), isDebug = BuildKonfig.DEBUG) }
+  single { provideHttpClient(get(), get(), get(), get(), get(), isDebug = BuildKonfig.DEBUG) }
 }
 
 private fun provideHttpClient(
@@ -55,6 +56,7 @@ private fun provideHttpClient(
   tokenStorage: TokenStorage,
   logoutSignal: LogoutSignal,
   connectivityObserver: ConnectivityObserver,
+  appLogger: AppLogger,
   isDebug: Boolean
 ): HttpClient =
   httpClient {
@@ -69,7 +71,11 @@ private fun provideHttpClient(
       handleResponseExceptionWithRequest { exception, _ ->
         val responseException = exception as? ResponseException ?: return@handleResponseExceptionWithRequest
         val errorBody = runCatching { responseException.response.bodyAsText() }.getOrNull()
-        Logger.DEFAULT.log("Server error [${responseException.response.status}]: $errorBody")
+        appLogger.e(
+          tag = "Network",
+          message = "Server error [${responseException.response.status}]: $errorBody",
+          throwable = responseException
+        )
       }
     }
 
