@@ -9,10 +9,13 @@ import com.frame.zero.ui.UiText
 import com.frame.zero.ui.asUiText
 import framezero.shared.features.production.generated.resources.Res
 import framezero.shared.features.production.generated.resources.error_auth_failed
+import framezero.shared.features.production.generated.resources.error_conflict
 import framezero.shared.features.production.generated.resources.error_email_exists
+import framezero.shared.features.production.generated.resources.error_forbidden
 import framezero.shared.features.production.generated.resources.error_invalid_dates
 import framezero.shared.features.production.generated.resources.error_missing_dates
 import framezero.shared.features.production.generated.resources.error_network
+import framezero.shared.features.production.generated.resources.error_server
 import framezero.shared.features.production.generated.resources.error_title_required
 import framezero.shared.features.production.generated.resources.error_unknown_fallback
 import kotlinx.coroutines.CoroutineScope
@@ -169,14 +172,18 @@ class CreateProductionViewModel(
   }
 
   private val DomainError.isNetworkOrServerError: Boolean
-    get() = this is DomainError.Network || this is DomainError.Unknown
+    get() = this is DomainError.Network || this is DomainError.Server || this is DomainError.Unknown
 
   private fun DomainError.toUiText(): UiText =
     when (this) {
       is DomainError.Network -> Res.string.error_network.asUiText()
-      is DomainError.Unknown -> Res.string.error_unknown_fallback.asUiText()
+      is DomainError.Server -> Res.string.error_server.asUiText()
+      DomainError.Forbidden -> Res.string.error_forbidden.asUiText()
+      DomainError.Conflict -> Res.string.error_conflict.asUiText()
       DomainError.InvalidCredentials -> Res.string.error_auth_failed.asUiText()
       DomainError.EmailAlreadyExists -> Res.string.error_email_exists.asUiText()
+      DomainError.NotFound,
+      is DomainError.Unknown -> Res.string.error_unknown_fallback.asUiText()
     }
 
   private fun formatBudget(cents: Long): String {

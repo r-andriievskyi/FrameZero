@@ -9,7 +9,11 @@ import com.frame.zero.ui.UiText
 import com.frame.zero.ui.asUiText
 import framezero.shared.features.production_details.generated.resources.Res
 import framezero.shared.features.production_details.generated.resources.error_auth_failed
+import framezero.shared.features.production_details.generated.resources.error_conflict
+import framezero.shared.features.production_details.generated.resources.error_forbidden
 import framezero.shared.features.production_details.generated.resources.error_network
+import framezero.shared.features.production_details.generated.resources.error_not_found
+import framezero.shared.features.production_details.generated.resources.error_server
 import framezero.shared.features.production_details.generated.resources.error_unknown_fallback
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -101,8 +105,12 @@ class ProductionDetailsViewModel(
   private fun DomainError.toUiText(): UiText =
     when (this) {
       is DomainError.Network -> Res.string.error_network.asUiText()
-      is DomainError.Unknown -> Res.string.error_unknown_fallback.asUiText()
+      is DomainError.Server -> Res.string.error_server.asUiText()
+      DomainError.NotFound -> Res.string.error_not_found.asUiText()
+      DomainError.Forbidden -> Res.string.error_forbidden.asUiText()
+      DomainError.Conflict -> Res.string.error_conflict.asUiText()
       DomainError.InvalidCredentials -> Res.string.error_auth_failed.asUiText()
-      DomainError.EmailAlreadyExists -> Res.string.error_unknown_fallback.asUiText()
+      DomainError.EmailAlreadyExists,
+      is DomainError.Unknown -> Res.string.error_unknown_fallback.asUiText()
     }
 }
