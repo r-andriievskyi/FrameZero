@@ -27,6 +27,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 
 class RootComponent(
   componentContext: ComponentContext,
@@ -49,7 +50,7 @@ class RootComponent(
   val stack: Value<ChildStack<Config, Child>> =
     childStack(
       source = navigation,
-      serializer = null,
+      serializer = Config.serializer(),
       initialConfiguration = Config.Splash,
       handleBackButton = true,
       childFactory = ::createChild
@@ -136,21 +137,29 @@ class RootComponent(
       )
     }
 
+  @Serializable
   sealed interface Config {
+    @Serializable
     data object Splash : Config
 
+    @Serializable
     data object Auth : Config
 
+    @Serializable
     data object Home : Config
 
+    @Serializable
     data object Account : Config
 
+    @Serializable
     data object CreateProduction : Config
 
+    @Serializable
     data class ProductionDetails(
       val productionId: String
     ) : Config
 
+    @Serializable
     data class TaskDetails(
       val taskId: String
     ) : Config
