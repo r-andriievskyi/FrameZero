@@ -12,6 +12,8 @@ plugins {
   alias(libs.plugins.composeMultiplatform)
   alias(libs.plugins.composeCompiler)
   alias(libs.plugins.kotlinSerialization)
+  alias(libs.plugins.googleServices)
+  alias(libs.plugins.firebaseCrashlytics)
   id("crossplatform.code.quality")
 }
 
@@ -46,6 +48,7 @@ kotlin {
       implementation(projects.shared.features.production)
       implementation(projects.shared.features.productionDetails)
       implementation(projects.shared.features.taskDetails)
+      implementation(projects.shared.integrations.firebase)
       implementation(projects.composeApp.features.account)
       implementation(projects.composeApp.features.auth)
       implementation(projects.composeApp.features.home)

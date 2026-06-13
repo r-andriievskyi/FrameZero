@@ -338,7 +338,7 @@ class AuthRepositoryImplTest {
         AuthRepositoryImpl(
           httpClient = client,
           tokenStorage = storage,
-          networkConfig = NetworkConfig(baseUrl = "http://test")
+          networkConfig = NetworkConfig(baseUrl = "http://test", isDebug = true)
         )
     }
   }
