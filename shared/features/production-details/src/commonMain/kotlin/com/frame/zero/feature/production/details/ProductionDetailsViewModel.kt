@@ -1,9 +1,16 @@
 package com.frame.zero.feature.production.details
 
 import com.arkivanov.essenty.instancekeeper.InstanceKeeper
+import com.frame.zero.domain.DomainError
 import com.frame.zero.domain.Outcome
 import com.frame.zero.feature.production.details.domain.DeleteProductionUseCase
 import com.frame.zero.feature.production.details.domain.GetProductionDetailsUseCase
+import com.frame.zero.ui.UiText
+import com.frame.zero.ui.asUiText
+import framezero.shared.features.production_details.generated.resources.Res
+import framezero.shared.features.production_details.generated.resources.error_auth_failed
+import framezero.shared.features.production_details.generated.resources.error_network
+import framezero.shared.features.production_details.generated.resources.error_unknown_fallback
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -62,7 +69,7 @@ class ProductionDetailsViewModel(
         is Outcome.Success ->
           _state.update { it.copy(isLoading = false, detail = outcome.data) }
         is Outcome.Failure ->
-          _state.update { it.copy(isLoading = false, error = outcome.error.toString()) }
+          _state.update { it.copy(isLoading = false, error = outcome.error.toUiText()) }
       }
     }
   }
@@ -81,7 +88,7 @@ class ProductionDetailsViewModel(
         }
         is Outcome.Failure ->
           _state.update {
-            it.copy(isDeleting = false, deleteError = outcome.error.toString())
+            it.copy(isDeleting = false, deleteError = outcome.error.toUiText())
           }
       }
     }
@@ -90,4 +97,12 @@ class ProductionDetailsViewModel(
   override fun onDestroy() {
     scope.cancel()
   }
+
+  private fun DomainError.toUiText(): UiText =
+    when (this) {
+      is DomainError.Network -> Res.string.error_network.asUiText()
+      is DomainError.Unknown -> Res.string.error_unknown_fallback.asUiText()
+      DomainError.InvalidCredentials -> Res.string.error_auth_failed.asUiText()
+      DomainError.EmailAlreadyExists -> Res.string.error_unknown_fallback.asUiText()
+    }
 }
