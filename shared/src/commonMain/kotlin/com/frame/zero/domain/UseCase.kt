@@ -1,7 +1,7 @@
 package com.frame.zero.domain
 
 abstract class UseCase<in Params, out T> {
-  protected abstract fun mapError(throwable: Throwable): DomainError
+  protected open fun mapError(throwable: Throwable): DomainError = throwable.toDomainError()
 
   protected abstract suspend fun execute(params: Params): T
 
@@ -11,7 +11,7 @@ abstract class UseCase<in Params, out T> {
 }
 
 abstract class NoParamsUseCase<out T> {
-  protected abstract fun mapError(throwable: Throwable): DomainError
+  protected open fun mapError(throwable: Throwable): DomainError = throwable.toDomainError()
 
   protected abstract suspend fun execute(): T
 
