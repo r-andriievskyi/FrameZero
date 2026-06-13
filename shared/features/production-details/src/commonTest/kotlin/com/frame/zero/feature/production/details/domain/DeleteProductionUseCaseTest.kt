@@ -24,25 +24,48 @@ class DeleteProductionUseCaseTest {
     }
 
   @Test
-  fun `forbidden maps to owner-only message`() =
+  fun `forbidden maps to Forbidden`() =
     runTest {
       val repo = FakeProductionsRepository(deleteThrows = responseException(HttpStatusCode.Forbidden))
 
       val outcome = DeleteProductionUseCase(repo)(DeleteProductionUseCase.Params("p1"))
 
       val failure = assertIs<Outcome.Failure>(outcome)
-      assertEquals(DomainError.Unknown("Only the owner can delete this production"), failure.error)
+      assertEquals(DomainError.Forbidden, failure.error)
     }
 
   @Test
-  fun `not found maps to production-not-found message`() =
+  fun `not found maps to NotFound`() =
     runTest {
       val repo = FakeProductionsRepository(deleteThrows = responseException(HttpStatusCode.NotFound))
 
       val outcome = DeleteProductionUseCase(repo)(DeleteProductionUseCase.Params("p1"))
 
       val failure = assertIs<Outcome.Failure>(outcome)
-      assertEquals(DomainError.Unknown("Production not found"), failure.error)
+      assertEquals(DomainError.NotFound, failure.error)
+    }
+
+  @Test
+  fun `conflict maps to Conflict`() =
+    runTest {
+      val repo = FakeProductionsRepository(deleteThrows = responseException(HttpStatusCode.Conflict))
+
+      val outcome = DeleteProductionUseCase(repo)(DeleteProductionUseCase.Params("p1"))
+
+      val failure = assertIs<Outcome.Failure>(outcome)
+      assertEquals(DomainError.Conflict, failure.error)
+    }
+
+  @Test
+  fun `server error maps to Server`() =
+    runTest {
+      val repo =
+        FakeProductionsRepository(deleteThrows = responseException(HttpStatusCode.InternalServerError))
+
+      val outcome = DeleteProductionUseCase(repo)(DeleteProductionUseCase.Params("p1"))
+
+      val failure = assertIs<Outcome.Failure>(outcome)
+      assertIs<DomainError.Server>(failure.error)
     }
 
   @Test

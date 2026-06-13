@@ -4,4 +4,8 @@
   <string name="error_network">No internet connection. Check your connection and try again.</string>
   <string name="error_unknown_fallback">Something went wrong. Please try again.</string>
   <string name="error_auth_failed">Authentication failed. Please sign in again.</string>
+  <string name="error_not_found">This production no longer exists.</string>
+  <string name="error_forbidden">You don\'t have access to this production.</string>
+  <string name="error_conflict">This production was changed elsewhere. Please refresh and try again.</string>
+  <string name="error_server">The server is unavailable. Please try again later.</string>
 </resources>

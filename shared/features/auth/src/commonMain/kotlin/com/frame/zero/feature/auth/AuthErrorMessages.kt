@@ -17,6 +17,10 @@ internal fun DomainError.toUiText(): UiText =
     DomainError.InvalidCredentials -> Res.string.error_invalid_credentials.asUiText()
     DomainError.EmailAlreadyExists -> Res.string.error_email_exists.asUiText()
     is DomainError.Network -> Res.string.error_network.asUiText(message)
+    DomainError.NotFound,
+    DomainError.Forbidden,
+    DomainError.Conflict,
+    is DomainError.Server -> Res.string.error_unknown_fallback.asUiText()
     is DomainError.Unknown -> message?.let(UiText::Dynamic) ?: Res.string.error_unknown_fallback.asUiText()
   }
 
@@ -26,4 +30,4 @@ internal fun DomainError.toUiText(): UiText =
  * an inline field error.
  */
 internal val DomainError.isNetworkOrServerError: Boolean
-  get() = this is DomainError.Network || this is DomainError.Unknown
+  get() = this is DomainError.Network || this is DomainError.Server || this is DomainError.Unknown

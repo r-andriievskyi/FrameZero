@@ -8,4 +8,7 @@
   <string name="error_email_exists">Email already exists.</string>
   <string name="error_network">No internet connection. Check your connection and try again.</string>
   <string name="error_unknown_fallback">Something went wrong. Please try again.</string>
+  <string name="error_forbidden">You don\'t have permission to do this.</string>
+  <string name="error_conflict">A production like this already exists.</string>
+  <string name="error_server">The server is unavailable. Please try again later.</string>
 </resources>
