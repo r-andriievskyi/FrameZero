@@ -7,10 +7,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
-import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,6 +29,7 @@ import kotlinx.collections.immutable.persistentListOf
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
+private val ToolbarHeight = 56.dp
 private val BackButtonSize = 40.dp
 
 @Composable
@@ -42,10 +43,8 @@ fun TopToolbar(
   Row(
     modifier = modifier
       .fillMaxWidth()
-      .padding(
-        horizontal = spacingSystem.space16,
-        vertical = spacingSystem.space16
-      ),
+      .height(ToolbarHeight)
+      .padding(horizontal = spacingSystem.space16),
     verticalAlignment = Alignment.CenterVertically
   ) {
     BackButton(onClick = onBack)
@@ -71,7 +70,6 @@ private fun BackButton(
   val colorSystem = AppTheme.colorSystem
   Box(
     modifier = modifier
-      .minimumInteractiveComponentSize()
       .size(BackButtonSize)
       .clip(shape)
       .background(colorSystem.cardBackground)
