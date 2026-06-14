@@ -10,7 +10,6 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
-import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
@@ -59,7 +58,6 @@ fun OverflowMenu(
   Box(modifier = modifier) {
     Box(
       modifier = Modifier
-        .minimumInteractiveComponentSize()
         .size(TriggerSize)
         .clip(shape)
         .border(
