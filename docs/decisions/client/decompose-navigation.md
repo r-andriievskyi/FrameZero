@@ -1,9 +1,9 @@
 # Decompose for navigation & components
 
 **Why:** Compose's own `NavHost` is Android-only; we need navigation that
-works on iOS, Desktop, and Web. Decompose gives a `StackNavigation` plus
-a `Component` lifecycle that survives configuration changes and is
-testable without a Composable.
+works on iOS too. Decompose gives a `StackNavigation` plus a `Component`
+lifecycle that survives configuration changes and is testable without a
+Composable.
 
 **Not:**
 - **`androidx.navigation.compose`** — Android-only.
