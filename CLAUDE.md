@@ -45,6 +45,7 @@ Composite Gradle build + native iOS wrapper.
 | `shared/features/<name>/` | Per-feature logic — Decompose `Component`, `ViewModel`, state/intent, feature-local Koin module. (`account`, `auth`, `home`, `production`, `production-details`, `task-details`.) |
 | `shared/repositories/<name>/` | Repository interfaces + impls (`auth`, `user`, `dashboard`, `productions`, `schedule`, `tasks`). `productions` is offline-first — see [Offline-first repositories](#offline-first-repositories). |
 | `shared/ui_text/` | Platform-agnostic `UiText` sealed type (`Dynamic` string / `Resource` + args) so shared ViewModels can carry strings without depending on Compose. No UI. |
+| `shared/integrations/<name>/` | Optional backend integrations wired as self-registering plugins. `firebase` provides `FirebaseCrashlyticsLogSink`/`FirebaseAnalyticsSink` (GitLive SDK) — see [Self-registering plugins](#self-registering-plugins). |
 | `composeApp/` | Compose Multiplatform UI host (Android, iOS). Owns `App.kt`, the Decompose `RootComponent`, platform entry points. |
 | `composeApp/features/<name>/` | Per-feature Compose UI rendering the matching shared component. |
 | `composeApp/shared/design_system/` | Design system library. Applies `crossplatform.library.compose`. |
@@ -106,12 +107,13 @@ Paginated lists use **Room (KMP) + Paging 3 `RemoteMediator`**.
   + `libs.plugins.androidxRoom`, mark the db `@Database(exportSchema = false)`,
   point the Room Gradle plugin at `build/schemas` (it requires a `schemaDirectory`
   even when export is off), and register `ksp` configs for `kspAndroid`/`kspIosArm64`/
-  `kspIosSimulatorArm64`/`kspJvm`. Not in production yet, so no schema JSONs or
-  migrations — flip `exportSchema = true` and start versioning when that changes.
+  `kspIosSimulatorArm64` (no `kspJvm` — no module targets the JVM). Not in production
+  yet, so no schema JSONs or migrations — flip `exportSchema = true` and start
+  versioning when that changes.
 - Room's KMP builder is platform-specific. Each db-owning module exposes
-  `interface DatabaseBuilderFactory` in `commonMain` with `Android*`/`Ios*`/`Jvm*`
-  actuals, wired through Koin's `platformModule()`. The Koin module sets
-  `BundledSQLiteDriver` and `Dispatchers.Default` query context.
+  `interface DatabaseBuilderFactory` in `commonMain` with `Android*`/`Ios*` actuals,
+  wired through Koin's `platformModule()`. The Koin module sets `BundledSQLiteDriver`
+  and `Dispatchers.Default` query context.
 - **Sign-out cleanup.** Any module owning local user-scoped state (Room DB, cached
   files, in-memory user data) implements `interface SessionCleaner { suspend fun clear() }`
   (`shared/.../core/session/SessionCleaner.kt`) and registers it via
@@ -139,10 +141,12 @@ projects. Each concern has three parts:
 
 Instances: `SessionCleaner` (`shared/.../core/session/`), `LogSink` →
 `Logger`/`loggingModule` (`shared/.../core/logging/`), `AnalyticsSink` →
-`Analytics`/`analyticsModule` (`shared/.../core/analytics/`). Logging and analytics
-currently ship **no sinks** — the facades fan out over whatever `getAll()` returns, and
-an empty list is a no-op, so real sinks and call-site consumption are a deliberate later
-step.
+`Analytics`/`analyticsModule` (`shared/.../core/analytics/`). The reference sink impls
+live in `shared/integrations/firebase` (`FirebaseCrashlyticsLogSink`,
+`FirebaseAnalyticsSink`) — opt-in: the module is only on the classpath when its Koin
+module is registered, and its Android build needs user-supplied (gitignored) Firebase
+config files. With no integration registered the facades fan out over an empty
+`getAll()`, which is a no-op.
 
 ### Module placement
 
