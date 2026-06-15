@@ -11,8 +11,18 @@ import kotlin.time.Clock
 import kotlinx.datetime.LocalDate
 import java.util.UUID
 
-internal class FakeProductionRepository : ProductionRepository {
+internal class FakeProductionRepository(
+  // Membership is part of the access contract, so the fake must consult the same
+  // member repository the real SQL joins against — otherwise findAccessible /
+  // countActiveForUser silently drift from production behaviour.
+  private val members: FakeProductionMemberRepository = FakeProductionMemberRepository()
+) : ProductionRepository {
   val productions: MutableList<ProductionRecord> = mutableListOf()
+
+  private fun isMemberOf(
+    userId: UUID,
+    productionId: UUID
+  ): Boolean = members.members.any { it.productionId == productionId && it.userId == userId }
 
   override suspend fun create(
     title: String,
@@ -59,7 +69,7 @@ internal class FakeProductionRepository : ProductionRepository {
     val filtered =
       productions.filter { p ->
         p.deletedAt == null &&
-          (p.ownerUserId == userId) &&
+          (p.ownerUserId == userId || isMemberOf(userId, p.id)) &&
           (phases.isEmpty() || p.phase in phases) &&
           (query.isNullOrBlank() || p.title.contains(query, ignoreCase = true))
       }
@@ -77,7 +87,7 @@ internal class FakeProductionRepository : ProductionRepository {
   override suspend fun countActiveForUser(userId: UUID): Int =
     productions.count {
       it.deletedAt == null &&
-        it.ownerUserId == userId &&
+        (it.ownerUserId == userId || isMemberOf(userId, it.id)) &&
         it.phase != ProductionPhase.DISTRIBUTION &&
         it.phase != ProductionPhase.ARCHIVED
     }

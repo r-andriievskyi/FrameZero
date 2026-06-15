@@ -40,8 +40,7 @@ import java.util.UUID
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes
 
-internal val testJwtConfig =
-  JwtConfig(
+internal val testJwtConfig = JwtConfig(
     secret = "test-secret-must-be-long-enough-for-hmac256",
     issuer = "test-issuer",
     audience = "test-audience",
@@ -52,8 +51,8 @@ internal val testJwtConfig =
 
 internal class TestAppEnv {
   val users = FakeUserRepository()
-  val productions = FakeProductionRepository()
   val productionMembers = FakeProductionMemberRepository()
+  val productions = FakeProductionRepository(productionMembers)
   val tasks = FakeTaskRepository()
   val scheduleEvents = FakeScheduleEventRepository()
   val notificationsRepo = FakeNotificationRepository()
