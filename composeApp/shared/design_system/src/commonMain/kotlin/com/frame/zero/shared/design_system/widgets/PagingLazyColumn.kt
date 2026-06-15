@@ -19,7 +19,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -364,6 +365,7 @@ private fun RefreshIconBadge(isRefreshing: Boolean) {
   }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun AppendLoadingIndicator() {
   Box(
@@ -372,7 +374,7 @@ private fun AppendLoadingIndicator() {
       .padding(AppTheme.spacingSystem.space16),
     contentAlignment = Alignment.Center
   ) {
-    CircularProgressIndicator(color = AppTheme.colorSystem.accent)
+    LoadingIndicator(color = AppTheme.colorSystem.accent)
   }
 }
 

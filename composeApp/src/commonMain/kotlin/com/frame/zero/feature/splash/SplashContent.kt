@@ -4,7 +4,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -17,6 +18,7 @@ import org.jetbrains.compose.resources.stringResource
 
 private val SplashItemSpacing = 24.dp
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun SplashContent() {
   Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -25,7 +27,7 @@ fun SplashContent() {
       verticalArrangement = Arrangement.spacedBy(SplashItemSpacing)
     ) {
       Text(text = stringResource(Res.string.app_name), style = MaterialTheme.typography.displayMedium)
-      CircularProgressIndicator()
+      LoadingIndicator()
     }
   }
 }

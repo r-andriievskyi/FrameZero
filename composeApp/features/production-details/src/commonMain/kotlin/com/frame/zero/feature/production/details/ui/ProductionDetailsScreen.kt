@@ -8,7 +8,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -51,6 +52,7 @@ fun ProductionDetailsScreen(component: ProductionDetailsComponent) {
   )
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun ProductionDetailsContent(
   state: ProductionDetailsState,
@@ -99,7 +101,7 @@ private fun ProductionDetailsContent(
           ),
         contentAlignment = Alignment.Center
       ) {
-        CircularProgressIndicator(color = AppTheme.colorSystem.accent)
+        LoadingIndicator(color = AppTheme.colorSystem.accent)
       }
     }
   }
@@ -146,13 +148,14 @@ private fun DetailBody(
   }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun CenteredProgress(modifier: Modifier = Modifier) {
   Box(
     modifier = modifier.fillMaxSize(),
     contentAlignment = Alignment.Center
   ) {
-    CircularProgressIndicator(color = AppTheme.colorSystem.accent)
+    LoadingIndicator(color = AppTheme.colorSystem.accent)
   }
 }
 
