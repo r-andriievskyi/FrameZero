@@ -7,8 +7,8 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
 
 internal val LocalAppTheme = compositionLocalOf<ThemeOptions> {
-    error("AppTheme not provided. Wrap your root composable with AppTheme { }.")
-  }
+  error("AppTheme not provided. Wrap your root composable with AppTheme { }.")
+}
 
 object AppTheme {
   @Composable

@@ -41,13 +41,13 @@ import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes
 
 internal val testJwtConfig = JwtConfig(
-    secret = "test-secret-must-be-long-enough-for-hmac256",
-    issuer = "test-issuer",
-    audience = "test-audience",
-    realm = "test-realm",
-    accessTokenTtl = 15.minutes,
-    refreshTokenTtl = 30.days
-  )
+  secret = "test-secret-must-be-long-enough-for-hmac256",
+  issuer = "test-issuer",
+  audience = "test-audience",
+  realm = "test-realm",
+  accessTokenTtl = 15.minutes,
+  refreshTokenTtl = 30.days
+)
 
 internal class TestAppEnv {
   val users = FakeUserRepository()
