@@ -4,6 +4,7 @@ import com.frame.zero.domain.production.Genre
 import com.frame.zero.domain.production.ProductionPhase
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.time.Instant
 
 class ProductionEntityMapperTest {
@@ -32,4 +33,33 @@ class ProductionEntityMapperTest {
     assertEquals(9, production.membersCount)
     assertEquals(Instant.fromEpochMilliseconds(1_700_000_000_000), production.updatedAt)
   }
+
+  @Test
+  fun `toProduction fails fast on a genre the client does not recognise`() {
+    // A cached row could hold an enum value a newer server introduced; surfacing it as a
+    // failure beats silently mapping to a wrong default.
+    val entity = baseEntity().copy(genre = "TELENOVELA")
+
+    assertFailsWith<IllegalArgumentException> { entity.toProduction() }
+  }
+
+  @Test
+  fun `toProduction fails fast on a phase the client does not recognise`() {
+    val entity = baseEntity().copy(phase = "RESHOOTS")
+
+    assertFailsWith<IllegalArgumentException> { entity.toProduction() }
+  }
+
+  private fun baseEntity(): ProductionEntity =
+    ProductionEntity(
+      id = "p1",
+      title = "Pilot",
+      genre = Genre.DRAMA.name,
+      phase = ProductionPhase.PRODUCTION.name,
+      progressPercent = 0,
+      daysLeft = 0,
+      membersCount = 0,
+      updatedAtEpochMs = 0,
+      pageOrder = 0
+    )
 }
