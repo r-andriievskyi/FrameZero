@@ -1,12 +1,12 @@
 # multiplatform-settings (token storage)
 
-**Why:** tiny key/value API that wraps `SharedPreferences` on Android,
-`NSUserDefaults` on iOS, properties files on JVM, `localStorage` on Web.
-Right size for what we store today: auth tokens.
+**Why:** tiny key/value API that wraps `SharedPreferences` on Android and
+`NSUserDefaults` on iOS. Right size for the small stuff: auth tokens and prefs.
 
 **Not:**
-- **Room / SQLDelight** — overkill for a few strings; see
-  `no-local-db-yet`.
+- **Room** — that's our offline-first list store
+  ([room-offline-first](room-offline-first.md)); reaching for it to hold a few
+  strings is overkill. Different tool, different job.
 - **DataStore (Android only)** — not multiplatform.
 - **Per-platform `expect/actual` prefs** — reinventing this library.
 

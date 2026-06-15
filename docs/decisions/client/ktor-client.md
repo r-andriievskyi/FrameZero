@@ -1,8 +1,9 @@
 # Ktor Client
 
-**Why:** matches the Ktor server (same DTOs via `kotlinx.serialization`,
-same idioms). Pluggable engine per platform: OkHttp on Android/JVM,
-Darwin on iOS, JS on Web. Coroutines end-to-end.
+**Why:** matches the Ktor server — same `kotlinx.serialization` wire shapes
+(kept in sync, see [duplicated-dtos](../backend/duplicated-dtos.md)), same
+idioms. Pluggable engine per platform: OkHttp on Android, Darwin on iOS.
+Coroutines end-to-end.
 
 **Not:**
 - **Retrofit** — Android/JVM only, annotation-based, doesn't run in

@@ -1,8 +1,8 @@
 # Compose Multiplatform
 
-**Why:** one UI toolkit across Android, iOS, Desktop, Web — same
-composables, same state model. Hot reload on Desktop is the fastest
-feedback loop for UI iteration.
+**Why:** one UI toolkit across Android and iOS — same composables, same
+state model, written once. (Desktop/Web are supported by the toolkit but we
+ship neither — see [expect-actual](expect-actual.md).)
 
 **Not:**
 - **SwiftUI on iOS, Compose on Android** — duplicate every screen, drift

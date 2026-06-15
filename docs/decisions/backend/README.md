@@ -10,5 +10,5 @@ each ~10 lines. Read top-to-bottom for a stack tour.
 - [flyway](flyway.md) — schema migrations
 - [jwt-bcrypt](jwt-bcrypt.md) — auth
 - [koin](koin.md) — DI
-- [shared-dtos](shared-dtos.md) — wire contract
-- [h2-tests](h2-tests.md) — test database
+- [duplicated-dtos](duplicated-dtos.md) — wire contract (server owns its own copy)
+- [testcontainers-tests](testcontainers-tests.md) — test database
