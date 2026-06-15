@@ -7,6 +7,7 @@ import com.frame.zero.core.network.connectivity.ConnectivityObserver
 import com.frame.zero.core.session.LogoutSignal
 import com.frame.zero.core.session.TokenStorage
 import io.ktor.client.HttpClient
+import io.ktor.client.HttpClientConfig
 import io.ktor.client.call.body
 import io.ktor.client.plugins.HttpRequestRetry
 import io.ktor.client.plugins.api.createClientPlugin
@@ -59,7 +60,24 @@ private fun provideHttpClient(
   appLogger: AppLogger,
   isDebug: Boolean
 ): HttpClient =
-  httpClient {
+  httpClient(
+    clientConfig(config, tokenStorage, logoutSignal, connectivityObserver, appLogger, isDebug)
+  )
+
+/**
+ * The full production HttpClient plugin stack, extracted so tests can apply the exact
+ * same configuration to a `MockEngine`-backed client (see `HttpClientStackTest`).
+ * [provideHttpClient] applies it over the real platform engine.
+ */
+internal fun clientConfig(
+  config: NetworkConfig,
+  tokenStorage: TokenStorage,
+  logoutSignal: LogoutSignal,
+  connectivityObserver: ConnectivityObserver,
+  appLogger: AppLogger,
+  isDebug: Boolean
+): HttpClientConfig<*>.() -> Unit =
+  {
     install(connectivityGuard(connectivityObserver))
 
     defaultRequest {
