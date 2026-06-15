@@ -57,16 +57,17 @@ abstract class ProductionRepositoryContract {
     ownerId: UUID,
     title: String = "Film",
     phase: ProductionPhase = ProductionPhase.PRODUCTION
-  ): UUID = productions.create(
-    title = title,
-    genre = Genre.DRAMA,
-    logline = null,
-    phase = phase,
-    startDate = LocalDate(2026, 1, 1),
-    wrapDate = LocalDate(2026, 12, 31),
-    budgetCents = null,
-    ownerUserId = ownerId
-  ).id
+  ): UUID =
+    productions.create(
+      title = title,
+      genre = Genre.DRAMA,
+      logline = null,
+      phase = phase,
+      startDate = LocalDate(2026, 1, 1),
+      wrapDate = LocalDate(2026, 12, 31),
+      budgetCents = null,
+      ownerUserId = ownerId
+    ).id
 
   private suspend fun accessibleIds(userId: UUID): Set<UUID> =
     productions
