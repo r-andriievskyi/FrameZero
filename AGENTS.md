@@ -8,7 +8,9 @@ FrameZero is a Kotlin Multiplatform (KMP) app targeting Android and iOS, with a 
 
 - **Maximise Kotlin sharing.** Default to `commonMain`; use platform source sets only when no multiplatform API exists.
 - **Decompose for navigation:** `RootComponent` in `composeApp/commonMain` owns a `StackNavigation`. Feature components live in `shared/features/<name>/`. Feature UI in `composeApp/features/<name>/` is stateless — all logic stays in `shared`.
-- **Shared wire types:** DTOs and constants used by both client and server are defined once in `shared/commonMain` (e.g. `shared/src/commonMain/kotlin/com/frame/zero/dto/`). The server depends on `shared` for these. DTOs are organised by domain subdirectory (`common/`, `dashboard/`, `production/`, `schedule/`, `notification/`, `task/`).
+- **Wire types are deliberately duplicated, not shared:** the wire DTOs and enums (`Genre`, `ProductionPhase`, `ProductionSort`, `ScheduleEventKind`) exist as **two hand-synced copies under identical package names** — client copy in `shared/commonMain` (`com/frame/zero/dto/`, `auth/dto/`), server copy in `server/src/main` (`com/frame/zero/dto/`). The server has **no client-module dependency** so it can be lifted into a standalone repo. When you change a wire shape (add/rename/remove a field, change an enum), **edit both copies in the same change** or client and server silently drift. DTOs are organised by domain subdirectory (`common/`, `dashboard/`, `production/`, `schedule/`, `notification/`, `task/`). `Constants`/`SERVER_PORT` is client-only (not duplicated).
+- **Self-registering plugins:** cross-cutting concerns (logging, analytics, sign-out cleanup) use a sink + facade + `bind` pattern. Implement the sink interface (`LogSink`, `AnalyticsSink`, `SessionCleaner`) and register it with `single { … } bind <Sink>::class`; the facade (`Logger`, `Analytics`, `SessionManager`) injects `getAll<Sink>()` and fans out to each under its own `runCatching`. Adding a backend (e.g. Crashlytics) is one `bind` line. Reference sinks: `shared/integrations/firebase/` (`FirebaseCrashlyticsLogSink`, `FirebaseAnalyticsSink`).
+- **Strings from shared code:** shared ViewModels can't call `stringResource`, so they emit `UiText` (`shared/ui_text/`) — `UiText.Dynamic(text)` for resolved strings, `someRes.asUiText(args…)` for a resource ref. The UI resolves it with `UiText.asString()` (`composeApp/shared/ui_text/`) at render time. Never resolve resources into raw `String`s inside `shared`.
 - **Convention plugins** (`build-logic/`): `crossplatform.library`, `crossplatform.library.compose`, and `crossplatform.code.quality` configure targets, SDK versions, and code quality tooling. New KMP modules should apply one of the first two (they inherit code quality automatically).
 - **Server DB migrations:** Flyway manages schema evolution. Migration files live in `server/src/main/resources/db/migration/` using the naming convention `V<N>__<description>.sql`.
 - **Offline-first repositories:** Paginated lists use Room (KMP) + Paging 3 `RemoteMediator`. `shared/repositories/productions/` is the reference impl. The repo returns `Flow<PagingData<DomainType>>`; UI observes Room, never the network directly. Room modules apply `libs.plugins.ksp` + `libs.plugins.androidxRoom` and register `ksp` configs for all targets.
@@ -37,7 +39,7 @@ FrameZero is a Kotlin Multiplatform (KMP) app targeting Android and iOS, with a 
 
 - **Koin DI:** Each feature exposes a `val <name>Module = module { ... }` (see `authModule` in `AuthModule.kt`). ViewModels are `factory`, repositories are `single`.
 - **Decompose components:** Accept `ComponentContext` + ViewModel factories via constructor. Use sealed `Config`/`Child` interfaces for sub-navigation (see `AuthComponent.kt`).
-- **Expect/Actual:** When adding one, implement both actuals (`androidMain`, `iosMain`) in the same change. The `shared` module also retains a `jvm()` target for `:server` consumption, so any `expect` declared there also needs a `jvmMain` actual.
+- **Expect/Actual:** When adding one, implement both actuals (`androidMain`, `iosMain`) in the same change. No module targets the JVM anymore (`shared` dropped its `jvm()` target once `:server` was decoupled), so an `expect` needs exactly those two actuals — no `jvmMain`. No TODO actuals; don't branch on runtime OS.
 - **Design system locals:** When a design system sub-system (`colorSystem`, `spacingSystem`, `typographySystem`) is referenced more than once inside a composable, extract it to a local val at the top of the composable body (e.g. `val colorSystem = AppTheme.colorSystem`). Single-use references can be accessed inline.
 - **Design system:** Use `AppTheme.colorSystem.*`, `AppTheme.spacingSystem.*`, `AppTheme.radiusSystem.*`, `AppTheme.typographySystem.*`. Never use `MaterialTheme` or hardcoded `Color`/`dp` values in feature UI. Use `spacingSystem` tokens only for spacing (padding, gaps) — never for size, width, or border-width values.
 - **Spacers:** Use `VerticalSpacer(AppTheme.spacingSystem.spaceN)` and `HorizontalSpacer(AppTheme.spacingSystem.spaceN)` from the design system (`com.frame.zero.shared.design_system.widgets`). Never use a raw `Spacer(Modifier.height/width(...))`.
@@ -55,7 +57,8 @@ FrameZero is a Kotlin Multiplatform (KMP) app targeting Android and iOS, with a 
 - No `kapt` — use `ksp`.
 - No Java-only or Android-only libraries in `commonMain`.
 - No `LocalContext.current` in shared Compose code.
-- No duplicated request/response models between `server` and clients.
+- No `java.time.*` in shared code — use `kotlinx-datetime`.
+- Don't try to share the wire DTOs via a common module — they are **intentionally duplicated** per side (see Architecture). Just keep the two copies in sync by hand.
 - No SwiftUI code unless explicitly requested.
 - No SQLDelight or Realm — Room KMP is the local DB; `multiplatform-settings` for small k/v storage.
 
@@ -78,8 +81,11 @@ FrameZero is a Kotlin Multiplatform (KMP) app targeting Android and iOS, with a 
 `account`, `auth`, `home`, `production`, `production-details`, `task-details`
 
 **Repositories** (`shared/repositories/<name>/`):
-`auth`, `user`, `dashboard`, `productions`, `schedule`
+`auth`, `user`, `dashboard`, `productions`, `schedule`, `tasks`
 
 **Server domains** (`server/src/main/kotlin/com/frame/zero/`):
 `auth`, `dashboard`, `notification`, `production`, `schedule`, `task`
+
+**Cross-cutting / shared libs:**
+`shared/ui_text/` + `composeApp/shared/ui_text/` (UiText), `shared/integrations/firebase/` (logging/analytics sinks), `composeApp/shared/design_system/`
 

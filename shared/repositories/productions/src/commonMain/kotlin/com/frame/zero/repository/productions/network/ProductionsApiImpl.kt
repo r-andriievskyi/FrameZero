@@ -4,6 +4,7 @@ import com.frame.zero.core.network.NetworkConfig
 import com.frame.zero.dto.common.CursorPagedResponse
 import com.frame.zero.dto.production.CreateProductionRequest
 import com.frame.zero.dto.production.ProductionDetailDto
+import com.frame.zero.dto.production.ProductionMemberDto
 import com.frame.zero.dto.production.ProductionSummaryDto
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -29,6 +30,11 @@ class ProductionsApiImpl(
   override suspend fun getDetails(productionId: String): ProductionDetailDto =
     httpClient.get(
       "${networkConfig.baseUrl}/api/v1/productions/$productionId"
+    ).body()
+
+  override suspend fun listMembers(productionId: String): List<ProductionMemberDto> =
+    httpClient.get(
+      "${networkConfig.baseUrl}/api/v1/productions/$productionId/members"
     ).body()
 
   override suspend fun create(request: CreateProductionRequest): ProductionDetailDto =

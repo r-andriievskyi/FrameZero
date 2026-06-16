@@ -11,6 +11,7 @@ import com.frame.zero.domain.production.ProductionPhase
 import com.frame.zero.dto.common.CursorPagedResponse
 import com.frame.zero.dto.production.CreateProductionRequest
 import com.frame.zero.dto.production.ProductionDetailDto
+import com.frame.zero.dto.production.ProductionMemberDto
 import com.frame.zero.dto.production.ProductionSummaryDto
 import com.frame.zero.repository.productions.local.ProductionEntity
 import com.frame.zero.repository.productions.local.ProductionRemoteKeyEntity
@@ -206,6 +207,8 @@ class ProductionsRemoteMediatorTest {
     }
 
     override suspend fun getDetails(productionId: String): ProductionDetailDto = error("not used")
+
+    override suspend fun listMembers(productionId: String): List<ProductionMemberDto> = error("not used")
 
     override suspend fun create(request: CreateProductionRequest): ProductionDetailDto = error("not used")
 

@@ -9,6 +9,7 @@ import com.frame.zero.feature.auth.authModule
 import com.frame.zero.feature.home.featureHomeModule
 import com.frame.zero.feature.production.details.featureProductionDetailsModule
 import com.frame.zero.feature.production.featureProductionModule
+import com.frame.zero.feature.task.create.featureTaskCreateModule
 import com.frame.zero.feature.task.details.featureTaskDetailsModule
 import com.frame.zero.integrations.firebase.firebaseModule
 import com.frame.zero.repository.productions.productionsRepositoryModule
@@ -28,6 +29,7 @@ val appModules = listOf(
   featureProductionModule,
   featureProductionDetailsModule,
   featureTaskDetailsModule,
+  featureTaskCreateModule,
   productionsRepositoryModule
 )
 

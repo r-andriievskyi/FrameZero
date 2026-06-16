@@ -17,6 +17,7 @@ import com.frame.zero.feature.home.tab.productions.ProductionsTabViewModel
 import com.frame.zero.feature.home.tab.schedule.ScheduleTabViewModel
 import com.frame.zero.feature.production.CreateProductionViewModel
 import com.frame.zero.feature.production.details.ProductionDetailsViewModel
+import com.frame.zero.feature.task.create.CreateTaskViewModel
 import com.frame.zero.feature.task.details.TaskDetailsViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -60,6 +61,11 @@ private val iosRoot: RootComponent by lazy {
     },
     taskDetailsViewModelFactory = { taskId ->
       koin.get<TaskDetailsViewModel> { parametersOf(taskId) }
+    },
+    createTaskViewModelFactory = { productionId, productionTitle ->
+      koin.get<CreateTaskViewModel> {
+        parametersOf(productionId, productionTitle)
+      }
     },
     accountViewModelFactory = { koin.get<AccountViewModel>() }
   )

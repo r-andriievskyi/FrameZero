@@ -1,6 +1,8 @@
 package com.frame.zero.feature.task.details.testing
 
+import com.frame.zero.dto.task.CreateTaskRequest
 import com.frame.zero.dto.task.TaskDetailDto
+import com.frame.zero.dto.task.TaskSummaryDto
 import com.frame.zero.repository.tasks.TasksRepository
 
 internal class FakeTasksRepository(
@@ -23,4 +25,8 @@ internal class FakeTasksRepository(
     completeThrows?.let { throw it }
     return completedTask
   }
+
+  override suspend fun createTask(request: CreateTaskRequest): TaskDetailDto = task
+
+  override suspend fun listForProduction(productionId: String): List<TaskSummaryDto> = emptyList()
 }

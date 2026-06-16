@@ -26,6 +26,7 @@ import com.frame.zero.domain.production.ViewerCrew
 import com.frame.zero.feature.production.details.ProductionDetailsComponent
 import com.frame.zero.feature.production.details.ProductionDetailsIntent
 import com.frame.zero.feature.production.details.ProductionDetailsState
+import com.frame.zero.feature.production.details.ProductionTaskUi
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.widgets.OverflowMenu
@@ -48,7 +49,8 @@ fun ProductionDetailsScreen(component: ProductionDetailsComponent) {
   ProductionDetailsContent(
     state = state,
     onBack = component.onBack,
-    onIntent = component::onIntent
+    onIntent = component::onIntent,
+    onAddTask = component::requestAddTask
   )
 }
 
@@ -58,7 +60,8 @@ private fun ProductionDetailsContent(
   state: ProductionDetailsState,
   onBack: () -> Unit,
   onIntent: (ProductionDetailsIntent) -> Unit,
-  modifier: Modifier = Modifier
+  modifier: Modifier = Modifier,
+  onAddTask: () -> Unit = {}
 ) {
   Box(
     modifier = modifier
@@ -87,7 +90,8 @@ private fun ProductionDetailsContent(
       when {
         state.isLoading && state.detail == null -> CenteredProgress()
         loadError != null && state.detail == null -> CenteredMessage(loadError.asString())
-        state.detail != null -> DetailBody(detail = state.detail!!)
+        state.detail != null ->
+          DetailBody(detail = state.detail!!, tasks = state.tasks, onAddTask = onAddTask)
         else -> Box(modifier = Modifier.fillMaxSize())
       }
     }
@@ -125,7 +129,9 @@ private fun ProductionDetailsContent(
 @Composable
 private fun DetailBody(
   detail: ProductionDetail,
-  modifier: Modifier = Modifier
+  tasks: List<ProductionTaskUi>,
+  modifier: Modifier = Modifier,
+  onAddTask: () -> Unit = {}
 ) {
   Column(
     modifier = modifier
@@ -143,8 +149,10 @@ private fun DetailBody(
     VerticalSpacer(AppTheme.spacingSystem.space16)
     detail.viewerCrew?.let { viewerCrew ->
       TeamCard(viewerCrew = viewerCrew)
-      VerticalSpacer(AppTheme.spacingSystem.space24)
+      VerticalSpacer(AppTheme.spacingSystem.space16)
     }
+    TasksCard(tasks = tasks, onAddTask = onAddTask)
+    VerticalSpacer(AppTheme.spacingSystem.space24)
   }
 }
 
@@ -186,6 +194,10 @@ private fun ProductionDetailsLoadedPreview() {
   AppTheme {
     ProductionDetailsContent(
       state = ProductionDetailsState(
+        tasks = listOf(
+          ProductionTaskUi(id = "1", title = "Lock shooting schedule", dueDateLabel = "Apr 12", isDone = false),
+          ProductionTaskUi(id = "2", title = "Send call sheets", dueDateLabel = null, isDone = true)
+        ),
         detail = ProductionDetail(
           id = "1",
           title = "Echoes of Silence",

@@ -4,11 +4,17 @@ import androidx.paging.PagingData
 import com.frame.zero.domain.production.Production
 import com.frame.zero.dto.production.CreateProductionRequest
 import com.frame.zero.dto.production.ProductionDetailDto
+import com.frame.zero.dto.production.ProductionMemberDto
+import com.frame.zero.dto.task.TaskStatus
+import com.frame.zero.dto.task.TaskSummaryDto
 import com.frame.zero.feature.production.details.domain.DeleteProductionUseCase
 import com.frame.zero.feature.production.details.domain.GetProductionDetailsUseCase
+import com.frame.zero.feature.production.details.domain.GetProductionTasksUseCase
 import com.frame.zero.feature.production.details.testing.FakeProductionsRepository
+import com.frame.zero.feature.production.details.testing.FakeTasksRepository
 import com.frame.zero.feature.production.details.testing.productionDetailDto
 import com.frame.zero.repository.productions.ProductionsRepository
+import com.frame.zero.repository.tasks.TasksRepository
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -20,6 +26,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.LocalDate
 import kotlinx.io.IOException
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -41,6 +48,40 @@ class ProductionDetailsViewModelTest {
       assertFalse(viewModel.state.value.isLoading)
       assertEquals("Pilot", assertNotNull(viewModel.state.value.detail).title)
       assertNull(viewModel.state.value.error)
+    }
+
+  @Test
+  fun `init loads and maps tasks for the production`() =
+    runTest {
+      val tasksRepo = FakeTasksRepository(
+        tasks = listOf(
+          TaskSummaryDto(
+            id = "t1",
+            title = "Lock schedule",
+            productionTitle = "Pilot",
+            dueDate = LocalDate(2026, 4, 12),
+            status = TaskStatus.OPEN
+          ),
+          TaskSummaryDto(
+            id = "t2",
+            title = "Send call sheets",
+            productionTitle = "Pilot",
+            dueDate = null,
+            status = TaskStatus.DONE
+          )
+        )
+      )
+      val viewModel = makeViewModel(FakeProductionsRepository(), tasksRepo)
+
+      advanceUntilIdle()
+
+      assertEquals(listOf("p1"), tasksRepo.listedProductionIds)
+      assertEquals(2, viewModel.state.value.tasks.size)
+      assertFalse(viewModel.state.value.tasks[0].isDone)
+      assertNotNull(viewModel.state.value.tasks[0].dueDateLabel)
+      assertTrue(viewModel.state.value.tasks[1].isDone)
+      assertNull(viewModel.state.value.tasks[1].dueDateLabel)
+      assertFalse(viewModel.state.value.areTasksLoading)
     }
 
   @Test
@@ -128,10 +169,14 @@ class ProductionDetailsViewModelTest {
       assertEquals(1, repo.deleteCalls)
     }
 
-  private fun TestScope.makeViewModel(repo: ProductionsRepository): ProductionDetailsViewModel =
+  private fun TestScope.makeViewModel(
+    repo: ProductionsRepository,
+    tasksRepo: TasksRepository = FakeTasksRepository()
+  ): ProductionDetailsViewModel =
     ProductionDetailsViewModel(
       productionId = "p1",
       getProductionDetailsUseCase = GetProductionDetailsUseCase(repo),
+      getProductionTasksUseCase = GetProductionTasksUseCase(tasksRepo),
       deleteProductionUseCase = DeleteProductionUseCase(repo),
       dispatcher = StandardTestDispatcher(testScheduler)
     )
@@ -144,6 +189,8 @@ class ProductionDetailsViewModelTest {
     override fun observeProductions(): Flow<PagingData<Production>> = flowOf(PagingData.empty())
 
     override suspend fun getDetails(productionId: String): ProductionDetailDto = productionDetailDto()
+
+    override suspend fun listMembers(productionId: String): List<ProductionMemberDto> = emptyList()
 
     override suspend fun create(request: CreateProductionRequest): ProductionDetailDto = error("not used")
 

@@ -8,6 +8,7 @@ import androidx.paging.map
 import com.frame.zero.domain.production.Production
 import com.frame.zero.dto.production.CreateProductionRequest
 import com.frame.zero.dto.production.ProductionDetailDto
+import com.frame.zero.dto.production.ProductionMemberDto
 import com.frame.zero.repository.productions.local.FrameZeroDatabase
 import com.frame.zero.repository.productions.local.toProduction
 import com.frame.zero.repository.productions.network.ProductionsApi
@@ -31,6 +32,9 @@ class ProductionsRepositoryImpl(
   }
 
   override suspend fun getDetails(productionId: String): ProductionDetailDto = remoteApi.getDetails(productionId)
+
+  override suspend fun listMembers(productionId: String): List<ProductionMemberDto> =
+    remoteApi.listMembers(productionId)
 
   override suspend fun create(request: CreateProductionRequest): ProductionDetailDto = remoteApi.create(request)
 

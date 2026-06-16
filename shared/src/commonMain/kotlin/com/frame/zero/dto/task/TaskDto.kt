@@ -54,7 +54,8 @@ data class CreateTaskRequest(
   val title: String,
   val description: String? = null,
   val dueDate: LocalDate? = null,
-  val assigneeUserId: String? = null
+  val assigneeUserId: String? = null,
+  val priority: TaskPriority = TaskPriority.MEDIUM
 )
 
 @Serializable

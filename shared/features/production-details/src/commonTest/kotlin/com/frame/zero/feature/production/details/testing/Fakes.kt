@@ -6,7 +6,12 @@ import com.frame.zero.domain.production.Production
 import com.frame.zero.domain.production.ProductionPhase
 import com.frame.zero.dto.production.CreateProductionRequest
 import com.frame.zero.dto.production.ProductionDetailDto
+import com.frame.zero.dto.production.ProductionMemberDto
+import com.frame.zero.dto.task.CreateTaskRequest
+import com.frame.zero.dto.task.TaskDetailDto
+import com.frame.zero.dto.task.TaskSummaryDto
 import com.frame.zero.repository.productions.ProductionsRepository
+import com.frame.zero.repository.tasks.TasksRepository
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
@@ -56,11 +61,32 @@ internal class FakeProductionsRepository(
     return detail
   }
 
+  override suspend fun listMembers(productionId: String): List<ProductionMemberDto> = emptyList()
+
   override suspend fun create(request: CreateProductionRequest): ProductionDetailDto = error("not used")
 
   override suspend fun delete(productionId: String) {
     deletedIds += productionId
     deleteThrows?.let { throw it }
+  }
+}
+
+internal class FakeTasksRepository(
+  private val tasks: List<TaskSummaryDto> = emptyList(),
+  private val listThrows: Throwable? = null
+) : TasksRepository {
+  val listedProductionIds: MutableList<String> = mutableListOf()
+
+  override suspend fun getTask(id: String): TaskDetailDto = error("not used")
+
+  override suspend fun completeTask(id: String): TaskDetailDto = error("not used")
+
+  override suspend fun createTask(request: CreateTaskRequest): TaskDetailDto = error("not used")
+
+  override suspend fun listForProduction(productionId: String): List<TaskSummaryDto> {
+    listedProductionIds += productionId
+    listThrows?.let { throw it }
+    return tasks
   }
 }
 

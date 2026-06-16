@@ -55,12 +55,16 @@ class TaskService(
     request: CreateTaskRequest
   ): TaskDetailDto =
     transactor.transaction {
+      // Validate the trimmed values that will actually be persisted, so a title
+      // that only exceeds the cap because of surrounding whitespace isn't rejected.
+      val title = request.title.trim()
+      val description = request.description?.trim()
       val errors = mutableMapOf<String, String>()
-      if (request.title.isBlank()) errors["title"] = "Required"
-      if (request.title.length > MAX_TITLE_LENGTH) {
+      if (title.isBlank()) errors["title"] = "Required"
+      if (title.length > MAX_TITLE_LENGTH) {
         errors["title"] = "Max $MAX_TITLE_LENGTH characters"
       }
-      if ((request.description?.length ?: 0) > MAX_DESCRIPTION_LENGTH) {
+      if ((description?.length ?: 0) > MAX_DESCRIPTION_LENGTH) {
         errors["description"] = "Max $MAX_DESCRIPTION_LENGTH characters"
       }
       if (errors.isNotEmpty()) throw AppException(AppError.ValidationError(errors))
@@ -73,10 +77,11 @@ class TaskService(
 
       val task = tasks.create(
         productionId = productionId,
-        title = request.title.trim(),
-        description = request.description?.trim(),
+        title = title,
+        description = description,
         dueDate = request.dueDate,
-        assigneeUserId = assigneeId
+        assigneeUserId = assigneeId,
+        priority = request.priority
       )
       task.toDetailDto()
     }

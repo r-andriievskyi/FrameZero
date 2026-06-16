@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="new_task_title">New task</string>
+  <string name="new_task_subtitle">in %1$s</string>
+  <string name="cancel">Cancel</string>
+
+  <string name="label_title">TITLE</string>
+  <string name="title_placeholder">What needs to get done?</string>
+
+  <string name="label_description">DESCRIPTION (OPTIONAL)</string>
+  <string name="description_placeholder">Add context, deliverables, or links…</string>
+
+  <string name="label_assignee">ASSIGNEE</string>
+  <string name="assignee_unassigned">Assign to someone</string>
+  <string name="assignee_subtitle_count">Optional · %1$d teammates available</string>
+  <string name="assignee_subtitle_none">Optional · No teammates available</string>
+  <string name="assignee_unassign">Unassigned</string>
+  <string name="assignee_search_placeholder">Search teammates</string>
+  <string name="assignee_no_results">No teammates match your search</string>
+
+  <string name="label_priority">PRIORITY</string>
+  <string name="priority_high">High</string>
+  <string name="priority_medium">Medium</string>
+  <string name="priority_low">Low</string>
+
+  <string name="label_due_date">DUE DATE</string>
+  <string name="due_today">Today</string>
+  <string name="due_tomorrow">Tomorrow</string>
+  <string name="due_this_week">This week</string>
+  <string name="due_next_week">Next week</string>
+  <string name="due_date_placeholder">dd.mm.yyyy</string>
+  <string name="date_picker_ok">OK</string>
+  <string name="date_picker_cancel">Cancel</string>
+
+  <string name="create_task">Create task</string>
+</resources>
+

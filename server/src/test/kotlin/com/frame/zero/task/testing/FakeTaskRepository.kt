@@ -16,7 +16,8 @@ internal class FakeTaskRepository : TaskRepository {
     title: String,
     description: String?,
     dueDate: LocalDate?,
-    assigneeUserId: UUID?
+    assigneeUserId: UUID?,
+    priority: TaskPriority
   ): TaskRecord {
     val record =
       TaskRecord(
@@ -27,7 +28,7 @@ internal class FakeTaskRepository : TaskRepository {
         description = description,
         dueDate = dueDate,
         status = TaskStatus.OPEN,
-        priority = TaskPriority.MEDIUM,
+        priority = priority,
         assigneeUserId = assigneeUserId,
         assigneeName = null,
         assigneeAvatarColorHex = null,

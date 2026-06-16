@@ -33,4 +33,9 @@
 
   <!-- Overflow menu -->
   <string name="delete_production_menu">Delete production</string>
+
+  <!-- Tasks card -->
+  <string name="tasks_header">Tasks</string>
+  <string name="tasks_add">Add</string>
+  <string name="tasks_empty">No tasks yet. Add the first one.</string>
 </resources>
