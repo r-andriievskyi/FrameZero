@@ -1,10 +1,13 @@
 package com.frame.zero.feature.production.details
 
 import com.arkivanov.essenty.instancekeeper.InstanceKeeper
+import com.frame.zero.core.format.formatMedium
 import com.frame.zero.domain.DomainError
 import com.frame.zero.domain.Outcome
 import com.frame.zero.feature.production.details.domain.DeleteProductionUseCase
 import com.frame.zero.feature.production.details.domain.GetProductionDetailsUseCase
+import com.frame.zero.feature.production.details.domain.GetProductionTasksUseCase
+import com.frame.zero.feature.production.details.domain.ProductionTask
 import com.frame.zero.ui.UiText
 import com.frame.zero.ui.asUiText
 import framezero.shared.features.production_details.generated.resources.Res
@@ -33,6 +36,7 @@ import kotlin.coroutines.CoroutineContext
 class ProductionDetailsViewModel(
   private val productionId: String,
   private val getProductionDetailsUseCase: GetProductionDetailsUseCase,
+  private val getProductionTasksUseCase: GetProductionTasksUseCase,
   private val deleteProductionUseCase: DeleteProductionUseCase,
   dispatcher: CoroutineContext = Dispatchers.Main.immediate
 ) : InstanceKeeper.Instance {
@@ -50,11 +54,13 @@ class ProductionDetailsViewModel(
 
   init {
     load()
+    loadTasks()
   }
 
   fun onIntent(intent: ProductionDetailsIntent) {
     when (intent) {
       ProductionDetailsIntent.Refresh -> load()
+      ProductionDetailsIntent.RefreshTasks -> loadTasks()
       ProductionDetailsIntent.DeleteRequested ->
         _state.update { it.copy(isDeleteDialogVisible = true, deleteError = null) }
       ProductionDetailsIntent.DeleteDismissed ->
@@ -77,6 +83,29 @@ class ProductionDetailsViewModel(
       }
     }
   }
+
+  private fun loadTasks() {
+    if (_state.value.areTasksLoading) return
+    scope.launch {
+      _state.update { it.copy(areTasksLoading = true) }
+      val params = GetProductionTasksUseCase.Params(productionId = productionId)
+      when (val outcome = getProductionTasksUseCase(params)) {
+        is Outcome.Success ->
+          _state.update { it.copy(areTasksLoading = false, tasks = outcome.data.map { task -> task.toUi() }) }
+        // Keep whatever tasks we already had on a transient failure; the card just stops its spinner.
+        is Outcome.Failure ->
+          _state.update { it.copy(areTasksLoading = false) }
+      }
+    }
+  }
+
+  private fun ProductionTask.toUi(): ProductionTaskUi =
+    ProductionTaskUi(
+      id = id,
+      title = title,
+      dueDateLabel = dueDate?.formatMedium(),
+      isDone = isDone
+    )
 
   private fun deleteProduction() {
     if (_state.value.isDeleting) return

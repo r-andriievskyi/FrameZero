@@ -20,6 +20,8 @@ import com.frame.zero.feature.production.CreateProductionComponent
 import com.frame.zero.feature.production.CreateProductionViewModel
 import com.frame.zero.feature.production.details.ProductionDetailsComponent
 import com.frame.zero.feature.production.details.ProductionDetailsViewModel
+import com.frame.zero.feature.task.create.CreateTaskComponent
+import com.frame.zero.feature.task.create.CreateTaskViewModel
 import com.frame.zero.feature.task.details.TaskDetailsComponent
 import com.frame.zero.feature.task.details.TaskDetailsViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -43,6 +45,10 @@ class RootComponent(
   private val createProductionViewModelFactory: () -> CreateProductionViewModel,
   private val productionDetailsViewModelFactory: (productionId: String) -> ProductionDetailsViewModel,
   private val taskDetailsViewModelFactory: (taskId: String) -> TaskDetailsViewModel,
+  private val createTaskViewModelFactory: (
+    productionId: String,
+    productionTitle: String
+  ) -> CreateTaskViewModel,
   private val accountViewModelFactory: () -> AccountViewModel
 ) : ComponentContext by componentContext {
   private val navigation = StackNavigation<Config>()
@@ -123,6 +129,15 @@ class RootComponent(
           productionId = config.productionId,
           onBack = { navigation.pop() },
           onDeleted = { navigation.pop() },
+          onAddTask = { productionId, productionTitle ->
+            @OptIn(DelicateDecomposeApi::class)
+            navigation.push(
+              Config.CreateTask(
+                productionId = productionId,
+                productionTitle = productionTitle
+              )
+            )
+          },
           viewModelFactory = productionDetailsViewModelFactory
         )
       )
@@ -133,6 +148,17 @@ class RootComponent(
           taskId = config.taskId,
           onBack = { navigation.pop() },
           viewModelFactory = taskDetailsViewModelFactory
+        )
+      )
+
+      is Config.CreateTask -> Child.CreateTask(
+        CreateTaskComponent(
+          componentContext = context,
+          productionId = config.productionId,
+          productionTitle = config.productionTitle,
+          onBack = { navigation.pop() },
+          onCreated = { navigation.pop() },
+          viewModelFactory = createTaskViewModelFactory
         )
       )
     }
@@ -163,6 +189,12 @@ class RootComponent(
     data class TaskDetails(
       val taskId: String
     ) : Config
+
+    @Serializable
+    data class CreateTask(
+      val productionId: String,
+      val productionTitle: String
+    ) : Config
   }
 
   sealed interface Child {
@@ -190,6 +222,10 @@ class RootComponent(
 
     data class TaskDetails(
       val component: TaskDetailsComponent
+    ) : Child
+
+    data class CreateTask(
+      val component: CreateTaskComponent
     ) : Child
   }
 }

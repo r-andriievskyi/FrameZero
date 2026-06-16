@@ -6,6 +6,7 @@ import com.frame.zero.domain.production.Production
 import com.frame.zero.domain.production.ProductionPhase
 import com.frame.zero.dto.production.CreateProductionRequest
 import com.frame.zero.dto.production.ProductionDetailDto
+import com.frame.zero.dto.production.ProductionMemberDto
 import com.frame.zero.repository.productions.ProductionsRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
@@ -46,6 +47,8 @@ internal class FakeProductionsRepository(
   override fun observeProductions(): Flow<PagingData<Production>> = flowOf(PagingData.empty())
 
   override suspend fun getDetails(productionId: String): ProductionDetailDto = error("not used")
+
+  override suspend fun listMembers(productionId: String): List<ProductionMemberDto> = error("not used")
 
   override suspend fun create(request: CreateProductionRequest): ProductionDetailDto {
     createRequests += request

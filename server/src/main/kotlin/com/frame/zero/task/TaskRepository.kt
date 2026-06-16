@@ -55,7 +55,8 @@ interface TaskRepository {
     title: String,
     description: String?,
     dueDate: LocalDate?,
-    assigneeUserId: UUID?
+    assigneeUserId: UUID?,
+    priority: TaskPriority = TaskPriority.MEDIUM
   ): TaskRecord
 
   suspend fun findById(id: UUID): TaskRecord?
@@ -100,7 +101,8 @@ class TaskRepositoryImpl : TaskRepository {
     title: String,
     description: String?,
     dueDate: LocalDate?,
-    assigneeUserId: UUID?
+    assigneeUserId: UUID?,
+    priority: TaskPriority
   ): TaskRecord =
     dbQuery {
       val newId = UUID.randomUUID()
@@ -112,6 +114,7 @@ class TaskRepositoryImpl : TaskRepository {
         it[TasksTable.description] = description
         it[TasksTable.dueDate] = dueDate
         it[status] = TaskStatus.OPEN.name
+        it[TasksTable.priority] = priority.name
         it[TasksTable.assigneeUserId] = assigneeUserId
         it[createdAt] = now
       }
@@ -128,7 +131,7 @@ class TaskRepositoryImpl : TaskRepository {
         description = description,
         dueDate = dueDate,
         status = TaskStatus.OPEN,
-        priority = TaskPriority.MEDIUM,
+        priority = priority,
         assigneeUserId = assigneeUserId,
         assigneeName = null,
         assigneeAvatarColorHex = null,

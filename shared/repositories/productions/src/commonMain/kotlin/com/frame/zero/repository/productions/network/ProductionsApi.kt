@@ -3,6 +3,7 @@ package com.frame.zero.repository.productions.network
 import com.frame.zero.dto.common.CursorPagedResponse
 import com.frame.zero.dto.production.CreateProductionRequest
 import com.frame.zero.dto.production.ProductionDetailDto
+import com.frame.zero.dto.production.ProductionMemberDto
 import com.frame.zero.dto.production.ProductionSummaryDto
 
 interface ProductionsApi {
@@ -12,6 +13,8 @@ interface ProductionsApi {
   ): CursorPagedResponse<ProductionSummaryDto>
 
   suspend fun getDetails(productionId: String): ProductionDetailDto
+
+  suspend fun listMembers(productionId: String): List<ProductionMemberDto>
 
   suspend fun create(request: CreateProductionRequest): ProductionDetailDto
 

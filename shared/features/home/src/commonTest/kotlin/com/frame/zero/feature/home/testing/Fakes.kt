@@ -9,6 +9,7 @@ import com.frame.zero.dto.dashboard.GreetingDto
 import com.frame.zero.dto.dashboard.StatsDto
 import com.frame.zero.dto.production.CreateProductionRequest
 import com.frame.zero.dto.production.ProductionDetailDto
+import com.frame.zero.dto.production.ProductionMemberDto
 import com.frame.zero.dto.schedule.ScheduleResponse
 import com.frame.zero.repository.dashboard.DashboardRepository
 import com.frame.zero.repository.productions.ProductionsRepository
@@ -77,6 +78,8 @@ internal class FakeProductionsRepository(
   }
 
   override suspend fun getDetails(productionId: String): ProductionDetailDto = error("not used")
+
+  override suspend fun listMembers(productionId: String): List<ProductionMemberDto> = error("not used")
 
   override suspend fun create(request: CreateProductionRequest): ProductionDetailDto = error("not used")
 

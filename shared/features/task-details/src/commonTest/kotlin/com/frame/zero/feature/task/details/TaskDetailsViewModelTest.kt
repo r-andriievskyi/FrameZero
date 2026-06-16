@@ -97,6 +97,11 @@ class TaskDetailsViewModelTest {
         override suspend fun getTask(id: String): TaskDetailDto = gate.await()
 
         override suspend fun completeTask(id: String): TaskDetailDto = openTask
+
+        override suspend fun createTask(request: com.frame.zero.dto.task.CreateTaskRequest): TaskDetailDto = openTask
+
+        override suspend fun listForProduction(productionId: String): List<com.frame.zero.dto.task.TaskSummaryDto> =
+          emptyList()
       }
       val viewModel =
         TaskDetailsViewModel(
@@ -170,6 +175,11 @@ class TaskDetailsViewModelTest {
         }
 
         override suspend fun completeTask(id: String): TaskDetailDto = openTask
+
+        override suspend fun createTask(request: com.frame.zero.dto.task.CreateTaskRequest): TaskDetailDto = openTask
+
+        override suspend fun listForProduction(productionId: String): List<com.frame.zero.dto.task.TaskSummaryDto> =
+          emptyList()
       }
       val viewModel = makeViewModel(this, repo)
       advanceUntilIdle()
