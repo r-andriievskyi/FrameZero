@@ -25,7 +25,6 @@ class NotificationService(
         items = items.map { n ->
           NotificationDto(
             id = n.id.toString(),
-            title = n.title,
             body = n.body,
             readAt = n.readAt,
             createdAt = n.createdAt

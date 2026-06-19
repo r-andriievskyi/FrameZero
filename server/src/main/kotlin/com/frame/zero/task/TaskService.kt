@@ -96,8 +96,6 @@ class TaskService(
         if (notifyAssignee != null) {
           notifications.create(
             userId = notifyAssignee,
-            //todo title
-            title = "New task assigned",
             body = task.title
           )
         }
@@ -150,7 +148,6 @@ class TaskService(
         if (notifyAssignee != null) {
           notifications.create(
             userId = notifyAssignee,
-            title = "New task assigned",
             body = updated.title
           )
         }

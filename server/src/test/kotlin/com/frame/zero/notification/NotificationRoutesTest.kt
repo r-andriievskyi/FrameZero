@@ -65,8 +65,8 @@ class NotificationRoutesTest {
       application { env.configure(this) }
       val userId = UUID.randomUUID()
       val token = env.tokenFor(userId)
-      env.notificationsRepo.create(userId, "Hello", "World")
-      env.notificationsRepo.create(userId, "Second", null)
+      env.notificationsRepo.create(userId, "World")
+      env.notificationsRepo.create(userId, null)
 
       val response =
         client.get("/api/v1/notifications") { header(HttpHeaders.Authorization, "Bearer $token") }
@@ -84,7 +84,7 @@ class NotificationRoutesTest {
       application { env.configure(this) }
       val userId = UUID.randomUUID()
       val token = env.tokenFor(userId)
-      env.notificationsRepo.create(userId, "Hello", null)
+      env.notificationsRepo.create(userId, "Hello")
 
       val response =
         client.post("/api/v1/notifications/read") {

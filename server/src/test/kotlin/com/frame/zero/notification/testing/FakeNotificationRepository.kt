@@ -42,14 +42,12 @@ internal class FakeNotificationRepository : NotificationRepository {
 
   override suspend fun create(
     userId: UUID,
-    title: String,
     body: String?
   ): NotificationRecord {
     val record =
       NotificationRecord(
         id = UUID.randomUUID(),
         userId = userId,
-        title = title,
         body = body,
         readAt = null,
         createdAt = Clock.System.now()
