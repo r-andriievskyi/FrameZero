@@ -28,8 +28,11 @@ import com.frame.zero.feature.task.details.TaskDetailsComponent
 import com.frame.zero.feature.task.details.TaskDetailsViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 
@@ -56,11 +59,6 @@ class RootComponent(
 ) : ComponentContext by componentContext {
   private val navigation = StackNavigation<Config>()
 
-  // A deep link that arrived before the session was logged in; replayed onto the
-  // stack once login completes (e.g. tapping a push notification while logged out).
-  // todo might be moved out
-  private var pendingTaskId: String? = null
-
   val stack: Value<ChildStack<Config, Child>> =
     childStack(
       source = navigation,
@@ -81,33 +79,29 @@ class RootComponent(
           is SessionState.LoggedIn -> Config.Home
         }
         if (stack.value.active.configuration != target) navigation.replaceAll(target)
-        if (sessionState is SessionState.LoggedIn) drainPendingDeepLink()
       }
     }
+    // Deep links are only acted on while logged in. NavigationSignal buffers the last
+    // deep link (replay = 1), so one that arrives while logged out (e.g. tapping a push
+    // notification before sign-in) is delivered here once the session becomes LoggedIn.
+    @OptIn(ExperimentalCoroutinesApi::class)
     scope.launch {
-      navigationSignal.events.collect { deepLink ->
-        when (deepLink) {
-          is DeepLink.TaskDetails ->
-            if (sessionManager.state.value is SessionState.LoggedIn) {
-              pushTaskDetails(deepLink.taskId)
-            } else {
-              pendingTaskId = deepLink.taskId
-            }
+      sessionManager.state
+        .filterIsInstance<SessionState.LoggedIn>()
+        .flatMapLatest { navigationSignal.events }
+        .collect { deepLink ->
+          navigate(deepLink)
+          navigationSignal.consume()
         }
-        navigationSignal.consume()
-      }
     }
   }
 
-  private fun drainPendingDeepLink() {
-    val taskId = pendingTaskId ?: return
-    pendingTaskId = null
-    pushTaskDetails(taskId)
-  }
-
-  private fun pushTaskDetails(taskId: String) {
+  private fun navigate(deepLink: DeepLink) {
+    val config = when (deepLink) {
+      is DeepLink.TaskDetails -> Config.TaskDetails(deepLink.taskId)
+    }
     @OptIn(DelicateDecomposeApi::class)
-    navigation.push(Config.TaskDetails(taskId))
+    navigation.push(config)
   }
 
   private fun createChild(

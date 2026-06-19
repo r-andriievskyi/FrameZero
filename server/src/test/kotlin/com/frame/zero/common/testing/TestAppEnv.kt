@@ -74,7 +74,7 @@ internal class TestAppEnv {
 
   // Unconfined scope so the fire-and-forget push runs synchronously within the
   // calling test (the fakes never really suspend), keeping assertions deterministic.
-  //todo dispatcher
+  // todo dispatcher
   val assignmentNotifier = TaskAssignmentNotifier(deviceTokens, pushSender, CoroutineScope(UnconfinedTestDispatcher()))
   val taskService = TaskService(tasks, access, transactor, notificationsRepo, assignmentNotifier)
   val scheduleService = ScheduleService(scheduleEvents, tasks, access, transactor)

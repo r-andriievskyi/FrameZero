@@ -54,8 +54,9 @@ class PushNotificationsRouterTest {
 
   private fun intentWithTaskId(taskId: String): Intent = Intent().putExtra(PushNotifications.EXTRA_TASK_ID, taskId)
 
-  private fun assertNoDeepLink() = assertTrue(
-    signal.events.replayCache.isEmpty(),
-    "Expected no deep link to be emitted"
-  )
+  private fun assertNoDeepLink() =
+    assertTrue(
+      signal.events.replayCache.isEmpty(),
+      "Expected no deep link to be emitted"
+    )
 }

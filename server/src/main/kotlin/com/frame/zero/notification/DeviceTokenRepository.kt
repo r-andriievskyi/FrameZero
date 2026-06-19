@@ -14,4 +14,3 @@ interface DeviceTokenRepository {
 
   suspend fun delete(token: String)
 }
-
