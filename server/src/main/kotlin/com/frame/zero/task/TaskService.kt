@@ -10,6 +10,8 @@ import com.frame.zero.dto.task.TaskDetailDto
 import com.frame.zero.dto.task.TaskStatus
 import com.frame.zero.dto.task.TaskSummaryDto
 import com.frame.zero.dto.task.UpdateTaskRequest
+import com.frame.zero.notification.NotificationRepository
+import com.frame.zero.notification.TaskAssignmentNotifier
 import com.frame.zero.production.AccessLevel
 import com.frame.zero.production.ProductionAccessService
 import java.util.UUID
@@ -17,7 +19,9 @@ import java.util.UUID
 class TaskService(
   private val tasks: TaskRepository,
   private val access: ProductionAccessService,
-  private val transactor: Transactor
+  private val transactor: Transactor,
+  private val notifications: NotificationRepository,
+  private val assignmentNotifier: TaskAssignmentNotifier
 ) {
   suspend fun list(
     userId: UUID,
@@ -53,72 +57,111 @@ class TaskService(
   suspend fun create(
     userId: UUID,
     request: CreateTaskRequest
-  ): TaskDetailDto =
-    transactor.transaction {
-      // Validate the trimmed values that will actually be persisted, so a title
-      // that only exceeds the cap because of surrounding whitespace isn't rejected.
-      val title = request.title.trim()
-      val description = request.description?.trim()
-      val errors = mutableMapOf<String, String>()
-      if (title.isBlank()) errors["title"] = "Required"
-      if (title.length > MAX_TITLE_LENGTH) {
-        errors["title"] = "Max $MAX_TITLE_LENGTH characters"
+  ): TaskDetailDto {
+    val (dto, assignment) =
+      transactor.transaction {
+        // Validate the trimmed values that will actually be persisted, so a title
+        // that only exceeds the cap because of surrounding whitespace isn't rejected.
+        val title = request.title.trim()
+        val description = request.description?.trim()
+        val errors = mutableMapOf<String, String>()
+        if (title.isBlank()) errors["title"] = "Required"
+        if (title.length > MAX_TITLE_LENGTH) {
+          errors["title"] = "Max $MAX_TITLE_LENGTH characters"
+        }
+        if ((description?.length ?: 0) > MAX_DESCRIPTION_LENGTH) {
+          errors["description"] = "Max $MAX_DESCRIPTION_LENGTH characters"
+        }
+        if (errors.isNotEmpty()) throw AppException(AppError.ValidationError(errors))
+
+        val productionId = parseUuidField("productionId", request.productionId)
+
+        access.requireAccess(userId, productionId, AccessLevel.WRITE)
+
+        val assigneeId = request.assigneeUserId?.let { parseUuidField("assigneeUserId", it) }
+
+        val task = tasks.create(
+          productionId = productionId,
+          title = title,
+          description = description,
+          dueDate = request.dueDate,
+          assigneeUserId = assigneeId,
+          priority = request.priority
+        )
+
+        // Notify the assignee unless they assigned the task to themselves. The in-app
+        // record is written inside the transaction (atomic with the task); the push is
+        // fired after commit so network I/O stays out of the DB transaction.
+        val notifyAssignee = assigneeId?.takeIf { it != userId }
+        if (notifyAssignee != null) {
+          notifications.create(
+            userId = notifyAssignee,
+            //todo title
+            title = "New task assigned",
+            body = task.title
+          )
+        }
+        task.toDetailDto() to notifyAssignee?.let { it to task.id }
       }
-      if ((description?.length ?: 0) > MAX_DESCRIPTION_LENGTH) {
-        errors["description"] = "Max $MAX_DESCRIPTION_LENGTH characters"
-      }
-      if (errors.isNotEmpty()) throw AppException(AppError.ValidationError(errors))
 
-      val productionId = parseUuidField("productionId", request.productionId)
-
-      access.requireAccess(userId, productionId, AccessLevel.WRITE)
-
-      val assigneeId = request.assigneeUserId?.let { parseUuidField("assigneeUserId", it) }
-
-      val task = tasks.create(
-        productionId = productionId,
-        title = title,
-        description = description,
-        dueDate = request.dueDate,
-        assigneeUserId = assigneeId,
-        priority = request.priority
-      )
-      task.toDetailDto()
+    assignment?.let { (assigneeId, taskId) ->
+      assignmentNotifier.notifyTaskAssigned(assigneeId, taskId, dto.title)
     }
+    return dto
+  }
 
   suspend fun update(
     userId: UUID,
     taskId: UUID,
     request: UpdateTaskRequest
-  ): TaskDetailDto =
-    transactor.transaction {
-      val task = tasks.findById(taskId) ?: throw AppException(AppError.NotFound)
-      access.requireAccess(userId, task.productionId, AccessLevel.WRITE)
+  ): TaskDetailDto {
+    val (dto, assignment) =
+      transactor.transaction {
+        val task = tasks.findById(taskId) ?: throw AppException(AppError.NotFound)
+        access.requireAccess(userId, task.productionId, AccessLevel.WRITE)
 
-      val errors = mutableMapOf<String, String>()
-      val requestTitle = request.title
-      if (requestTitle != null && requestTitle.isBlank()) errors["title"] = "Cannot be empty"
-      if (requestTitle != null && requestTitle.length > MAX_TITLE_LENGTH) {
-        errors["title"] = "Max $MAX_TITLE_LENGTH characters"
+        val errors = mutableMapOf<String, String>()
+        val requestTitle = request.title
+        if (requestTitle != null && requestTitle.isBlank()) errors["title"] = "Cannot be empty"
+        if (requestTitle != null && requestTitle.length > MAX_TITLE_LENGTH) {
+          errors["title"] = "Max $MAX_TITLE_LENGTH characters"
+        }
+        if ((request.description?.length ?: 0) > MAX_DESCRIPTION_LENGTH) {
+          errors["description"] = "Max $MAX_DESCRIPTION_LENGTH characters"
+        }
+        if (errors.isNotEmpty()) throw AppException(AppError.ValidationError(errors))
+
+        val assigneeId = request.assigneeUserId?.let { parseUuidField("assigneeUserId", it) }
+
+        val updated =
+          tasks.update(
+            id = taskId,
+            title = request.title?.trim(),
+            description = request.description?.trim(),
+            dueDate = request.dueDate,
+            status = request.status,
+            assigneeUserId = assigneeId
+          ) ?: throw AppException(AppError.NotFound)
+
+        // Notify on a reassignment to a *different* user (a null assigneeId means
+        // "leave the assignee unchanged"), skipping self-assignment — mirrors create().
+        // In-app record is atomic with the update; the push fires after commit.
+        val notifyAssignee = assigneeId?.takeIf { it != task.assigneeUserId && it != userId }
+        if (notifyAssignee != null) {
+          notifications.create(
+            userId = notifyAssignee,
+            title = "New task assigned",
+            body = updated.title
+          )
+        }
+        updated.toDetailDto() to notifyAssignee?.let { it to updated.id }
       }
-      if ((request.description?.length ?: 0) > MAX_DESCRIPTION_LENGTH) {
-        errors["description"] = "Max $MAX_DESCRIPTION_LENGTH characters"
-      }
-      if (errors.isNotEmpty()) throw AppException(AppError.ValidationError(errors))
 
-      val assigneeId = request.assigneeUserId?.let { parseUuidField("assigneeUserId", it) }
-
-      val updated =
-        tasks.update(
-          id = taskId,
-          title = request.title?.trim(),
-          description = request.description?.trim(),
-          dueDate = request.dueDate,
-          status = request.status,
-          assigneeUserId = assigneeId
-        ) ?: throw AppException(AppError.NotFound)
-      updated.toDetailDto()
+    assignment?.let { (assigneeId, id) ->
+      assignmentNotifier.notifyTaskAssigned(assigneeId, id, dto.title)
     }
+    return dto
+  }
 
   suspend fun delete(
     userId: UUID,

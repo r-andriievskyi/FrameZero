@@ -3,6 +3,7 @@ package com.frame.zero.config
 import com.frame.zero.auth.RefreshTokensTable
 import com.frame.zero.auth.UsersTable
 import com.frame.zero.common.testing.PostgresTestDatabase
+import com.frame.zero.notification.DeviceTokensTable
 import com.frame.zero.notification.NotificationsTable
 import com.frame.zero.production.ProductionMembersTable
 import com.frame.zero.production.ProductionsTable
@@ -45,7 +46,8 @@ class SchemaConsistencyTest {
           ProductionMembersTable,
           TasksTable,
           ScheduleEventsTable,
-          NotificationsTable
+          NotificationsTable,
+          DeviceTokensTable
         )
       }
     assertTrue(

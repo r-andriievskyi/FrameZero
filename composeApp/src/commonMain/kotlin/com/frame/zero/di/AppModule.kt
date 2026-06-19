@@ -12,6 +12,7 @@ import com.frame.zero.feature.production.featureProductionModule
 import com.frame.zero.feature.task.create.featureTaskCreateModule
 import com.frame.zero.feature.task.details.featureTaskDetailsModule
 import com.frame.zero.integrations.firebase.firebaseModule
+import com.frame.zero.repository.device_token.deviceTokenModule
 import com.frame.zero.repository.productions.productionsRepositoryModule
 import org.koin.core.Koin
 import org.koin.core.context.startKoin
@@ -30,7 +31,8 @@ val appModules = listOf(
   featureProductionDetailsModule,
   featureTaskDetailsModule,
   featureTaskCreateModule,
-  productionsRepositoryModule
+  productionsRepositoryModule,
+  deviceTokenModule
 )
 
 fun initKoin(extraModules: List<Module> = emptyList()): Koin =

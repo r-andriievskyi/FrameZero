@@ -31,6 +31,10 @@ kotlin {
     androidMain.dependencies {
       implementation(libs.compose.uiToolingPreview)
       implementation(libs.androidx.activity.compose)
+      implementation(project.dependencies.platform(libs.firebase.bom))
+      implementation(libs.firebase.messaging)
+      implementation(libs.androidx.core.ktx)
+      implementation(projects.shared.repositories.deviceToken)
     }
     commonMain.dependencies {
       implementation(libs.compose.runtime)
@@ -49,6 +53,7 @@ kotlin {
       implementation(projects.shared.features.productionDetails)
       implementation(projects.shared.features.taskDetails)
       implementation(projects.shared.features.taskCreate)
+      implementation(projects.shared.repositories.deviceToken)
       implementation(projects.shared.integrations.firebase)
       implementation(projects.composeApp.features.account)
       implementation(projects.composeApp.features.auth)

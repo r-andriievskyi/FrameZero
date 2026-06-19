@@ -81,7 +81,7 @@ react to `SessionManager`, not constructor props.
 The wire DTOs are **deliberately duplicated**, not shared via a common module:
 
 - **Client copy** lives in `shared/commonMain` (`com.frame.zero.dto.*`, `auth.dto.*`,
-  the wire enums `Genre`/`ProductionPhase`/`ProductionSort`/`ScheduleEventKind`).
+  the wire enums `Genre`/`ProductionPhase`/`ProductionSort`/`ScheduleEventKind`/`DevicePlatform`).
 - **Server copy** lives in `server/src/main` under the **same package names**.
 
 `Constants`/`SERVER_PORT` is **not** duplicated — it's client-only (`shared`'s
@@ -229,8 +229,15 @@ fails fast without one. Other vars (`JWT_ISSUER`/`AUDIENCE`/`REALM`, `DATABASE_U
 `server/.../config/AppConfig.kt`. Access-token TTL 15 min, refresh 30 days, in
 `JwtConfig`.
 
+`FIREBASE_CREDENTIALS_PATH` (path to a Firebase service-account JSON) is **required at
+boot in every mode** — `AppConfig.validate()` fails fast without it — because task
+assignments send FCM pushes via the Firebase Admin SDK (`FirebaseAdminPushSender`). Get
+the file from the Firebase console (Project settings → Service accounts). Tests don't
+need it: they construct `AppConfig` directly and inject a fake `PushSender`.
+
 ```bash
-# Local dev — defaults work out of the box
+# Local dev — DB defaults work out of the box; Firebase creds are required
+export FIREBASE_CREDENTIALS_PATH=/absolute/path/to/service-account.json
 docker compose up -d && ./gradlew :server:run
 # Override defaults (e.g. staging DB): cp .env.example .env first
 
@@ -239,6 +246,7 @@ export KTOR_ENV=production
 export JWT_SECRET=$(openssl rand -base64 32)
 export DATABASE_URL=jdbc:postgresql://prod-host:5432/framezero
 export DATABASE_USER=... DATABASE_PASSWORD=...
+export FIREBASE_CREDENTIALS_PATH=/run/secrets/firebase-service-account.json
 ./gradlew :server:run
 ```
 
