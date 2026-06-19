@@ -10,4 +10,3 @@ interface DeviceTokenRepository {
 
   suspend fun unregister(token: String)
 }
-

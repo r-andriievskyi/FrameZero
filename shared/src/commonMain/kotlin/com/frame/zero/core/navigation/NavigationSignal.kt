@@ -8,8 +8,10 @@ import kotlinx.coroutines.flow.asSharedFlow
 /**
  * Bridge from platform entry points (e.g. a tapped push notification on Android) to
  * the Decompose root, mirroring [com.frame.zero.core.session.LogoutSignal]. The root
- * collects [events] and navigates; if the session isn't logged in yet it buffers the
- * deep link and replays it once login completes.
+ * collects [events] only while logged in and navigates. A deep link emitted while
+ * logged out (or at cold start, before the root subscribes) is held in the replay
+ * cache and delivered once the session becomes logged in; [consume] clears it after
+ * handling.
  */
 class NavigationSignal {
   // replay = 1 so a deep link emitted at cold start (before the root subscribes) is

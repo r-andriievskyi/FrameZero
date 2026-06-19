@@ -43,4 +43,3 @@ class DeviceTokenRepositoryImpl : DeviceTokenRepository {
       DeviceTokensTable.deleteWhere { DeviceTokensTable.token eq token }
     }
 }
-
