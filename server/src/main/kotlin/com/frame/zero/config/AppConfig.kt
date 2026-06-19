@@ -3,6 +3,7 @@ package com.frame.zero.config
 data class AppConfig(
   val database: DatabaseConfig,
   val jwt: JwtConfig,
+  val firebase: FirebaseConfig,
   val corsAllowedOrigins: List<String> = emptyList(),
   val isDevelopment: Boolean = false
 ) {
@@ -11,6 +12,7 @@ data class AppConfig(
       val config = AppConfig(
         database = DatabaseConfig.fromEnv(),
         jwt = JwtConfig.fromEnv(),
+        firebase = FirebaseConfig.fromEnv(),
         corsAllowedOrigins = System.getenv("CORS_ALLOWED_ORIGINS")
           .orEmpty()
           .split(',')
@@ -28,6 +30,21 @@ data class AppConfig(
       "DATABASE_URL must be a valid JDBC URL (got: '${database.url}')"
     }
     require(database.user.isNotBlank()) { "DATABASE_USER must not be blank" }
+    require(firebase.credentialsPath.isNotBlank()) {
+      "FIREBASE_CREDENTIALS_PATH must point to a Firebase service-account JSON " +
+        "(needed to send push notifications)"
+    }
+  }
+}
+
+data class FirebaseConfig(
+  val credentialsPath: String
+) {
+  companion object {
+    fun fromEnv(): FirebaseConfig =
+      FirebaseConfig(
+        credentialsPath = System.getenv("FIREBASE_CREDENTIALS_PATH").orEmpty().trim()
+      )
   }
 }
 

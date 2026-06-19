@@ -8,6 +8,7 @@ import com.frame.zero.config.DatabaseFactory
 import com.frame.zero.config.pingDatabase
 import com.frame.zero.dashboard.dashboardModule
 import com.frame.zero.dashboard.dashboardRoutes
+import com.frame.zero.notification.deviceTokenRoutes
 import com.frame.zero.notification.notificationModule
 import com.frame.zero.notification.notificationRoutes
 import com.frame.zero.production.productionModule
@@ -79,7 +80,7 @@ fun Application.module(
       productionModule(),
       taskModule(),
       scheduleModule(),
-      notificationModule(),
+      notificationModule(config),
       dashboardModule()
     )
   }
@@ -138,6 +139,7 @@ fun Application.module(
     taskRoutes()
     scheduleRoutes()
     notificationRoutes()
+    deviceTokenRoutes()
   }
 }
 

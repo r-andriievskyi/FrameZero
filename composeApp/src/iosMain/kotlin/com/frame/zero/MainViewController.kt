@@ -4,6 +4,7 @@ import androidx.compose.ui.window.ComposeUIViewController
 import com.arkivanov.decompose.DefaultComponentContext
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
 import com.arkivanov.essenty.lifecycle.resume
+import com.frame.zero.core.navigation.NavigationSignal
 import com.frame.zero.core.session.SessionManager
 import com.frame.zero.di.initKoin
 import com.frame.zero.feature.RootComponent
@@ -36,6 +37,7 @@ private val iosRoot: RootComponent by lazy {
   RootComponent(
     componentContext = DefaultComponentContext(lifecycle = lifecycle),
     sessionManager = sessionManager,
+    navigationSignal = koin.get<NavigationSignal>(),
     authComponentFactory = { ctx ->
       AuthComponent(
         componentContext = ctx,

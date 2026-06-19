@@ -7,9 +7,14 @@ import com.frame.zero.auth.testing.FakeUserRepository
 import com.frame.zero.config.JwtConfig
 import com.frame.zero.dashboard.DashboardService
 import com.frame.zero.dashboard.dashboardRoutes
+import com.frame.zero.notification.DeviceTokenService
 import com.frame.zero.notification.NotificationService
+import com.frame.zero.notification.TaskAssignmentNotifier
+import com.frame.zero.notification.deviceTokenRoutes
 import com.frame.zero.notification.notificationRoutes
+import com.frame.zero.notification.testing.FakeDeviceTokenRepository
 import com.frame.zero.notification.testing.FakeNotificationRepository
+import com.frame.zero.notification.testing.FakePushSender
 import com.frame.zero.production.ProductionAccessService
 import com.frame.zero.production.ProductionService
 import com.frame.zero.production.productionRoutes
@@ -33,6 +38,8 @@ import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.response.respond
 import io.ktor.server.routing.routing
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.serialization.SerializationException
 import org.koin.dsl.module
 import org.koin.ktor.plugin.Koin
@@ -56,15 +63,23 @@ internal class TestAppEnv {
   val tasks = FakeTaskRepository()
   val scheduleEvents = FakeScheduleEventRepository()
   val notificationsRepo = FakeNotificationRepository()
+  val deviceTokens = FakeDeviceTokenRepository()
+  val pushSender = FakePushSender()
 
   val jwtService = JwtService(testJwtConfig)
   val transactor = NoopTransactor()
   val access = ProductionAccessService(productions, productionMembers)
   val productionService = ProductionService(productions, productionMembers, users, access, transactor)
   val dashboardService = DashboardService(users, productions, tasks, transactor)
-  val taskService = TaskService(tasks, access, transactor)
+
+  // Unconfined scope so the fire-and-forget push runs synchronously within the
+  // calling test (the fakes never really suspend), keeping assertions deterministic.
+  //todo dispatcher
+  val assignmentNotifier = TaskAssignmentNotifier(deviceTokens, pushSender, CoroutineScope(UnconfinedTestDispatcher()))
+  val taskService = TaskService(tasks, access, transactor, notificationsRepo, assignmentNotifier)
   val scheduleService = ScheduleService(scheduleEvents, tasks, access, transactor)
   val notificationService = NotificationService(notificationsRepo, transactor)
+  val deviceTokenService = DeviceTokenService(deviceTokens, transactor)
 
   fun tokenFor(userId: UUID): String = jwtService.createAccessToken(userId, "test@test.com")
 
@@ -77,6 +92,7 @@ internal class TestAppEnv {
           single { taskService }
           single { scheduleService }
           single { notificationService }
+          single { deviceTokenService }
         }
       )
     }
@@ -107,6 +123,7 @@ internal class TestAppEnv {
       taskRoutes()
       scheduleRoutes()
       notificationRoutes()
+      deviceTokenRoutes()
     }
   }
 }

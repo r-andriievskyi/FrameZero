@@ -10,6 +10,8 @@ import com.arkivanov.decompose.router.stack.push
 import com.arkivanov.decompose.router.stack.replaceAll
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.essenty.lifecycle.doOnDestroy
+import com.frame.zero.core.navigation.DeepLink
+import com.frame.zero.core.navigation.NavigationSignal
 import com.frame.zero.core.session.SessionManager
 import com.frame.zero.core.session.SessionState
 import com.frame.zero.feature.account.AccountComponent
@@ -34,6 +36,7 @@ import kotlinx.serialization.Serializable
 class RootComponent(
   componentContext: ComponentContext,
   sessionManager: SessionManager,
+  navigationSignal: NavigationSignal,
   private val authComponentFactory: (ComponentContext) -> AuthComponent,
   private val homeComponentFactory: (
     ComponentContext,
@@ -52,6 +55,11 @@ class RootComponent(
   private val accountViewModelFactory: () -> AccountViewModel
 ) : ComponentContext by componentContext {
   private val navigation = StackNavigation<Config>()
+
+  // A deep link that arrived before the session was logged in; replayed onto the
+  // stack once login completes (e.g. tapping a push notification while logged out).
+  // todo might be moved out
+  private var pendingTaskId: String? = null
 
   val stack: Value<ChildStack<Config, Child>> =
     childStack(
@@ -73,8 +81,33 @@ class RootComponent(
           is SessionState.LoggedIn -> Config.Home
         }
         if (stack.value.active.configuration != target) navigation.replaceAll(target)
+        if (sessionState is SessionState.LoggedIn) drainPendingDeepLink()
       }
     }
+    scope.launch {
+      navigationSignal.events.collect { deepLink ->
+        when (deepLink) {
+          is DeepLink.TaskDetails ->
+            if (sessionManager.state.value is SessionState.LoggedIn) {
+              pushTaskDetails(deepLink.taskId)
+            } else {
+              pendingTaskId = deepLink.taskId
+            }
+        }
+        navigationSignal.consume()
+      }
+    }
+  }
+
+  private fun drainPendingDeepLink() {
+    val taskId = pendingTaskId ?: return
+    pendingTaskId = null
+    pushTaskDetails(taskId)
+  }
+
+  private fun pushTaskDetails(taskId: String) {
+    @OptIn(DelicateDecomposeApi::class)
+    navigation.push(Config.TaskDetails(taskId))
   }
 
   private fun createChild(

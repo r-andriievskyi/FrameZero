@@ -18,6 +18,22 @@ application {
   applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
 }
 
+tasks.named<JavaExec>("run") {
+  val dotenv = rootProject.file(".env")
+  if (dotenv.exists()) {
+    dotenv.readLines()
+      .map { it.trim() }
+      .filter { it.isNotEmpty() && !it.startsWith("#") && it.contains('=') }
+      .forEach { line ->
+        val (key, value) = line.split('=', limit = 2)
+        val name = key.trim()
+        if (System.getenv(name) == null) {
+          environment(name, value.trim().trim('"', '\''))
+        }
+      }
+  }
+}
+
 dependencies {
   // No client-module dependency by design: server owns its own copy of the wire
   // DTOs (com.frame.zero.dto.*, auth.dto.*, the wire enums, Constants) so it can be
@@ -49,6 +65,7 @@ dependencies {
   implementation(libs.postgresql)
   implementation(libs.micrometer.registryPrometheus)
   implementation(libs.bcrypt)
+  implementation(libs.firebase.admin)
   testImplementation(libs.ktor.serverTestHost)
   testImplementation(libs.kotlin.testJunit)
   testImplementation(libs.kotlinx.coroutines.test)
