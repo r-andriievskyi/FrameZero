@@ -116,16 +116,7 @@ class TaskService(
       val task = tasks.findById(taskId) ?: throw AppException(AppError.NotFound)
       access.requireAccess(userId, task.productionId, AccessLevel.WRITE)
 
-      val errors = mutableMapOf<String, String>()
-      val requestTitle = request.title
-      if (requestTitle != null && requestTitle.isBlank()) errors["title"] = "Cannot be empty"
-      if (requestTitle != null && requestTitle.length > MAX_TITLE_LENGTH) {
-        errors["title"] = "Max $MAX_TITLE_LENGTH characters"
-      }
-      if ((request.description?.length ?: 0) > MAX_DESCRIPTION_LENGTH) {
-        errors["description"] = "Max $MAX_DESCRIPTION_LENGTH characters"
-      }
-      if (errors.isNotEmpty()) throw AppException(AppError.ValidationError(errors))
+      validateUpdate(request)
 
       val assigneeId = request.assigneeUserId?.let { parseUuidField("assigneeUserId", it) }
 
@@ -166,6 +157,19 @@ class TaskService(
       access.requireAccess(userId, task.productionId, AccessLevel.WRITE)
       tasks.delete(taskId)
     }
+
+  private fun validateUpdate(request: UpdateTaskRequest) {
+    val errors = mutableMapOf<String, String>()
+    val requestTitle = request.title
+    if (requestTitle != null && requestTitle.isBlank()) errors["title"] = "Cannot be empty"
+    if (requestTitle != null && requestTitle.length > MAX_TITLE_LENGTH) {
+      errors["title"] = "Max $MAX_TITLE_LENGTH characters"
+    }
+    if ((request.description?.length ?: 0) > MAX_DESCRIPTION_LENGTH) {
+      errors["description"] = "Max $MAX_DESCRIPTION_LENGTH characters"
+    }
+    if (errors.isNotEmpty()) throw AppException(AppError.ValidationError(errors))
+  }
 
   private fun TaskRecord.toSummaryDto(): TaskSummaryDto =
     TaskSummaryDto(
