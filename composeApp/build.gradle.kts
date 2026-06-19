@@ -69,6 +69,12 @@ kotlin {
       implementation(projects.composeApp.shared.designSystem)
     }
     commonTest.dependencies { implementation(libs.kotlin.test) }
+    androidUnitTest.dependencies {
+      implementation(libs.kotlin.testJunit)
+      implementation(libs.junit)
+      implementation(libs.robolectric)
+      implementation(libs.kotlinx.coroutines.test)
+    }
   }
 }
 
@@ -84,6 +90,7 @@ android {
     versionName = "1.0"
   }
   packaging { resources { excludes += "/META-INF/{AL2.0,LGPL2.1}" } }
+  testOptions { unitTests.isIncludeAndroidResources = true }
   signingConfigs {
     getByName("debug") {
       storeFile = rootProject.file("keystores/debug.keystore")
