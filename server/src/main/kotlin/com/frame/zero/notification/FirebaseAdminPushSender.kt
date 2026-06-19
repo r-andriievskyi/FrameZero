@@ -32,7 +32,6 @@ class FirebaseAdminPushSender(
 
   override suspend fun sendToTokens(
     tokens: List<String>,
-    title: String,
     body: String,
     data: Map<String, String>
   ) {
@@ -44,7 +43,6 @@ class FirebaseAdminPushSender(
         .setNotification(
           Notification
             .builder()
-            .setTitle(title)
             .setBody(body)
             .build()
         ).putAllData(data)

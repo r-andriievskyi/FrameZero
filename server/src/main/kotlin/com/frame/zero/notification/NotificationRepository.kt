@@ -21,7 +21,6 @@ import kotlin.time.Instant
 data class NotificationRecord(
   val id: UUID,
   val userId: UUID,
-  val title: String,
   val body: String?,
   val readAt: Instant?,
   val createdAt: Instant
@@ -45,7 +44,6 @@ interface NotificationRepository {
 
   suspend fun create(
     userId: UUID,
-    title: String,
     body: String?
   ): NotificationRecord
 }
@@ -132,7 +130,6 @@ class NotificationRepositoryImpl : NotificationRepository {
 
   override suspend fun create(
     userId: UUID,
-    title: String,
     body: String?
   ): NotificationRecord =
     dbQuery {
@@ -141,14 +138,12 @@ class NotificationRepositoryImpl : NotificationRepository {
       NotificationsTable.insert {
         it[id] = newId
         it[NotificationsTable.userId] = userId
-        it[NotificationsTable.title] = title
         it[NotificationsTable.body] = body
         it[createdAt] = now
       }
       NotificationRecord(
         id = newId,
         userId = userId,
-        title = title,
         body = body,
         readAt = null,
         createdAt = now
@@ -159,7 +154,6 @@ class NotificationRepositoryImpl : NotificationRepository {
     NotificationRecord(
       id = this[NotificationsTable.id],
       userId = this[NotificationsTable.userId],
-      title = this[NotificationsTable.title],
       body = this[NotificationsTable.body],
       readAt = this[NotificationsTable.readAt],
       createdAt = this[NotificationsTable.createdAt]

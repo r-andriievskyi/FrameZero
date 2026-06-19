@@ -5,7 +5,6 @@ import com.frame.zero.notification.PushSender
 internal class FakePushSender : PushSender {
   data class Sent(
     val tokens: List<String>,
-    val title: String,
     val body: String,
     val data: Map<String, String>
   )
@@ -14,10 +13,9 @@ internal class FakePushSender : PushSender {
 
   override suspend fun sendToTokens(
     tokens: List<String>,
-    title: String,
     body: String,
     data: Map<String, String>
   ) {
-    sent += Sent(tokens, title, body, data)
+    sent += Sent(tokens, body, data)
   }
 }

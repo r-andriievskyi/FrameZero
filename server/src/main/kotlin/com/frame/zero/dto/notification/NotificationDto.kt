@@ -6,7 +6,6 @@ import kotlin.time.Instant
 @Serializable
 data class NotificationDto(
   val id: String,
-  val title: String,
   val body: String?,
   val readAt: Instant?,
   val createdAt: Instant

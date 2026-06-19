@@ -8,7 +8,6 @@ import org.jetbrains.exposed.v1.datetime.timestamp
 object NotificationsTable : Table("notifications") {
   val id = javaUUID("id")
   val userId = javaUUID("user_id").references(UsersTable.id)
-  val title = varchar("title", 200)
   val body = text("body").nullable()
   val readAt = timestamp("read_at").nullable()
   val createdAt = timestamp("created_at")

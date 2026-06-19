@@ -34,8 +34,6 @@ class TaskAssignmentNotifier(
         if (tokens.isEmpty()) return@launch
         pushSender.sendToTokens(
           tokens = tokens,
-          //todo title
-          title = "New task assigned",
           body = taskTitle,
           data =
             mapOf(
