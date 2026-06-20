@@ -30,8 +30,12 @@ jobs:
       - uses: ./.github/actions/setup-build
         with:
           cache-read-only: ${{ github.ref != 'refs/heads/main' }}
-      - name: Build and check
-        run: ./gradlew check
+      # ktlint + detekt + unit tests + compilation (proves it builds). Android
+      # Lint is intentionally excluded (-x lint): ktlint/detekt already cover
+      # style/static analysis, and dropping it removes ~140 lint tasks from the
+      # critical path. Release packaging is proven by the release-config job.
+      - name: Build, ktlint, detekt, unit tests
+        run: ./gradlew check -x lint
 
   # Goldens are recorded on macOS; Robolectric Native Graphics renders
   # consistently across hosts, so verification runs on Linux. If this job ever
