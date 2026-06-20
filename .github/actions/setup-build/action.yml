@@ -1,0 +1,14 @@
+name: Setup build
+description: JDK, Gradle, and decode google-services.json — shared by all CI jobs.
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-java@v4
+      with:
+        distribution: temurin
+        java-version: 21
+    - uses: gradle/actions/setup-gradle@v4
+    - name: Decode google-services.json
+      shell: bash
+      run: echo "${{ env.GOOGLE_SERVICES_JSON }}" | base64 --decode > composeApp/google-services.json
