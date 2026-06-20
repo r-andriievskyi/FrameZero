@@ -14,15 +14,30 @@ concurrency:
 env:
   GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
 
-# All three jobs run in parallel — wall-clock is the longest single job, not the
-# sum. They don't depend on each other: each restores the GitHub Actions Gradle
-# cache primed by the previous `check` run on main (org.gradle.caching=true keeps
-# task outputs there), so screenshot/release stay fast without serializing behind
-# check. `check` is the sole cache writer (on main); the others are read-only.
+# A fast `lint` gate (ktlint + detekt, no full compile) runs first; the three
+# heavy jobs `needs: lint` and then run in parallel with each other. A lint
+# failure short-circuits before any expensive compile/test/assemble runs, so we
+# don't burn runner minutes on the long jobs for a formatting/static-analysis
+# break. On a passing run, wall-clock ≈ lint (~2m) + the longest heavy job, since
+# the heavy three overlap. `check` is the sole cache writer (on main).
 jobs:
-  # ktlint + detekt + compile + unit tests for every module (server included; iOS
-  # targets are skipped automatically on Linux).
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-build
+      - name: ktlint + detekt
+        run: ./gradlew ktlintCheck detekt
+
+  # compile + unit tests for every module (server included; iOS targets are
+  # skipped automatically on Linux). Android Lint is excluded (-x lint): ktlint
+  # /detekt cover style/static analysis (re-run here cheaply via the build cache),
+  # and release packaging is proven by release-config. ktlint can't be cleanly
+  # stripped from `check` (it wires per-source-set tasks directly), so it repeats
+  # the gate's ktlint/detekt — near-free on a warm cache, and a thorough backstop.
   check:
+    needs: lint
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
@@ -30,17 +45,11 @@ jobs:
       - uses: ./.github/actions/setup-build
         with:
           cache-read-only: ${{ github.ref != 'refs/heads/main' }}
-      # ktlint + detekt + unit tests + compilation (proves it builds). Android
-      # Lint is intentionally excluded (-x lint): ktlint/detekt already cover
-      # style/static analysis, and dropping it removes ~140 lint tasks from the
-      # critical path. Release packaging is proven by the release-config job.
       - name: Build, ktlint, detekt, unit tests
         run: ./gradlew check -x lint
 
-  # Goldens are recorded on macOS; Robolectric Native Graphics renders
-  # consistently across hosts, so verification runs on Linux. If this job ever
-  # drifts on fonts alone, re-record the goldens from CI.
   screenshot-tests:
+    needs: lint
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -60,6 +69,7 @@ jobs:
   # must assemble. The URL below is a placeholder for the config check only —
   # real release builds supply the production URL.
   release-config:
+    needs: lint
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
