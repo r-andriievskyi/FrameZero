@@ -18,6 +18,7 @@ class KmpLibraryConventionPlugin : Plugin<Project> {
       val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
 
       extensions.configure<KotlinMultiplatformExtension> {
+        jvmToolchain(21)
         androidTarget {
           compilerOptions {
             jvmTarget.set(JvmTarget.JVM_11)

@@ -45,6 +45,7 @@ fun resolveReleaseBaseUrl(): String {
 }
 
 kotlin {
+  jvmToolchain(21)
   androidTarget { compilerOptions { jvmTarget.set(JvmTarget.JVM_11) } }
 
   iosArm64()

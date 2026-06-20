@@ -10,6 +10,10 @@ group = "com.frame.zero"
 
 version = "1.0.0"
 
+kotlin {
+  jvmToolchain(21)
+}
+
 application {
   mainClass.set("com.frame.zero.ApplicationKt")
 

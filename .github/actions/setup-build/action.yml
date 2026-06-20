@@ -1,14 +1,35 @@
 name: Setup build
-description: JDK, Gradle, and decode google-services.json — shared by all CI jobs.
+description: CI Gradle properties, JDK, Gradle, and decode google-services.json — shared by all CI jobs. Requires the repo to be checked out first.
+
+inputs:
+  cache-read-only:
+    description: >
+      Pass-through to gradle/actions/setup-gradle. Defaults to 'true' (restore
+      only) so a job never pollutes the shared GitHub Actions cache. The single
+      writer (the build job on main) overrides this to 'false'.
+    required: false
+    default: 'true'
 
 runs:
   using: composite
   steps:
+    # CI-only Gradle overrides (worker cap, no incremental Kotlin); wins per-key
+    # over the project gradle.properties since GRADLE_USER_HOME has precedence.
+    - name: Apply CI gradle.properties
+      shell: bash
+      run: mkdir -p ~/.gradle && cp .github/ci-gradle.properties ~/.gradle/gradle.properties
     - uses: actions/setup-java@v4
       with:
         distribution: temurin
         java-version: 21
     - uses: gradle/actions/setup-gradle@v4
+      with:
+        cache-read-only: ${{ inputs.cache-read-only }}
+        # Free build observability: publishes a scan per CI build to
+        # scans.gradle.com (public, ephemeral URL).
+        build-scan-publish: true
+        build-scan-terms-of-use-url: "https://gradle.com/terms-of-service"
+        build-scan-terms-of-use-agree: "yes"
     - name: Decode google-services.json
       shell: bash
       run: echo "${{ env.GOOGLE_SERVICES_JSON }}" | base64 --decode > composeApp/google-services.json

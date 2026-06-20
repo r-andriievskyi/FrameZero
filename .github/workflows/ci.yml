@@ -14,36 +14,29 @@ concurrency:
 env:
   GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
 
+# All three jobs run in parallel — wall-clock is the longest single job, not the
+# sum. They don't depend on each other: each restores the GitHub Actions Gradle
+# cache primed by the previous `check` run on main (org.gradle.caching=true keeps
+# task outputs there), so screenshot/release stay fast without serializing behind
+# check. `check` is the sole cache writer (on main); the others are read-only.
 jobs:
-  # Fast-fail gate: formatting + static analysis only, no compile of tests or
-  # release artifacts. Keeps a broken format/lint from paying for the heavy jobs.
-  lint:
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup-build
-      - name: ktlint + detekt
-        run: ./gradlew ktlintCheck detekt
-
-  # Compile + unit tests for every module (server included; iOS targets are
-  # skipped automatically on Linux). Runs only once lint is green, and primes the
-  # Gradle cache that the downstream jobs restore.
-  build:
-    needs: lint
+  # ktlint + detekt + compile + unit tests for every module (server included; iOS
+  # targets are skipped automatically on Linux).
+  check:
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-build
+        with:
+          cache-read-only: ${{ github.ref != 'refs/heads/main' }}
       - name: Build and check
-        run: ./gradlew check -x ktlintCheck -x detekt
+        run: ./gradlew check
 
   # Goldens are recorded on macOS; Robolectric Native Graphics renders
   # consistently across hosts, so verification runs on Linux. If this job ever
   # drifts on fonts alone, re-record the goldens from CI.
   screenshot-tests:
-    needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -63,7 +56,6 @@ jobs:
   # must assemble. The URL below is a placeholder for the config check only —
   # real release builds supply the production URL.
   release-config:
-    needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:

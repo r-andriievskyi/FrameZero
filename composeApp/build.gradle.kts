@@ -18,6 +18,7 @@ plugins {
 }
 
 kotlin {
+  jvmToolchain(21)
   androidTarget { compilerOptions { jvmTarget.set(JvmTarget.JVM_11) } }
 
   listOf(iosArm64(), iosSimulatorArm64()).forEach { iosTarget ->
