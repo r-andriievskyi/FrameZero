@@ -1,12 +1,12 @@
 package com.frame.zero.feature.home.usecase
 
 import com.frame.zero.auth.dto.UserDto
+import com.frame.zero.core.network.connectivity.OfflineException
 import com.frame.zero.domain.DomainError
 import com.frame.zero.domain.Outcome
 import com.frame.zero.domain.User
 import com.frame.zero.feature.home.testing.FakeUserRepository
 import kotlinx.coroutines.test.runTest
-import kotlinx.io.IOException
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -27,13 +27,13 @@ class GetMeUseCaseTest {
     }
 
   @Test
-  fun `IOException maps to Network failure`() =
+  fun `OfflineException maps to Offline failure`() =
     runTest {
-      val repo = FakeUserRepository(throws = IOException("offline"))
+      val repo = FakeUserRepository(throws = OfflineException("offline"))
 
       val outcome = GetMeUseCase(repo)()
 
       val failure = assertIs<Outcome.Failure>(outcome)
-      assertEquals(DomainError.Network("offline"), failure.error)
+      assertEquals(DomainError.Offline("offline"), failure.error)
     }
 }

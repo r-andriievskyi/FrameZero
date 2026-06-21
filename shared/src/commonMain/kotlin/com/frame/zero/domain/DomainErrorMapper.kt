@@ -1,22 +1,16 @@
 package com.frame.zero.domain
 
+import com.frame.zero.core.network.connectivity.OfflineException
 import io.ktor.client.plugins.ResponseException
 import io.ktor.http.HttpStatusCode
 import kotlinx.io.IOException
 import kotlinx.serialization.SerializationException
 
-/**
- * Canonical [Throwable] → [DomainError] mapping for non-auth flows. Maps HTTP
- * status codes to a distinct [DomainError] so the UI can react to 404/403/409/5xx
- * differently instead of collapsing them all into [DomainError.Unknown].
- *
- * The auth feature keeps its own mapper (401→InvalidCredentials, 409→EmailAlreadyExists)
- * because those status codes carry auth-specific meaning there.
- */
 fun Throwable.toDomainError(): DomainError =
   when (this) {
     is DomainException -> error
-    is IOException -> DomainError.Network(message ?: "Network error")
+    is OfflineException -> DomainError.Offline(message ?: "No internet connection")
+    is IOException -> DomainError.Server(message)
     is SerializationException -> DomainError.Unknown(message)
     is ResponseException ->
       when {

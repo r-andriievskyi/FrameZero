@@ -1,5 +1,6 @@
 package com.frame.zero.feature.task.details.usecase
 
+import com.frame.zero.core.network.connectivity.OfflineException
 import com.frame.zero.domain.DomainError
 import com.frame.zero.domain.Outcome
 import com.frame.zero.dto.task.TaskDetailDto
@@ -7,7 +8,6 @@ import com.frame.zero.dto.task.TaskPriority
 import com.frame.zero.dto.task.TaskStatus
 import com.frame.zero.feature.task.details.testing.FakeTasksRepository
 import kotlinx.coroutines.test.runTest
-import kotlinx.io.IOException
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -42,13 +42,13 @@ class CompleteTaskUseCaseTest {
     }
 
   @Test
-  fun `IOException maps to Network failure`() =
+  fun `OfflineException maps to Offline failure`() =
     runTest {
-      val repo = FakeTasksRepository(task = openTask, completeThrows = IOException("offline"))
+      val repo = FakeTasksRepository(task = openTask, completeThrows = OfflineException("offline"))
 
       val outcome = CompleteTaskUseCase(repo)("t1")
 
       val failure = assertIs<Outcome.Failure>(outcome)
-      assertEquals(DomainError.Network("offline"), failure.error)
+      assertEquals(DomainError.Offline("offline"), failure.error)
     }
 }

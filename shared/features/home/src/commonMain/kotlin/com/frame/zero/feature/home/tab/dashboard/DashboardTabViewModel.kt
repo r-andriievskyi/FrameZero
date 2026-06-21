@@ -100,7 +100,7 @@ class DashboardTabViewModel(
   }
 
   private fun DomainError.toLoadErrorKind(): LoadErrorKind =
-    if (this is DomainError.Network) LoadErrorKind.Network else LoadErrorKind.Generic
+    if (this is DomainError.Offline) LoadErrorKind.Network else LoadErrorKind.Generic
 
   private fun resolveUrgency(
     task: DashboardTask,

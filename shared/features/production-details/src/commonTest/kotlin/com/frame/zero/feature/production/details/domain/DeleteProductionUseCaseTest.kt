@@ -1,12 +1,12 @@
 package com.frame.zero.feature.production.details.domain
 
+import com.frame.zero.core.network.connectivity.OfflineException
 import com.frame.zero.domain.DomainError
 import com.frame.zero.domain.Outcome
 import com.frame.zero.feature.production.details.testing.FakeProductionsRepository
 import com.frame.zero.feature.production.details.testing.responseException
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.test.runTest
-import kotlinx.io.IOException
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -69,13 +69,13 @@ class DeleteProductionUseCaseTest {
     }
 
   @Test
-  fun `IOException maps to Network failure`() =
+  fun `OfflineException maps to Offline failure`() =
     runTest {
-      val repo = FakeProductionsRepository(deleteThrows = IOException("offline"))
+      val repo = FakeProductionsRepository(deleteThrows = OfflineException("offline"))
 
       val outcome = DeleteProductionUseCase(repo)(DeleteProductionUseCase.Params("p1"))
 
       val failure = assertIs<Outcome.Failure>(outcome)
-      assertEquals(DomainError.Network("offline"), failure.error)
+      assertEquals(DomainError.Offline("offline"), failure.error)
     }
 }

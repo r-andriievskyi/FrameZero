@@ -1,5 +1,6 @@
 package com.frame.zero.feature.home.usecase
 
+import com.frame.zero.core.network.connectivity.OfflineException
 import com.frame.zero.domain.DomainError
 import com.frame.zero.domain.Outcome
 import com.frame.zero.domain.dashboard.Dashboard
@@ -8,7 +9,6 @@ import com.frame.zero.dto.dashboard.GreetingDto
 import com.frame.zero.dto.dashboard.StatsDto
 import com.frame.zero.feature.home.testing.FakeDashboardRepository
 import kotlinx.coroutines.test.runTest
-import kotlinx.io.IOException
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -34,13 +34,13 @@ class GetDashboardUseCaseTest {
     }
 
   @Test
-  fun `IOException maps to Network failure`() =
+  fun `OfflineException maps to Offline failure`() =
     runTest {
-      val repo = FakeDashboardRepository(throws = IOException("offline"))
+      val repo = FakeDashboardRepository(throws = OfflineException("offline"))
 
       val outcome = GetDashboardUseCase(repo)()
 
       val failure = assertIs<Outcome.Failure>(outcome)
-      assertEquals(DomainError.Network("offline"), failure.error)
+      assertEquals(DomainError.Offline("offline"), failure.error)
     }
 }

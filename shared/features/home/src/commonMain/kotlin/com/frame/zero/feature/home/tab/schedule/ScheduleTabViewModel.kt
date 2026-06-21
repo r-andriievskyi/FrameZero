@@ -136,7 +136,7 @@ class ScheduleTabViewModel(
   }
 
   private fun DomainError.toLoadErrorKind(): LoadErrorKind =
-    if (this is DomainError.Network) LoadErrorKind.Network else LoadErrorKind.Generic
+    if (this is DomainError.Offline) LoadErrorKind.Network else LoadErrorKind.Generic
 
   @OptIn(ExperimentalTime::class)
   private fun today(): LocalDate =

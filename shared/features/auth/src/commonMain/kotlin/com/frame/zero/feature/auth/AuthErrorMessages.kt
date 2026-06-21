@@ -16,7 +16,7 @@ internal fun DomainError.toUiText(): UiText =
   when (this) {
     DomainError.InvalidCredentials -> Res.string.error_invalid_credentials.asUiText()
     DomainError.EmailAlreadyExists -> Res.string.error_email_exists.asUiText()
-    is DomainError.Network -> Res.string.error_network.asUiText(message)
+    is DomainError.Offline -> Res.string.error_network.asUiText(message)
     DomainError.NotFound,
     DomainError.Forbidden,
     DomainError.Conflict,
@@ -29,5 +29,5 @@ internal fun DomainError.toUiText(): UiText =
  * and server/unexpected errors. These surface as a transient toast rather than
  * an inline field error.
  */
-internal val DomainError.isNetworkOrServerError: Boolean
-  get() = this is DomainError.Network || this is DomainError.Server || this is DomainError.Unknown
+internal val DomainError.isOfflineOrServerError: Boolean
+  get() = this is DomainError.Offline || this is DomainError.Server || this is DomainError.Unknown

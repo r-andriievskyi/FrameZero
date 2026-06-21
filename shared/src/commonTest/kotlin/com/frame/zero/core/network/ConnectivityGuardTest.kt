@@ -1,6 +1,7 @@
 package com.frame.zero.core.network
 
 import com.frame.zero.core.network.connectivity.ConnectivityObserver
+import com.frame.zero.core.network.connectivity.OfflineException
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
@@ -10,7 +11,6 @@ import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
-import kotlinx.io.IOException
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -32,11 +32,11 @@ class ConnectivityGuardTest {
   }
 
   @Test
-  fun `offline fails fast with an IOException before hitting the engine`() =
+  fun `offline fails fast with an OfflineException before hitting the engine`() =
     runTest {
       val client = clientWithGuard(online = false)
 
-      assertFailsWith<IOException> {
+      assertFailsWith<OfflineException> {
         client.get("https://example.com/api")
       }
     }

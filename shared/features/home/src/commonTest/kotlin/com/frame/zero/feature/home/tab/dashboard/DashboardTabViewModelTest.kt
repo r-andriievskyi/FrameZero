@@ -10,6 +10,7 @@ import com.frame.zero.feature.home.LoadErrorKind
 import com.frame.zero.feature.home.testing.FakeConnectivityObserver
 import com.frame.zero.feature.home.testing.FakeDashboardRepository
 import com.frame.zero.feature.home.testing.FakeUserRepository
+import com.frame.zero.core.network.connectivity.OfflineException
 import com.frame.zero.feature.home.usecase.GetDashboardUseCase
 import com.frame.zero.feature.home.usecase.GetMeUseCase
 import com.frame.zero.repository.dashboard.DashboardRepository
@@ -145,13 +146,26 @@ class DashboardTabViewModelTest {
   fun `offline failure sets a Network error`() =
     runTest {
       val userRepo = FakeUserRepository(userDto = userDto)
-      val dashboardRepo = FakeDashboardRepository(throws = IOException("offline"))
+      val dashboardRepo = FakeDashboardRepository(throws = OfflineException())
       val viewModel = makeViewModel(this, userRepo, dashboardRepo)
 
       advanceUntilIdle()
 
       assertNull(viewModel.state.value.dashboard)
       assertEquals(LoadErrorKind.Network, viewModel.state.value.error)
+    }
+
+  @Test
+  fun `connection failure while online sets a Generic error`() =
+    runTest {
+      val userRepo = FakeUserRepository(userDto = userDto)
+      val dashboardRepo = FakeDashboardRepository(throws = IOException("connection refused"))
+      val viewModel = makeViewModel(this, userRepo, dashboardRepo)
+
+      advanceUntilIdle()
+
+      assertNull(viewModel.state.value.dashboard)
+      assertEquals(LoadErrorKind.Generic, viewModel.state.value.error)
     }
 
   @Test
@@ -163,7 +177,7 @@ class DashboardTabViewModelTest {
 
         override suspend fun getDashboard(): DashboardResponse {
           calls++
-          if (shouldFail) throw IOException("offline")
+          if (shouldFail) throw OfflineException()
           return dashboardResponse
         }
       }
@@ -178,7 +192,6 @@ class DashboardTabViewModelTest {
       advanceUntilIdle()
       assertEquals(LoadErrorKind.Network, viewModel.state.value.error)
 
-      // Connectivity returns → the VM reloads without any user action.
       shouldFail = false
       connectivity.online.value = true
       advanceUntilIdle()

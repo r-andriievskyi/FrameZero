@@ -1,5 +1,6 @@
 package com.frame.zero.feature.production.domain
 
+import com.frame.zero.core.network.connectivity.OfflineException
 import com.frame.zero.domain.DomainError
 import com.frame.zero.domain.Outcome
 import com.frame.zero.domain.production.Genre
@@ -61,13 +62,25 @@ class CreateProductionUseCaseTest {
     }
 
   @Test
-  fun `IOException maps to Network failure`() =
+  fun `OfflineException maps to Network failure`() =
     runTest {
-      val repo = FakeProductionsRepository(createThrows = IOException("offline"))
+      val repo = FakeProductionsRepository(createThrows = OfflineException("offline"))
 
       val outcome = CreateProductionUseCase(repo)(params())
 
       val failure = assertIs<Outcome.Failure>(outcome)
-      assertEquals(DomainError.Network("offline"), failure.error)
+      assertEquals(DomainError.Offline("offline"), failure.error)
+    }
+
+  @Test
+  fun `IOException maps to Server failure server unreachable while online`() =
+    runTest {
+      val repo = FakeProductionsRepository(createThrows = IOException("connection refused"))
+
+      val outcome = CreateProductionUseCase(repo)(params())
+
+      val failure = assertIs<Outcome.Failure>(outcome)
+      val server = assertIs<DomainError.Server>(failure.error)
+      assertEquals("connection refused", server.message)
     }
 }
