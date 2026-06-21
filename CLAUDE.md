@@ -220,6 +220,32 @@ module scripts.
   ComposablePreviewScanner **0.9.0** for screenshot goldens (see [Screenshot tests](#screenshot-tests))
 - Android minSdk **29**, compileSdk/targetSdk **37**, JVM target **11**
 
+### Dependency verification (supply-chain integrity)
+
+`gradle/verification-metadata.xml` pins a **sha256 checksum for every artifact**
+(jars, AARs, POMs, plugins) Gradle resolves. Its mere presence makes Gradle verify
+every download on every build — a mismatched/tampered/swapped artifact **fails the
+build**. This is tamper-evident resolution; don't hand-edit the file.
+
+**You MUST regenerate it whenever you change a dependency or plugin version** (any
+edit to `gradle/libs.versions.toml` or a `*.gradle.kts` dependency), or the build
+fails with `Dependency verification failed` for the new/changed artifact. Run:
+
+```bash
+# Regenerate after any dependency/plugin change. Covers the full CI surface
+# (all modules, both platforms, tests, release R8) so no artifact is missed.
+# --write-verification-metadata is incompatible with the configuration cache.
+# Needs Docker up (server Testcontainers) and resolves iOS klibs on macOS.
+FRAMEZERO_API_BASE_URL=https://api.framezero.invalid \
+  ./gradlew --write-verification-metadata sha256 --no-configuration-cache \
+    check :composeApp:shared:design_system:verifyRoborazziDebug \
+    :composeApp:assembleRelease
+```
+
+Then **review the `git diff`** of `verification-metadata.xml` — the added/changed
+checksums should correspond only to the deps you bumped. Commit it with the version
+change. (sha256 only — no PGP/keyring, to avoid keyserver flakiness.)
+
 ## Server config
 
 `AppConfig.fromEnv()` reads env vars. Dev mode (`io.ktor.development=true`, set by
@@ -358,9 +384,6 @@ Rules:
   `expect`/`actual` in `shared` instead.
 
 ## Things to avoid
-
-- `kapt` — use `ksp`.
-- Java-only / Android-only libs in `shared/commonMain` or `composeApp/commonMain`.
 - `java.time.*` in shared code — use `kotlinx-datetime`.
 - Exposing Compose UI types from `shared/` — it's pure logic so iOS/server can consume it.
 - SwiftUI changes unless explicitly asked.
