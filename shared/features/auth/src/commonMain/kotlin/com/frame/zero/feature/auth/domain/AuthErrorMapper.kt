@@ -1,5 +1,6 @@
 package com.frame.zero.feature.auth.domain
 
+import com.frame.zero.core.network.connectivity.OfflineException
 import com.frame.zero.domain.DomainError
 import com.frame.zero.domain.DomainException
 import io.ktor.client.plugins.ResponseException
@@ -16,7 +17,8 @@ internal fun Throwable.toDomainError(): DomainError =
         HttpStatusCode.Conflict -> DomainError.EmailAlreadyExists
         else -> DomainError.Unknown(message)
       }
-    is IOException -> DomainError.Network(message ?: "Network error")
+    is OfflineException -> DomainError.Offline(message ?: "No internet connection")
+    is IOException -> DomainError.Server(message)
     is SerializationException -> DomainError.Unknown(message)
     else -> DomainError.Unknown(message)
   }

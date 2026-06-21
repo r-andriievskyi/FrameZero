@@ -148,7 +148,7 @@ class CreateTaskViewModel(
 
   private fun DomainError.toUiText(): UiText =
     when (this) {
-      is DomainError.Network -> Res.string.error_network.asUiText()
+      is DomainError.Offline -> Res.string.error_network.asUiText()
       is DomainError.Server -> Res.string.error_server.asUiText()
       DomainError.NotFound -> Res.string.error_not_found.asUiText()
       DomainError.Forbidden -> Res.string.error_forbidden.asUiText()

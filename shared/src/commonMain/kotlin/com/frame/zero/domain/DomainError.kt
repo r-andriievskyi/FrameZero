@@ -14,12 +14,11 @@ sealed interface DomainError {
   /** State conflict on a non-auth resource — HTTP 409. */
   data object Conflict : DomainError
 
-  /** Server-side failure — HTTP 5xx. */
   data class Server(
     val message: String? = null
   ) : DomainError
 
-  data class Network(
+  data class Offline(
     val message: String
   ) : DomainError
 

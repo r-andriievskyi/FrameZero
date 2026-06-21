@@ -1,5 +1,6 @@
 package com.frame.zero.feature.home.tab.schedule
 
+import com.frame.zero.core.network.connectivity.OfflineException
 import com.frame.zero.domain.schedule.ScheduleView
 import com.frame.zero.dto.schedule.ScheduleResponse
 import com.frame.zero.feature.home.LoadErrorKind
@@ -71,13 +72,26 @@ class ScheduleTabViewModelTest {
   @Test
   fun `offline failure sets a Network error and leaves schedule null`() =
     runTest(testDispatcher) {
-      val repo = FakeScheduleRepository(throws = IOException("offline"))
+      val repo = FakeScheduleRepository(throws = OfflineException())
       val viewModel = makeViewModel(repo)
 
       advanceUntilIdle()
 
       assertNull(viewModel.state.value.schedule)
       assertEquals(LoadErrorKind.Network, viewModel.state.value.error)
+      assertFalse(viewModel.state.value.isLoading)
+    }
+
+  @Test
+  fun `connection failure while online sets a Generic error`() =
+    runTest(testDispatcher) {
+      val repo = FakeScheduleRepository(throws = IOException("connection refused"))
+      val viewModel = makeViewModel(repo)
+
+      advanceUntilIdle()
+
+      assertNull(viewModel.state.value.schedule)
+      assertEquals(LoadErrorKind.Generic, viewModel.state.value.error)
       assertFalse(viewModel.state.value.isLoading)
     }
 
@@ -93,7 +107,7 @@ class ScheduleTabViewModelTest {
           date: String
         ): ScheduleResponse {
           calls++
-          if (shouldFail) throw IOException("offline")
+          if (shouldFail) throw OfflineException()
           return scheduleResponse
         }
       }

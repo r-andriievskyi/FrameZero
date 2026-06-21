@@ -161,7 +161,7 @@ class CreateProductionViewModel(
           val message = outcome.error.toUiText()
           // Network/server failures are transient → toast; validation/auth errors are
           // user-fixable → inline. Mirrors the auth feature's split.
-          if (outcome.error.isNetworkOrServerError) {
+          if (outcome.error.isOfflineOrServerError) {
             it.copy(isLoading = false, errorToast = message)
           } else {
             it.copy(isLoading = false, error = message)
@@ -171,12 +171,12 @@ class CreateProductionViewModel(
     }
   }
 
-  private val DomainError.isNetworkOrServerError: Boolean
-    get() = this is DomainError.Network || this is DomainError.Server || this is DomainError.Unknown
+  private val DomainError.isOfflineOrServerError: Boolean
+    get() = this is DomainError.Offline || this is DomainError.Server || this is DomainError.Unknown
 
   private fun DomainError.toUiText(): UiText =
     when (this) {
-      is DomainError.Network -> Res.string.error_network.asUiText()
+      is DomainError.Offline -> Res.string.error_network.asUiText()
       is DomainError.Server -> Res.string.error_server.asUiText()
       DomainError.Forbidden -> Res.string.error_forbidden.asUiText()
       DomainError.Conflict -> Res.string.error_conflict.asUiText()

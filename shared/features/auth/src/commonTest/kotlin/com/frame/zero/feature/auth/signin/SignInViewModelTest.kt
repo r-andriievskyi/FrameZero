@@ -123,7 +123,7 @@ class SignInViewModelTest {
   @Test
   fun `Network error surfaces as a toast instead of an inline error`() =
     runTest {
-      val repo = FakeAuthRepository(loginThrows = DomainException(DomainError.Network("offline")))
+      val repo = FakeAuthRepository(loginThrows = DomainException(DomainError.Offline("offline")))
       val vm = makeViewModel(this, repo)
 
       vm.onIntent(SignInIntent.EmailChanged("u@x.com"))
@@ -153,7 +153,7 @@ class SignInViewModelTest {
   @Test
   fun `ToastDismissed clears the toast message`() =
     runTest {
-      val repo = FakeAuthRepository(loginThrows = DomainException(DomainError.Network("offline")))
+      val repo = FakeAuthRepository(loginThrows = DomainException(DomainError.Offline("offline")))
       val vm = makeViewModel(this, repo)
 
       vm.onIntent(SignInIntent.EmailChanged("u@x.com"))

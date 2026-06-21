@@ -4,7 +4,7 @@ import com.arkivanov.essenty.instancekeeper.InstanceKeeper
 import com.frame.zero.domain.Outcome
 import com.frame.zero.feature.auth.domain.RegisterUseCase
 import com.frame.zero.feature.auth.emptyCredentialsError
-import com.frame.zero.feature.auth.isNetworkOrServerError
+import com.frame.zero.feature.auth.isOfflineOrServerError
 import com.frame.zero.feature.auth.toUiText
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -64,7 +64,7 @@ class RegisterViewModel(
         is Outcome.Success -> _state.update { it.copy(isLoading = false) }
         is Outcome.Failure -> {
           val message = outcome.error.toUiText()
-          if (outcome.error.isNetworkOrServerError) {
+          if (outcome.error.isOfflineOrServerError) {
             _state.update { it.copy(isLoading = false, errorToast = message) }
           } else {
             _state.update { it.copy(isLoading = false, error = message) }

@@ -4,13 +4,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.LoadingIndicator
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -29,6 +27,7 @@ import com.frame.zero.feature.production.details.ProductionDetailsState
 import com.frame.zero.feature.production.details.ProductionTaskUi
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
+import com.frame.zero.shared.design_system.widgets.FullScreenError
 import com.frame.zero.shared.design_system.widgets.OverflowMenu
 import com.frame.zero.shared.design_system.widgets.OverflowMenuItem
 import com.frame.zero.shared.design_system.widgets.TopToolbar
@@ -89,7 +88,11 @@ private fun ProductionDetailsContent(
       val loadError = state.error
       when {
         state.isLoading && state.detail == null -> CenteredProgress()
-        loadError != null && state.detail == null -> CenteredMessage(loadError.asString())
+        loadError != null && state.detail == null ->
+          FullScreenError(
+            message = loadError.asString(),
+            onRetry = { onIntent(ProductionDetailsIntent.Refresh) }
+          )
         state.detail != null ->
           DetailBody(detail = state.detail!!, tasks = state.tasks, onAddTask = onAddTask)
         else -> Box(modifier = Modifier.fillMaxSize())
@@ -164,25 +167,6 @@ private fun CenteredProgress(modifier: Modifier = Modifier) {
     contentAlignment = Alignment.Center
   ) {
     LoadingIndicator(color = AppTheme.colorSystem.accent)
-  }
-}
-
-@Composable
-private fun CenteredMessage(
-  message: String,
-  modifier: Modifier = Modifier
-) {
-  Box(
-    modifier = modifier
-      .fillMaxSize()
-      .padding(AppTheme.spacingSystem.space16),
-    contentAlignment = Alignment.Center
-  ) {
-    Text(
-      text = message,
-      style = AppTheme.typographySystem.bodyMedium,
-      color = AppTheme.colorSystem.textSecondary
-    )
   }
 }
 

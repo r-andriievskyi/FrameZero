@@ -1,5 +1,6 @@
 package com.frame.zero.feature.production
 
+import com.frame.zero.core.network.connectivity.OfflineException
 import com.frame.zero.feature.production.domain.CreateProductionUseCase
 import com.frame.zero.feature.production.testing.FakeProductionsRepository
 import com.frame.zero.ui.asUiText
@@ -16,7 +17,6 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.LocalDate
-import kotlinx.io.IOException
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -178,7 +178,7 @@ class CreateProductionViewModelTest {
   @Test
   fun `submit network failure surfaces a toast not an inline error`() =
     runTest {
-      val viewModel = makeViewModel(FakeProductionsRepository(createThrows = IOException("offline")))
+      val viewModel = makeViewModel(FakeProductionsRepository(createThrows = OfflineException()))
       viewModel.onIntent(CreateProductionIntent.TitleChanged("Pilot"))
       viewModel.onIntent(CreateProductionIntent.StartDateChanged(start))
       viewModel.onIntent(CreateProductionIntent.WrapDateChanged(wrap))
@@ -194,7 +194,7 @@ class CreateProductionViewModelTest {
   @Test
   fun `dismissing the toast clears it`() =
     runTest {
-      val viewModel = makeViewModel(FakeProductionsRepository(createThrows = IOException("offline")))
+      val viewModel = makeViewModel(FakeProductionsRepository(createThrows = OfflineException()))
       viewModel.onIntent(CreateProductionIntent.TitleChanged("Pilot"))
       viewModel.onIntent(CreateProductionIntent.StartDateChanged(start))
       viewModel.onIntent(CreateProductionIntent.WrapDateChanged(wrap))

@@ -1,5 +1,6 @@
 package com.frame.zero.feature.auth.data
 
+import com.frame.zero.core.network.connectivity.OfflineException
 import com.frame.zero.domain.DomainError
 import com.frame.zero.feature.auth.domain.toDomainError
 import io.ktor.client.HttpClient
@@ -48,17 +49,18 @@ class AuthErrorMapperTest {
     }
 
   @Test
-  fun `IOException maps to Network with the original message`() {
-    val error = IOException("connection refused").toDomainError()
+  fun `OfflineException maps to Network with the original message`() {
+    val error = OfflineException("No internet connection").toDomainError()
 
-    assertEquals(DomainError.Network("connection refused"), error)
+    assertEquals(DomainError.Offline("No internet connection"), error)
   }
 
   @Test
-  fun `IOException with no message falls back to default text`() {
-    val error = IOException().toDomainError()
+  fun `IOException maps to Server server unreachable while online`() {
+    val error = IOException("connection refused").toDomainError()
 
-    assertEquals(DomainError.Network("Network error"), error)
+    val server = assertIs<DomainError.Server>(error)
+    assertEquals("connection refused", server.message)
   }
 
   @Test

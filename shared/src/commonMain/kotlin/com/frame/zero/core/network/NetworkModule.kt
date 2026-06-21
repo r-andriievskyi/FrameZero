@@ -4,6 +4,7 @@ import com.frame.zero.auth.dto.RefreshRequest
 import com.frame.zero.auth.dto.RefreshResponse
 import com.frame.zero.core.logging.Logger as AppLogger
 import com.frame.zero.core.network.connectivity.ConnectivityObserver
+import com.frame.zero.core.network.connectivity.OfflineException
 import com.frame.zero.core.session.LogoutSignal
 import com.frame.zero.core.session.TokenStorage
 import io.ktor.client.HttpClient
@@ -31,7 +32,6 @@ import io.ktor.http.HttpMethod
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.json.json
-import kotlinx.io.IOException
 import kotlinx.serialization.json.Json
 import org.koin.core.module.Module
 import org.koin.dsl.module
@@ -42,7 +42,7 @@ internal fun connectivityGuard(connectivityObserver: ConnectivityObserver) =
   createClientPlugin("ConnectivityGuard") {
     onRequest { _, _ ->
       if (!connectivityObserver.isCurrentlyOnline()) {
-        throw IOException("No internet connection")
+        throw OfflineException()
       }
     }
   }
