@@ -9,37 +9,49 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
-# Exposed to the composite setup action (.github/actions/setup-build), which
-# decodes it into composeApp/google-services.json.
 env:
   GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
 
-# A fast `lint` gate (ktlint + detekt, no full compile) runs first; the three
-# heavy jobs `needs: lint` and then run in parallel with each other. A lint
-# failure short-circuits before any expensive compile/test/assemble runs, so we
-# don't burn runner minutes on the long jobs for a formatting/static-analysis
-# break. On a passing run, wall-clock ≈ lint (~2m) + the longest heavy job, since
-# the heavy three overlap. `check` is the sole cache writer (on main).
+# `changes` gates every build job on whether the push/PR touches anything that
+# can affect the build. Docs-only changes (**/*.md, docs/**) can't break
+# ktlint/detekt, compilation, unit tests, screenshot goldens, or the release
+# APK, so the jobs are skipped (zero runner minutes) when `code` is 'false'.
+# Job-level gating (not workflow-level `paths-ignore`) makes the jobs report as
+# "skipped" rather than hanging "pending", which is required-status-check safe.
 jobs:
-  lint:
+  changes:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 5
+    outputs:
+      code: ${{ steps.filter.outputs.code }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          # `code` matches any changed file that is NOT docs/markdown; a
+          # docs-only change leaves it 'false', skipping all build jobs.
+          filters: |
+            code:
+              - '!**/*.md'
+              - '!docs/**'
+
+  lint:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-build
       - name: ktlint + detekt
         run: ./gradlew ktlintCheck detekt
 
-  # compile + unit tests for every module (server included; iOS targets are
-  # skipped automatically on Linux). Android Lint is excluded (-x lint): ktlint
-  # /detekt cover style/static analysis (re-run here cheaply via the build cache),
-  # and release packaging is proven by release-config. ktlint can't be cleanly
-  # stripped from `check` (it wires per-source-set tasks directly), so it repeats
-  # the gate's ktlint/detekt — near-free on a warm cache, and a thorough backstop.
   check:
-    needs: lint
+    needs: [changes, lint]
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-build
@@ -49,9 +61,10 @@ jobs:
         run: ./gradlew check -x lint
 
   screenshot-tests:
-    needs: lint
+    needs: [changes, lint]
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-build
@@ -64,14 +77,11 @@ jobs:
           name: roborazzi-diffs
           path: '**/build/outputs/roborazzi/'
 
-  # Asserts a release artifact can never ship dev config: BuildKonfig must
-  # resolve DEBUG=false and an https BASE_URL, and the minified release APK
-  # must assemble. The URL below is a placeholder for the config check only —
-  # real release builds supply the production URL.
   release-config:
-    needs: lint
+    needs: [changes, lint]
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 20
     env:
       FRAMEZERO_API_BASE_URL: https://api.framezero.invalid
     steps:
