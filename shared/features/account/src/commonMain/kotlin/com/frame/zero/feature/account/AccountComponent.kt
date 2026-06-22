@@ -2,6 +2,7 @@ package com.frame.zero.feature.account
 
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.essenty.instancekeeper.getOrCreate
+import com.frame.zero.core.security.BiometricPromptText
 import kotlinx.coroutines.flow.StateFlow
 
 class AccountComponent(
@@ -32,6 +33,13 @@ class AccountComponent(
 
   fun onAboutClick() {
     // TODO: navigate to about
+  }
+
+  fun onAppLockToggle(
+    enabled: Boolean,
+    prompt: BiometricPromptText
+  ) {
+    viewModel.setAppLockEnabled(enabled, prompt)
   }
 
   fun onSignOutClick() {

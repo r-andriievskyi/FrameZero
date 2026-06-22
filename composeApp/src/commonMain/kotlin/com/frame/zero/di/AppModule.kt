@@ -3,6 +3,7 @@ package com.frame.zero.di
 import com.frame.zero.core.analytics.analyticsModule
 import com.frame.zero.core.logging.loggingModule
 import com.frame.zero.core.network.networkModule
+import com.frame.zero.core.security.securityModule
 import com.frame.zero.core.session.sessionModule
 import com.frame.zero.feature.account.featureAccountModule
 import com.frame.zero.feature.auth.authModule
@@ -24,6 +25,7 @@ val appModules = listOf(
   firebaseModule,
   networkModule,
   sessionModule,
+  securityModule,
   authModule,
   featureAccountModule,
   featureHomeModule,

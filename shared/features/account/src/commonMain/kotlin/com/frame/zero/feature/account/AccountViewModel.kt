@@ -1,6 +1,9 @@
 package com.frame.zero.feature.account
 
 import com.arkivanov.essenty.instancekeeper.InstanceKeeper
+import com.frame.zero.core.security.AppLockController
+import com.frame.zero.core.security.BiometricPromptText
+import com.frame.zero.core.security.BiometricResult
 import com.frame.zero.core.session.SessionManager
 import com.frame.zero.core.session.SessionState
 import kotlinx.coroutines.CoroutineScope
@@ -17,11 +20,17 @@ import kotlin.coroutines.CoroutineContext
 
 class AccountViewModel(
   private val sessionManager: SessionManager,
+  private val appLockController: AppLockController,
   dispatcher: CoroutineContext = Dispatchers.Main.immediate
 ) : InstanceKeeper.Instance {
   private val scope = CoroutineScope(dispatcher + SupervisorJob())
 
-  private val _state = MutableStateFlow(AccountState())
+  private val _state = MutableStateFlow(
+    AccountState(
+      appLockSupported = appLockController.isBiometricAvailable() || appLockController.isEnabled,
+      appLockEnabled = appLockController.isEnabled
+    )
+  )
   val state: StateFlow<AccountState> = _state.asStateFlow()
 
   init {
@@ -34,6 +43,23 @@ class AccountViewModel(
           )
         }
       }
+    }
+  }
+
+  fun setAppLockEnabled(
+    enabled: Boolean,
+    prompt: BiometricPromptText
+  ) {
+    if (!enabled) {
+      appLockController.setEnabled(false)
+      _state.update { it.copy(appLockEnabled = false) }
+      return
+    }
+    scope.launch {
+      if (appLockController.authenticate(prompt) is BiometricResult.Success) {
+        appLockController.setEnabled(true)
+      }
+      _state.update { it.copy(appLockEnabled = appLockController.isEnabled) }
     }
   }
 

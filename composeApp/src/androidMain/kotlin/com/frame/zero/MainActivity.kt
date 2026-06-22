@@ -6,15 +6,17 @@ import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
-import androidx.activity.ComponentActivity
+import android.view.WindowManager
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import com.arkivanov.decompose.defaultComponentContext
 import com.frame.zero.core.navigation.NavigationSignal
+import com.frame.zero.core.security.AppLockController
 import com.frame.zero.core.session.SessionManager
 import com.frame.zero.feature.RootComponent
 import com.frame.zero.push.PushNotificationsRouter
@@ -33,12 +35,13 @@ import com.frame.zero.feature.task.details.TaskDetailsViewModel
 import kotlinx.coroutines.launch
 import org.koin.core.parameter.parametersOf
 
-class MainActivity : ComponentActivity() {
+class MainActivity : FragmentActivity() {
   private val sessionManager: SessionManager by lazy { application.koin.get() }
+  private val appLockController: AppLockController by lazy { application.koin.get() }
   private val navigationSignal: NavigationSignal by lazy { application.koin.get() }
   private val pushNotificationsRouter: PushNotificationsRouter by lazy { application.koin.get() }
 
-  // False positive on ComponentActivity: the Fragment-version check doesn't apply —
+  // false positive on ComponentActivity: the Fragment-version check doesn't apply —
   // registerForActivityResult is natively supported by androidx.activity here.
   @Suppress("InvalidFragmentVersionForActivityResult")
   private val requestNotificationsPermission = registerForActivityResult(
@@ -50,6 +53,7 @@ class MainActivity : ComponentActivity() {
     RootComponent(
       componentContext = defaultComponentContext(),
       sessionManager = sessionManager,
+      appLockController = appLockController,
       navigationSignal = navigationSignal,
       authComponentFactory = { ctx ->
         AuthComponent(
@@ -93,6 +97,16 @@ class MainActivity : ComponentActivity() {
     )
     super.onCreate(savedInstanceState)
     lifecycleScope.launch { sessionManager.initialize() }
+    // Keep the sensitive UI out of the recents thumbnail / screenshots while the lock is on.
+    lifecycleScope.launch {
+      appLockController.enabled.collect { enabled ->
+        if (enabled) {
+          window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        } else {
+          window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        }
+      }
+    }
     setContent { App(root) }
     requestNotificationsPermissionIfNeeded()
     pushNotificationsRouter.route(intent)

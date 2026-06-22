@@ -5,6 +5,7 @@ import com.arkivanov.decompose.DefaultComponentContext
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
 import com.arkivanov.essenty.lifecycle.resume
 import com.frame.zero.core.navigation.NavigationSignal
+import com.frame.zero.core.security.AppLockController
 import com.frame.zero.core.session.SessionManager
 import com.frame.zero.di.initKoin
 import com.frame.zero.feature.RootComponent
@@ -25,18 +26,30 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import org.koin.core.parameter.parametersOf
+import platform.Foundation.NSNotificationCenter
+import platform.Foundation.NSOperationQueue
+import platform.UIKit.UIApplicationDidEnterBackgroundNotification
 
 private val iosScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
 private val iosRoot: RootComponent by lazy {
   val koin = initKoin()
   val sessionManager = koin.get<SessionManager>()
+  val appLockController = koin.get<AppLockController>()
   val lifecycle = LifecycleRegistry()
   lifecycle.resume()
   iosScope.launch { sessionManager.initialize() }
+  // The iOS process survives backgrounding, so re-lock by observing the system
+  // background notification instead of the Decompose lifecycle.
+  NSNotificationCenter.defaultCenter.addObserverForName(
+    name = UIApplicationDidEnterBackgroundNotification,
+    `object` = null,
+    queue = NSOperationQueue.mainQueue
+  ) { appLockController.onBackgrounded() }
   RootComponent(
     componentContext = DefaultComponentContext(lifecycle = lifecycle),
     sessionManager = sessionManager,
+    appLockController = appLockController,
     navigationSignal = koin.get<NavigationSignal>(),
     authComponentFactory = { ctx ->
       AuthComponent(

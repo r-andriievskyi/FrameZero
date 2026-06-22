@@ -1,4 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="app_name">FrameZero</string>
+
+  <!-- Biometric app lock -->
+  <string name="lock_title">FrameZero is locked</string>
+  <string name="lock_subtitle">Unlock to view your productions and tasks.</string>
+  <string name="lock_unlock_button">Unlock</string>
+  <string name="lock_sign_out_button">Sign out instead</string>
+  <string name="lock_prompt_title">Unlock FrameZero</string>
+  <string name="lock_prompt_subtitle">Confirm your identity to continue.</string>
+  <string name="lock_prompt_cancel">Cancel</string>
 </resources>
