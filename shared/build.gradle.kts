@@ -68,6 +68,8 @@ kotlin {
     }
     androidMain.dependencies {
       implementation(libs.ktor.clientOkHttp)
+      implementation(libs.androidx.biometric)
+      implementation(libs.androidx.fragment)
     }
     iosMain.dependencies { implementation(libs.ktor.clientDarwin) }
     commonTest.dependencies {

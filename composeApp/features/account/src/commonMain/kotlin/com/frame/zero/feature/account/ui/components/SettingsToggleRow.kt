@@ -1,6 +1,5 @@
 package com.frame.zero.feature.account.ui.components
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,37 +9,38 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
-import com.frame.zero.shared.design_system.generated.resources.ic_chevron_right
-import com.frame.zero.shared.design_system.modifier.clickableWithRipple
 import com.frame.zero.shared.design_system.widgets.HorizontalSpacer
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import framezero.composeapp.features.account.generated.resources.Res
-import framezero.composeapp.features.account.generated.resources.ic_user
+import framezero.composeapp.features.account.generated.resources.ic_lock
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
-import com.frame.zero.shared.design_system.generated.resources.Res as DesignSystemRes
 
 private val IconContainerSize = 40.dp
 
+/**
+ * Settings row with a trailing [Switch] instead of a navigation chevron. The whole row is
+ * inert except the switch — toggling is the only action.
+ */
 @Composable
-internal fun SettingsRow(
+internal fun SettingsToggleRow(
   icon: DrawableResource,
   title: String,
   subtitle: String,
-  modifier: Modifier = Modifier,
-  onClick: () -> Unit = {}
+  checked: Boolean,
+  onCheckedChange: (Boolean) -> Unit,
+  modifier: Modifier = Modifier
 ) {
   val colorSystem = AppTheme.colorSystem
   val spacingSystem = AppTheme.spacingSystem
@@ -48,13 +48,6 @@ internal fun SettingsRow(
   Row(
     modifier = modifier
       .fillMaxWidth()
-      .clickableWithRipple(
-        color = colorSystem.accentDim,
-        bounded = true,
-        role = Role.Button,
-        onClick = onClick
-      )
-      .semantics(mergeDescendants = true) {}
       .padding(
         horizontal = spacingSystem.space16,
         vertical = spacingSystem.space16
@@ -89,22 +82,31 @@ internal fun SettingsRow(
         color = colorSystem.textMuted
       )
     }
-    Image(
-      painter = painterResource(DesignSystemRes.drawable.ic_chevron_right),
-      contentDescription = null,
-      colorFilter = ColorFilter.tint(colorSystem.textMuted)
+    HorizontalSpacer(spacingSystem.space12)
+    Switch(
+      checked = checked,
+      onCheckedChange = onCheckedChange,
+      colors = SwitchDefaults.colors(
+        checkedThumbColor = colorSystem.textOnAccent,
+        checkedTrackColor = colorSystem.accent,
+        uncheckedThumbColor = colorSystem.textMuted,
+        uncheckedTrackColor = colorSystem.inputBackground,
+        uncheckedBorderColor = colorSystem.border
+      )
     )
   }
 }
 
 @LightDarkPreview
 @Composable
-private fun SettingsRowPreview() {
+private fun SettingsToggleRowPreview() {
   AppTheme {
-    SettingsRow(
-      icon = Res.drawable.ic_user,
-      title = "Edit profile",
-      subtitle = "Maya Rivera"
+    SettingsToggleRow(
+      icon = Res.drawable.ic_lock,
+      title = "Biometric app lock",
+      subtitle = "Require Face ID / fingerprint to open the app",
+      checked = true,
+      onCheckedChange = {}
     )
   }
 }

@@ -73,7 +73,7 @@ jobs:
     needs: [changes, lint]
     if: needs.changes.outputs.code == 'true'
     runs-on: macos-latest
-    timeout-minutes: 30
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: maxim-lobanov/setup-xcode@v1
@@ -95,7 +95,7 @@ jobs:
     needs: [changes, lint]
     if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 15
     env:
       FRAMEZERO_API_BASE_URL: https://api.framezero.invalid
     steps:

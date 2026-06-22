@@ -163,6 +163,29 @@ config files. With no integration registered the facades fan out over an empty
 New feature = both halves (`shared/features/<name>` + `composeApp/features/<name>`),
 registered in `settings.gradle.kts`.
 
+### Biometric app lock
+
+A biometric gate (`shared/.../core/security/`) protects the signed-in session — sensitive
+production/crew/budget data is hidden behind Face ID / fingerprint on cold start and on
+return-to-foreground. It is independent of `SessionManager` (it gates an *already* logged-in
+session, never the auth screen).
+
+- `BiometricAuthenticator` is a platform interface (Android `BiometricPrompt`, iOS
+  `LAContext`) wired through `platformModule()` — same blueprint as `ConnectivityObserver`.
+  Android's impl needs a `FragmentActivity`, supplied by `ActivityHolder` (an
+  `ActivityLifecycleCallbacks` single attached in `FrameZeroApp`); **`MainActivity` therefore
+  extends `FragmentActivity`, not `ComponentActivity`**.
+- `AppLockManager` (commonMain, pure/testable) owns the policy: a persisted enabled flag (in
+  the encrypted token `Settings`) and an `AppLockState` flow. `RootComponent` combines it with
+  the session into `isLocked`, re-locks on `lifecycle.doOnStop` (Android) / the
+  `UIApplicationDidEnterBackground` notification (iOS), and renders `BiometricLockOverlay` over
+  the nav stack. The overlay's sign-out button is the escape hatch if biometrics stop working.
+- The toggle lives in the Account screen; both directions require a successful prompt. The
+  prompt copy (`BiometricPromptText`) is resolved from string resources at the UI layer and
+  passed down — `shared` never touches Compose resources.
+- **iOS runtime needs `NSFaceIDUsageDescription` in `iosApp`'s Info.plist** or the OS kills
+  the app when Face ID is requested (a Swift-side step, flagged for manual edit).
+
 ### Working principle
 
 Owner is an Android engineer with limited iOS/backend experience. Default:

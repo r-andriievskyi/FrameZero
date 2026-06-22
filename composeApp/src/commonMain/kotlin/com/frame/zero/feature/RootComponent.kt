@@ -9,9 +9,13 @@ import com.arkivanov.decompose.router.stack.pop
 import com.arkivanov.decompose.router.stack.push
 import com.arkivanov.decompose.router.stack.replaceAll
 import com.arkivanov.decompose.value.Value
+import com.arkivanov.essenty.backhandler.BackCallback
 import com.arkivanov.essenty.lifecycle.doOnDestroy
 import com.frame.zero.core.navigation.DeepLink
 import com.frame.zero.core.navigation.NavigationSignal
+import com.frame.zero.core.security.AppLockController
+import com.frame.zero.core.security.AppLockState
+import com.frame.zero.core.security.BiometricPromptText
 import com.frame.zero.core.session.SessionManager
 import com.frame.zero.core.session.SessionState
 import com.frame.zero.feature.account.AccountComponent
@@ -31,14 +35,19 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 
 class RootComponent(
   componentContext: ComponentContext,
-  sessionManager: SessionManager,
+  private val sessionManager: SessionManager,
+  private val appLockController: AppLockController,
   navigationSignal: NavigationSignal,
   private val authComponentFactory: (ComponentContext) -> AuthComponent,
   private val homeComponentFactory: (
@@ -58,6 +67,7 @@ class RootComponent(
   private val accountViewModelFactory: () -> AccountViewModel
 ) : ComponentContext by componentContext {
   private val navigation = StackNavigation<Config>()
+  private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
   val stack: Value<ChildStack<Config, Child>> =
     childStack(
@@ -68,9 +78,27 @@ class RootComponent(
       childFactory = ::createChild
     )
 
+  /**
+   * The biometric lock overlay is shown only when the user is signed in *and* the lock
+   * is engaged — a locked session at the auth screen would make no sense. Combines the
+   * session and lock state so the UI observes a single boolean.
+   */
+  val isLocked: StateFlow<Boolean> = combine(
+    sessionManager.state,
+    appLockController.lockState
+  ) { session, lock ->
+    session is SessionState.LoggedIn && lock == AppLockState.Locked
+  }.stateIn(scope, SharingStarted.Eagerly, false)
+
+  // Swallows the system back button while the lock overlay is up so back can't drive the
+  // covered navigation stack (pop a hidden screen, or exit the app) during a locked session.
+  // Registered after the child stack, so it takes priority when enabled.
+  private val lockBackCallback = BackCallback(isEnabled = false) {}
+
   init {
-    val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+    backHandler.register(lockBackCallback)
     lifecycle.doOnDestroy { scope.cancel() }
+    scope.launch { isLocked.collect { locked -> lockBackCallback.isEnabled = locked } }
     scope.launch {
       sessionManager.state.collect { sessionState ->
         val target = when (sessionState) {
@@ -94,6 +122,14 @@ class RootComponent(
           navigationSignal.consume()
         }
     }
+  }
+
+  fun unlock(prompt: BiometricPromptText) {
+    scope.launch { appLockController.authenticate(prompt) }
+  }
+
+  fun onLockSignOut() {
+    scope.launch { sessionManager.logout() }
   }
 
   private fun navigate(deepLink: DeepLink) {

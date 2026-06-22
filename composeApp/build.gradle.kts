@@ -35,6 +35,8 @@ kotlin {
       implementation(project.dependencies.platform(libs.firebase.bom))
       implementation(libs.firebase.messaging)
       implementation(libs.androidx.core.ktx)
+      implementation(libs.androidx.biometric)
+      implementation(libs.androidx.fragment)
       implementation(projects.shared.repositories.deviceToken)
     }
     commonMain.dependencies {
