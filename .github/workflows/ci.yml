@@ -80,6 +80,13 @@ jobs:
         with:
           xcode-version: latest-stable
       - uses: ./.github/actions/setup-build
+      - name: Cache Kotlin/Native (~/.konan)
+        uses: actions/cache@v4
+        with:
+          path: ~/.konan
+          key: konan-${{ runner.os }}-${{ hashFiles('gradle/libs.versions.toml') }}
+          restore-keys: |
+            konan-${{ runner.os }}-
       - name: Build iOS app (Debug, simulator)
         run: |
           xcodebuild build \
