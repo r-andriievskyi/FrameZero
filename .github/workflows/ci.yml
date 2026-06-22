@@ -51,6 +51,13 @@ jobs:
           cache-read-only: ${{ github.ref != 'refs/heads/main' }}
       - name: Build, ktlint, detekt, unit tests
         run: ./gradlew check -x lint
+      - name: Coverage summary
+        if: always()
+        run: |
+          echo "## Unit test coverage" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          ./gradlew :koverLog | grep -i 'coverage' >> "$GITHUB_STEP_SUMMARY" || echo "no coverage data" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
 
   screenshot-tests:
     needs: [changes, lint]
