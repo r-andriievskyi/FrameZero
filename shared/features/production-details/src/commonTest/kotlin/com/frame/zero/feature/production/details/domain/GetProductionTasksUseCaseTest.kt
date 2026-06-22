@@ -18,13 +18,14 @@ class GetProductionTasksUseCaseTest {
     title: String = "Storyboard",
     dueDate: LocalDate? = LocalDate(2026, 6, 24),
     status: TaskStatus = TaskStatus.OPEN
-  ): TaskSummaryDto = TaskSummaryDto(
-    id = id,
-    title = title,
-    productionTitle = "Pilot",
-    dueDate = dueDate,
-    status = status
-  )
+  ): TaskSummaryDto =
+    TaskSummaryDto(
+      id = id,
+      title = title,
+      productionTitle = "Pilot",
+      dueDate = dueDate,
+      status = status
+    )
 
   @Test
   fun `maps task summaries to production tasks deriving isDone from status`() =
