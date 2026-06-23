@@ -7,9 +7,9 @@ import com.frame.zero.dto.dashboard.StatsDto
 import com.frame.zero.dto.task.TaskStatus
 import com.frame.zero.dto.task.TaskSummaryDto
 import com.frame.zero.feature.home.LoadErrorKind
-import com.frame.zero.feature.home.testing.FakeConnectivityObserver
-import com.frame.zero.feature.home.testing.FakeDashboardRepository
-import com.frame.zero.feature.home.testing.FakeUserRepository
+import com.frame.zero.testing.FakeConnectivityObserver
+import com.frame.zero.testing.FakeDashboardRepository
+import com.frame.zero.testing.FakeUserRepository
 import com.frame.zero.core.network.connectivity.OfflineException
 import com.frame.zero.feature.home.usecase.GetDashboardUseCase
 import com.frame.zero.feature.home.usecase.GetMeUseCase

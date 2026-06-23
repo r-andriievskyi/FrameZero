@@ -4,8 +4,8 @@ import com.frame.zero.core.network.connectivity.OfflineException
 import com.frame.zero.domain.DomainError
 import com.frame.zero.domain.Outcome
 import com.frame.zero.domain.production.ProductionDetail
-import com.frame.zero.feature.production.details.testing.FakeProductionsRepository
-import com.frame.zero.feature.production.details.testing.productionDetailDto
+import com.frame.zero.testing.FakeProductionsRepository
+import com.frame.zero.testing.productionDetailDto
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -34,5 +34,16 @@ class GetProductionDetailsUseCaseTest {
 
       val failure = assertIs<Outcome.Failure>(outcome)
       assertEquals(DomainError.Offline("offline"), failure.error)
+    }
+
+  @Test
+  fun `generic exception maps to Unknown failure`() =
+    runTest {
+      val repo = FakeProductionsRepository(getThrows = RuntimeException("boom"))
+
+      val outcome = GetProductionDetailsUseCase(repo)(GetProductionDetailsUseCase.Params("p7"))
+
+      val failure = assertIs<Outcome.Failure>(outcome)
+      assertEquals(DomainError.Unknown("boom"), failure.error)
     }
 }

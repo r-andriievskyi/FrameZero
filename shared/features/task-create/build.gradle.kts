@@ -16,6 +16,7 @@ kotlin {
       implementation(libs.compose.components.resources)
     }
     commonTest.dependencies {
+      implementation(projects.shared.testFixtures)
       implementation(libs.kotlin.test)
       implementation(libs.kotlinx.coroutines.test)
     }

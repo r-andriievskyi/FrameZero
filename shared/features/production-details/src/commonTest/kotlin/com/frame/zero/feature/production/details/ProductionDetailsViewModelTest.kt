@@ -10,9 +10,9 @@ import com.frame.zero.dto.task.TaskSummaryDto
 import com.frame.zero.feature.production.details.domain.DeleteProductionUseCase
 import com.frame.zero.feature.production.details.domain.GetProductionDetailsUseCase
 import com.frame.zero.feature.production.details.domain.GetProductionTasksUseCase
-import com.frame.zero.feature.production.details.testing.FakeProductionsRepository
-import com.frame.zero.feature.production.details.testing.FakeTasksRepository
-import com.frame.zero.feature.production.details.testing.productionDetailDto
+import com.frame.zero.testing.FakeProductionsRepository
+import com.frame.zero.testing.FakeTasksRepository
+import com.frame.zero.testing.productionDetailDto
 import com.frame.zero.repository.productions.ProductionsRepository
 import com.frame.zero.repository.tasks.TasksRepository
 import kotlinx.coroutines.CompletableDeferred

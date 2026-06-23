@@ -6,8 +6,8 @@ import com.frame.zero.domain.Outcome
 import com.frame.zero.domain.production.Genre
 import com.frame.zero.domain.production.Production
 import com.frame.zero.dto.production.CreateCrewMemberDto
-import com.frame.zero.feature.production.testing.FakeProductionsRepository
-import com.frame.zero.feature.production.testing.productionDetailDto
+import com.frame.zero.testing.FakeProductionsRepository
+import com.frame.zero.testing.productionDetailDto
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.LocalDate
 import kotlinx.io.IOException

@@ -6,7 +6,7 @@ import com.frame.zero.domain.Outcome
 import com.frame.zero.dto.task.TaskDetailDto
 import com.frame.zero.dto.task.TaskPriority
 import com.frame.zero.dto.task.TaskStatus
-import com.frame.zero.feature.task.details.testing.FakeTasksRepository
+import com.frame.zero.testing.FakeTasksRepository
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals

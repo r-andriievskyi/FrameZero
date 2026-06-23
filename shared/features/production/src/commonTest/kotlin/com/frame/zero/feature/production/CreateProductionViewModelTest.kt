@@ -2,7 +2,7 @@ package com.frame.zero.feature.production
 
 import com.frame.zero.core.network.connectivity.OfflineException
 import com.frame.zero.feature.production.domain.CreateProductionUseCase
-import com.frame.zero.feature.production.testing.FakeProductionsRepository
+import com.frame.zero.testing.FakeProductionsRepository
 import com.frame.zero.ui.asUiText
 import framezero.shared.features.production.generated.resources.Res
 import framezero.shared.features.production.generated.resources.error_invalid_dates

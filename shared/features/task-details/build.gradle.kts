@@ -14,6 +14,7 @@ kotlin {
       implementation(libs.ktor.clientSerializationJson)
     }
     commonTest.dependencies {
+      implementation(projects.shared.testFixtures)
       implementation(libs.kotlin.test)
       implementation(libs.kotlinx.coroutines.test)
       implementation(libs.ktor.clientMock)

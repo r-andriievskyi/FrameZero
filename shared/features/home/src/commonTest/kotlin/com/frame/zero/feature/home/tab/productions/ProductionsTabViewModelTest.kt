@@ -1,6 +1,6 @@
 package com.frame.zero.feature.home.tab.productions
 
-import com.frame.zero.feature.home.testing.FakeProductionsRepository
+import com.frame.zero.testing.FakeProductionsRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher

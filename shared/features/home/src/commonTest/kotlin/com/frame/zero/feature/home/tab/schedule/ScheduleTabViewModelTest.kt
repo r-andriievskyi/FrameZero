@@ -4,8 +4,8 @@ import com.frame.zero.core.network.connectivity.OfflineException
 import com.frame.zero.domain.schedule.ScheduleView
 import com.frame.zero.dto.schedule.ScheduleResponse
 import com.frame.zero.feature.home.LoadErrorKind
-import com.frame.zero.feature.home.testing.FakeConnectivityObserver
-import com.frame.zero.feature.home.testing.FakeScheduleRepository
+import com.frame.zero.testing.FakeConnectivityObserver
+import com.frame.zero.testing.FakeScheduleRepository
 import com.frame.zero.feature.home.usecase.GetScheduleUseCase
 import com.frame.zero.repository.schedule.ScheduleRepository
 import kotlinx.coroutines.CompletableDeferred
