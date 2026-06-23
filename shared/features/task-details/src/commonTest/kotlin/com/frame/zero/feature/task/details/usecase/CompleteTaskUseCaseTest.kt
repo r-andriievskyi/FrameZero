@@ -6,7 +6,7 @@ import com.frame.zero.domain.Outcome
 import com.frame.zero.dto.task.TaskDetailDto
 import com.frame.zero.dto.task.TaskPriority
 import com.frame.zero.dto.task.TaskStatus
-import com.frame.zero.feature.task.details.testing.FakeTasksRepository
+import com.frame.zero.testing.FakeTasksRepository
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -50,5 +50,16 @@ class CompleteTaskUseCaseTest {
 
       val failure = assertIs<Outcome.Failure>(outcome)
       assertEquals(DomainError.Offline("offline"), failure.error)
+    }
+
+  @Test
+  fun `generic exception maps to Unknown failure`() =
+    runTest {
+      val repo = FakeTasksRepository(task = openTask, completeThrows = RuntimeException("boom"))
+
+      val outcome = CompleteTaskUseCase(repo)("t1")
+
+      val failure = assertIs<Outcome.Failure>(outcome)
+      assertEquals(DomainError.Unknown("boom"), failure.error)
     }
 }

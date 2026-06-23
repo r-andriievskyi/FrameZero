@@ -1,17 +1,16 @@
-package com.frame.zero.feature.auth.testing
+package com.frame.zero.testing
 
 import com.frame.zero.auth.dto.UserDto
-import com.frame.zero.core.session.SessionAuthOperations
 import com.frame.zero.repository.auth.AuthRepository
 
-internal data class RegisterCall(
+data class RegisterCall(
   val email: String,
   val password: String,
   val firstName: String,
   val lastName: String
 )
 
-internal class FakeAuthRepository(
+class FakeAuthRepository(
   private val loginUserDto: UserDto = UserDto("", "", "", ""),
   private val loginThrows: Throwable? = null,
   private val registerUserDto: UserDto = UserDto("", "", "", ""),
@@ -54,10 +53,4 @@ internal class FakeAuthRepository(
     currentUserThrows?.let { throw it }
     return currentUserDto
   }
-}
-
-internal object NoopSessionAuthOperations : SessionAuthOperations {
-  override suspend fun fetchCurrentUser(): UserDto = UserDto(id = "", email = "", firstName = "", lastName = "")
-
-  override suspend fun signOutRemote() = Unit
 }

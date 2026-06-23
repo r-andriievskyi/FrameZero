@@ -2,7 +2,7 @@ package com.frame.zero.feature.task.details
 
 import com.frame.zero.dto.task.TaskAssigneeDto
 import com.frame.zero.dto.task.TaskDetailDto
-import com.frame.zero.feature.task.details.testing.FakeTasksRepository
+import com.frame.zero.testing.FakeTasksRepository
 import com.frame.zero.feature.task.details.usecase.CompleteTaskUseCase
 import com.frame.zero.feature.task.details.usecase.GetTaskDetailsUseCase
 import kotlinx.coroutines.CompletableDeferred

@@ -5,7 +5,7 @@ import com.frame.zero.core.network.connectivity.OfflineException
 import com.frame.zero.domain.DomainError
 import com.frame.zero.domain.Outcome
 import com.frame.zero.domain.User
-import com.frame.zero.feature.home.testing.FakeUserRepository
+import com.frame.zero.testing.FakeUserRepository
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -35,5 +35,16 @@ class GetMeUseCaseTest {
 
       val failure = assertIs<Outcome.Failure>(outcome)
       assertEquals(DomainError.Offline("offline"), failure.error)
+    }
+
+  @Test
+  fun `generic exception maps to Unknown failure`() =
+    runTest {
+      val repo = FakeUserRepository(throws = RuntimeException("boom"))
+
+      val outcome = GetMeUseCase(repo)()
+
+      val failure = assertIs<Outcome.Failure>(outcome)
+      assertEquals(DomainError.Unknown("boom"), failure.error)
     }
 }

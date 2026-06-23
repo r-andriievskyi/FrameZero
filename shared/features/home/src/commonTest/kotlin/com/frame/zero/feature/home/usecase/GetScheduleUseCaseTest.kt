@@ -7,7 +7,7 @@ import com.frame.zero.domain.schedule.Schedule
 import com.frame.zero.domain.schedule.ScheduleView
 import com.frame.zero.dto.schedule.ScheduleDayDto
 import com.frame.zero.dto.schedule.ScheduleResponse
-import com.frame.zero.feature.home.testing.FakeScheduleRepository
+import com.frame.zero.testing.FakeScheduleRepository
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.LocalDate
 import kotlin.test.Test

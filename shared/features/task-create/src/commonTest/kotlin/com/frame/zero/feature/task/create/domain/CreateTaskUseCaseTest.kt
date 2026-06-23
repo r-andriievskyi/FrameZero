@@ -5,8 +5,8 @@ import com.frame.zero.domain.DomainError
 import com.frame.zero.domain.Outcome
 import com.frame.zero.dto.task.TaskDetailDto
 import com.frame.zero.dto.task.TaskPriority
-import com.frame.zero.feature.task.create.testing.FakeTasksRepository
-import com.frame.zero.feature.task.create.testing.taskDetailDto
+import com.frame.zero.testing.FakeTasksRepository
+import com.frame.zero.testing.taskDetailDto
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.LocalDate
 import kotlin.test.Test

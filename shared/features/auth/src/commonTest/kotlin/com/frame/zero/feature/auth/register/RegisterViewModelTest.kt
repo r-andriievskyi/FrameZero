@@ -8,8 +8,8 @@ import com.frame.zero.core.session.UserCache
 import com.frame.zero.domain.DomainError
 import com.frame.zero.domain.DomainException
 import com.frame.zero.feature.auth.domain.RegisterUseCase
-import com.frame.zero.feature.auth.testing.FakeAuthRepository
-import com.frame.zero.feature.auth.testing.NoopSessionAuthOperations
+import com.frame.zero.testing.FakeAuthRepository
+import com.frame.zero.testing.NoopSessionAuthOperations
 import com.frame.zero.repository.auth.AuthRepository
 import com.frame.zero.ui.asUiText
 import com.russhwolf.settings.MapSettings

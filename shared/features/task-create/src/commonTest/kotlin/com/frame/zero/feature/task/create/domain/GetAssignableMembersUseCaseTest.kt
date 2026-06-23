@@ -2,8 +2,8 @@ package com.frame.zero.feature.task.create.domain
 
 import com.frame.zero.domain.Outcome
 import com.frame.zero.domain.task.AssignableMember
-import com.frame.zero.feature.task.create.testing.FakeProductionsRepository
-import com.frame.zero.feature.task.create.testing.productionMemberDto
+import com.frame.zero.testing.FakeProductionsRepository
+import com.frame.zero.testing.productionMemberDto
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals

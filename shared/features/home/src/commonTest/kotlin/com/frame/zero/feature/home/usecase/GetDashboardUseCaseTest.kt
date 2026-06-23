@@ -7,7 +7,7 @@ import com.frame.zero.domain.dashboard.Dashboard
 import com.frame.zero.dto.dashboard.DashboardResponse
 import com.frame.zero.dto.dashboard.GreetingDto
 import com.frame.zero.dto.dashboard.StatsDto
-import com.frame.zero.feature.home.testing.FakeDashboardRepository
+import com.frame.zero.testing.FakeDashboardRepository
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -42,5 +42,16 @@ class GetDashboardUseCaseTest {
 
       val failure = assertIs<Outcome.Failure>(outcome)
       assertEquals(DomainError.Offline("offline"), failure.error)
+    }
+
+  @Test
+  fun `generic exception maps to Unknown failure`() =
+    runTest {
+      val repo = FakeDashboardRepository(throws = RuntimeException("boom"))
+
+      val outcome = GetDashboardUseCase(repo)()
+
+      val failure = assertIs<Outcome.Failure>(outcome)
+      assertEquals(DomainError.Unknown("boom"), failure.error)
     }
 }
