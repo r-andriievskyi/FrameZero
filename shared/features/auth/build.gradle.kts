@@ -7,11 +7,13 @@ kotlin {
     commonMain.dependencies {
       api(projects.shared)
       api(projects.shared.uiText)
-      api(projects.shared.repositories.auth)
-      api(projects.shared.repositories.user)
       api(libs.decompose)
+      implementation(projects.shared.repositories.auth)
+      implementation(projects.shared.repositories.user)
       implementation(libs.koin.core)
       implementation(libs.kotlinx.coroutines.core)
+      implementation(libs.kotlinx.serialization.json)
+      implementation(libs.ktor.clientCore)
       implementation(libs.ktor.clientContentNegotiation)
       implementation(libs.ktor.clientSerializationJson)
       implementation(libs.compose.components.resources)
@@ -23,6 +25,7 @@ kotlin {
       implementation(libs.ktor.clientMock)
       implementation(libs.ktor.clientContentNegotiation)
       implementation(libs.ktor.clientSerializationJson)
+      implementation(libs.multiplatformSettings)
       implementation(libs.multiplatformSettings.test)
     }
   }

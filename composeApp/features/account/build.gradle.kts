@@ -8,7 +8,7 @@ base { archivesName = "ui-feature-account" }
 kotlin {
   sourceSets {
     commonMain.dependencies {
-      api(projects.shared.features.account)
+      implementation(projects.shared.features.account)
       implementation(libs.compose.components.resources)
       implementation(projects.composeApp.shared.designSystem)
     }

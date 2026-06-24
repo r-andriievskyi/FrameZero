@@ -53,13 +53,13 @@ kotlin {
 
   sourceSets {
     commonMain.dependencies {
-      api(libs.kotlinx.serialization.json)
+      implementation(libs.kotlinx.serialization.json)
       api(libs.kotlinx.coroutines.core)
       api(libs.kotlinx.datetime)
       api(libs.kotlinx.collections.immutable)
       api(libs.koin.core)
-      api(libs.ktor.clientCore)
-      api(libs.multiplatformSettings)
+      implementation(libs.ktor.clientCore)
+      implementation(libs.multiplatformSettings)
       implementation(libs.ktor.clientAuth)
       implementation(libs.ktor.clientContentNegotiation)
       implementation(libs.ktor.clientLogging)

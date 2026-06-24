@@ -56,6 +56,7 @@ kotlin {
       implementation(projects.shared.features.productionDetails)
       implementation(projects.shared.features.taskDetails)
       implementation(projects.shared.features.taskCreate)
+      implementation(projects.shared.repositories.productions)
       implementation(projects.shared.repositories.deviceToken)
       implementation(projects.shared.integrations.firebase)
       implementation(projects.composeApp.features.account)

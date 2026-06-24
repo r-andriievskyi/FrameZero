@@ -20,6 +20,7 @@ kotlin {
       implementation(libs.ktor.clientMock)
       implementation(libs.ktor.clientContentNegotiation)
       implementation(libs.ktor.clientSerializationJson)
+      implementation(libs.kotlinx.serialization.json)
     }
   }
 }
