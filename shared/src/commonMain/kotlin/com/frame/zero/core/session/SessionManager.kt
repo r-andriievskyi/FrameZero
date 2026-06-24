@@ -32,6 +32,9 @@ class SessionManager(
       _state.update { SessionState.LoggedOut }
       return
     }
+    userCache.load()?.let { cachedUser ->
+      _state.update { SessionState.LoggedIn(cachedUser) }
+    }
     runCatching { authOperations.fetchCurrentUser() }
       .fold(
         onSuccess = { dto ->

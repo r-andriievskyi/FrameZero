@@ -3,9 +3,12 @@ package com.frame.zero.core.session
 import com.frame.zero.auth.dto.UserDto
 import com.frame.zero.domain.User
 import com.russhwolf.settings.MapSettings
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -57,6 +60,30 @@ class SessionManagerTest {
       manager.initialize()
 
       assertEquals(user, cache.load())
+    }
+
+  @Test
+  fun `initialize restores cached session immediately without waiting for fetch`() =
+    runTest {
+      val storage = TokenStorage(MapSettings()).also { it.saveTokens("a", "r") }
+      val cache = UserCache(MapSettings()).also { it.save(user) }
+      val gate = CompletableDeferred<UserDto>()
+      val ops = object : SessionAuthOperations {
+        override suspend fun fetchCurrentUser(): UserDto = gate.await()
+
+        override suspend fun signOutRemote() = Unit
+      }
+      val manager = SessionManager(storage, ops, cache, LogoutSignal(), scope = backgroundScope)
+
+      val job = launch { manager.initialize() }
+      runCurrent()
+
+      assertEquals(SessionState.LoggedIn(user), manager.state.value)
+      assertTrue(job.isActive)
+
+      gate.complete(userDto)
+      job.join()
+      assertEquals(SessionState.LoggedIn(user), manager.state.value)
     }
 
   @Test
