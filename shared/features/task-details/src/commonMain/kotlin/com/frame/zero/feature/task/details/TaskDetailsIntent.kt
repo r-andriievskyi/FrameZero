@@ -4,4 +4,8 @@ sealed interface TaskDetailsIntent {
   data object Refresh : TaskDetailsIntent
 
   data object MarkComplete : TaskDetailsIntent
+
+  data object DownloadAttachment : TaskDetailsIntent
+
+  data object AttachmentErrorDismissed : TaskDetailsIntent
 }

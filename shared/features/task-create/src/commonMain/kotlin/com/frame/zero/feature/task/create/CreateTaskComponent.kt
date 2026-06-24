@@ -36,6 +36,7 @@ class CreateTaskComponent(
       .onEach { event ->
         when (event) {
           is CreateTaskEvent.Created -> onCreated(event.taskId)
+          CreateTaskEvent.UploadEnqueued -> onBack()
         }
       }.launchIn(scope)
   }

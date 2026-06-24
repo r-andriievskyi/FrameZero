@@ -9,12 +9,14 @@ import com.frame.zero.dto.production.CreateProductionRequest
 import com.frame.zero.dto.task.CreateTaskRequest
 import com.frame.zero.dto.task.UpdateTaskRequest
 import com.frame.zero.notification.TaskAssignmentNotifier
+import com.frame.zero.task.testing.FakeTaskRepository
 import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.LocalDate
 import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class TaskServiceTest {
@@ -163,6 +165,63 @@ class TaskServiceTest {
 
       val error = assertFailsWith<AppException> { env.taskService.getAttachment(owner, task.id) }
       assertEquals(AppError.NotFound, error.error)
+    }
+
+  @Test
+  fun `losing the idempotency insert race returns the winning task and deletes the orphan blob`() =
+    runBlocking {
+      val env = TestAppEnv()
+      val owner = UUID.randomUUID()
+      val prod = env.productionService.createProduction(owner, productionRequest)
+      val productionId = UUID.fromString(prod.id)
+
+      // Models the race window: the loser's *first* idempotency lookup misses (the
+      // winner's row isn't visible yet), so it proceeds to insert and collides on
+      // the unique key; the post-collision lookup then sees the winner.
+      val racingRepo =
+        object : FakeTaskRepository() {
+          var lookups = 0
+
+          override suspend fun findByIdempotencyKey(idempotencyKey: String): TaskRecord? {
+            lookups++
+            return if (lookups == 1) null else super.findByIdempotencyKey(idempotencyKey)
+          }
+        }
+      // The winner has already persisted with this key.
+      val winner =
+        racingRepo.create(
+          productionId = productionId,
+          title = "Winner",
+          description = null,
+          dueDate = null,
+          assigneeUserId = null,
+          idempotencyKey = "key-1"
+        )
+
+      val service =
+        TaskService(
+          racingRepo,
+          env.access,
+          env.transactor,
+          env.notificationsRepo,
+          env.assignmentNotifier,
+          env.fileStorage
+        )
+
+      // The loser arrives with the same key and a freshly stored attachment.
+      val blob = env.fileStorage.store("hello".byteInputStream(), MAX_ATTACHMENT_BYTES)
+      val orphan = NewAttachment("f.bin", "application/octet-stream", blob.sizeBytes, blob.storageKey)
+
+      val result =
+        service.create(
+          owner,
+          CreateTaskRequest(productionId = prod.id, title = "Loser"),
+          attachment = orphan,
+          idempotencyKey = "key-1"
+        )
+
+      assertEquals(winner.id.toString(), result.id, "must return the winning task, not 500")
+      assertFalse(env.fileStorage.exists(blob.storageKey), "the loser's orphaned blob must be cleaned up")
     }
 
   @Test

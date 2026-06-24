@@ -1,10 +1,13 @@
 package com.frame.zero.feature.task.details
 
 import com.arkivanov.essenty.instancekeeper.InstanceKeeper
+import com.frame.zero.core.files.AttachmentFileManager
+import com.frame.zero.domain.DomainError
 import com.frame.zero.domain.Outcome
 import com.frame.zero.dto.task.TaskDetailDto
 import com.frame.zero.feature.task.details.usecase.CompleteTaskUseCase
 import com.frame.zero.feature.task.details.usecase.GetTaskDetailsUseCase
+import com.frame.zero.repository.tasks.TasksRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -31,6 +34,8 @@ class TaskDetailsViewModel(
   private val taskId: String,
   private val getTaskDetailsUseCase: GetTaskDetailsUseCase,
   private val completeTaskUseCase: CompleteTaskUseCase,
+  private val tasksRepository: TasksRepository,
+  private val attachmentFileManager: AttachmentFileManager,
   dispatcher: CoroutineContext = Dispatchers.Main.immediate
 ) : InstanceKeeper.Instance {
   private val scope = CoroutineScope(dispatcher + SupervisorJob())
@@ -52,8 +57,36 @@ class TaskDetailsViewModel(
     when (intent) {
       TaskDetailsIntent.Refresh -> load()
       TaskDetailsIntent.MarkComplete -> markComplete()
+      TaskDetailsIntent.DownloadAttachment -> downloadAttachment()
+      TaskDetailsIntent.AttachmentErrorDismissed -> _state.update { it.copy(attachmentError = null) }
     }
   }
+
+  private fun downloadAttachment() {
+    val attachment = _state.value.attachment ?: return
+    if (_state.value.isDownloadingAttachment) return
+    _state.update { it.copy(isDownloadingAttachment = true, attachmentError = null) }
+    scope.launch {
+      val outcome = tasksRepository.downloadAttachment(taskId, attachment.fileName, attachment.sizeBytes)
+      when (outcome) {
+        is Outcome.Success -> {
+          attachmentFileManager.openWith(outcome.data, attachment.contentType)
+          _state.update { it.copy(isDownloadingAttachment = false) }
+        }
+        is Outcome.Failure ->
+          _state.update {
+            it.copy(isDownloadingAttachment = false, attachmentError = outcome.error.toDownloadError())
+          }
+      }
+    }
+  }
+
+  private fun DomainError.toDownloadError(): AttachmentDownloadError =
+    when (this) {
+      is DomainError.Offline -> AttachmentDownloadError.OFFLINE
+      DomainError.InsufficientStorage -> AttachmentDownloadError.INSUFFICIENT_STORAGE
+      else -> AttachmentDownloadError.GENERIC
+    }
 
   @OptIn(ExperimentalTime::class)
   private fun load() {
@@ -98,10 +131,33 @@ class TaskDetailsViewModel(
       dueDate = dueDate,
       isDueToday = dueDate == today,
       description = description.orEmpty(),
+      attachment = attachment?.let {
+        TaskAttachment(
+          fileName = it.fileName,
+          sizeLabel = formatFileSize(it.sizeBytes),
+          contentType = it.contentType,
+          sizeBytes = it.sizeBytes
+        )
+      },
       isLoading = false,
       isError = false,
       showMarkCompleteButton = mappedStatus != TaskStatus.COMPLETED
     )
+  }
+
+  private fun formatFileSize(bytes: Long): String {
+    val kb = 1024.0
+    val mb = kb * 1024
+    return when {
+      bytes >= mb -> formatOneDecimal(bytes / mb) + " MB"
+      bytes >= kb -> formatOneDecimal(bytes / kb) + " KB"
+      else -> "$bytes B"
+    }
+  }
+
+  private fun formatOneDecimal(value: Double): String {
+    val rounded = (value * 10).toLong()
+    return "${rounded / 10}.${rounded % 10}"
   }
 
   private fun DtoTaskStatus.toFeatureStatus(): TaskStatus =

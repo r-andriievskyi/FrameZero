@@ -3,6 +3,7 @@ package com.frame.zero.task.testing
 import com.frame.zero.dto.task.TaskPriority
 import com.frame.zero.dto.task.TaskStatus
 import com.frame.zero.task.AttachmentRecord
+import com.frame.zero.task.DuplicateIdempotencyKeyException
 import com.frame.zero.task.NewAttachment
 import com.frame.zero.task.TaskRecord
 import com.frame.zero.task.TaskRepository
@@ -10,7 +11,7 @@ import kotlin.time.Clock
 import kotlinx.datetime.LocalDate
 import java.util.UUID
 
-internal class FakeTaskRepository : TaskRepository {
+internal open class FakeTaskRepository : TaskRepository {
   val tasks: MutableList<TaskRecord> = mutableListOf()
   private val idempotencyKeys: MutableMap<String, UUID> = mutableMapOf()
 
@@ -24,6 +25,11 @@ internal class FakeTaskRepository : TaskRepository {
     idempotencyKey: String?,
     attachment: NewAttachment?
   ): TaskRecord {
+    // Model the unique index on tasks.idempotency_key so concurrent-retry tests
+    // hit the same collision path as Postgres.
+    if (idempotencyKey != null && idempotencyKeys.containsKey(idempotencyKey)) {
+      throw DuplicateIdempotencyKeyException()
+    }
     val record =
       TaskRecord(
         id = UUID.randomUUID(),

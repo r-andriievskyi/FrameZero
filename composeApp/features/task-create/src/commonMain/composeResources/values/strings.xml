@@ -32,6 +32,10 @@
   <string name="date_picker_ok">OK</string>
   <string name="date_picker_cancel">Cancel</string>
 
+  <string name="label_attachment">ATTACHMENT (OPTIONAL)</string>
+  <string name="attach_file">Attach a file</string>
+  <string name="attachment_remove">Remove</string>
+
   <string name="create_task">Create task</string>
 </resources>
 

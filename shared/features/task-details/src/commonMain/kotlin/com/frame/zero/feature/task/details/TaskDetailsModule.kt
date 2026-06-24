@@ -13,6 +13,12 @@ val featureTaskDetailsModule: Module =
     factory { GetTaskDetailsUseCase(get()) }
     factory { CompleteTaskUseCase(get()) }
     factory { (taskId: String) ->
-      TaskDetailsViewModel(taskId = taskId, getTaskDetailsUseCase = get(), completeTaskUseCase = get())
+      TaskDetailsViewModel(
+        taskId = taskId,
+        getTaskDetailsUseCase = get(),
+        completeTaskUseCase = get(),
+        tasksRepository = get(),
+        attachmentFileManager = get()
+      )
     }
   }

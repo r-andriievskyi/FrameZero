@@ -2,6 +2,7 @@
 <resources>
   <!-- CreateTaskViewModel error messages -->
   <string name="error_title_required">Give the task a title.</string>
+  <string name="error_file_too_large">That file is over the 50 MB limit. Pick a smaller file.</string>
   <string name="error_network">No internet connection. Check your connection and try again.</string>
   <string name="error_server">The server is unavailable. Please try again later.</string>
   <string name="error_forbidden">You don\'t have permission to add tasks here.</string>
