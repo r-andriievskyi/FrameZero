@@ -2,6 +2,8 @@ package com.frame.zero.task.testing
 
 import com.frame.zero.dto.task.TaskPriority
 import com.frame.zero.dto.task.TaskStatus
+import com.frame.zero.task.AttachmentRecord
+import com.frame.zero.task.NewAttachment
 import com.frame.zero.task.TaskRecord
 import com.frame.zero.task.TaskRepository
 import kotlin.time.Clock
@@ -10,6 +12,7 @@ import java.util.UUID
 
 internal class FakeTaskRepository : TaskRepository {
   val tasks: MutableList<TaskRecord> = mutableListOf()
+  private val idempotencyKeys: MutableMap<String, UUID> = mutableMapOf()
 
   override suspend fun create(
     productionId: UUID,
@@ -17,7 +20,9 @@ internal class FakeTaskRepository : TaskRepository {
     description: String?,
     dueDate: LocalDate?,
     assigneeUserId: UUID?,
-    priority: TaskPriority
+    priority: TaskPriority,
+    idempotencyKey: String?,
+    attachment: NewAttachment?
   ): TaskRecord {
     val record =
       TaskRecord(
@@ -32,13 +37,23 @@ internal class FakeTaskRepository : TaskRepository {
         assigneeUserId = assigneeUserId,
         assigneeName = null,
         assigneeAvatarColorHex = null,
-        createdAt = Clock.System.now()
+        createdAt = Clock.System.now(),
+        attachment = attachment?.let {
+          AttachmentRecord(it.fileName, it.contentType, it.sizeBytes, it.storageKey)
+        }
       )
     tasks += record
+    if (idempotencyKey != null) idempotencyKeys[idempotencyKey] = record.id
     return record
   }
 
   override suspend fun findById(id: UUID): TaskRecord? = tasks.firstOrNull { it.id == id }
+
+  override suspend fun findByIdempotencyKey(idempotencyKey: String): TaskRecord? =
+    idempotencyKeys[idempotencyKey]?.let { id -> tasks.firstOrNull { it.id == id } }
+
+  override suspend fun findAttachment(taskId: UUID): AttachmentRecord? =
+    tasks.firstOrNull { it.id == taskId }?.attachment
 
   override suspend fun findForUser(
     userId: UUID,

@@ -4,6 +4,7 @@ data class AppConfig(
   val database: DatabaseConfig,
   val jwt: JwtConfig,
   val firebase: FirebaseConfig,
+  val fileStorage: FileStorageConfig,
   val corsAllowedOrigins: List<String> = emptyList(),
   val isDevelopment: Boolean = false
 ) {
@@ -13,6 +14,7 @@ data class AppConfig(
         database = DatabaseConfig.fromEnv(),
         jwt = JwtConfig.fromEnv(),
         firebase = FirebaseConfig.fromEnv(),
+        fileStorage = FileStorageConfig.fromEnv(),
         corsAllowedOrigins = System.getenv("CORS_ALLOWED_ORIGINS")
           .orEmpty()
           .split(',')
@@ -33,6 +35,28 @@ data class AppConfig(
     require(firebase.credentialsPath.isNotBlank()) {
       "FIREBASE_CREDENTIALS_PATH must point to a Firebase service-account JSON " +
         "(needed to send push notifications)"
+    }
+    fileStorage.ensureWritableDir()
+  }
+}
+
+data class FileStorageConfig(
+  val directory: String
+) {
+  companion object {
+    fun fromEnv(): FileStorageConfig =
+      FileStorageConfig(
+        directory = env("FILE_STORAGE_DIR", "./uploads")
+      )
+  }
+
+  fun ensureWritableDir() {
+    val dir = java.io.File(directory)
+    require(dir.exists() || dir.mkdirs()) {
+      "FILE_STORAGE_DIR '$directory' does not exist and could not be created"
+    }
+    require(dir.isDirectory && dir.canWrite()) {
+      "FILE_STORAGE_DIR '$directory' must be a writable directory"
     }
   }
 }

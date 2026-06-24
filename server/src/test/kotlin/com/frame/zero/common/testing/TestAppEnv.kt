@@ -23,6 +23,8 @@ import com.frame.zero.production.testing.FakeProductionRepository
 import com.frame.zero.schedule.ScheduleService
 import com.frame.zero.schedule.scheduleRoutes
 import com.frame.zero.schedule.testing.FakeScheduleEventRepository
+import com.frame.zero.storage.FileStorage
+import com.frame.zero.storage.FilesystemFileStorage
 import com.frame.zero.task.TaskService
 import com.frame.zero.task.taskRoutes
 import com.frame.zero.task.testing.FakeTaskRepository
@@ -76,7 +78,11 @@ internal class TestAppEnv {
   // calling test (the fakes never really suspend), keeping assertions deterministic.
   // todo dispatcher
   val assignmentNotifier = TaskAssignmentNotifier(deviceTokens, pushSender, CoroutineScope(UnconfinedTestDispatcher()))
-  val taskService = TaskService(tasks, access, transactor, notificationsRepo, assignmentNotifier)
+  val fileStorage: FileStorage =
+    FilesystemFileStorage(
+      java.nio.file.Files.createTempDirectory("framezero-test-uploads").toFile().absolutePath
+    )
+  val taskService = TaskService(tasks, access, transactor, notificationsRepo, assignmentNotifier, fileStorage)
   val scheduleService = ScheduleService(scheduleEvents, tasks, access, transactor)
   val notificationService = NotificationService(notificationsRepo, transactor)
   val deviceTokenService = DeviceTokenService(deviceTokens, transactor)
@@ -90,6 +96,7 @@ internal class TestAppEnv {
           single { productionService }
           single { dashboardService }
           single { taskService }
+          single { fileStorage }
           single { scheduleService }
           single { notificationService }
           single { deviceTokenService }

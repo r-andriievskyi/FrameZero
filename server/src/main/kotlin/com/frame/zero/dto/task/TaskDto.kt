@@ -38,7 +38,8 @@ data class TaskDetailDto(
   val priority: TaskPriority,
   val assigneeUserId: String?,
   val assignee: TaskAssigneeDto?,
-  val createdAt: Instant
+  val createdAt: Instant,
+  val attachment: TaskAttachmentDto? = null
 )
 
 @Serializable
@@ -46,6 +47,13 @@ data class TaskAssigneeDto(
   val userId: String,
   val name: String,
   val avatarColorHex: String?
+)
+
+@Serializable
+data class TaskAttachmentDto(
+  val fileName: String,
+  val sizeBytes: Long,
+  val contentType: String
 )
 
 @Serializable

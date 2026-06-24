@@ -1,5 +1,7 @@
 package com.frame.zero.task
 
+import com.frame.zero.AppError
+import com.frame.zero.AppException
 import com.frame.zero.common.testing.TestAppEnv
 import com.frame.zero.domain.production.Genre
 import com.frame.zero.dto.device.DevicePlatform
@@ -12,6 +14,7 @@ import kotlinx.datetime.LocalDate
 import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 class TaskServiceTest {
@@ -139,6 +142,27 @@ class TaskServiceTest {
 
       assertTrue(env.notificationsRepo.notifications.isEmpty())
       assertTrue(env.pushSender.sent.isEmpty())
+    }
+
+  @Test
+  fun `getAttachment fails with NotFound when the blob is missing on disk`() =
+    runBlocking {
+      val env = TestAppEnv()
+      val owner = UUID.randomUUID()
+      val prod = env.productionService.createProduction(owner, productionRequest)
+      // Row present but the blob was never written (storage key points at nothing) —
+      // simulates metadata/blob drift. getAttachment must reject before any streaming.
+      val task = env.tasks.create(
+        productionId = UUID.fromString(prod.id),
+        title = "Drifted",
+        description = null,
+        dueDate = null,
+        assigneeUserId = null,
+        attachment = NewAttachment("f.bin", "application/octet-stream", 3, "missing-key")
+      )
+
+      val error = assertFailsWith<AppException> { env.taskService.getAttachment(owner, task.id) }
+      assertEquals(AppError.NotFound, error.error)
     }
 
   @Test

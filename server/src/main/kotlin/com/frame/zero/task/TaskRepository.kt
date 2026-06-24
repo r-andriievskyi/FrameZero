@@ -9,6 +9,7 @@ import com.frame.zero.dto.task.TaskPriority
 import com.frame.zero.dto.task.TaskStatus
 import com.frame.zero.production.ProductionMembersTable
 import com.frame.zero.production.ProductionsTable
+import kotlinx.datetime.LocalDate
 import org.jetbrains.exposed.v1.core.JoinType
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.ResultRow
@@ -28,10 +29,7 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.update
 import java.util.UUID
 import kotlin.time.Instant
-import kotlinx.datetime.LocalDate
 
-// Cursor sentinel for tasks without a due date; they sort after every real
-// date (NULLS LAST), so the sentinel must be the maximum encodable value.
 private const val NULL_DUE_DATE_CURSOR = Long.MAX_VALUE
 
 data class TaskRecord(
@@ -46,7 +44,24 @@ data class TaskRecord(
   val assigneeUserId: UUID?,
   val assigneeName: String?,
   val assigneeAvatarColorHex: String?,
-  val createdAt: Instant
+  val createdAt: Instant,
+  val attachment: AttachmentRecord? = null
+)
+
+/** Attachment metadata for a task; [storageKey] locates the bytes in [com.frame.zero.storage.FileStorage]. */
+data class AttachmentRecord(
+  val fileName: String,
+  val contentType: String,
+  val sizeBytes: Long,
+  val storageKey: String
+)
+
+/** A freshly stored blob ready to be linked to a new task. */
+data class NewAttachment(
+  val fileName: String,
+  val contentType: String,
+  val sizeBytes: Long,
+  val storageKey: String
 )
 
 interface TaskRepository {
@@ -56,10 +71,16 @@ interface TaskRepository {
     description: String?,
     dueDate: LocalDate?,
     assigneeUserId: UUID?,
-    priority: TaskPriority = TaskPriority.MEDIUM
+    priority: TaskPriority = TaskPriority.MEDIUM,
+    idempotencyKey: String? = null,
+    attachment: NewAttachment? = null
   ): TaskRecord
 
   suspend fun findById(id: UUID): TaskRecord?
+
+  suspend fun findByIdempotencyKey(idempotencyKey: String): TaskRecord?
+
+  suspend fun findAttachment(taskId: UUID): AttachmentRecord?
 
   suspend fun findForUser(
     userId: UUID,
@@ -102,7 +123,9 @@ class TaskRepositoryImpl : TaskRepository {
     description: String?,
     dueDate: LocalDate?,
     assigneeUserId: UUID?,
-    priority: TaskPriority
+    priority: TaskPriority,
+    idempotencyKey: String?,
+    attachment: NewAttachment?
   ): TaskRecord =
     dbQuery {
       val newId = UUID.randomUUID()
@@ -117,12 +140,24 @@ class TaskRepositoryImpl : TaskRepository {
         it[TasksTable.priority] = priority.name
         it[TasksTable.assigneeUserId] = assigneeUserId
         it[createdAt] = now
+        it[TasksTable.idempotencyKey] = idempotencyKey
+      }
+      if (attachment != null) {
+        TaskAttachmentsTable.insert {
+          it[id] = UUID.randomUUID()
+          it[taskId] = newId
+          it[fileName] = attachment.fileName
+          it[contentType] = attachment.contentType
+          it[sizeBytes] = attachment.sizeBytes
+          it[storageKey] = attachment.storageKey
+          it[createdAt] = now
+        }
       }
       val prodTitle = ProductionsTable
         .selectAll()
         .where { ProductionsTable.id eq productionId }
         .singleOrNull()
-        ?.get(ProductionsTable.title) ?: ""
+        ?.get(ProductionsTable.title).orEmpty()
       TaskRecord(
         id = newId,
         productionId = productionId,
@@ -135,7 +170,10 @@ class TaskRepositoryImpl : TaskRepository {
         assigneeUserId = assigneeUserId,
         assigneeName = null,
         assigneeAvatarColorHex = null,
-        createdAt = now
+        createdAt = now,
+        attachment = attachment?.let {
+          AttachmentRecord(it.fileName, it.contentType, it.sizeBytes, it.storageKey)
+        }
       )
     }
 
@@ -146,7 +184,20 @@ class TaskRepositoryImpl : TaskRepository {
         .where { TasksTable.id eq id }
         .singleOrNull()
         ?.toRecord()
+        ?.let { it.copy(attachment = attachmentFor(it.id)) }
     }
+
+  override suspend fun findByIdempotencyKey(idempotencyKey: String): TaskRecord? =
+    dbQuery {
+      tasksWithRelations
+        .selectAll()
+        .where { TasksTable.idempotencyKey eq idempotencyKey }
+        .singleOrNull()
+        ?.toRecord()
+        ?.let { it.copy(attachment = attachmentFor(it.id)) }
+    }
+
+  override suspend fun findAttachment(taskId: UUID): AttachmentRecord? = dbQuery { attachmentFor(taskId) }
 
   override suspend fun findForUser(
     userId: UUID,
@@ -287,14 +338,11 @@ class TaskRepositoryImpl : TaskRepository {
       TasksTable.deleteWhere { TasksTable.id eq id } > 0
     }
 
-  // Non-deleted productions the user owns or is a member of. Must be called
-  // inside a dbQuery transaction.
   private fun accessibleProductionIds(userId: UUID): List<UUID> {
-    val memberProductionIds =
-      ProductionMembersTable
-        .selectAll()
-        .where { ProductionMembersTable.userId eq userId }
-        .map { it[ProductionMembersTable.productionId] }
+    val memberProductionIds = ProductionMembersTable
+      .selectAll()
+      .where { ProductionMembersTable.userId eq userId }
+      .map { it[ProductionMembersTable.productionId] }
     return ProductionsTable
       .selectAll()
       .where {
@@ -317,6 +365,22 @@ class TaskRepositoryImpl : TaskRepository {
       TasksTable.assigneeUserId,
       UsersTable.id
     )
+
+  // Attachment metadata for a task, if any. Must be called inside a dbQuery
+  // transaction. Kept separate from the list join so summary queries stay lean.
+  private fun attachmentFor(taskId: UUID): AttachmentRecord? =
+    TaskAttachmentsTable
+      .selectAll()
+      .where { TaskAttachmentsTable.taskId eq taskId }
+      .singleOrNull()
+      ?.let {
+        AttachmentRecord(
+          fileName = it[TaskAttachmentsTable.fileName],
+          contentType = it[TaskAttachmentsTable.contentType],
+          sizeBytes = it[TaskAttachmentsTable.sizeBytes],
+          storageKey = it[TaskAttachmentsTable.storageKey]
+        )
+      }
 
   private fun ResultRow.toRecord(): TaskRecord =
     TaskRecord(
