@@ -183,6 +183,7 @@ class CreateProductionViewModel(
       DomainError.InvalidCredentials -> Res.string.error_auth_failed.asUiText()
       DomainError.EmailAlreadyExists -> Res.string.error_email_exists.asUiText()
       DomainError.NotFound,
+      DomainError.InsufficientStorage,
       is DomainError.Unknown -> Res.string.error_unknown_fallback.asUiText()
     }
 

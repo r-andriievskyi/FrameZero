@@ -155,6 +155,7 @@ class CreateTaskViewModel(
       DomainError.Conflict -> Res.string.error_conflict.asUiText()
       DomainError.InvalidCredentials -> Res.string.error_auth_failed.asUiText()
       DomainError.EmailAlreadyExists,
+      DomainError.InsufficientStorage,
       is DomainError.Unknown -> Res.string.error_unknown_fallback.asUiText()
     }
 

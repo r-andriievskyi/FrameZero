@@ -19,6 +19,7 @@ import com.frame.zero.core.navigation.NavigationSignal
 import com.frame.zero.core.security.AppLockController
 import com.frame.zero.core.session.SessionManager
 import com.frame.zero.feature.RootComponent
+import com.frame.zero.core.files.AndroidFilePicker
 import com.frame.zero.push.PushNotificationsRouter
 import com.frame.zero.feature.account.AccountViewModel
 import com.frame.zero.feature.auth.AuthComponent
@@ -96,6 +97,7 @@ class MainActivity : FragmentActivity() {
       navigationBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT)
     )
     super.onCreate(savedInstanceState)
+    (application.koin.get<AndroidFilePicker>()).attach(this)
     lifecycleScope.launch { sessionManager.initialize() }
     // Keep the sensitive UI out of the recents thumbnail / screenshots while the lock is on.
     lifecycleScope.launch {

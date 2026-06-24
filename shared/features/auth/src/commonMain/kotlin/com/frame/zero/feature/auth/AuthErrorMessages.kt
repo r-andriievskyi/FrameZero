@@ -20,6 +20,7 @@ internal fun DomainError.toUiText(): UiText =
     DomainError.NotFound,
     DomainError.Forbidden,
     DomainError.Conflict,
+    DomainError.InsufficientStorage,
     is DomainError.Server -> Res.string.error_unknown_fallback.asUiText()
     is DomainError.Unknown -> message?.let(UiText::Dynamic) ?: Res.string.error_unknown_fallback.asUiText()
   }

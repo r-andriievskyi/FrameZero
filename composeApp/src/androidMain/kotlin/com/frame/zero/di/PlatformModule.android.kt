@@ -1,6 +1,10 @@
 package com.frame.zero.di
 
 import android.content.Context
+import com.frame.zero.core.files.AndroidAttachmentFileManager
+import com.frame.zero.core.files.AndroidFilePicker
+import com.frame.zero.core.files.AttachmentFileManager
+import com.frame.zero.core.files.FilePicker
 import com.frame.zero.core.network.connectivity.AndroidConnectivityObserver
 import com.frame.zero.core.network.connectivity.ConnectivityObserver
 import com.frame.zero.core.security.ActivityHolder
@@ -11,6 +15,7 @@ import com.frame.zero.push.PushNotificationsRouter
 import com.frame.zero.repository.productions.local.AndroidDatabaseBuilderFactory
 import com.frame.zero.repository.productions.local.DatabaseBuilderFactory
 import org.koin.core.module.Module
+import org.koin.dsl.bind
 import org.koin.dsl.module
 
 actual fun platformModule(): Module =
@@ -21,6 +26,8 @@ actual fun platformModule(): Module =
     single { ActivityHolder() }
     single { AppLifecycleObserver(get()) }
     single<BiometricAuthenticator> { AndroidBiometricAuthenticator(get()) }
+    single { AndroidFilePicker(get()) } bind FilePicker::class
+    single<AttachmentFileManager> { AndroidAttachmentFileManager(get()) }
   }
 
 fun androidContextModule(context: Context): Module = module { single<Context> { context } }

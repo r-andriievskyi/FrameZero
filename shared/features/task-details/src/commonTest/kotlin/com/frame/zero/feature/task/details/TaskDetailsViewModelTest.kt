@@ -102,6 +102,20 @@ class TaskDetailsViewModelTest {
 
         override suspend fun listForProduction(productionId: String): List<com.frame.zero.dto.task.TaskSummaryDto> =
           emptyList()
+
+        override suspend fun createTaskMultipart(
+          request: com.frame.zero.dto.task.CreateTaskRequest,
+          fileName: String,
+          contentType: String,
+          fileBytes: ByteArray,
+          idempotencyKey: String
+        ): TaskDetailDto = openTask
+
+        override suspend fun downloadAttachment(
+          taskId: String,
+          fileName: String,
+          expectedBytes: Long
+        ): com.frame.zero.domain.Outcome<String> = com.frame.zero.domain.Outcome.Success("/local")
       }
       val viewModel =
         TaskDetailsViewModel(
@@ -180,6 +194,20 @@ class TaskDetailsViewModelTest {
 
         override suspend fun listForProduction(productionId: String): List<com.frame.zero.dto.task.TaskSummaryDto> =
           emptyList()
+
+        override suspend fun createTaskMultipart(
+          request: com.frame.zero.dto.task.CreateTaskRequest,
+          fileName: String,
+          contentType: String,
+          fileBytes: ByteArray,
+          idempotencyKey: String
+        ): TaskDetailDto = openTask
+
+        override suspend fun downloadAttachment(
+          taskId: String,
+          fileName: String,
+          expectedBytes: Long
+        ): com.frame.zero.domain.Outcome<String> = com.frame.zero.domain.Outcome.Success("/local")
       }
       val viewModel = makeViewModel(this, repo)
       advanceUntilIdle()

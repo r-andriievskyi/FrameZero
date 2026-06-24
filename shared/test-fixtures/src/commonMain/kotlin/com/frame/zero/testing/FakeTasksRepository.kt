@@ -1,5 +1,7 @@
 package com.frame.zero.testing
 
+import com.frame.zero.domain.DomainError
+import com.frame.zero.domain.Outcome
 import com.frame.zero.dto.task.CreateTaskRequest
 import com.frame.zero.dto.task.TaskDetailDto
 import com.frame.zero.dto.task.TaskSummaryDto
@@ -17,11 +19,15 @@ class FakeTasksRepository(
   private val getThrows: Throwable? = null,
   private val completeThrows: Throwable? = null,
   private val createThrows: Throwable? = null,
-  private val listThrows: Throwable? = null
+  private val listThrows: Throwable? = null,
+  private val downloadedPath: String = "/local/attachment",
+  private val downloadError: DomainError? = null
 ) : TasksRepository {
   val getCalls: MutableList<String> = mutableListOf()
   val completeCalls: MutableList<String> = mutableListOf()
   val createRequests: MutableList<CreateTaskRequest> = mutableListOf()
+  val createMultipartRequests: MutableList<CreateTaskRequest> = mutableListOf()
+  val downloadCalls: MutableList<String> = mutableListOf()
   val listedProductionIds: MutableList<String> = mutableListOf()
 
   override suspend fun getTask(id: String): TaskDetailDto {
@@ -40,6 +46,27 @@ class FakeTasksRepository(
     createRequests += request
     createThrows?.let { throw it }
     return created
+  }
+
+  override suspend fun createTaskMultipart(
+    request: CreateTaskRequest,
+    fileName: String,
+    contentType: String,
+    fileBytes: ByteArray,
+    idempotencyKey: String
+  ): TaskDetailDto {
+    createMultipartRequests += request
+    createThrows?.let { throw it }
+    return created
+  }
+
+  override suspend fun downloadAttachment(
+    taskId: String,
+    fileName: String,
+    expectedBytes: Long
+  ): Outcome<String> {
+    downloadCalls += taskId
+    return downloadError?.let { Outcome.Failure(it) } ?: Outcome.Success(downloadedPath)
   }
 
   override suspend fun listForProduction(productionId: String): List<TaskSummaryDto> {
