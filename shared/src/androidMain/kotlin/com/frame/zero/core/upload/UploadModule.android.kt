@@ -7,4 +7,3 @@ actual fun uploadPlatformModule(): Module =
   module {
     factory { UploadTaskUseCase(get(), get(), get(), get()) }
   }
-
