@@ -9,7 +9,7 @@ import org.koin.dsl.module
 
 val featureTaskDetailsModule: Module =
   module {
-    single<TasksRepository> { TasksRepositoryImpl(get(), get()) }
+    single<TasksRepository> { TasksRepositoryImpl(get(), get(), get(), get()) }
     factory { GetTaskDetailsUseCase(get()) }
     factory { CompleteTaskUseCase(get()) }
     factory { (taskId: String) ->

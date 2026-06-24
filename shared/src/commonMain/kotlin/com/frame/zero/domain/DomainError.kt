@@ -22,6 +22,8 @@ sealed interface DomainError {
     val message: String
   ) : DomainError
 
+  data object InsufficientStorage : DomainError
+
   data class Unknown(
     val message: String? = null
   ) : DomainError

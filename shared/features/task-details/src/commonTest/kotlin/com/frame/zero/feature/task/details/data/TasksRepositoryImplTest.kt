@@ -1,6 +1,10 @@
 package com.frame.zero.feature.task.details.data
 
+import com.frame.zero.core.files.AttachmentFileManager
 import com.frame.zero.core.network.NetworkConfig
+import com.frame.zero.core.network.connectivity.ConnectivityObserver
+import com.frame.zero.domain.DomainError
+import com.frame.zero.domain.Outcome
 import com.frame.zero.dto.task.CreateTaskRequest
 import com.frame.zero.dto.task.TaskPriority
 import com.frame.zero.dto.task.TaskStatus
@@ -17,9 +21,13 @@ import io.ktor.http.content.TextContent
 import io.ktor.http.contentType
 import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
+import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
 class TasksRepositoryImplTest {
@@ -72,33 +80,86 @@ class TasksRepositoryImplTest {
     }
 
   @Test
-  fun `listForProduction GETs the first page and returns the cursor-paged items`() =
+  fun `createTaskMultipart POSTs multipart with the idempotency key`() =
     runTest {
       val requests = mutableListOf<HttpRequestData>()
-      val repo = repository(requests) {
-        """
-        {
-          "items":[
-            {"id":"t1","title":"A","productionTitle":"Pilot","dueDate":null,"status":"OPEN"},
-            {"id":"t2","title":"B","productionTitle":"Pilot","dueDate":"2026-06-24","status":"DONE"}
-          ],
-          "nextCursor":"next"
-        }
-        """.trimIndent()
-      }
+      val repo = repository(requests) { taskDetailJson(id = "t10") }
 
-      val tasks = repo.listForProduction("p1")
+      val created = repo.createTaskMultipart(
+        request = CreateTaskRequest(productionId = "p1", title = "With file"),
+        fileName = "doc.pdf",
+        contentType = "application/pdf",
+        fileBytes = byteArrayOf(1, 2, 3),
+        idempotencyKey = "idem-1"
+      )
 
       val request = requests.single()
-      assertEquals(HttpMethod.Get, request.method)
+      assertEquals(HttpMethod.Post, request.method)
       assertEquals("/api/v1/tasks", request.url.encodedPath)
-      assertEquals("p1", request.url.parameters["productionId"])
-      assertEquals("50", request.url.parameters["limit"])
-      assertEquals(listOf("t1", "t2"), tasks.map { it.id })
+      assertEquals("idem-1", request.headers["Idempotency-Key"])
+      assertTrue(
+        request.body.contentType?.match(ContentType.MultiPart.FormData) == true,
+        "body should be multipart/form-data, was ${request.body.contentType}"
+      )
+      assertEquals("t10", created.id)
+    }
+
+  @Test
+  fun `downloadAttachment returns the cached path without hitting the network`() =
+    runTest {
+      val requests = mutableListOf<HttpRequestData>()
+      val attachments = FakeAttachmentFileManager(cached = "/cache/t1/doc.pdf")
+      val repo = repository(requests, attachments = attachments) { "" }
+
+      val outcome = repo.downloadAttachment("t1", "doc.pdf", expectedBytes = 10)
+
+      assertEquals(Outcome.Success("/cache/t1/doc.pdf"), outcome)
+      assertTrue(requests.isEmpty(), "a cached attachment must not trigger a request")
+    }
+
+  @Test
+  fun `downloadAttachment fails offline before any request`() =
+    runTest {
+      val requests = mutableListOf<HttpRequestData>()
+      val repo = repository(requests, connectivity = FakeConnectivityObserver(online = false)) { "" }
+
+      val outcome = repo.downloadAttachment("t1", "doc.pdf", expectedBytes = 10)
+
+      assertIs<Outcome.Failure>(outcome)
+      assertIs<DomainError.Offline>(outcome.error)
+      assertTrue(requests.isEmpty())
+    }
+
+  @Test
+  fun `downloadAttachment fails when free space is below the expected size`() =
+    runTest {
+      val requests = mutableListOf<HttpRequestData>()
+      val repo = repository(requests, attachments = FakeAttachmentFileManager(available = 5)) { "" }
+
+      val outcome = repo.downloadAttachment("t1", "doc.pdf", expectedBytes = 100)
+
+      assertEquals(Outcome.Failure(DomainError.InsufficientStorage), outcome)
+      assertTrue(requests.isEmpty())
+    }
+
+  @Test
+  fun `downloadAttachment streams the body into storage and returns the saved path`() =
+    runTest {
+      val requests = mutableListOf<HttpRequestData>()
+      val attachments = FakeAttachmentFileManager(available = Long.MAX_VALUE)
+      val repo = repository(requests, attachments = attachments) { "file-bytes" }
+
+      val outcome = repo.downloadAttachment("t1", "doc.pdf", expectedBytes = 5)
+
+      assertEquals(Outcome.Success("/saved/t1/doc.pdf"), outcome)
+      assertEquals("/api/v1/tasks/t1/attachment", requests.single().url.encodedPath)
+      assertContentEquals("file-bytes".encodeToByteArray(), attachments.savedBytes)
     }
 
   private fun repository(
     requests: MutableList<HttpRequestData> = mutableListOf(),
+    connectivity: ConnectivityObserver = FakeConnectivityObserver(online = true),
+    attachments: AttachmentFileManager = FakeAttachmentFileManager(),
     body: () -> String
   ): TasksRepositoryImpl {
     val client = HttpClient(
@@ -113,7 +174,12 @@ class TasksRepositoryImplTest {
       install(ContentNegotiation) { json() }
       defaultRequest { contentType(ContentType.Application.Json) }
     }
-    return TasksRepositoryImpl(client, NetworkConfig(baseUrl = "http://test", isDebug = false))
+    return TasksRepositoryImpl(
+      client,
+      NetworkConfig(baseUrl = "http://test", isDebug = false),
+      connectivity,
+      attachments
+    )
   }
 
   private fun taskDetailJson(
@@ -135,4 +201,44 @@ class TasksRepositoryImplTest {
       "createdAt":"2026-01-01T00:00:00Z"
     }
     """.trimIndent()
+
+  private class FakeConnectivityObserver(
+    private val online: Boolean
+  ) : ConnectivityObserver {
+    override val isOnline: Flow<Boolean> = flowOf(online)
+
+    override fun isCurrentlyOnline(): Boolean = online
+  }
+
+  private class FakeAttachmentFileManager(
+    private val cached: String? = null,
+    private val available: Long = Long.MAX_VALUE
+  ) : AttachmentFileManager {
+    var savedBytes: ByteArray? = null
+
+    override fun cachedAttachment(
+      taskId: String,
+      fileName: String
+    ): String? = cached
+
+    override suspend fun saveDownloaded(
+      taskId: String,
+      fileName: String,
+      bytes: ByteArray
+    ): String {
+      savedBytes = bytes
+      return "/saved/$taskId/$fileName"
+    }
+
+    override fun readBytes(localPath: String): ByteArray = ByteArray(0)
+
+    override fun delete(localPath: String) = Unit
+
+    override fun openWith(
+      localPath: String,
+      contentType: String
+    ) = Unit
+
+    override fun availableBytes(): Long = available
+  }
 }
