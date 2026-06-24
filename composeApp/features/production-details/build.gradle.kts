@@ -8,7 +8,7 @@ base { archivesName = "ui-feature-production-details" }
 kotlin {
   sourceSets {
     commonMain.dependencies {
-      api(projects.shared.features.productionDetails)
+      implementation(projects.shared.features.productionDetails)
       implementation(libs.kotlinx.collections.immutable)
       implementation(libs.compose.components.resources)
       implementation(projects.composeApp.shared.designSystem)

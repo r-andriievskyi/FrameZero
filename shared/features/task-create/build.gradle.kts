@@ -7,9 +7,9 @@ kotlin {
     commonMain.dependencies {
       api(projects.shared)
       api(projects.shared.uiText)
-      api(projects.shared.repositories.tasks)
-      api(projects.shared.repositories.productions)
       api(libs.decompose)
+      implementation(projects.shared.repositories.tasks)
+      implementation(projects.shared.repositories.productions)
       implementation(libs.koin.core)
       implementation(libs.kotlinx.coroutines.core)
       implementation(libs.kotlinx.datetime)

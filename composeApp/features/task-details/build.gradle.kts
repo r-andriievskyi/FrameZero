@@ -8,7 +8,7 @@ base { archivesName = "ui-feature-task-details" }
 kotlin {
   sourceSets {
     commonMain.dependencies {
-      api(projects.shared.features.taskDetails)
+      implementation(projects.shared.features.taskDetails)
       implementation(libs.compose.components.resources)
       implementation(projects.composeApp.shared.designSystem)
     }

@@ -6,10 +6,11 @@ kotlin {
   sourceSets {
     commonMain.dependencies {
       api(projects.shared)
-      api(projects.shared.repositories.tasks)
       api(libs.decompose)
+      implementation(projects.shared.repositories.tasks)
       implementation(libs.koin.core)
       implementation(libs.kotlinx.coroutines.core)
+      implementation(libs.ktor.clientCore)
       implementation(libs.ktor.clientContentNegotiation)
       implementation(libs.ktor.clientSerializationJson)
     }
