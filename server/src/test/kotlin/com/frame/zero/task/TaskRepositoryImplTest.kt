@@ -98,6 +98,52 @@ class TaskRepositoryImplTest {
     }
 
   @Test
+  fun `create persists an attachment that findById and findAttachment return`() =
+    runBlocking {
+      val ownerId = users.create("owner@x.com", "h", "Own", "Er").id
+      val prod = newProduction(ownerId)
+      val attachment = NewAttachment(
+        fileName = "script.pdf",
+        contentType = "application/pdf",
+        sizeBytes = 2_048,
+        storageKey = "blob-key-1"
+      )
+
+      val created = tasks.create(
+        productionId = prod.id,
+        title = "With attachment",
+        description = null,
+        dueDate = null,
+        assigneeUserId = null,
+        attachment = attachment
+      )
+
+      assertEquals("script.pdf", created.attachment?.fileName)
+      assertEquals("script.pdf", tasks.findById(created.id)?.attachment?.fileName)
+      val found = tasks.findAttachment(created.id)
+      assertEquals("blob-key-1", found?.storageKey)
+      assertEquals(2_048, found?.sizeBytes)
+    }
+
+  @Test
+  fun `findByIdempotencyKey returns the task created with that key`() =
+    runBlocking {
+      val ownerId = users.create("owner@x.com", "h", "Own", "Er").id
+      val prod = newProduction(ownerId)
+      val created = tasks.create(
+        productionId = prod.id,
+        title = "Keyed",
+        description = null,
+        dueDate = null,
+        assigneeUserId = null,
+        idempotencyKey = "idem-1"
+      )
+
+      assertEquals(created.id, tasks.findByIdempotencyKey("idem-1")?.id)
+      assertTrue(tasks.findByIdempotencyKey("missing") == null)
+    }
+
+  @Test
   fun `tasks of soft-deleted productions are excluded from every user-facing query`() =
     runBlocking {
       val ownerId = users.create("owner@x.com", "h", "Own", "Er").id

@@ -6,6 +6,7 @@ import com.frame.zero.common.Transactor
 import com.frame.zero.common.parseUuidField
 import com.frame.zero.dto.task.CreateTaskRequest
 import com.frame.zero.dto.task.TaskAssigneeDto
+import com.frame.zero.dto.task.TaskAttachmentDto
 import com.frame.zero.dto.task.TaskDetailDto
 import com.frame.zero.dto.task.TaskStatus
 import com.frame.zero.dto.task.TaskSummaryDto
@@ -14,6 +15,7 @@ import com.frame.zero.notification.NotificationRepository
 import com.frame.zero.notification.TaskAssignmentNotifier
 import com.frame.zero.production.AccessLevel
 import com.frame.zero.production.ProductionAccessService
+import com.frame.zero.storage.FileStorage
 import java.util.UUID
 
 class TaskService(
@@ -21,7 +23,8 @@ class TaskService(
   private val access: ProductionAccessService,
   private val transactor: Transactor,
   private val notifications: NotificationRepository,
-  private val assignmentNotifier: TaskAssignmentNotifier
+  private val assignmentNotifier: TaskAssignmentNotifier,
+  private val fileStorage: FileStorage
 ) {
   suspend fun list(
     userId: UUID,
@@ -56,55 +59,87 @@ class TaskService(
 
   suspend fun create(
     userId: UUID,
-    request: CreateTaskRequest
+    request: CreateTaskRequest,
+    attachment: NewAttachment? = null,
+    idempotencyKey: String? = null
   ): TaskDetailDto {
-    val (dto, assignment) = transactor.transaction {
-      // Validate the trimmed values that will actually be persisted, so a title
-      // that only exceeds the cap because of surrounding whitespace isn't rejected.
-      val title = request.title.trim()
-      val description = request.description?.trim()
-      val errors = mutableMapOf<String, String>()
-      if (title.isBlank()) errors["title"] = "Required"
-      if (title.length > MAX_TITLE_LENGTH) {
-        errors["title"] = "Max $MAX_TITLE_LENGTH characters"
+    if (idempotencyKey != null) {
+      val existing = transactor.transaction { tasks.findByIdempotencyKey(idempotencyKey) }
+      if (existing != null) {
+        attachment?.let { fileStorage.delete(it.storageKey) }
+        return existing.toDetailDto()
       }
-      if ((description?.length ?: 0) > MAX_DESCRIPTION_LENGTH) {
-        errors["description"] = "Max $MAX_DESCRIPTION_LENGTH characters"
-      }
-      if (errors.isNotEmpty()) throw AppException(AppError.ValidationError(errors))
+    }
 
-      val productionId = parseUuidField("productionId", request.productionId)
+    var committed = false
+    val (dto, assignment) = try {
+      transactor.transaction {
+        val title = request.title.trim()
+        val description = request.description?.trim()
+        validateCreate(title, description)
 
-      access.requireAccess(userId, productionId, AccessLevel.WRITE)
+        val productionId = parseUuidField("productionId", request.productionId)
 
-      val assigneeId = request.assigneeUserId?.let { parseUuidField("assigneeUserId", it) }
+        access.requireAccess(userId, productionId, AccessLevel.WRITE)
 
-      val task = tasks.create(
-        productionId = productionId,
-        title = title,
-        description = description,
-        dueDate = request.dueDate,
-        assigneeUserId = assigneeId,
-        priority = request.priority
-      )
+        val assigneeId = request.assigneeUserId?.let { parseUuidField("assigneeUserId", it) }
 
-      // Notify the assignee unless they assigned the task to themselves. The in-app
-      // record is written inside the transaction (atomic with the task); the push is
-      // fired after commit so network I/O stays out of the DB transaction.
-      val notifyAssignee = assigneeId?.takeIf { it != userId }
-      if (notifyAssignee != null) {
-        notifications.create(
-          userId = notifyAssignee,
-          body = task.title
+        val task = tasks.create(
+          productionId = productionId,
+          title = title,
+          description = description,
+          dueDate = request.dueDate,
+          assigneeUserId = assigneeId,
+          priority = request.priority,
+          idempotencyKey = idempotencyKey,
+          attachment = attachment
         )
-      }
-      task.toDetailDto() to notifyAssignee?.let { it to task.id }
+
+        val notifyAssignee = assigneeId?.takeIf { it != userId }
+        if (notifyAssignee != null) {
+          notifications.create(
+            userId = notifyAssignee,
+            body = task.title
+          )
+        }
+        task.toDetailDto() to notifyAssignee?.let { it to task.id }
+      }.also { committed = true }
+    } finally {
+      if (!committed) attachment?.let { fileStorage.delete(it.storageKey) }
     }
 
     assignment?.let { (assigneeId, taskId) ->
       assignmentNotifier.notifyTaskAssigned(assigneeId, taskId, dto.title)
     }
     return dto
+  }
+
+  private fun validateCreate(
+    title: String,
+    description: String?
+  ) {
+    val errors = mutableMapOf<String, String>()
+    if (title.isBlank()) errors["title"] = "Required"
+    if (title.length > MAX_TITLE_LENGTH) errors["title"] = "Max $MAX_TITLE_LENGTH characters"
+    if ((description?.length ?: 0) > MAX_DESCRIPTION_LENGTH) {
+      errors["description"] = "Max $MAX_DESCRIPTION_LENGTH characters"
+    }
+    if (errors.isNotEmpty()) throw AppException(AppError.ValidationError(errors))
+  }
+
+  suspend fun getAttachment(
+    userId: UUID,
+    taskId: UUID
+  ): AttachmentRecord {
+    val attachment = transactor.transaction {
+      val task = tasks.findById(taskId) ?: throw AppException(AppError.NotFound)
+      access.requireAccess(userId, task.productionId, AccessLevel.READ)
+      task.attachment
+    }
+    if (attachment == null || !fileStorage.exists(attachment.storageKey)) {
+      throw AppException(AppError.NotFound)
+    }
+    return attachment
   }
 
   suspend fun update(
@@ -129,9 +164,6 @@ class TaskService(
         assigneeUserId = assigneeId
       ) ?: throw AppException(AppError.NotFound)
 
-      // Notify on a reassignment to a *different* user (a null assigneeId means
-      // "leave the assignee unchanged"), skipping self-assignment — mirrors create().
-      // In-app record is atomic with the update; the push fires after commit.
       val notifyAssignee = assigneeId?.takeIf { it != task.assigneeUserId && it != userId }
       if (notifyAssignee != null) {
         notifications.create(
@@ -151,12 +183,16 @@ class TaskService(
   suspend fun delete(
     userId: UUID,
     taskId: UUID
-  ): Unit =
-    transactor.transaction {
+  ) {
+    val storageKey = transactor.transaction {
       val task = tasks.findById(taskId) ?: throw AppException(AppError.NotFound)
       access.requireAccess(userId, task.productionId, AccessLevel.WRITE)
+      val key = task.attachment?.storageKey
       tasks.delete(taskId)
+      key
     }
+    storageKey?.let { fileStorage.delete(it) }
+  }
 
   private fun validateUpdate(request: UpdateTaskRequest) {
     val errors = mutableMapOf<String, String>()
@@ -198,7 +234,14 @@ class TaskService(
           avatarColorHex = assigneeAvatarColorHex
         )
       },
-      createdAt = createdAt
+      createdAt = createdAt,
+      attachment = attachment?.let {
+        TaskAttachmentDto(
+          fileName = it.fileName,
+          sizeBytes = it.sizeBytes,
+          contentType = it.contentType
+        )
+      }
     )
 
   private companion object {

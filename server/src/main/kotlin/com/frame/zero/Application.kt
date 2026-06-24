@@ -78,7 +78,7 @@ fun Application.module(
     modules(
       authModule(config),
       productionModule(),
-      taskModule(),
+      taskModule(config),
       scheduleModule(),
       notificationModule(config),
       dashboardModule()

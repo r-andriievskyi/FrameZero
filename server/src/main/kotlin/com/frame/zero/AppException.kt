@@ -23,6 +23,12 @@ sealed class AppError(
 
   data object NotFound : AppError(HttpStatusCode.NotFound, "NOT_FOUND", "Resource not found")
 
+  data object PayloadTooLarge : AppError(
+    HttpStatusCode.PayloadTooLarge,
+    "PAYLOAD_TOO_LARGE",
+    "Attachment exceeds the size limit"
+  )
+
   data class Conflict(
     val detail: String
   ) : AppError(HttpStatusCode.Conflict, "CONFLICT", detail)
@@ -37,10 +43,6 @@ sealed class AppError(
   data class ValidationError(
     val fields: Map<String, String>
   ) : AppError(HttpStatusCode.BadRequest, "VALIDATION_ERROR", "Validation failed")
-
-  data class Internal(
-    val detail: String
-  ) : AppError(HttpStatusCode.InternalServerError, "INTERNAL", detail)
 }
 
 class AppException(

@@ -18,11 +18,14 @@ object TasksTable : Table("tasks") {
   val assigneeUserId = javaUUID("assignee_user_id").references(UsersTable.id).nullable()
   val createdAt = timestamp("created_at")
 
+  val idempotencyKey = varchar("idempotency_key", 64).nullable()
+
   override val primaryKey = PrimaryKey(id)
 
   init {
     index("idx_tasks_production", false, productionId)
     index("idx_tasks_assignee", false, assigneeUserId)
     index("idx_tasks_due_date", false, dueDate)
+    uniqueIndex("tasks_idempotency_key_unique", idempotencyKey)
   }
 }

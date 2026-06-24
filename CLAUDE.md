@@ -209,8 +209,16 @@ mode** (`AppConfig.validate()` fails fast) — task assignments send FCM pushes 
 `FirebaseAdminPushSender`. Get it from Firebase console → Service accounts. Tests inject a fake
 `PushSender` and don't need it.
 
+`FILE_STORAGE_DIR` (default `./uploads`, gitignored) is where task attachment blobs are stored
+on the filesystem (`FilesystemFileStorage`); only metadata lives in Postgres (`task_attachments`).
+`AppConfig.validate()` creates/verifies the dir is writable at boot. Attachments are capped at
+50 MB (`MAX_ATTACHMENT_BYTES`), enforced mid-stream; oversize uploads → HTTP 413. Tasks carry an
+optional `idempotency_key` so a retried background upload returns the existing task instead of a
+duplicate. `POST /api/v1/tasks` accepts JSON (no file) or `multipart/form-data` (file in a `file`
+part); `GET /api/v1/tasks/{id}/attachment` streams the blob back.
+
 ```bash
-# Local dev — DB defaults work; Firebase creds required
+# Local dev — DB defaults work; Firebase creds required; FILE_STORAGE_DIR defaults to ./uploads
 export FIREBASE_CREDENTIALS_PATH=/absolute/path/to/service-account.json
 docker compose up -d && ./gradlew :server:run
 
