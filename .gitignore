@@ -27,7 +27,7 @@ agconnect-services.json
 !.env.example
 
 # Server attachment blob store (FILE_STORAGE_DIR default)
-/uploads/
+server/uploads/
 
 # ─── iOS / Xcode ─────────────────────────────────────────────────────────────
 xcuserdata/

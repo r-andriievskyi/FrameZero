@@ -1,5 +1,6 @@
 package com.frame.zero.feature.task.create
 
+import com.frame.zero.core.files.PickedFile
 import com.frame.zero.domain.task.AssignableMember
 import com.frame.zero.dto.task.TaskPriority
 import com.frame.zero.ui.UiText
@@ -15,8 +16,10 @@ data class CreateTaskState(
   val assigneeQuery: String = "",
   val priority: TaskPriority = TaskPriority.MEDIUM,
   val dueDate: LocalDate? = null,
+  val attachment: PickedFile? = null,
   val isLoading: Boolean = false,
   val titleError: UiText? = null,
+  val attachmentError: UiText? = null,
   val errorToast: UiText? = null
 ) {
   val canSubmit: Boolean

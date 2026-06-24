@@ -21,6 +21,7 @@ import com.frame.zero.feature.task.create.CreateTaskComponent
 import com.frame.zero.feature.task.create.CreateTaskIntent
 import com.frame.zero.feature.task.create.CreateTaskState
 import com.frame.zero.feature.task.create.ui.components.AssigneeSelector
+import com.frame.zero.feature.task.create.ui.components.AttachmentRow
 import com.frame.zero.feature.task.create.ui.components.DueDateSection
 import com.frame.zero.feature.task.create.ui.components.MultiLineInputField
 import com.frame.zero.feature.task.create.ui.components.PrioritySelector
@@ -42,6 +43,7 @@ import framezero.composeapp.features.task_create.generated.resources.create_task
 import framezero.composeapp.features.task_create.generated.resources.description_placeholder
 import framezero.composeapp.features.task_create.generated.resources.label_assignee
 import framezero.composeapp.features.task_create.generated.resources.label_description
+import framezero.composeapp.features.task_create.generated.resources.label_attachment
 import framezero.composeapp.features.task_create.generated.resources.label_due_date
 import framezero.composeapp.features.task_create.generated.resources.label_priority
 import framezero.composeapp.features.task_create.generated.resources.label_title
@@ -186,6 +188,24 @@ private fun CreateTaskContent(
         onQuickSelect = { onIntent(CreateTaskIntent.QuickDueDateSelected(it)) },
         onDateChange = { onIntent(CreateTaskIntent.DueDateChanged(it)) }
       )
+
+      VerticalSpacer(spacing.space24)
+
+      SectionLabel(text = stringResource(Res.string.label_attachment))
+      VerticalSpacer(spacing.space8)
+      AttachmentRow(
+        attachmentName = state.attachment?.name,
+        onAttach = { onIntent(CreateTaskIntent.AttachFileClicked) },
+        onRemove = { onIntent(CreateTaskIntent.AttachmentRemoved) }
+      )
+      state.attachmentError?.let { error ->
+        VerticalSpacer(spacing.space4)
+        Text(
+          text = error.asString(),
+          style = AppTheme.typographySystem.bodySmall,
+          color = colors.errorText
+        )
+      }
 
       VerticalSpacer(spacing.space24)
     }

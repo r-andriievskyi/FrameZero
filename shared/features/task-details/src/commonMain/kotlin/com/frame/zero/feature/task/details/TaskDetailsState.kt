@@ -12,6 +12,9 @@ data class TaskDetailsState(
   val dueDate: LocalDate? = null,
   val isDueToday: Boolean = false,
   val description: String = "",
+  val attachment: TaskAttachment? = null,
+  val isDownloadingAttachment: Boolean = false,
+  val attachmentError: AttachmentDownloadError? = null,
   val isLoading: Boolean = false,
   val isError: Boolean = false,
   val showMarkCompleteButton: Boolean = false
@@ -20,6 +23,16 @@ data class TaskDetailsState(
 enum class TaskPriority { HIGH, MEDIUM, LOW }
 
 enum class TaskStatus { IN_PROGRESS, COMPLETED }
+
+/** Reason an attachment download couldn't proceed; the UI maps it to a message. */
+enum class AttachmentDownloadError { OFFLINE, INSUFFICIENT_STORAGE, GENERIC }
+
+data class TaskAttachment(
+  val fileName: String,
+  val sizeLabel: String,
+  val contentType: String,
+  val sizeBytes: Long
+)
 
 data class TaskMember(
   val initials: String,

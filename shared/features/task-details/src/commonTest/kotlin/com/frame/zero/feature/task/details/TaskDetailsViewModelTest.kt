@@ -114,6 +114,8 @@ class TaskDetailsViewModelTest {
           taskId = "t1",
           getTaskDetailsUseCase = GetTaskDetailsUseCase(repo),
           completeTaskUseCase = CompleteTaskUseCase(repo),
+          tasksRepository = repo,
+          attachmentFileManager = FakeAttachmentFileManager(),
           dispatcher = StandardTestDispatcher(testScheduler)
         )
 
@@ -208,12 +210,43 @@ class TaskDetailsViewModelTest {
 
   private fun makeViewModel(
     scope: TestScope,
-    repo: com.frame.zero.repository.tasks.TasksRepository
+    repo: com.frame.zero.repository.tasks.TasksRepository,
+    attachmentFileManager: com.frame.zero.core.files.AttachmentFileManager = FakeAttachmentFileManager()
   ): TaskDetailsViewModel =
     TaskDetailsViewModel(
       taskId = "t1",
       getTaskDetailsUseCase = GetTaskDetailsUseCase(repo),
       completeTaskUseCase = CompleteTaskUseCase(repo),
+      tasksRepository = repo,
+      attachmentFileManager = attachmentFileManager,
       dispatcher = StandardTestDispatcher(scope.testScheduler)
     )
+
+  private class FakeAttachmentFileManager : com.frame.zero.core.files.AttachmentFileManager {
+    val opened: MutableList<String> = mutableListOf()
+
+    override fun cachedAttachment(
+      taskId: String,
+      fileName: String
+    ): String? = null
+
+    override suspend fun saveDownloaded(
+      taskId: String,
+      fileName: String,
+      bytes: ByteArray
+    ): String = ""
+
+    override fun readBytes(localPath: String): ByteArray = ByteArray(0)
+
+    override fun delete(localPath: String) = Unit
+
+    override fun openWith(
+      localPath: String,
+      contentType: String
+    ) {
+      opened += localPath
+    }
+
+    override fun availableBytes(): Long = Long.MAX_VALUE
+  }
 }

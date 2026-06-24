@@ -36,6 +36,10 @@ sealed interface CreateTaskIntent {
     val option: DueDateQuickOption
   ) : CreateTaskIntent
 
+  data object AttachFileClicked : CreateTaskIntent
+
+  data object AttachmentRemoved : CreateTaskIntent
+
   data object Submit : CreateTaskIntent
 
   data object ToastDismissed : CreateTaskIntent

@@ -1,6 +1,12 @@
 package com.frame.zero.feature.task.create
 
 import com.arkivanov.essenty.instancekeeper.InstanceKeeper
+import com.frame.zero.core.files.AttachmentFileManager
+import com.frame.zero.core.files.FilePicker
+import com.frame.zero.core.files.MAX_ATTACHMENT_BYTES
+import com.frame.zero.core.files.PickedFile
+import com.frame.zero.core.upload.PendingTaskUpload
+import com.frame.zero.core.upload.TaskUploadScheduler
 import com.frame.zero.domain.DomainError
 import com.frame.zero.domain.Outcome
 import com.frame.zero.feature.task.create.domain.CreateTaskUseCase
@@ -10,6 +16,7 @@ import com.frame.zero.ui.asUiText
 import framezero.shared.features.task_create.generated.resources.Res
 import framezero.shared.features.task_create.generated.resources.error_auth_failed
 import framezero.shared.features.task_create.generated.resources.error_conflict
+import framezero.shared.features.task_create.generated.resources.error_file_too_large
 import framezero.shared.features.task_create.generated.resources.error_forbidden
 import framezero.shared.features.task_create.generated.resources.error_network
 import framezero.shared.features.task_create.generated.resources.error_not_found
@@ -37,12 +44,18 @@ import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Clock
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 class CreateTaskViewModel(
   private val productionId: String,
   productionTitle: String,
   private val createTaskUseCase: CreateTaskUseCase,
   private val getAssignableMembersUseCase: GetAssignableMembersUseCase,
+  private val filePicker: FilePicker,
+  private val uploadScheduler: TaskUploadScheduler,
+  private val attachmentFileManager: AttachmentFileManager,
   private val clock: Clock = Clock.System,
   private val timeZone: TimeZone = TimeZone.currentSystemDefault(),
   dispatcher: CoroutineContext = Dispatchers.Main.immediate
@@ -86,9 +99,29 @@ class CreateTaskViewModel(
         _state.update { it.copy(dueDate = intent.date) }
       is CreateTaskIntent.QuickDueDateSelected ->
         _state.update { it.copy(dueDate = resolveQuickDate(intent.option)) }
+      CreateTaskIntent.AttachFileClicked -> pickAttachment()
+      CreateTaskIntent.AttachmentRemoved -> removeAttachment()
       CreateTaskIntent.Submit -> submit()
       CreateTaskIntent.ToastDismissed -> _state.update { it.copy(errorToast = null) }
     }
+  }
+
+  private fun pickAttachment() {
+    scope.launch {
+      val picked = filePicker.pickFile() ?: return@launch
+      if (picked.sizeBytes > MAX_ATTACHMENT_BYTES) {
+        // Too big to upload — discard the copy the picker made and surface the limit.
+        attachmentFileManager.delete(picked.localPath)
+        _state.update { it.copy(attachmentError = Res.string.error_file_too_large.asUiText()) }
+        return@launch
+      }
+      _state.update { it.copy(attachment = picked, attachmentError = null) }
+    }
+  }
+
+  private fun removeAttachment() {
+    _state.value.attachment?.let { attachmentFileManager.delete(it.localPath) }
+    _state.update { it.copy(attachment = null, attachmentError = null) }
   }
 
   private fun loadMembers() {
@@ -110,6 +143,37 @@ class CreateTaskViewModel(
       return
     }
     _state.update { it.copy(isLoading = true, titleError = null, errorToast = null) }
+    val attachment = current.attachment
+    if (attachment != null) enqueueUpload(current, attachment) else createNow(current)
+  }
+
+  // With a file, creation happens in the background (survives navigation/app-kill); we just
+  // hand it to the scheduler and pop back. The task appears once the upload completes.
+  private fun enqueueUpload(
+    current: CreateTaskState,
+    attachment: PickedFile
+  ) {
+    scope.launch {
+      val upload = PendingTaskUpload(
+        uploadId = Uuid.random().toString(),
+        productionId = productionId,
+        title = current.title.trim(),
+        description = current.description.ifBlank { null },
+        dueDate = current.dueDate,
+        assigneeUserId = current.assigneeUserId,
+        priority = current.priority,
+        fileName = attachment.name,
+        contentType = attachment.contentType,
+        localPath = attachment.localPath,
+        idempotencyKey = Uuid.random().toString()
+      )
+      uploadScheduler.enqueue(upload)
+      _state.update { it.copy(isLoading = false) }
+      _events.tryEmit(CreateTaskEvent.UploadEnqueued)
+    }
+  }
+
+  private fun createNow(current: CreateTaskState) {
     scope.launch {
       val params = CreateTaskUseCase.Params(
         productionId = productionId,

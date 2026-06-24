@@ -13,7 +13,10 @@ val featureTaskCreateModule: Module = module {
       productionId = productionId,
       productionTitle = productionTitle,
       createTaskUseCase = get(),
-      getAssignableMembersUseCase = get()
+      getAssignableMembersUseCase = get(),
+      filePicker = get(),
+      uploadScheduler = get(),
+      attachmentFileManager = get()
     )
   }
 }

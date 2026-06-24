@@ -104,6 +104,14 @@ class TaskService(
         }
         task.toDetailDto() to notifyAssignee?.let { it to task.id }
       }.also { committed = true }
+    } catch (_: DuplicateIdempotencyKeyException) {
+      // A concurrent retry with the same Idempotency-Key won the insert race; our
+      // transaction rolled back. Return the winner's task. The blob we stored (if
+      // any) is now orphaned and is removed by the finally below.
+      val key = requireNotNull(idempotencyKey) { "Duplicate idempotency collision without a key" }
+      val winner = transactor.transaction { tasks.findByIdempotencyKey(key) }
+        ?: throw AppException(AppError.Conflict("Duplicate idempotency key"))
+      return winner.toDetailDto()
     } finally {
       if (!committed) attachment?.let { fileStorage.delete(it.storageKey) }
     }

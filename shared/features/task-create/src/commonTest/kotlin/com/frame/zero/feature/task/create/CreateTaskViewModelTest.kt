@@ -1,6 +1,12 @@
 package com.frame.zero.feature.task.create
 
+import com.frame.zero.core.files.AttachmentFileManager
+import com.frame.zero.core.files.FilePicker
+import com.frame.zero.core.files.MAX_ATTACHMENT_BYTES
+import com.frame.zero.core.files.PickedFile
 import com.frame.zero.core.network.connectivity.OfflineException
+import com.frame.zero.core.upload.PendingTaskUpload
+import com.frame.zero.core.upload.TaskUploadScheduler
 import com.frame.zero.feature.task.create.domain.CreateTaskUseCase
 import com.frame.zero.feature.task.create.domain.GetAssignableMembersUseCase
 import com.frame.zero.testing.FakeProductionsRepository
@@ -23,6 +29,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.time.Clock
@@ -157,9 +164,49 @@ class CreateTaskViewModelTest {
       assertEquals(LocalDate(2026, 7, 5), viewModel.state.value.dueDate)
     }
 
+  @Test
+  fun `attaching an oversize file surfaces an error and discards the copy`() =
+    runTest {
+      val big = PickedFile("big.bin", MAX_ATTACHMENT_BYTES + 1, "application/octet-stream", "/tmp/big.bin")
+      val files = FakeAttachmentFileManager()
+      val viewModel = makeViewModel(filePicker = FakeFilePicker(big), attachmentFileManager = files)
+      advanceUntilIdle()
+
+      viewModel.onIntent(CreateTaskIntent.AttachFileClicked)
+      advanceUntilIdle()
+
+      assertNull(viewModel.state.value.attachment)
+      assertNotNull(viewModel.state.value.attachmentError)
+      assertEquals(listOf("/tmp/big.bin"), files.deleted)
+    }
+
+  @Test
+  fun `submitting with an attachment enqueues a background upload`() =
+    runTest {
+      val file = PickedFile("doc.pdf", 1_024, "application/pdf", "/tmp/doc.pdf")
+      val scheduler = FakeTaskUploadScheduler()
+      val viewModel = makeViewModel(filePicker = FakeFilePicker(file), uploadScheduler = scheduler)
+      advanceUntilIdle()
+
+      viewModel.onIntent(CreateTaskIntent.TitleChanged("Storyboard"))
+      viewModel.onIntent(CreateTaskIntent.AttachFileClicked)
+      advanceUntilIdle()
+      viewModel.onIntent(CreateTaskIntent.Submit)
+      advanceUntilIdle()
+
+      val upload = scheduler.enqueued.single()
+      assertEquals("p1", upload.productionId)
+      assertEquals("Storyboard", upload.title)
+      assertEquals("doc.pdf", upload.fileName)
+      assertEquals("/tmp/doc.pdf", upload.localPath)
+    }
+
   private fun TestScope.makeViewModel(
     tasks: FakeTasksRepository = FakeTasksRepository(),
     productions: FakeProductionsRepository = FakeProductionsRepository(),
+    filePicker: FilePicker = FakeFilePicker(),
+    uploadScheduler: FakeTaskUploadScheduler = FakeTaskUploadScheduler(),
+    attachmentFileManager: AttachmentFileManager = FakeAttachmentFileManager(),
     clock: Clock = clockAt(LocalDate(2026, 6, 22))
   ): CreateTaskViewModel =
     CreateTaskViewModel(
@@ -167,8 +214,57 @@ class CreateTaskViewModelTest {
       productionTitle = "Pilot",
       createTaskUseCase = CreateTaskUseCase(tasks),
       getAssignableMembersUseCase = GetAssignableMembersUseCase(productions),
+      filePicker = filePicker,
+      uploadScheduler = uploadScheduler,
+      attachmentFileManager = attachmentFileManager,
       clock = clock,
       timeZone = TimeZone.UTC,
       dispatcher = StandardTestDispatcher(testScheduler)
     )
+
+  private class FakeFilePicker(
+    private val result: PickedFile? = null
+  ) : FilePicker {
+    override suspend fun pickFile(): PickedFile? = result
+  }
+
+  private class FakeTaskUploadScheduler : TaskUploadScheduler {
+    val enqueued: MutableList<PendingTaskUpload> = mutableListOf()
+
+    override suspend fun enqueue(upload: PendingTaskUpload) {
+      enqueued += upload
+    }
+
+    override suspend fun retry(uploadId: String) = Unit
+
+    override suspend fun cancel(uploadId: String) = Unit
+  }
+
+  private class FakeAttachmentFileManager : AttachmentFileManager {
+    val deleted: MutableList<String> = mutableListOf()
+
+    override fun cachedAttachment(
+      taskId: String,
+      fileName: String
+    ): String? = null
+
+    override suspend fun saveDownloaded(
+      taskId: String,
+      fileName: String,
+      bytes: ByteArray
+    ): String = ""
+
+    override fun readBytes(localPath: String): ByteArray = ByteArray(0)
+
+    override fun delete(localPath: String) {
+      deleted += localPath
+    }
+
+    override fun openWith(
+      localPath: String,
+      contentType: String
+    ) = Unit
+
+    override fun availableBytes(): Long = Long.MAX_VALUE
+  }
 }

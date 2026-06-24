@@ -25,6 +25,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.frame.zero.feature.task.details.AttachmentDownloadError
+import com.frame.zero.feature.task.details.TaskAttachment
 import com.frame.zero.feature.task.details.TaskDetailsComponent
 import com.frame.zero.feature.task.details.TaskDetailsIntent
 import com.frame.zero.feature.task.details.TaskDetailsState
@@ -33,6 +35,7 @@ import com.frame.zero.feature.task.details.TaskPriority
 import com.frame.zero.feature.task.details.TaskStatus
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
+import com.frame.zero.shared.design_system.modifier.clickableWithRipple
 import com.frame.zero.shared.design_system.widgets.CtaButton
 import com.frame.zero.shared.design_system.widgets.FullScreenError
 import com.frame.zero.shared.design_system.widgets.FullScreenProgress
@@ -41,6 +44,12 @@ import com.frame.zero.shared.design_system.widgets.TopToolbar
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import framezero.composeapp.features.task_details.generated.resources.Res
 import framezero.composeapp.features.task_details.generated.resources.task_details_assignee
+import framezero.composeapp.features.task_details.generated.resources.task_details_attachment
+import framezero.composeapp.features.task_details.generated.resources.task_details_attachment_error_generic
+import framezero.composeapp.features.task_details.generated.resources.task_details_attachment_error_offline
+import framezero.composeapp.features.task_details.generated.resources.task_details_attachment_error_storage
+import framezero.composeapp.features.task_details.generated.resources.task_details_attachment_downloading
+import framezero.composeapp.features.task_details.generated.resources.task_details_attachment_open
 import framezero.composeapp.features.task_details.generated.resources.task_details_due_date
 import framezero.composeapp.features.task_details.generated.resources.task_details_error
 import framezero.composeapp.features.task_details.generated.resources.task_details_mark_complete
@@ -134,6 +143,16 @@ internal fun TaskDetailsContent(
                 text = state.description,
                 style = AppTheme.typographySystem.bodyLarge,
                 color = colorSystem.textSecondary
+              )
+            }
+
+            state.attachment?.let { attachment ->
+              VerticalSpacer(AppTheme.spacingSystem.space24)
+              AttachmentCard(
+                attachment = attachment,
+                isDownloading = state.isDownloadingAttachment,
+                errorMessage = state.attachmentError?.let { stringResource(it.messageRes()) },
+                onClick = { onIntent(TaskDetailsIntent.DownloadAttachment) }
               )
             }
           }
@@ -259,6 +278,54 @@ private fun AssigneeDueRow(
     }
   }
 }
+
+@Composable
+private fun AttachmentCard(
+  attachment: TaskAttachment,
+  isDownloading: Boolean,
+  errorMessage: String?,
+  onClick: () -> Unit,
+  modifier: Modifier = Modifier
+) {
+  val colors = AppTheme.colorSystem
+  val typography = AppTheme.typographySystem
+  val spacing = AppTheme.spacingSystem
+
+  Column(
+    modifier = modifier
+      .fillMaxWidth()
+      .clickableWithRipple(color = colors.accentDim, onClick = onClick)
+      .padding(vertical = spacing.space8)
+  ) {
+    Text(
+      text = stringResource(Res.string.task_details_attachment),
+      style = typography.caption.copy(fontWeight = FontWeight.Bold),
+      color = colors.textMuted
+    )
+    VerticalSpacer(spacing.space8)
+    Text(text = attachment.fileName, style = typography.titleSmall, color = colors.textPrimary)
+    VerticalSpacer(spacing.space4)
+    Text(text = attachment.sizeLabel, style = typography.bodySmall, color = colors.textMuted)
+    VerticalSpacer(spacing.space4)
+    val subtitle = when {
+      errorMessage != null -> errorMessage
+      isDownloading -> stringResource(Res.string.task_details_attachment_downloading)
+      else -> stringResource(Res.string.task_details_attachment_open)
+    }
+    Text(
+      text = subtitle,
+      style = typography.bodySmall,
+      color = if (errorMessage != null) colors.errorText else colors.accent
+    )
+  }
+}
+
+private fun AttachmentDownloadError.messageRes() =
+  when (this) {
+    AttachmentDownloadError.OFFLINE -> Res.string.task_details_attachment_error_offline
+    AttachmentDownloadError.INSUFFICIENT_STORAGE -> Res.string.task_details_attachment_error_storage
+    AttachmentDownloadError.GENERIC -> Res.string.task_details_attachment_error_generic
+  }
 
 @Suppress("MagicNumber")
 private fun parseHexColor(hex: String): Color? {

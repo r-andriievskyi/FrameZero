@@ -27,10 +27,19 @@ import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.update
+import java.sql.SQLException
 import java.util.UUID
 import kotlin.time.Instant
 
 private const val NULL_DUE_DATE_CURSOR = Long.MAX_VALUE
+private const val UNIQUE_VIOLATION_SQL_STATE = "23505"
+
+/**
+ * Thrown when a task insert collides with an existing row's unique idempotency
+ * key — i.e. a concurrent retry with the same `Idempotency-Key` won the race.
+ * The caller should return the already-persisted task instead of a 500.
+ */
+class DuplicateIdempotencyKeyException : RuntimeException()
 
 data class TaskRecord(
   val id: UUID,
@@ -130,17 +139,27 @@ class TaskRepositoryImpl : TaskRepository {
     dbQuery {
       val newId = UUID.randomUUID()
       val now = nowTruncatedToMicros()
-      TasksTable.insert {
-        it[id] = newId
-        it[TasksTable.productionId] = productionId
-        it[TasksTable.title] = title
-        it[TasksTable.description] = description
-        it[TasksTable.dueDate] = dueDate
-        it[status] = TaskStatus.OPEN.name
-        it[TasksTable.priority] = priority.name
-        it[TasksTable.assigneeUserId] = assigneeUserId
-        it[createdAt] = now
-        it[TasksTable.idempotencyKey] = idempotencyKey
+      try {
+        TasksTable.insert {
+          it[id] = newId
+          it[TasksTable.productionId] = productionId
+          it[TasksTable.title] = title
+          it[TasksTable.description] = description
+          it[TasksTable.dueDate] = dueDate
+          it[status] = TaskStatus.OPEN.name
+          it[TasksTable.priority] = priority.name
+          it[TasksTable.assigneeUserId] = assigneeUserId
+          it[createdAt] = now
+          it[TasksTable.idempotencyKey] = idempotencyKey
+        }
+      } catch (exception: SQLException) {
+        // Two concurrent requests with the same Idempotency-Key can both pass the
+        // service-level findByIdempotencyKey check; the loser collides with the
+        // unique index here and must surface so the caller can return the winner.
+        if (idempotencyKey != null && exception.isUniqueViolation()) {
+          throw DuplicateIdempotencyKeyException()
+        }
+        throw exception
       }
       if (attachment != null) {
         TaskAttachmentsTable.insert {
@@ -337,6 +356,11 @@ class TaskRepositoryImpl : TaskRepository {
     dbQuery {
       TasksTable.deleteWhere { TasksTable.id eq id } > 0
     }
+
+  private fun SQLException.isUniqueViolation(): Boolean =
+    generateSequence(this as Throwable) { it.cause }
+      .filterIsInstance<SQLException>()
+      .any { it.sqlState == UNIQUE_VIOLATION_SQL_STATE }
 
   private fun accessibleProductionIds(userId: UUID): List<UUID> {
     val memberProductionIds = ProductionMembersTable
