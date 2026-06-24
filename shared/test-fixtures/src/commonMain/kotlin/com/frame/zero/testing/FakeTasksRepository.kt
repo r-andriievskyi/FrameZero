@@ -26,7 +26,6 @@ class FakeTasksRepository(
   val getCalls: MutableList<String> = mutableListOf()
   val completeCalls: MutableList<String> = mutableListOf()
   val createRequests: MutableList<CreateTaskRequest> = mutableListOf()
-  val createMultipartRequests: MutableList<CreateTaskRequest> = mutableListOf()
   val downloadCalls: MutableList<String> = mutableListOf()
   val listedProductionIds: MutableList<String> = mutableListOf()
 
@@ -44,18 +43,6 @@ class FakeTasksRepository(
 
   override suspend fun createTask(request: CreateTaskRequest): TaskDetailDto {
     createRequests += request
-    createThrows?.let { throw it }
-    return created
-  }
-
-  override suspend fun createTaskMultipart(
-    request: CreateTaskRequest,
-    fileName: String,
-    contentType: String,
-    fileBytes: ByteArray,
-    idempotencyKey: String
-  ): TaskDetailDto {
-    createMultipartRequests += request
     createThrows?.let { throw it }
     return created
   }

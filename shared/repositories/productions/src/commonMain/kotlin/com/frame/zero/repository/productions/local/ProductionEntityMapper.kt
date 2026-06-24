@@ -1,5 +1,6 @@
 package com.frame.zero.repository.productions.local
 
+import com.frame.zero.database.ProductionEntity
 import com.frame.zero.domain.production.Genre
 import com.frame.zero.domain.production.Production
 import com.frame.zero.domain.production.ProductionPhase

@@ -103,14 +103,6 @@ class TaskDetailsViewModelTest {
         override suspend fun listForProduction(productionId: String): List<com.frame.zero.dto.task.TaskSummaryDto> =
           emptyList()
 
-        override suspend fun createTaskMultipart(
-          request: com.frame.zero.dto.task.CreateTaskRequest,
-          fileName: String,
-          contentType: String,
-          fileBytes: ByteArray,
-          idempotencyKey: String
-        ): TaskDetailDto = openTask
-
         override suspend fun downloadAttachment(
           taskId: String,
           fileName: String,
@@ -194,14 +186,6 @@ class TaskDetailsViewModelTest {
 
         override suspend fun listForProduction(productionId: String): List<com.frame.zero.dto.task.TaskSummaryDto> =
           emptyList()
-
-        override suspend fun createTaskMultipart(
-          request: com.frame.zero.dto.task.CreateTaskRequest,
-          fileName: String,
-          contentType: String,
-          fileBytes: ByteArray,
-          idempotencyKey: String
-        ): TaskDetailDto = openTask
 
         override suspend fun downloadAttachment(
           taskId: String,

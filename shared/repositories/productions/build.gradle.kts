@@ -1,7 +1,5 @@
 plugins {
   id("crossplatform.library")
-  alias(libs.plugins.ksp)
-  alias(libs.plugins.androidxRoom)
 }
 
 base { archivesName = "repository-productions" }
@@ -12,14 +10,12 @@ kotlin {
   sourceSets {
     commonMain.dependencies {
       api(projects.shared)
+      api(projects.shared.database)
       api(libs.androidx.paging.common)
       implementation(libs.koin.core)
       implementation(libs.kotlinx.coroutines.core)
       implementation(libs.ktor.clientCore)
       implementation(libs.ktor.clientContentNegotiation)
-      implementation(libs.androidx.room.runtime)
-      implementation(libs.androidx.room.paging)
-      implementation(libs.androidx.sqlite.bundled)
     }
 
     commonTest.dependencies {
@@ -30,13 +26,3 @@ kotlin {
 }
 
 android { namespace = "com.frame.zero.repository.productions" }
-
-room {
-  schemaDirectory("$projectDir/build/schemas")
-}
-
-dependencies {
-  add("kspAndroid", libs.androidx.room.compiler)
-  add("kspIosArm64", libs.androidx.room.compiler)
-  add("kspIosSimulatorArm64", libs.androidx.room.compiler)
-}

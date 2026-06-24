@@ -49,6 +49,7 @@ kotlin {
       implementation(libs.androidx.lifecycle.viewmodelCompose)
       implementation(libs.androidx.lifecycle.runtimeCompose)
       implementation(projects.shared)
+      implementation(projects.shared.database)
       implementation(projects.shared.features.account)
       implementation(projects.shared.features.auth)
       implementation(projects.shared.features.home)

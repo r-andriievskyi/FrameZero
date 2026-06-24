@@ -15,19 +15,12 @@ import com.frame.zero.dto.task.UpdateTaskRequest
 import com.frame.zero.repository.tasks.TasksRepository
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.request.forms.MultiPartFormDataContent
-import io.ktor.client.request.forms.formData
 import io.ktor.client.request.get
-import io.ktor.client.request.header
 import io.ktor.client.request.parameter
 import io.ktor.client.request.patch
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.readRawBytes
-import io.ktor.http.ContentType
-import io.ktor.http.Headers
-import io.ktor.http.HttpHeaders
-import io.ktor.http.contentType
 
 class TasksRepositoryImpl(
   private val httpClient: HttpClient,
@@ -49,39 +42,6 @@ class TasksRepositoryImpl(
       .post("${networkConfig.baseUrl}/api/v1/tasks") {
         setBody(request)
       }.body()
-
-  override suspend fun createTaskMultipart(
-    request: CreateTaskRequest,
-    fileName: String,
-    contentType: String,
-    fileBytes: ByteArray,
-    idempotencyKey: String
-  ): TaskDetailDto {
-    val body = MultiPartFormDataContent(
-      formData {
-        append("productionId", request.productionId)
-        append("title", request.title)
-        request.description?.let { append("description", it) }
-        request.dueDate?.let { append("dueDate", it.toString()) }
-        request.assigneeUserId?.let { append("assigneeUserId", it) }
-        append("priority", request.priority.name)
-        append(
-          "file",
-          fileBytes,
-          Headers.build {
-            append(HttpHeaders.ContentType, contentType)
-            append(HttpHeaders.ContentDisposition, "filename=\"$fileName\"")
-          }
-        )
-      }
-    )
-    return httpClient
-      .post("${networkConfig.baseUrl}/api/v1/tasks") {
-        header("Idempotency-Key", idempotencyKey)
-        setBody(body)
-        contentType(body.contentType)
-      }.body()
-  }
 
   override suspend fun downloadAttachment(
     taskId: String,

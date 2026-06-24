@@ -9,7 +9,7 @@ import com.frame.zero.domain.production.Production
 import com.frame.zero.dto.production.CreateProductionRequest
 import com.frame.zero.dto.production.ProductionDetailDto
 import com.frame.zero.dto.production.ProductionMemberDto
-import com.frame.zero.repository.productions.local.FrameZeroDatabase
+import com.frame.zero.database.FrameZeroDatabase
 import com.frame.zero.repository.productions.local.toProduction
 import com.frame.zero.repository.productions.network.ProductionsApi
 import kotlinx.coroutines.flow.Flow

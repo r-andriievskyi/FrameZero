@@ -13,9 +13,9 @@ import com.frame.zero.dto.production.CreateProductionRequest
 import com.frame.zero.dto.production.ProductionDetailDto
 import com.frame.zero.dto.production.ProductionMemberDto
 import com.frame.zero.dto.production.ProductionSummaryDto
-import com.frame.zero.repository.productions.local.ProductionEntity
-import com.frame.zero.repository.productions.local.ProductionRemoteKeyEntity
-import com.frame.zero.repository.productions.local.ProductionsDao
+import com.frame.zero.database.ProductionEntity
+import com.frame.zero.database.ProductionRemoteKeyEntity
+import com.frame.zero.database.ProductionsDao
 import com.frame.zero.repository.productions.network.ProductionsApi
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.test.runTest
