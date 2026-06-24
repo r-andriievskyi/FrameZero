@@ -80,31 +80,6 @@ class TasksRepositoryImplTest {
     }
 
   @Test
-  fun `createTaskMultipart POSTs multipart with the idempotency key`() =
-    runTest {
-      val requests = mutableListOf<HttpRequestData>()
-      val repo = repository(requests) { taskDetailJson(id = "t10") }
-
-      val created = repo.createTaskMultipart(
-        request = CreateTaskRequest(productionId = "p1", title = "With file"),
-        fileName = "doc.pdf",
-        contentType = "application/pdf",
-        fileBytes = byteArrayOf(1, 2, 3),
-        idempotencyKey = "idem-1"
-      )
-
-      val request = requests.single()
-      assertEquals(HttpMethod.Post, request.method)
-      assertEquals("/api/v1/tasks", request.url.encodedPath)
-      assertEquals("idem-1", request.headers["Idempotency-Key"])
-      assertTrue(
-        request.body.contentType?.match(ContentType.MultiPart.FormData) == true,
-        "body should be multipart/form-data, was ${request.body.contentType}"
-      )
-      assertEquals("t10", created.id)
-    }
-
-  @Test
   fun `downloadAttachment returns the cached path without hitting the network`() =
     runTest {
       val requests = mutableListOf<HttpRequestData>()

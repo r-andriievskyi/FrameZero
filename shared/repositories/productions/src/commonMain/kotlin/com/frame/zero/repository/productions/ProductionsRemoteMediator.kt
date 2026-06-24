@@ -4,8 +4,8 @@ import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType
 import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
-import com.frame.zero.repository.productions.local.ProductionEntity
-import com.frame.zero.repository.productions.local.ProductionsDao
+import com.frame.zero.database.ProductionEntity
+import com.frame.zero.database.ProductionsDao
 import com.frame.zero.repository.productions.network.ProductionsApi
 import kotlinx.coroutines.CancellationException
 

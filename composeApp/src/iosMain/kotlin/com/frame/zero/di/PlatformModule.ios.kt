@@ -8,8 +8,10 @@ import com.frame.zero.core.network.connectivity.ConnectivityObserver
 import com.frame.zero.core.network.connectivity.IosConnectivityObserver
 import com.frame.zero.core.security.BiometricAuthenticator
 import com.frame.zero.core.security.IosBiometricAuthenticator
-import com.frame.zero.repository.productions.local.DatabaseBuilderFactory
-import com.frame.zero.repository.productions.local.IosDatabaseBuilderFactory
+import com.frame.zero.core.upload.BackgroundUrlSessionTaskUploadScheduler
+import com.frame.zero.core.upload.TaskUploadScheduler
+import com.frame.zero.database.DatabaseBuilderFactory
+import com.frame.zero.database.IosDatabaseBuilderFactory
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
@@ -20,4 +22,5 @@ actual fun platformModule(): Module =
     single<BiometricAuthenticator> { IosBiometricAuthenticator() }
     single<FilePicker> { IosFilePicker() }
     single<AttachmentFileManager> { IosAttachmentFileManager() }
+    single<TaskUploadScheduler> { BackgroundUrlSessionTaskUploadScheduler(get(), get(), get()) }
   }

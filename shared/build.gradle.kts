@@ -53,6 +53,7 @@ kotlin {
 
   sourceSets {
     commonMain.dependencies {
+      implementation(projects.shared.database)
       implementation(libs.kotlinx.serialization.json)
       api(libs.kotlinx.coroutines.core)
       api(libs.kotlinx.datetime)
@@ -70,6 +71,7 @@ kotlin {
       implementation(libs.ktor.clientOkHttp)
       implementation(libs.androidx.biometric)
       implementation(libs.androidx.fragment)
+      implementation(libs.androidx.work.runtime)
     }
     iosMain.dependencies { implementation(libs.ktor.clientDarwin) }
     commonTest.dependencies {

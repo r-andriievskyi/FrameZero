@@ -12,14 +12,6 @@ interface TasksRepository {
 
   suspend fun createTask(request: CreateTaskRequest): TaskDetailDto
 
-  suspend fun createTaskMultipart(
-    request: CreateTaskRequest,
-    fileName: String,
-    contentType: String,
-    fileBytes: ByteArray,
-    idempotencyKey: String
-  ): TaskDetailDto
-
   suspend fun downloadAttachment(
     taskId: String,
     fileName: String,
