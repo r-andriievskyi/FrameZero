@@ -33,7 +33,7 @@ class KmpLibraryComposeConventionPlugin : Plugin<Project> {
       }
 
       dependencies {
-        add("debugImplementation", libs.findLibrary("compose-uiTooling").get())
+        add("androidRuntimeClasspath", libs.findLibrary("compose-uiTooling").get())
       }
     }
   }

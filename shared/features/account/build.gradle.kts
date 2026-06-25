@@ -3,6 +3,8 @@ plugins { id("crossplatform.library") }
 base { archivesName = "feature-account" }
 
 kotlin {
+  android { namespace = "com.frame.zero.feature.account" }
+
   sourceSets {
     commonMain.dependencies {
       api(projects.shared)
@@ -18,5 +20,3 @@ kotlin {
     }
   }
 }
-
-android { namespace = "com.frame.zero.feature.account" }

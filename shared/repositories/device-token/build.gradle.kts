@@ -3,6 +3,8 @@ plugins { id("crossplatform.library") }
 base { archivesName = "repository-device-token" }
 
 kotlin {
+  android { namespace = "com.frame.zero.repository.device_token" }
+
   applyDefaultHierarchyTemplate()
 
   sourceSets {
@@ -24,5 +26,3 @@ kotlin {
     }
   }
 }
-
-android { namespace = "com.frame.zero.repository.device_token" }

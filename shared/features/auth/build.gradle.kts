@@ -3,6 +3,8 @@ plugins { id("crossplatform.library.compose") }
 base { archivesName = "feature-auth" }
 
 kotlin {
+  android { namespace = "com.frame.zero.feature.auth" }
+
   sourceSets {
     commonMain.dependencies {
       api(projects.shared)
@@ -30,5 +32,3 @@ kotlin {
     }
   }
 }
-
-android { namespace = "com.frame.zero.feature.auth" }

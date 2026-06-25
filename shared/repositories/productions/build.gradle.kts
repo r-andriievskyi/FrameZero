@@ -5,6 +5,8 @@ plugins {
 base { archivesName = "repository-productions" }
 
 kotlin {
+  android { namespace = "com.frame.zero.repository.productions" }
+
   applyDefaultHierarchyTemplate()
 
   sourceSets {
@@ -24,5 +26,3 @@ kotlin {
     }
   }
 }
-
-android { namespace = "com.frame.zero.repository.productions" }

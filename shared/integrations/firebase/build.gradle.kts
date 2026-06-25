@@ -3,6 +3,8 @@ plugins { id("crossplatform.library") }
 base { archivesName = "integration-firebase" }
 
 kotlin {
+  android { namespace = "com.frame.zero.integrations.firebase" }
+
   applyDefaultHierarchyTemplate()
 
   sourceSets {
@@ -20,9 +22,6 @@ kotlin {
     commonTest.dependencies { implementation(libs.kotlin.test) }
   }
 }
-
-android { namespace = "com.frame.zero.integrations.firebase" }
-
 // The GitLive Firebase SDK references native Firebase frameworks (FirebaseCore,
 // FirebaseAnalytics, FirebaseCrashlytics) that are supplied to the final iOS app link
 // via Xcode/SPM — never to Gradle. Linking a Kotlin/Native *test* executable for this

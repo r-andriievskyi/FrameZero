@@ -3,6 +3,8 @@ plugins { id("crossplatform.library.compose") }
 base { archivesName = "ui-feature-task-create" }
 
 kotlin {
+  android { namespace = "com.frame.zero.feature.task.create.ui" }
+
   sourceSets {
     commonMain.dependencies {
       implementation(projects.shared.features.taskCreate)
@@ -13,5 +15,3 @@ kotlin {
     commonTest.dependencies { implementation(libs.kotlin.test) }
   }
 }
-
-android { namespace = "com.frame.zero.feature.task.create.ui" }

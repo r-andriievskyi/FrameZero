@@ -3,6 +3,8 @@ plugins { id("crossplatform.library") }
 base { archivesName = "test-fixtures" }
 
 kotlin {
+  android { namespace = "com.frame.zero.testing" }
+
   sourceSets {
     commonMain.dependencies {
       api(projects.shared)
@@ -20,5 +22,3 @@ kotlin {
     }
   }
 }
-
-android { namespace = "com.frame.zero.testing" }
