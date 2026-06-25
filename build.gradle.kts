@@ -17,15 +17,9 @@ plugins {
     alias(libs.plugins.firebaseCrashlytics) apply false
 }
 
-dependencies {
-    kover(project(":shared"))
-    kover(project(":shared:features:auth"))
-    kover(project(":shared:features:home"))
-    kover(project(":shared:repositories:auth"))
-    kover(project(":shared:repositories:user"))
-    kover(project(":server"))
-    kover(project(":composeApp"))
-    kover(project(":composeApp:features:auth"))
-    kover(project(":composeApp:features:home"))
-    kover(project(":composeApp:shared:design_system"))
+subprojects {
+    val module = this
+    plugins.withId("org.jetbrains.kotlinx.kover") {
+        rootProject.dependencies.add("kover", module)
+    }
 }
