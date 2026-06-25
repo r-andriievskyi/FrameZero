@@ -15,8 +15,8 @@ import sergio.sastre.composable.preview.scanner.core.preview.ComposablePreview
  * `@LightDarkPreview` meta-annotation expands to Light + Dark `@Preview`s, so each composable yields
  * two goldens.
  *
- * Record with `:composeApp:features:production-details:recordRoborazziDebug`, check drift with
- * `:composeApp:features:production-details:verifyRoborazziDebug`. Robolectric native graphics + SDK
+ * Record with `:composeApp:features:production-details:recordRoborazziAndroidHostTest`, check drift with
+ * `:composeApp:features:production-details:verifyRoborazziAndroidHostTest`. Robolectric native graphics + SDK
  * level come from `androidUnitTest/resources/robolectric.properties`.
  */
 @OptIn(ExperimentalRoborazziApi::class)
