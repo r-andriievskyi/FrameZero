@@ -14,7 +14,7 @@ in `multiplatform-settings` — Room is for lists, not a few strings.
   3 integration (`RemoteMediator`, `PagingSource`) we'd otherwise hand-roll.
 - **Realm Kotlin** — heavier runtime, vendor coupling.
 
-**Cost:** Room's KMP builder is platform-specific — each db-owning module needs
+**Cost:** Room's KMP builder is platform-specific — `shared/database/` declares
 `expect DatabaseBuilderFactory` with Android/iOS actuals wired through Koin.
 Not in prod yet, so `exportSchema = false` and no migrations; flip both on
 before shipping. Any module owning user-scoped Room data must implement
