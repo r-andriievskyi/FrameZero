@@ -68,8 +68,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-build
-      - name: Verify screenshot goldens
-        run: ./gradlew :composeApp:shared:design_system:verifyRoborazziAndroidHostTest
+      - name: Verify screenshot goldens (all modules)
+        run: ./gradlew verifyRoborazziAndroidHostTest
       - name: Upload diff report on failure
         if: failure()
         uses: actions/upload-artifact@v4
