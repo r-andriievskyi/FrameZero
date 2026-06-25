@@ -1,5 +1,5 @@
 name: Setup build
-description: CI Gradle properties, JDK, Gradle, and decode google-services.json — shared by all CI jobs. Requires the repo to be checked out first.
+description: CI Gradle properties, JDK, Gradle, and decode the gitignored Firebase config files — shared by all CI jobs. Requires the repo to be checked out first.
 
 inputs:
   cache-read-only:
@@ -30,6 +30,12 @@ runs:
         build-scan-publish: true
         build-scan-terms-of-use-url: "https://gradle.com/terms-of-service"
         build-scan-terms-of-use-agree: "yes"
-    - name: Decode google-services.json
+    # Both Firebase config files are gitignored; recreate them from base64 secrets.
+    # The iOS plist is bundled by folder presence (iosApp/ is a synchronized group),
+    # so no .xcodeproj change is needed — it just has to exist before xcodebuild runs.
+    - name: Decode Firebase config (Android)
       shell: bash
       run: echo "${{ env.GOOGLE_SERVICES_JSON }}" | base64 --decode > composeApp/google-services.json
+    - name: Decode Firebase config (iOS)
+      shell: bash
+      run: echo "${{ env.GOOGLE_SERVICE_INFO_PLIST }}" | base64 --decode > iosApp/iosApp/GoogleService-Info.plist
