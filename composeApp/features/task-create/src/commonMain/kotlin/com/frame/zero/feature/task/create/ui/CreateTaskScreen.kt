@@ -47,7 +47,6 @@ import framezero.composeapp.features.task_create.generated.resources.label_attac
 import framezero.composeapp.features.task_create.generated.resources.label_due_date
 import framezero.composeapp.features.task_create.generated.resources.label_priority
 import framezero.composeapp.features.task_create.generated.resources.label_title
-import framezero.composeapp.features.task_create.generated.resources.new_task_subtitle
 import framezero.composeapp.features.task_create.generated.resources.new_task_title
 import framezero.composeapp.features.task_create.generated.resources.title_placeholder
 import org.jetbrains.compose.resources.stringResource
@@ -102,13 +101,6 @@ private fun CreateTaskContent(
       }
     )
 
-    Text(
-      text = stringResource(Res.string.new_task_subtitle, state.productionTitle),
-      style = AppTheme.typographySystem.bodySmall,
-      color = colors.textMuted,
-      modifier = Modifier.padding(horizontal = spacing.space16)
-    )
-
     Column(
       modifier = Modifier
         .weight(1f)
@@ -116,8 +108,6 @@ private fun CreateTaskContent(
         .verticalScroll(rememberScrollState())
         .padding(horizontal = spacing.space16)
     ) {
-      VerticalSpacer(spacing.space24)
-
       SectionLabel(text = stringResource(Res.string.label_title))
       VerticalSpacer(spacing.space8)
       SingleLineInputField(
@@ -144,6 +134,24 @@ private fun CreateTaskContent(
         onValueChange = { onIntent(CreateTaskIntent.DescriptionChanged(it)) },
         placeholder = stringResource(Res.string.description_placeholder)
       )
+
+      VerticalSpacer(spacing.space24)
+
+      SectionLabel(text = stringResource(Res.string.label_attachment))
+      VerticalSpacer(spacing.space8)
+      AttachmentRow(
+        attachmentName = state.attachment?.name,
+        onAttach = { onIntent(CreateTaskIntent.AttachFileClicked) },
+        onRemove = { onIntent(CreateTaskIntent.AttachmentRemoved) }
+      )
+      state.attachmentError?.let { error ->
+        VerticalSpacer(spacing.space4)
+        Text(
+          text = error.asString(),
+          style = AppTheme.typographySystem.bodySmall,
+          color = colors.errorText
+        )
+      }
 
       VerticalSpacer(spacing.space24)
 
@@ -188,24 +196,6 @@ private fun CreateTaskContent(
         onQuickSelect = { onIntent(CreateTaskIntent.QuickDueDateSelected(it)) },
         onDateChange = { onIntent(CreateTaskIntent.DueDateChanged(it)) }
       )
-
-      VerticalSpacer(spacing.space24)
-
-      SectionLabel(text = stringResource(Res.string.label_attachment))
-      VerticalSpacer(spacing.space8)
-      AttachmentRow(
-        attachmentName = state.attachment?.name,
-        onAttach = { onIntent(CreateTaskIntent.AttachFileClicked) },
-        onRemove = { onIntent(CreateTaskIntent.AttachmentRemoved) }
-      )
-      state.attachmentError?.let { error ->
-        VerticalSpacer(spacing.space4)
-        Text(
-          text = error.asString(),
-          style = AppTheme.typographySystem.bodySmall,
-          color = colors.errorText
-        )
-      }
 
       VerticalSpacer(spacing.space24)
     }

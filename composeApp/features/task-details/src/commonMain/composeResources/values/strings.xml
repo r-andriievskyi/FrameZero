@@ -13,4 +13,5 @@
   <string name="task_details_attachment_error_offline">You\'re offline. Connect and try again.</string>
   <string name="task_details_attachment_error_storage">Not enough free space to download this file.</string>
   <string name="task_details_attachment_error_generic">Couldn\'t download the attachment. Try again.</string>
+  <string name="task_details_attachment_subtitle">%1$s | %2$s</string>
 </resources>

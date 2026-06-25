@@ -1,5 +1,6 @@
 package com.frame.zero.feature.task.details.ui
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,7 +23,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.frame.zero.feature.task.details.AttachmentDownloadError
@@ -43,13 +46,14 @@ import com.frame.zero.shared.design_system.widgets.HorizontalSpacer
 import com.frame.zero.shared.design_system.widgets.TopToolbar
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import framezero.composeapp.features.task_details.generated.resources.Res
+import framezero.composeapp.features.task_details.generated.resources.ic_file
 import framezero.composeapp.features.task_details.generated.resources.task_details_assignee
 import framezero.composeapp.features.task_details.generated.resources.task_details_attachment
 import framezero.composeapp.features.task_details.generated.resources.task_details_attachment_error_generic
 import framezero.composeapp.features.task_details.generated.resources.task_details_attachment_error_offline
 import framezero.composeapp.features.task_details.generated.resources.task_details_attachment_error_storage
 import framezero.composeapp.features.task_details.generated.resources.task_details_attachment_downloading
-import framezero.composeapp.features.task_details.generated.resources.task_details_attachment_open
+import framezero.composeapp.features.task_details.generated.resources.task_details_attachment_subtitle
 import framezero.composeapp.features.task_details.generated.resources.task_details_due_date
 import framezero.composeapp.features.task_details.generated.resources.task_details_error
 import framezero.composeapp.features.task_details.generated.resources.task_details_mark_complete
@@ -57,9 +61,11 @@ import framezero.composeapp.features.task_details.generated.resources.task_detai
 import framezero.composeapp.features.task_details.generated.resources.task_details_title
 import framezero.composeapp.features.task_details.generated.resources.task_details_today
 import kotlinx.datetime.LocalDate
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
 private val AvatarSize = 36.dp
+private val FileIconContainerSize = 44.dp
 
 @Composable
 fun TaskDetailsScreen(
@@ -291,32 +297,65 @@ private fun AttachmentCard(
   val typography = AppTheme.typographySystem
   val spacing = AppTheme.spacingSystem
 
-  Column(
-    modifier = modifier
-      .fillMaxWidth()
-      .clickableWithRipple(color = colors.accentDim, onClick = onClick)
-      .padding(vertical = spacing.space8)
-  ) {
+  Column(modifier = modifier.fillMaxWidth()) {
     Text(
       text = stringResource(Res.string.task_details_attachment),
       style = typography.caption.copy(fontWeight = FontWeight.Bold),
       color = colors.textMuted
     )
     VerticalSpacer(spacing.space8)
-    Text(text = attachment.fileName, style = typography.titleSmall, color = colors.textPrimary)
-    VerticalSpacer(spacing.space4)
-    Text(text = attachment.sizeLabel, style = typography.bodySmall, color = colors.textMuted)
-    VerticalSpacer(spacing.space4)
-    val subtitle = when {
-      errorMessage != null -> errorMessage
-      isDownloading -> stringResource(Res.string.task_details_attachment_downloading)
-      else -> stringResource(Res.string.task_details_attachment_open)
+    Row(
+      modifier = Modifier
+        .fillMaxWidth()
+        .clip(RoundedCornerShape(AppTheme.radiusSystem.radius14))
+        .background(colors.inputBackground)
+        .clickableWithRipple(color = colors.accentDim, onClick = onClick)
+        .padding(spacing.space12),
+      verticalAlignment = Alignment.CenterVertically
+    ) {
+      Box(
+        modifier = Modifier
+          .size(FileIconContainerSize)
+          .clip(RoundedCornerShape(AppTheme.radiusSystem.radius8))
+          .background(colors.accentSurface),
+        contentAlignment = Alignment.Center
+      ) {
+        Image(
+          painter = painterResource(Res.drawable.ic_file),
+          contentDescription = null,
+          colorFilter = ColorFilter.tint(colors.accent)
+        )
+      }
+      HorizontalSpacer(spacing.space12)
+      Column(modifier = Modifier.weight(1f)) {
+        Text(
+          text = attachment.fileName,
+          style = typography.titleSmall,
+          color = colors.textPrimary,
+          maxLines = 1,
+          overflow = TextOverflow.Ellipsis
+        )
+        VerticalSpacer(spacing.space2)
+        val subtitle = when {
+          errorMessage != null -> errorMessage
+          isDownloading -> stringResource(Res.string.task_details_attachment_downloading)
+          else -> stringResource(
+            Res.string.task_details_attachment_subtitle,
+            attachment.typeLabel,
+            attachment.sizeLabel
+          )
+        }
+        Text(
+          text = subtitle,
+          style = typography.bodySmall,
+          color = when {
+            errorMessage != null -> colors.errorText
+            isDownloading -> colors.accent
+            else -> colors.textMuted
+          }
+        )
+      }
     }
-    Text(
-      text = subtitle,
-      style = typography.bodySmall,
-      color = if (errorMessage != null) colors.errorText else colors.accent
-    )
   }
 }
 
@@ -354,6 +393,13 @@ private fun TaskDetailsContentPreview() {
         dueDate = LocalDate(2026, 4, 26),
         isDueToday = true,
         showMarkCompleteButton = true,
+        attachment = TaskAttachment(
+          fileName = "Scene12_rev4.pdf",
+          typeLabel = "PDF",
+          sizeLabel = "1.2 MB",
+          contentType = "application/pdf",
+          sizeBytes = 1_258_291
+        ),
         description = "Writer turned in revised pages for the confrontation in Scene 12. " +
           "Review the new dialogue against the shooting schedule and flag any continuity " +
           "issues with the Act II callbacks before the table read."
