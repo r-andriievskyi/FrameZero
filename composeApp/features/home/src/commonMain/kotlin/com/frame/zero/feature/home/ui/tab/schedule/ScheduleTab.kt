@@ -78,7 +78,8 @@ fun ScheduleTab(component: ScheduleTabComponent) {
         state = state,
         onViewChanged = component::onViewChanged,
         onDateSelected = component::onDateSelected,
-        onMonthNavigated = component::onMonthNavigated
+        onMonthNavigated = component::onMonthNavigated,
+        onTaskClick = component.onTaskClick
       )
     }
   }
@@ -89,7 +90,8 @@ private fun ScheduleContent(
   state: ScheduleTabState,
   onViewChanged: (ScheduleView) -> Unit = {},
   onDateSelected: (LocalDate) -> Unit = {},
-  onMonthNavigated: (offset: Int) -> Unit = {}
+  onMonthNavigated: (offset: Int) -> Unit = {},
+  onTaskClick: (taskId: String) -> Unit = {}
 ) {
   val selectedDate = state.selectedDate ?: return
   val schedule = state.schedule
@@ -169,7 +171,8 @@ private fun ScheduleContent(
     if (state.selectedDayEvents.isNotEmpty() || state.selectedDayTasks.isNotEmpty()) {
       ScheduleTimeline(
         events = state.selectedDayEvents,
-        tasks = state.selectedDayTasks
+        tasks = state.selectedDayTasks,
+        onTaskClick = onTaskClick
       )
     }
   }

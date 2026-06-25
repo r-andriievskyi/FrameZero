@@ -34,7 +34,8 @@ import org.jetbrains.compose.resources.stringResource
 internal fun ScheduleTimeline(
   events: ImmutableList<ScheduleEventUiModel>,
   tasks: ImmutableList<ScheduleTaskUiModel>,
-  modifier: Modifier = Modifier
+  modifier: Modifier = Modifier,
+  onTaskClick: (taskId: String) -> Unit = {}
 ) {
   Column(modifier = modifier.fillMaxWidth()) {
     if (events.isNotEmpty()) {
@@ -57,7 +58,7 @@ internal fun ScheduleTimeline(
         count = tasks.size
       )
       VerticalSpacer(AppTheme.spacingSystem.space16)
-      TasksList(tasks = tasks)
+      TasksList(tasks = tasks, onTaskClick = onTaskClick)
     }
   }
 }
@@ -86,7 +87,8 @@ private fun EventsTimeline(
 @Composable
 private fun TasksList(
   tasks: ImmutableList<ScheduleTaskUiModel>,
-  modifier: Modifier = Modifier
+  modifier: Modifier = Modifier,
+  onTaskClick: (taskId: String) -> Unit = {}
 ) {
   Column(modifier = modifier.fillMaxWidth()) {
     tasks.forEachIndexed { index, task ->
@@ -97,7 +99,8 @@ private fun TasksList(
           is DueLabel.OtherDate -> label.date.toShortDueLabel()
         },
         productionTitle = task.productionTitle,
-        priority = task.priority
+        priority = task.priority,
+        onClick = { onTaskClick(task.id) }
       )
       if (index < tasks.lastIndex) {
         VerticalSpacer(AppTheme.spacingSystem.space8)

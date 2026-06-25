@@ -33,6 +33,7 @@ class HomeComponent(
   )
   val scheduleTab = ScheduleTabComponent(
     componentContext = childContext(key = "tab-schedule"),
+    onTaskClick = onTaskClick,
     viewModelFactory = scheduleViewModelFactory
   )
 }

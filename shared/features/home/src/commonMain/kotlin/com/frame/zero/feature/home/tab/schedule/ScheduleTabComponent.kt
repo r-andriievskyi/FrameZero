@@ -8,6 +8,7 @@ import kotlinx.datetime.LocalDate
 
 class ScheduleTabComponent(
   componentContext: ComponentContext,
+  val onTaskClick: (taskId: String) -> Unit = {},
   viewModelFactory: () -> ScheduleTabViewModel
 ) : ComponentContext by componentContext {
   private val viewModel: ScheduleTabViewModel = instanceKeeper.getOrCreate { viewModelFactory() }
