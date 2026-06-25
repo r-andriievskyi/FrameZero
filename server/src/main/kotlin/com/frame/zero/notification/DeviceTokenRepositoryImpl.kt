@@ -5,7 +5,7 @@ import com.frame.zero.config.dbQuery
 import com.frame.zero.dto.device.DevicePlatform
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
-import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.upsert
 import java.util.UUID
 
@@ -33,7 +33,7 @@ class DeviceTokenRepositoryImpl : DeviceTokenRepository {
   override suspend fun findTokensForUser(userId: UUID): List<String> =
     dbQuery {
       DeviceTokensTable
-        .selectAll()
+        .select(DeviceTokensTable.token)
         .where { DeviceTokensTable.userId eq userId }
         .map { it[DeviceTokensTable.token] }
     }
