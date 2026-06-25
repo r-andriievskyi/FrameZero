@@ -29,6 +29,7 @@ enum class AttachmentDownloadError { OFFLINE, INSUFFICIENT_STORAGE, GENERIC }
 
 data class TaskAttachment(
   val fileName: String,
+  val typeLabel: String,
   val sizeLabel: String,
   val contentType: String,
   val sizeBytes: Long

@@ -134,6 +134,7 @@ class TaskDetailsViewModel(
       attachment = attachment?.let {
         TaskAttachment(
           fileName = it.fileName,
+          typeLabel = fileTypeLabel(it.fileName, it.contentType),
           sizeLabel = formatFileSize(it.sizeBytes),
           contentType = it.contentType,
           sizeBytes = it.sizeBytes
@@ -143,6 +144,21 @@ class TaskDetailsViewModel(
       isError = false,
       showMarkCompleteButton = mappedStatus != TaskStatus.COMPLETED
     )
+  }
+
+  /** Short, human label for the file's kind — extension if present, else a content-type fallback. */
+  private fun fileTypeLabel(
+    fileName: String,
+    contentType: String
+  ): String {
+    val extension = fileName.substringAfterLast('.', missingDelimiterValue = "")
+    if (extension.isNotBlank() && extension.length <= MAX_EXTENSION_LENGTH) {
+      return extension.uppercase()
+    }
+    return contentType.substringAfterLast('/', missingDelimiterValue = "")
+      .substringBefore(';')
+      .ifBlank { contentType }
+      .uppercase()
   }
 
   private fun formatFileSize(bytes: Long): String {
@@ -182,5 +198,9 @@ class TaskDetailsViewModel(
 
   override fun onDestroy() {
     scope.cancel()
+  }
+
+  private companion object {
+    const val MAX_EXTENSION_LENGTH = 5
   }
 }

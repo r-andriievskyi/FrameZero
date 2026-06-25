@@ -309,3 +309,4 @@ AppTheme.radiusSystem.<token>     // xs sm segItem md lg input button card sheet
 - Exposing Compose UI types from `shared/`.
 - SwiftUI changes unless asked.
 - Domain logic on a DTO — map DTO→domain in a `*Mapper.kt`; keep the DTO a dumb wire shape.
+- Generating SVG/vector icons yourself — don't hand-author icon artwork; ask for the asset.
