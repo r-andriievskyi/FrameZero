@@ -3,8 +3,10 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.api.plugins.ExtensionAware
+import org.gradle.api.tasks.testing.Test
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.getByType
+import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 
@@ -32,6 +34,12 @@ class KmpLibraryConventionPlugin : Plugin<Project> {
             androidResources { enable = true }
             withHostTest { isIncludeAndroidResources = true }
           }
+      }
+
+      // Roborazzi captures every @Preview in one host-test JVM; the screenshot-heavy modules
+      // (e.g. home) exhaust the default heap, so give the unit-test workers more headroom.
+      tasks.withType<Test>().configureEach {
+        maxHeapSize = "2g"
       }
     }
   }
