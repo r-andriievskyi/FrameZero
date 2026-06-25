@@ -3,6 +3,8 @@ plugins { id("crossplatform.library") }
 base { archivesName = "feature-home" }
 
 kotlin {
+  android { namespace = "com.frame.zero.feature.home" }
+
   sourceSets {
     commonMain.dependencies {
       api(projects.shared)
@@ -26,5 +28,3 @@ kotlin {
     }
   }
 }
-
-android { namespace = "com.frame.zero.feature.home" }

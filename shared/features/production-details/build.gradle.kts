@@ -3,6 +3,8 @@ plugins { id("crossplatform.library.compose") }
 base { archivesName = "feature-production-details" }
 
 kotlin {
+  android { namespace = "com.frame.zero.feature.production.details" }
+
   sourceSets {
     commonMain.dependencies {
       api(projects.shared)
@@ -22,5 +24,3 @@ kotlin {
     }
   }
 }
-
-android { namespace = "com.frame.zero.feature.production.details" }

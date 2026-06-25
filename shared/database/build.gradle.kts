@@ -7,6 +7,8 @@ plugins {
 base { archivesName = "database" }
 
 kotlin {
+  android { namespace = "com.frame.zero.database" }
+
   applyDefaultHierarchyTemplate()
 
   sourceSets {
@@ -28,9 +30,6 @@ kotlin {
     }
   }
 }
-
-android { namespace = "com.frame.zero.database" }
-
 room {
   schemaDirectory("$projectDir/build/schemas")
 }

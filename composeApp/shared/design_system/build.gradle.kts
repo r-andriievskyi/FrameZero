@@ -3,11 +3,6 @@ plugins {
   alias(libs.plugins.roborazzi)
 }
 
-android {
-  namespace = "com.frame.zero.shared.design_system"
-  testOptions { unitTests.isIncludeAndroidResources = true }
-}
-
 compose.resources {
   packageOfResClass = "com.frame.zero.shared.design_system.generated.resources"
   publicResClass = true
@@ -15,6 +10,8 @@ compose.resources {
 }
 
 kotlin {
+  android { namespace = "com.frame.zero.shared.design_system" }
+
   sourceSets {
     commonMain.dependencies {
       api(libs.androidx.paging.compose)
@@ -23,7 +20,8 @@ kotlin {
     }
     androidMain.dependencies { implementation(libs.androidx.core.ktx) }
     commonTest.dependencies { implementation(libs.kotlin.test) }
-    androidUnitTest.dependencies {
+    androidHostTest.dependencies {
+      implementation(libs.compose.uiTestManifest)
       implementation(libs.kotlin.testJunit)
       implementation(libs.junit)
       implementation(libs.robolectric)
@@ -36,5 +34,3 @@ kotlin {
     }
   }
 }
-
-dependencies { debugImplementation(libs.compose.uiTestManifest) }

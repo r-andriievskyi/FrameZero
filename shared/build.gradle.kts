@@ -3,31 +3,22 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
   alias(libs.plugins.kotlinMultiplatform)
-  alias(libs.plugins.androidLibrary)
+  alias(libs.plugins.androidKmpLibrary)
   alias(libs.plugins.kotlinSerialization)
   alias(libs.plugins.buildKonfig)
   id("crossplatform.code.quality")
 }
 
-// BuildKonfig picks its flavor from the `buildkonfig.flavor` Gradle property,
-// which nothing sets by default — a Play-store build would ship the dev config
-// (DEBUG=true → full network logging incl. bearer tokens, localhost base URL).
-// Infer the release flavor whenever a *Release task was requested on the
-// command line; an explicit -Pbuildkonfig.flavor always wins.
-if (!project.hasProperty("buildkonfig.flavor")) {
-  val releaseTaskRequested = gradle.startParameter.taskNames.any { taskName ->
-    taskName.substringAfterLast(":").contains("Release")
-  }
-  if (releaseTaskRequested) {
-    project.extensions.extraProperties["buildkonfig.flavor"] = "release"
-  }
+val releaseTaskRequested = gradle.startParameter.taskNames.any { taskName ->
+  taskName.substringAfterLast(":").contains("Release")
+}
+
+if (!project.hasProperty("buildkonfig.flavor") && releaseTaskRequested) {
+  project.extensions.extraProperties["buildkonfig.flavor"] = "release"
 }
 
 val buildKonfigFlavor: String = project.findProperty("buildkonfig.flavor")?.toString().orEmpty()
 
-// Release base URL. A checked-in localhost placeholder (gradle.properties)
-// keeps release builds working before a real backend exists; the env var
-// (how CI/staging/prod inject the real URL) and an explicit -P override it.
 fun resolveReleaseBaseUrl(): String {
   if (buildKonfigFlavor != "release") return ""
   val raw = providers.environmentVariable("FRAMEZERO_API_BASE_URL").orNull
@@ -46,7 +37,19 @@ fun resolveReleaseBaseUrl(): String {
 
 kotlin {
   jvmToolchain(21)
-  androidTarget { compilerOptions { jvmTarget.set(JvmTarget.JVM_11) } }
+  android {
+    namespace = "com.frame.zero.shared"
+    compileSdk = libs.versions.android.compileSdk
+      .get()
+      .toInt()
+    minSdk = libs.versions.android.minSdk
+      .get()
+      .toInt()
+    compilerOptions {
+      jvmTarget.set(JvmTarget.JVM_11)
+    }
+    withHostTest {}
+  }
 
   iosArm64()
   iosSimulatorArm64()
@@ -72,6 +75,7 @@ kotlin {
       implementation(libs.androidx.biometric)
       implementation(libs.androidx.fragment)
       implementation(libs.androidx.work.runtime)
+      implementation(if (releaseTaskRequested) libs.chucker.libraryNoOp else libs.chucker.library)
     }
     iosMain.dependencies { implementation(libs.ktor.clientDarwin) }
     commonTest.dependencies {
@@ -80,27 +84,6 @@ kotlin {
       implementation(libs.ktor.clientMock)
       implementation(libs.multiplatformSettings.test)
     }
-  }
-}
-
-dependencies {
-  "debugImplementation"(libs.chucker.library)
-  "releaseImplementation"(libs.chucker.libraryNoOp)
-}
-
-android {
-  namespace = "com.frame.zero.shared"
-  compileSdk = libs.versions.android.compileSdk
-    .get()
-    .toInt()
-  compileOptions {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
-  }
-  defaultConfig {
-    minSdk = libs.versions.android.minSdk
-      .get()
-      .toInt()
   }
 }
 

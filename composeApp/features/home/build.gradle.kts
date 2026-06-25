@@ -6,6 +6,8 @@ plugins {
 base { archivesName = "ui-feature-home" }
 
 kotlin {
+  android { namespace = "com.frame.zero.feature.home.ui" }
+
   sourceSets {
     commonMain.dependencies {
       implementation(projects.shared.features.home)
@@ -15,7 +17,8 @@ kotlin {
       implementation(projects.composeApp.shared.designSystem)
     }
     commonTest.dependencies { implementation(libs.kotlin.test) }
-    androidUnitTest.dependencies {
+    androidHostTest.dependencies {
+      implementation(libs.compose.uiTestManifest)
       implementation(libs.kotlin.testJunit)
       implementation(libs.junit)
       implementation(libs.robolectric)
@@ -28,10 +31,3 @@ kotlin {
     }
   }
 }
-
-android {
-  namespace = "com.frame.zero.feature.home.ui"
-  testOptions { unitTests.isIncludeAndroidResources = true }
-}
-
-dependencies { debugImplementation(libs.compose.uiTestManifest) }
