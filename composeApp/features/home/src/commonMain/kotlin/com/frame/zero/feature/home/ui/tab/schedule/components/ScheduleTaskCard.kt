@@ -14,9 +14,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.semantics
 import com.frame.zero.dto.task.TaskPriority
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
+import com.frame.zero.shared.design_system.modifier.clickableWithRipple
 import com.frame.zero.shared.design_system.widgets.HorizontalSpacer
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import com.frame.zero.shared.design_system.widgets.rememberRoundedCornerShape
@@ -32,7 +35,8 @@ internal fun ScheduleTaskCard(
   dueLabel: String?,
   productionTitle: String,
   priority: TaskPriority?,
-  modifier: Modifier = Modifier
+  modifier: Modifier = Modifier,
+  onClick: () -> Unit = {}
 ) {
   val shape = rememberRoundedCornerShape(AppTheme.radiusSystem.radius16)
   val colorSystem = AppTheme.colorSystem
@@ -42,6 +46,8 @@ internal fun ScheduleTaskCard(
     modifier = modifier
       .fillMaxWidth()
       .clip(shape)
+      .clickableWithRipple(color = colorSystem.accentDim, role = Role.Button, onClick = onClick)
+      .semantics(mergeDescendants = true) {}
       .border(
         width = AppTheme.borderSystem.hairline,
         color = colorSystem.border,
