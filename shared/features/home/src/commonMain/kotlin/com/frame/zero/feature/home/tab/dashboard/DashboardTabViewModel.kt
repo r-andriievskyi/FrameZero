@@ -77,11 +77,8 @@ class DashboardTabViewModel(
         when (dashResult) {
           is Outcome.Success -> {
             val userName = when (meResult) {
-              is Outcome.Success -> {
-                val user = meResult.data
-                "${user.firstName} ${user.lastName}".trim()
-              }
-              is Outcome.Failure -> dashResult.data.displayName
+              is Outcome.Success -> meResult.data.firstName
+              is Outcome.Failure -> dashResult.data.displayName.substringBefore(" ")
             }
             DashboardTabState(
               isLoading = false,

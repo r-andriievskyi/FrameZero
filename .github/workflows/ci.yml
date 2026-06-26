@@ -63,7 +63,7 @@ jobs:
   screenshot-tests:
     needs: [changes, lint]
     if: needs.changes.outputs.code == 'true'
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4

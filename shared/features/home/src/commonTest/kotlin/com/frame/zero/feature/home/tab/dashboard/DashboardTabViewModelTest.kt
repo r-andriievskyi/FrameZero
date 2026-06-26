@@ -60,7 +60,7 @@ class DashboardTabViewModelTest {
       assertFalse(viewModel.state.value.isLoading)
       assertNull(viewModel.state.value.error)
       val dashboard = assertNotNull(viewModel.state.value.dashboard)
-      assertEquals("Ada Lovelace", dashboard.displayName)
+      assertEquals("Ada", dashboard.displayName)
       assertEquals(2, dashboard.stats.activeProjects)
       assertEquals(5, dashboard.stats.openTasks)
       assertEquals(1, dashboard.myTasks.size)
@@ -113,10 +113,13 @@ class DashboardTabViewModelTest {
     }
 
   @Test
-  fun `getMe failure uses dashboard displayName as fallback`() =
+  fun `getMe failure falls back to the first word of the dashboard displayName`() =
     runTest {
+      val fullNameResponse = dashboardResponse.copy(
+        greeting = dashboardResponse.greeting.copy(displayName = "Ada Lovelace")
+      )
       val userRepo = FakeUserRepository(throws = RuntimeException("boom"))
-      val dashboardRepo = FakeDashboardRepository(response = dashboardResponse)
+      val dashboardRepo = FakeDashboardRepository(response = fullNameResponse)
       val viewModel = makeViewModel(this, userRepo, dashboardRepo)
 
       advanceUntilIdle()
@@ -202,9 +205,9 @@ class DashboardTabViewModelTest {
     }
 
   @Test
-  fun `getMe trims surrounding whitespace when last name is blank`() =
+  fun `greeting uses only the first name and ignores the last name`() =
     runTest {
-      val userRepo = FakeUserRepository(userDto = userDto.copy(firstName = "Ada", lastName = ""))
+      val userRepo = FakeUserRepository(userDto = userDto.copy(firstName = "Ada", lastName = "Lovelace"))
       val dashboardRepo = FakeDashboardRepository(response = dashboardResponse)
       val viewModel = makeViewModel(this, userRepo, dashboardRepo)
 
