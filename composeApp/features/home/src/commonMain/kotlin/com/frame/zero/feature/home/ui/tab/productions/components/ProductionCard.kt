@@ -130,25 +130,29 @@ internal fun ProductionCard(
           color = AppTheme.colorSystem.textMuted
         )
       }
-      Row(
-        horizontalArrangement = Arrangement.spacedBy(AppTheme.spacingSystem.space4),
-        verticalAlignment = Alignment.CenterVertically
-      ) {
-        Image(
-          painter = painterResource(Res.drawable.ic_calendar_clock),
-          colorFilter = ColorFilter.tint(AppTheme.colorSystem.textPrimary),
-          contentDescription = null
-        )
-        val daysColor = if (production.daysLeft <= 7) {
-          AppTheme.colorSystem.errorText
-        } else {
-          AppTheme.colorSystem.textMuted
+      // Only surface the countdown while the wrap date is still ahead; once it
+      // has passed (daysLeft <= 0) the chip would read "-35 days left", so hide it.
+      if (production.daysLeft > 0) {
+        Row(
+          horizontalArrangement = Arrangement.spacedBy(AppTheme.spacingSystem.space4),
+          verticalAlignment = Alignment.CenterVertically
+        ) {
+          Image(
+            painter = painterResource(Res.drawable.ic_calendar_clock),
+            colorFilter = ColorFilter.tint(AppTheme.colorSystem.textPrimary),
+            contentDescription = null
+          )
+          val daysColor = if (production.daysLeft <= 7) {
+            AppTheme.colorSystem.errorText
+          } else {
+            AppTheme.colorSystem.textMuted
+          }
+          Text(
+            text = stringResource(Res.string.days_left, production.daysLeft),
+            style = AppTheme.typographySystem.bodySmall,
+            color = daysColor
+          )
         }
-        Text(
-          text = stringResource(Res.string.days_left, production.daysLeft),
-          style = AppTheme.typographySystem.bodySmall,
-          color = daysColor
-        )
       }
     }
   }

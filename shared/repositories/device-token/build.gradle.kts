@@ -19,6 +19,8 @@ kotlin {
     commonTest.dependencies {
       implementation(libs.kotlin.test)
       implementation(libs.kotlinx.coroutines.test)
+      implementation(libs.multiplatformSettings)
+      implementation(libs.multiplatformSettings.test)
       implementation(libs.ktor.clientMock)
       implementation(libs.ktor.clientContentNegotiation)
       implementation(libs.ktor.clientSerializationJson)

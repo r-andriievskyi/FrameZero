@@ -284,6 +284,36 @@ class SessionManagerTest {
       assertFalse(storage.hasTokens())
     }
 
+  @Test
+  fun `cleaner re-emitting LogoutSignal does not recurse forced logout`() =
+    runTest(UnconfinedTestDispatcher()) {
+      val storage = TokenStorage(MapSettings()).also { it.saveTokens("a", "r") }
+      val signal = LogoutSignal()
+      val cleaner = object : SessionCleaner {
+        var clearCalls = 0
+
+        override suspend fun clear() {
+          clearCalls++
+          signal.emit()
+        }
+      }
+      val manager = SessionManager(
+        storage,
+        FakeAuthOps(),
+        UserCache(MapSettings()),
+        signal,
+        cleaners = listOf(cleaner),
+        scope = backgroundScope
+      )
+      manager.onAuthenticated(user)
+
+      signal.emit()
+
+      assertEquals(1, cleaner.clearCalls)
+      assertEquals(SessionState.LoggedOut, manager.state.value)
+      assertFalse(storage.hasTokens())
+    }
+
   private fun TestScope.makeManager(): SessionManager =
     SessionManager(
       tokenStorage = TokenStorage(MapSettings()),

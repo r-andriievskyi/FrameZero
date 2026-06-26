@@ -11,5 +11,5 @@ val deviceTokenModule = module {
   single(createdAtStart = true) {
     DeviceTokenSynchronizer(get<SessionManager>().state, get(), get(), get())
   }
-  single { DeviceTokenSessionCleaner(get(), get()) } bind SessionCleaner::class
+  single { DeviceTokenSessionCleaner(get(), get(), get()) } bind SessionCleaner::class
 }

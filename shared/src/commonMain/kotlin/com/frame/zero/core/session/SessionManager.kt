@@ -46,13 +46,6 @@ class SessionManager(
       )
   }
 
-  /**
-   * A failed [SessionAuthOperations.fetchCurrentUser] is not necessarily a dead
-   * session: the auth plugin already clears the tokens when a 401 cannot be
-   * recovered by a refresh, so tokens still being present means the failure was
-   * transient (offline launch, server error). Keep the session and fall back to
-   * the cached profile instead of destroying valid credentials.
-   */
   private suspend fun restoreCachedSessionOrLogout() {
     val cachedUser = if (tokenStorage.hasTokens()) userCache.load() else null
     if (cachedUser != null) {
@@ -73,9 +66,10 @@ class SessionManager(
   }
 
   private suspend fun forceLogout() {
+    if (_state.value is SessionState.LoggedOut) return
+    _state.update { SessionState.LoggedOut }
     cleaners.forEach { cleaner -> runCatching { cleaner.clear() } }
     userCache.clear()
     tokenStorage.clearTokens()
-    _state.update { SessionState.LoggedOut }
   }
 }
