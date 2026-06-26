@@ -4,19 +4,6 @@ Kotlin Multiplatform app (Android + iOS) with a Ktor/Postgres server. Compose Mu
 
 Owner is an Android engineer with limited iOS/backend experience. **Maximise Kotlin sharing: `commonMain` first; platform source sets only when no multiplatform API exists.** When in doubt, ask.
 
-## Commands
-
-```bash
-./gradlew :composeApp:installDebug     # install Android debug build
-./gradlew :server:run                  # Ktor server, port 8080 (dev supplies a JWT secret)
-./gradlew test                         # all modules; --tests "FQN" for one class
-./gradlew ktlintFormat                 # auto-format before committing
-./gradlew check                        # CI gate: ktlint + detekt + tests
-
-docker compose up -d                   # Postgres (creds match AppConfig defaults)
-./scripts/seed_db.sh                   # 5 users + 10 productions
-```
-
 - **Server needs `FIREBASE_CREDENTIALS_PATH`** (service-account JSON) to boot in every mode; `FILE_STORAGE_DIR` (default `./uploads`) holds attachment blobs. Prod (`KTOR_ENV=production`) also needs `JWT_SECRET` + DB vars.
 - **iOS:** open `iosApp/iosApp.xcodeproj` in Xcode. Relink after `shared`/`composeApp` changes: `./gradlew :composeApp:linkDebugFrameworkIosSimulatorArm64`. Don't touch SwiftUI unless asked.
 - **Screenshot tests (Roborazzi):** `check` does NOT verify — run `:composeApp:shared:design_system:verifyRoborazziAndroidHostTest` (or `recordRoborazziAndroidHostTest` to regen goldens) explicitly. These are KMP modules, so Roborazzi tasks carry the `AndroidHostTest`/`IosSimulatorArm64` test-compilation suffix, not the AGP-style `Debug` variant suffix.

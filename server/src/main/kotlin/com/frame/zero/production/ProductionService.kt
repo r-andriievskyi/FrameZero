@@ -383,7 +383,7 @@ class ProductionService(
     viewerCrew: ViewerCrewDto?,
     today: LocalDate
   ): ProductionDetailDto {
-    val progressPercent = computeProgressPercent(startDate, wrapDate, today)
+    val progressPercent = computeProgressPercent(phase, startDate, wrapDate, today)
     val daysUntilWrap = today.daysUntil(wrapDate)
     return ProductionDetailDto(
       id = id.toString(),
@@ -409,7 +409,7 @@ class ProductionService(
     membersCount: Int,
     today: LocalDate
   ): ProductionSummaryDto {
-    val progressPercent = computeProgressPercent(startDate, wrapDate, today)
+    val progressPercent = computeProgressPercent(phase, startDate, wrapDate, today)
     val daysUntilWrap = today.daysUntil(wrapDate)
     return ProductionSummaryDto(
       id = id.toString(),
