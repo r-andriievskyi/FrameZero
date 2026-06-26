@@ -18,6 +18,14 @@ class KmpLibraryComposeConventionPlugin : Plugin<Project> {
         stabilityConfigurationFiles.add(
           rootProject.layout.projectDirectory.file("stability_config.conf")
         )
+
+        // Opt-in Compose Compiler reports/metrics for perf audits:
+        //   ./gradlew <task> -PenableComposeCompilerReports=true
+        if (providers.gradleProperty("enableComposeCompilerReports").orNull == "true") {
+          val out = layout.buildDirectory.dir("compose_reports")
+          reportsDestination.set(out)
+          metricsDestination.set(out)
+        }
       }
 
       val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")

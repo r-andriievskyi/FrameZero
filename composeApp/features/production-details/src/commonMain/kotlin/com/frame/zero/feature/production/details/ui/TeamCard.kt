@@ -22,8 +22,9 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.frame.zero.domain.production.ProductionMember
-import com.frame.zero.domain.production.ViewerCrew
+import com.frame.zero.feature.production.details.ProductionMemberUi
+import com.frame.zero.feature.production.details.ViewerCrewUi
+import kotlinx.collections.immutable.persistentListOf
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.generated.resources.ic_chevron_right
@@ -38,7 +39,6 @@ import framezero.composeapp.features.production_details.generated.resources.team
 import framezero.composeapp.features.production_details.generated.resources.team_viewer_label
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-import kotlin.time.Instant
 
 private val AvatarSize = 44.dp
 private val CountBadgePaddingHorizontal = 6.dp
@@ -46,7 +46,7 @@ private val CountBadgePaddingVertical = 2.dp
 
 @Composable
 internal fun TeamCard(
-  viewerCrew: ViewerCrew,
+  viewerCrew: ViewerCrewUi,
   modifier: Modifier = Modifier
 ) {
   Column(
@@ -71,7 +71,7 @@ internal fun TeamCard(
         color = AppTheme.colorSystem.textMuted
       )
       ViewerBadge(
-        label = stringResource(Res.string.team_viewer_label, viewerCrew.viewer.role)
+        label = stringResource(Res.string.team_viewer_label, viewerCrew.viewerRole)
       )
     }
 
@@ -195,7 +195,7 @@ private fun SectionHeader(
 
 @Composable
 private fun CrewRow(
-  member: ProductionMember,
+  member: ProductionMemberUi,
   modifier: Modifier = Modifier
 ) {
   Row(
@@ -243,62 +243,40 @@ private fun CrewRow(
 @LightDarkPreview
 @Composable
 private fun TeamCardPreview() {
-  val previewInstant = Instant.fromEpochMilliseconds(0L)
   AppTheme {
     TeamCard(
-      viewerCrew = ViewerCrew(
-        viewer = ProductionMember(
-          id = "m2",
-          userId = "u-me",
-          name = "Tom Ellison",
-          role = "Producer",
-          initials = "TE",
-          avatarColorHex = "#2196F3",
-          addedAt = previewInstant,
-          reportsToMemberId = "m1"
-        ),
-        manager = ProductionMember(
+      viewerCrew = ViewerCrewUi(
+        viewerRole = "Producer",
+        manager = ProductionMemberUi(
           id = "m1",
-          userId = null,
           name = "Maya Rivera",
           role = "Director",
           initials = "MR",
-          avatarColorHex = "#E91E63",
-          addedAt = previewInstant,
-          reportsToMemberId = null
+          avatarColorHex = "#E91E63"
         ),
-        peers = listOf(
-          ProductionMember(
+        peers = persistentListOf(
+          ProductionMemberUi(
             id = "m3",
-            userId = null,
             name = "Sara Lin",
             role = "Cinematographer",
             initials = "SL",
-            avatarColorHex = "#9C27B0",
-            addedAt = previewInstant,
-            reportsToMemberId = "m1"
+            avatarColorHex = "#9C27B0"
           )
         ),
-        reports = listOf(
-          ProductionMember(
+        reports = persistentListOf(
+          ProductionMemberUi(
             id = "m4",
-            userId = null,
             name = "Jake Morse",
             role = "1st AD",
             initials = "JM",
-            avatarColorHex = "#009688",
-            addedAt = previewInstant,
-            reportsToMemberId = "m2"
+            avatarColorHex = "#009688"
           ),
-          ProductionMember(
+          ProductionMemberUi(
             id = "m5",
-            userId = null,
             name = "Sara Lin",
             role = "Cinematographer",
             initials = "SL",
-            avatarColorHex = "#9C27B0",
-            addedAt = previewInstant,
-            reportsToMemberId = "m2"
+            avatarColorHex = "#9C27B0"
           )
         )
       )

@@ -28,7 +28,7 @@ import org.jetbrains.compose.resources.stringResource
 import com.frame.zero.shared.design_system.widgets.HorizontalSpacer
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import com.frame.zero.domain.production.ProductionPhase
-import com.frame.zero.domain.production.ProductionPipelinePhase
+import com.frame.zero.feature.production.details.ProductionPipelinePhaseUi
 import com.frame.zero.shared.design_system.LightDarkPreview
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -38,7 +38,7 @@ private val PhaseDotSize = 16.dp
 
 @Composable
 internal fun PipelineCard(
-  pipeline: ImmutableList<ProductionPipelinePhase>,
+  pipeline: ImmutableList<ProductionPipelinePhaseUi>,
   currentPhase: ProductionPhase,
   modifier: Modifier = Modifier
 ) {
@@ -122,25 +122,25 @@ internal fun PipelineCard(
 @Composable
 private fun PipelineCardPreview() {
   val pipeline = persistentListOf(
-    ProductionPipelinePhase(
+    ProductionPipelinePhaseUi(
       phase = ProductionPhase.DEVELOPMENT,
       label = "Development",
       isCompleted = true,
       isCurrent = false
     ),
-    ProductionPipelinePhase(
+    ProductionPipelinePhaseUi(
       phase = ProductionPhase.PRE_PRODUCTION,
       label = "Pre-Production",
       isCompleted = false,
       isCurrent = true
     ),
-    ProductionPipelinePhase(
+    ProductionPipelinePhaseUi(
       phase = ProductionPhase.PRODUCTION,
       label = "Production",
       isCompleted = false,
       isCurrent = false
     ),
-    ProductionPipelinePhase(
+    ProductionPipelinePhaseUi(
       phase = ProductionPhase.POST_PRODUCTION,
       label = "Post-Production",
       isCompleted = false,

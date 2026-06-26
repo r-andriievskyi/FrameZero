@@ -15,8 +15,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.frame.zero.domain.task.AssignableMember
 import com.frame.zero.dto.task.TaskPriority
+import com.frame.zero.feature.task.create.AssignableMemberUi
 import com.frame.zero.feature.task.create.CreateTaskComponent
 import com.frame.zero.feature.task.create.CreateTaskIntent
 import com.frame.zero.feature.task.create.CreateTaskState
@@ -27,6 +27,7 @@ import com.frame.zero.feature.task.create.ui.components.MultiLineInputField
 import com.frame.zero.feature.task.create.ui.components.PrioritySelector
 import com.frame.zero.feature.task.create.ui.components.SectionLabel
 import com.frame.zero.shared.design_system.AppTheme
+import kotlinx.collections.immutable.persistentListOf
 import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.modifier.clickableWithRipple
 import com.frame.zero.shared.design_system.widgets.CtaButton
@@ -224,9 +225,9 @@ private fun CreateTaskContentPreview() {
       state = CreateTaskState(
         productionTitle = "Echoes of Silence",
         priority = TaskPriority.MEDIUM,
-        assignableMembers = listOf(
-          AssignableMember("u1", "Sara Lin", "SL", "#9C27B0"),
-          AssignableMember("u2", "Jake Morse", "JM", "#009688")
+        assignableMembers = persistentListOf(
+          AssignableMemberUi("u1", "Sara Lin", "SL", "#9C27B0"),
+          AssignableMemberUi("u2", "Jake Morse", "JM", "#009688")
         )
       ),
       onIntent = {},

@@ -15,16 +15,15 @@ import androidx.compose.ui.Alignment
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Modifier
 import com.frame.zero.core.collections.mapImmutable
-import com.frame.zero.domain.production.Genre
-import com.frame.zero.domain.production.ProductionDetail
-import com.frame.zero.domain.production.ProductionMember
 import com.frame.zero.domain.production.ProductionPhase
-import com.frame.zero.domain.production.ProductionPipelinePhase
-import com.frame.zero.domain.production.ViewerCrew
+import com.frame.zero.feature.production.details.ProductionDetailUi
 import com.frame.zero.feature.production.details.ProductionDetailsComponent
 import com.frame.zero.feature.production.details.ProductionDetailsIntent
 import com.frame.zero.feature.production.details.ProductionDetailsState
+import com.frame.zero.feature.production.details.ProductionMemberUi
+import com.frame.zero.feature.production.details.ProductionPipelinePhaseUi
 import com.frame.zero.feature.production.details.ProductionTaskUi
+import com.frame.zero.feature.production.details.ViewerCrewUi
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.widgets.FullScreenError
@@ -36,9 +35,7 @@ import com.frame.zero.ui.asString
 import kotlinx.collections.immutable.persistentListOf
 import framezero.composeapp.features.production_details.generated.resources.Res
 import framezero.composeapp.features.production_details.generated.resources.delete_production_menu
-import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.stringResource
-import kotlin.time.Instant
 
 private const val OverlayAlpha = 0.6f
 
@@ -131,7 +128,7 @@ private fun ProductionDetailsContent(
 
 @Composable
 private fun DetailBody(
-  detail: ProductionDetail,
+  detail: ProductionDetailUi,
   tasks: List<ProductionTaskUi>,
   modifier: Modifier = Modifier,
   onAddTask: () -> Unit = {}
@@ -148,7 +145,7 @@ private fun DetailBody(
       currentPhase = detail.phase
     )
     VerticalSpacer(AppTheme.spacingSystem.space16)
-    DateCards(startDate = detail.startDate, wrapDate = detail.wrapDate)
+    DateCards(startDate = detail.startDateLabel, wrapDate = detail.wrapDateLabel)
     VerticalSpacer(AppTheme.spacingSystem.space16)
     detail.viewerCrew?.let { viewerCrew ->
       TeamCard(viewerCrew = viewerCrew)
@@ -170,8 +167,6 @@ private fun CenteredProgress(modifier: Modifier = Modifier) {
   }
 }
 
-private val PreviewInstant = Instant.fromEpochMilliseconds(0L)
-
 @LightDarkPreview
 @Composable
 private fun ProductionDetailsLoadedPreview() {
@@ -182,22 +177,19 @@ private fun ProductionDetailsLoadedPreview() {
           ProductionTaskUi(id = "1", title = "Lock shooting schedule", dueDateLabel = "Apr 12", isDone = false),
           ProductionTaskUi(id = "2", title = "Send call sheets", dueDateLabel = null, isDone = true)
         ),
-        detail = ProductionDetail(
-          id = "1",
+        detail = ProductionDetailUi(
           title = "Echoes of Silence",
-          genre = Genre.DRAMA,
           logline = "A deaf composer rediscovers sound through" +
             " the chaos of war.",
           phase = ProductionPhase.PRODUCTION,
           progressPercent = 68,
           daysLeft = 24,
-          startDate = LocalDate(2026, 2, 10),
-          wrapDate = LocalDate(2026, 8, 30),
-          budgetCents = 240_000_000L,
           membersCount = 12,
-          keyCrew = emptyList(),
+          budgetLabel = "$2,400,000",
+          startDateLabel = "Feb 10, 2026",
+          wrapDateLabel = "Aug 30, 2026",
           pipeline = ProductionPhase.entries.mapImmutable { p ->
-            ProductionPipelinePhase(
+            ProductionPipelinePhaseUi(
               phase = p,
               label = p.displayLabel(),
               isCompleted =
@@ -205,51 +197,31 @@ private fun ProductionDetailsLoadedPreview() {
               isCurrent = p == ProductionPhase.PRODUCTION
             )
           },
-          createdAt = PreviewInstant,
-          updatedAt = PreviewInstant,
-          viewerCrew = ViewerCrew(
-            viewer = ProductionMember(
-              id = "m2",
-              userId = "u-me",
-              name = "Tom Ellison",
-              role = "Producer",
-              initials = "TE",
-              avatarColorHex = "#2196F3",
-              addedAt = PreviewInstant,
-              reportsToMemberId = "m1"
-            ),
-            manager = ProductionMember(
+          viewerCrew = ViewerCrewUi(
+            viewerRole = "Producer",
+            manager = ProductionMemberUi(
               id = "m1",
-              userId = null,
               name = "Maya Rivera",
               role = "Director",
               initials = "MR",
-              avatarColorHex = "#E91E63",
-              addedAt = PreviewInstant,
-              reportsToMemberId = null
+              avatarColorHex = "#E91E63"
             ),
-            peers = listOf(
-              ProductionMember(
+            peers = persistentListOf(
+              ProductionMemberUi(
                 id = "m3",
-                userId = null,
                 name = "Sara Lin",
                 role = "DP",
                 initials = "SL",
-                avatarColorHex = "#9C27B0",
-                addedAt = PreviewInstant,
-                reportsToMemberId = "m1"
+                avatarColorHex = "#9C27B0"
               )
             ),
-            reports = listOf(
-              ProductionMember(
+            reports = persistentListOf(
+              ProductionMemberUi(
                 id = "m4",
-                userId = null,
                 name = "Jake Morse",
                 role = "1st AD",
                 initials = "JM",
-                avatarColorHex = "#009688",
-                addedAt = PreviewInstant,
-                reportsToMemberId = "m2"
+                avatarColorHex = "#009688"
               )
             )
           )

@@ -17,6 +17,17 @@ plugins {
   id("crossplatform.code.quality")
 }
 
+composeCompiler {
+  stabilityConfigurationFiles.add(
+    rootProject.layout.projectDirectory.file("stability_config.conf")
+  )
+  if (providers.gradleProperty("enableComposeCompilerReports").orNull == "true") {
+    val out = layout.buildDirectory.dir("compose_reports")
+    reportsDestination.set(out)
+    metricsDestination.set(out)
+  }
+}
+
 kotlin {
   jvmToolchain(21)
   androidTarget { compilerOptions { jvmTarget.set(JvmTarget.JVM_11) } }

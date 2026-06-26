@@ -2,11 +2,9 @@ package com.frame.zero.feature.production.details.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import com.frame.zero.core.format.formatMedium
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.domain.production.Genre
 import com.frame.zero.domain.production.ProductionPhase
-import kotlinx.datetime.LocalDate
 
 @Composable
 internal fun phaseAccentColor(phase: ProductionPhase): Color =
@@ -30,17 +28,6 @@ internal fun ProductionPhase.displayLabel(): String =
 internal fun Genre.displayLabel(): String =
   name.replace('_', ' ').lowercase()
     .replaceFirstChar { it.uppercase() }
-
-internal fun LocalDate.formatDisplay(): String = formatMedium()
-
-internal fun formatBudget(cents: Long?): String {
-  if (cents == null) return "—"
-  val dollars = cents / 100
-  return "$${
-    dollars.toString().reversed().chunked(3)
-      .joinToString(",").reversed()
-  }"
-}
 
 @Suppress("MagicNumber")
 internal fun parseHexColor(hex: String): Color? {
