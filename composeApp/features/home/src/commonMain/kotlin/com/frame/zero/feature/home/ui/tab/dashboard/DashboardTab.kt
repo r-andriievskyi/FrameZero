@@ -31,7 +31,7 @@ import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import framezero.composeapp.features.home.generated.resources.Res
 import framezero.composeapp.features.home.generated.resources.error_generic_message
 import framezero.composeapp.features.home.generated.resources.error_offline_message
-import framezero.composeapp.features.home.generated.resources.greeting_good_morning
+import framezero.composeapp.features.home.generated.resources.greeting_hello
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.stringResource
@@ -81,7 +81,7 @@ internal fun DashboardContent(
         modifier = Modifier
           .testTag(DashboardTestTags.GREETING)
           .semantics { heading() },
-        text = stringResource(Res.string.greeting_good_morning, dashboard.displayName),
+        text = stringResource(Res.string.greeting_hello, dashboard.displayName),
         style = AppTheme.typographySystem.displayMedium,
         color = AppTheme.colorSystem.textPrimary
       )
