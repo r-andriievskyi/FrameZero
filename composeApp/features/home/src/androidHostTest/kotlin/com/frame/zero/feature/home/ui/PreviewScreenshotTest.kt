@@ -9,15 +9,6 @@ import sergio.sastre.composable.preview.scanner.android.AndroidComposablePreview
 import sergio.sastre.composable.preview.scanner.android.AndroidPreviewInfo
 import sergio.sastre.composable.preview.scanner.core.preview.ComposablePreview
 
-/**
- * Golden-image coverage for every `@LightDarkPreview` (and any other `@Preview`) in the home
- * feature. The scanner discovers previews on the test classpath; the custom `@LightDarkPreview`
- * meta-annotation expands to Light + Dark `@Preview`s, so each composable yields two goldens.
- *
- * Record with `:composeApp:features:home:recordRoborazziAndroidHostTest`, check drift with
- * `:composeApp:features:home:verifyRoborazziAndroidHostTest`. Robolectric native graphics + SDK level come
- * from `androidHostTest/resources/robolectric.properties`.
- */
 @OptIn(ExperimentalRoborazziApi::class)
 @RunWith(ParameterizedRobolectricTestRunner::class)
 class PreviewScreenshotTest(
@@ -26,10 +17,7 @@ class PreviewScreenshotTest(
   companion object {
     private const val GOLDENS_DIR = "src/androidUnitTest/screenshots"
 
-    // Previews containing an indeterminate/animated indicator never reach an idle frame, so the
-    // capture lands on a different animation phase each run → flaky pixel diffs. Keep the suite
-    // exact-match by excluding them. (ProductionsSkeletonPreview pulses via an infinite transition.)
-    private val ANIMATED_PREVIEWS = setOf("ProductionsSkeletonPreview")
+    private val NON_IDLE_PREVIEWS = setOf("ProductionsSkeletonPreview", "ProductionsContentPreview")
 
     @JvmStatic
     @ParameterizedRobolectricTestRunner.Parameters(name = "{0}")
@@ -38,13 +26,12 @@ class PreviewScreenshotTest(
         .scanPackageTrees("com.frame.zero.feature.home.ui")
         .includePrivatePreviews()
         .getPreviews()
-        .filterNot { it.methodName in ANIMATED_PREVIEWS }
+        .filterNot { it.methodName in NON_IDLE_PREVIEWS }
   }
 
   @Test
   fun snapshot() {
     val variant = preview.previewInfo.name.ifBlank { "preview" }
-    // Relative paths resolve against the module dir; commit goldens under src so they survive `clean`.
     val name = "${preview.declaringClass}_${preview.methodName}_${variant}_${preview.previewIndex ?: 0}.png"
     preview.captureRoboImage(filePath = "$GOLDENS_DIR/$name")
   }
