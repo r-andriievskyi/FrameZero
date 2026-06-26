@@ -36,6 +36,7 @@ import framezero.composeapp.features.home.generated.resources.ic_members
 import framezero.composeapp.features.home.generated.resources.members_count
 import framezero.composeapp.features.home.generated.resources.projects_pipeline_progress
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 
 private val ProgressBarHeight = 6.dp
@@ -125,7 +126,11 @@ internal fun ProductionCard(
           contentDescription = null
         )
         Text(
-          text = stringResource(Res.string.members_count, production.membersCount),
+          text = pluralStringResource(
+            Res.plurals.members_count,
+            production.membersCount,
+            production.membersCount
+          ),
           style = AppTheme.typographySystem.bodySmall,
           color = AppTheme.colorSystem.textMuted
         )
