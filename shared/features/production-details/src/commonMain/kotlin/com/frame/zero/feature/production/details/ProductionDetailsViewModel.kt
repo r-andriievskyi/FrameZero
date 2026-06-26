@@ -95,11 +95,10 @@ class ProductionDetailsViewModel(
       _state.update { it.copy(areTasksLoading = true) }
       val params = GetProductionTasksUseCase.Params(productionId = productionId)
       when (val outcome = getProductionTasksUseCase(params)) {
-        is Outcome.Success ->
-          _state.update { it.copy(areTasksLoading = false, tasks = outcome.data.map { task -> task.toUi() }) }
-        // Keep whatever tasks we already had on a transient failure; the card just stops its spinner.
-        is Outcome.Failure ->
-          _state.update { it.copy(areTasksLoading = false) }
+        is Outcome.Success -> _state.update {
+          it.copy(areTasksLoading = false, tasks = outcome.data.mapImmutable { task -> task.toUi() })
+        }
+        is Outcome.Failure -> _state.update { it.copy(areTasksLoading = false) }
       }
     }
   }
