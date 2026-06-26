@@ -23,7 +23,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.frame.zero.domain.task.AssignableMember
+import com.frame.zero.feature.task.create.AssignableMemberUi
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.modifier.clickableWithRipple
@@ -44,10 +46,10 @@ private val SheetListMaxHeight = 320.dp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun AssigneeSelector(
-  selected: AssignableMember?,
+  selected: AssignableMemberUi?,
   isPickerVisible: Boolean,
   query: String,
-  members: List<AssignableMember>,
+  members: ImmutableList<AssignableMemberUi>,
   onOpen: () -> Unit,
   onDismiss: () -> Unit,
   onQueryChange: (String) -> Unit,
@@ -96,7 +98,7 @@ internal fun AssigneeSelector(
 
 @Composable
 private fun AssigneeField(
-  selected: AssignableMember?,
+  selected: AssignableMemberUi?,
   onClick: () -> Unit,
   modifier: Modifier = Modifier
 ) {
@@ -139,7 +141,7 @@ private fun AssigneeOptionRow(
   label: String,
   onClick: () -> Unit,
   modifier: Modifier = Modifier,
-  member: AssignableMember? = null
+  member: AssignableMemberUi? = null
 ) {
   val spacing = AppTheme.spacingSystem
   Row(
@@ -163,7 +165,7 @@ private fun AssigneeOptionRow(
 
 @Composable
 private fun MemberAvatar(
-  member: AssignableMember,
+  member: AssignableMemberUi,
   modifier: Modifier = Modifier
 ) {
   val avatarColor = member.avatarColorHex?.let(::parseHexColor) ?: AppTheme.colorSystem.accentDim
@@ -191,10 +193,10 @@ private fun parseHexColor(hex: String): Color? =
 private fun AssigneeSelectorPreview() {
   AppTheme {
     AssigneeSelector(
-      selected = AssignableMember("u1", "Sara Lin", "SL", "#9C27B0"),
+      selected = AssignableMemberUi("u1", "Sara Lin", "SL", "#9C27B0"),
       isPickerVisible = false,
       query = "",
-      members = emptyList(),
+      members = persistentListOf(),
       onOpen = {},
       onDismiss = {},
       onQueryChange = {},

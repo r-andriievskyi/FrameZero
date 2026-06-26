@@ -55,6 +55,6 @@ class ProductionDetailsComponent(
 
   fun requestAddTask() {
     val detail = viewModel.state.value.detail ?: return
-    onAddTask(detail.id, detail.title)
+    onAddTask(productionId, detail.title)
   }
 }

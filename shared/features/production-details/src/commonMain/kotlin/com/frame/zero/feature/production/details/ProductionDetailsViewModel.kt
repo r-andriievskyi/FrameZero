@@ -1,9 +1,14 @@
 package com.frame.zero.feature.production.details
 
 import com.arkivanov.essenty.instancekeeper.InstanceKeeper
+import com.frame.zero.core.collections.mapImmutable
 import com.frame.zero.core.format.formatMedium
 import com.frame.zero.domain.DomainError
 import com.frame.zero.domain.Outcome
+import com.frame.zero.domain.production.ProductionDetail
+import com.frame.zero.domain.production.ProductionMember
+import com.frame.zero.domain.production.ProductionPipelinePhase
+import com.frame.zero.domain.production.ViewerCrew
 import com.frame.zero.feature.production.details.domain.DeleteProductionUseCase
 import com.frame.zero.feature.production.details.domain.GetProductionDetailsUseCase
 import com.frame.zero.feature.production.details.domain.GetProductionTasksUseCase
@@ -77,7 +82,7 @@ class ProductionDetailsViewModel(
       val params = GetProductionDetailsUseCase.Params(productionId = productionId)
       when (val outcome = getProductionDetailsUseCase(params)) {
         is Outcome.Success ->
-          _state.update { it.copy(isLoading = false, detail = outcome.data) }
+          _state.update { it.copy(isLoading = false, detail = outcome.data.toUi()) }
         is Outcome.Failure ->
           _state.update { it.copy(isLoading = false, error = outcome.error.toUiText()) }
       }
@@ -106,6 +111,55 @@ class ProductionDetailsViewModel(
       dueDateLabel = dueDate?.formatMedium(),
       isDone = isDone
     )
+
+  private fun ProductionDetail.toUi(): ProductionDetailUi =
+    ProductionDetailUi(
+      title = title,
+      logline = logline,
+      phase = phase,
+      progressPercent = progressPercent,
+      daysLeft = daysLeft,
+      membersCount = membersCount,
+      budgetLabel = formatBudget(budgetCents),
+      startDateLabel = startDate.formatMedium(),
+      wrapDateLabel = wrapDate.formatMedium(),
+      pipeline = pipeline.mapImmutable { it.toUi() },
+      viewerCrew = viewerCrew?.toUi()
+    )
+
+  private fun ProductionPipelinePhase.toUi(): ProductionPipelinePhaseUi =
+    ProductionPipelinePhaseUi(
+      phase = phase,
+      label = label,
+      isCompleted = isCompleted,
+      isCurrent = isCurrent
+    )
+
+  private fun ViewerCrew.toUi(): ViewerCrewUi =
+    ViewerCrewUi(
+      viewerRole = viewer.role,
+      manager = manager?.toUi(),
+      peers = peers.mapImmutable { it.toUi() },
+      reports = reports.mapImmutable { it.toUi() }
+    )
+
+  private fun ProductionMember.toUi(): ProductionMemberUi =
+    ProductionMemberUi(
+      id = id,
+      name = name,
+      role = role,
+      initials = initials,
+      avatarColorHex = avatarColorHex
+    )
+
+  private fun formatBudget(cents: Long?): String {
+    if (cents == null) return "—"
+    val dollars = cents / 100
+    return "$${
+      dollars.toString().reversed().chunked(3)
+        .joinToString(",").reversed()
+    }"
+  }
 
   private fun deleteProduction() {
     if (_state.value.isDeleting) return

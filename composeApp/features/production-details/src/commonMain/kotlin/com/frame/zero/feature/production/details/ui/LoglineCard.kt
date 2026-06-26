@@ -29,19 +29,16 @@ import framezero.composeapp.features.production_details.generated.resources.stat
 import org.jetbrains.compose.resources.stringResource
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import com.frame.zero.shared.design_system.LightDarkPreview
-import com.frame.zero.domain.production.ProductionDetail
+import com.frame.zero.feature.production.details.ProductionDetailUi
 import com.frame.zero.domain.production.ProductionPhase
-import com.frame.zero.domain.production.Genre
 import kotlinx.collections.immutable.persistentListOf
-import kotlinx.datetime.LocalDate
-import kotlin.time.Instant
 
 private val ProgressBarHeight = 6.dp
 
 @Composable
 internal fun LoglineCard(
   logline: String?,
-  detail: ProductionDetail,
+  detail: ProductionDetailUi,
   modifier: Modifier = Modifier
 ) {
   Column(
@@ -113,7 +110,7 @@ internal fun LoglineCard(
         modifier = Modifier.weight(1f)
       )
       StatItem(
-        value = formatBudget(detail.budgetCents),
+        value = detail.budgetLabel,
         label = stringResource(Res.string.stat_budget),
         modifier = Modifier.weight(1f)
       )
@@ -187,30 +184,23 @@ private fun StatItem(
   }
 }
 
-private val PreviewInstant = Instant.fromEpochMilliseconds(0L)
-
 @LightDarkPreview
 @Composable
 private fun LoglineCardPreview() {
   AppTheme {
     LoglineCard(
       logline = "A deaf composer rediscovers sound through the chaos of war.",
-      detail = ProductionDetail(
-        id = "1",
+      detail = ProductionDetailUi(
         title = "Echoes of Silence",
-        genre = Genre.DRAMA,
         logline = "A deaf composer rediscovers sound through the chaos of war.",
         phase = ProductionPhase.PRODUCTION,
         progressPercent = 68,
         daysLeft = 24,
-        startDate = LocalDate(2026, 2, 10),
-        wrapDate = LocalDate(2026, 8, 30),
-        budgetCents = 240_000_000L,
         membersCount = 12,
-        keyCrew = emptyList(),
+        budgetLabel = "$2,400,000",
+        startDateLabel = "Feb 10, 2026",
+        wrapDateLabel = "Aug 30, 2026",
         pipeline = persistentListOf(),
-        createdAt = PreviewInstant,
-        updatedAt = PreviewInstant,
         viewerCrew = null
       )
     )
@@ -223,22 +213,17 @@ private fun LoglineCardNoLoglinePreview() {
   AppTheme {
     LoglineCard(
       logline = null,
-      detail = ProductionDetail(
-        id = "2",
+      detail = ProductionDetailUi(
         title = "Midnight Run",
-        genre = Genre.ACTION,
         logline = null,
         phase = ProductionPhase.PRE_PRODUCTION,
         progressPercent = 25,
         daysLeft = 60,
-        startDate = LocalDate(2026, 3, 1),
-        wrapDate = LocalDate(2026, 11, 15),
-        budgetCents = 500_000_000L,
         membersCount = 8,
-        keyCrew = emptyList(),
+        budgetLabel = "$5,000,000",
+        startDateLabel = "Mar 1, 2026",
+        wrapDateLabel = "Nov 15, 2026",
         pipeline = persistentListOf(),
-        createdAt = PreviewInstant,
-        updatedAt = PreviewInstant,
         viewerCrew = null
       )
     )

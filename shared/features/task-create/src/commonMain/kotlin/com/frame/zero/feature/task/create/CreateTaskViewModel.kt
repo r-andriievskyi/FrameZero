@@ -1,6 +1,8 @@
 package com.frame.zero.feature.task.create
 
 import com.arkivanov.essenty.instancekeeper.InstanceKeeper
+import com.frame.zero.core.collections.mapImmutable
+import com.frame.zero.domain.task.AssignableMember
 import com.frame.zero.core.files.AttachmentFileManager
 import com.frame.zero.core.files.FilePicker
 import com.frame.zero.core.files.MAX_ATTACHMENT_BYTES
@@ -129,11 +131,20 @@ class CreateTaskViewModel(
       val params = GetAssignableMembersUseCase.Params(productionId = productionId)
       // A failure here just leaves the picker empty; task creation doesn't require an assignee.
       when (val outcome = getAssignableMembersUseCase(params)) {
-        is Outcome.Success -> _state.update { it.copy(assignableMembers = outcome.data) }
+        is Outcome.Success ->
+          _state.update { it.copy(assignableMembers = outcome.data.mapImmutable { member -> member.toUi() }) }
         is Outcome.Failure -> Unit
       }
     }
   }
+
+  private fun AssignableMember.toUi(): AssignableMemberUi =
+    AssignableMemberUi(
+      userId = userId,
+      name = name,
+      initials = initials,
+      avatarColorHex = avatarColorHex
+    )
 
   private fun submit() {
     val current = _state.value

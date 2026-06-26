@@ -1,4 +1,4 @@
-plugins { id("crossplatform.library") }
+plugins { id("crossplatform.library.compose") }
 
 base { archivesName = "feature-task-details" }
 

@@ -18,13 +18,12 @@ import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import framezero.composeapp.features.production_details.generated.resources.Res
 import framezero.composeapp.features.production_details.generated.resources.start_date
 import framezero.composeapp.features.production_details.generated.resources.wrap_date
-import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
 internal fun DateCards(
-  startDate: LocalDate,
-  wrapDate: LocalDate,
+  startDate: String,
+  wrapDate: String,
   modifier: Modifier = Modifier
 ) {
   Row(
@@ -35,12 +34,12 @@ internal fun DateCards(
   ) {
     DateCard(
       label = stringResource(Res.string.start_date),
-      date = startDate.formatDisplay(),
+      date = startDate,
       modifier = Modifier.weight(1f)
     )
     DateCard(
       label = stringResource(Res.string.wrap_date),
-      date = wrapDate.formatDisplay(),
+      date = wrapDate,
       modifier = Modifier.weight(1f)
     )
   }
@@ -82,8 +81,8 @@ private fun DateCard(
 private fun DateCardsPreview() {
   AppTheme {
     DateCards(
-      startDate = LocalDate(2025, 3, 15),
-      wrapDate = LocalDate(2025, 6, 30)
+      startDate = "Mar 15, 2025",
+      wrapDate = "Jun 30, 2025"
     )
   }
 }

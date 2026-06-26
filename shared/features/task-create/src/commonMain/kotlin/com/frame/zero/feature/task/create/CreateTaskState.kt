@@ -1,16 +1,18 @@
 package com.frame.zero.feature.task.create
 
 import com.frame.zero.core.files.PickedFile
-import com.frame.zero.domain.task.AssignableMember
 import com.frame.zero.dto.task.TaskPriority
 import com.frame.zero.ui.UiText
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.datetime.LocalDate
 
 data class CreateTaskState(
   val productionTitle: String = "",
   val title: String = "",
   val description: String = "",
-  val assignableMembers: List<AssignableMember> = emptyList(),
+  val assignableMembers: ImmutableList<AssignableMemberUi> = persistentListOf(),
   val assigneeUserId: String? = null,
   val isAssigneePickerVisible: Boolean = false,
   val assigneeQuery: String = "",
@@ -25,17 +27,17 @@ data class CreateTaskState(
   val canSubmit: Boolean
     get() = title.isNotBlank() && !isLoading
 
-  val selectedAssignee: AssignableMember?
+  val selectedAssignee: AssignableMemberUi?
     get() = assignableMembers.firstOrNull { it.userId == assigneeUserId }
 
   /** Members matching the current search query — drives the assignee bottom sheet list. */
-  val filteredAssignableMembers: List<AssignableMember>
+  val filteredAssignableMembers: ImmutableList<AssignableMemberUi>
     get() {
       val query = assigneeQuery.trim()
       return if (query.isEmpty()) {
         assignableMembers
       } else {
-        assignableMembers.filter { it.name.contains(query, ignoreCase = true) }
+        assignableMembers.filter { it.name.contains(query, ignoreCase = true) }.toImmutableList()
       }
     }
 }
