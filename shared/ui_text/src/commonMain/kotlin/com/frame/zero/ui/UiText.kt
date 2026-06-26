@@ -1,7 +1,9 @@
 package com.frame.zero.ui
 
+import androidx.compose.runtime.Immutable
 import org.jetbrains.compose.resources.StringResource
 
+@Immutable
 sealed interface UiText {
   data class Dynamic(
     val text: String

@@ -173,7 +173,7 @@ private fun ProductionDetailsLoadedPreview() {
   AppTheme {
     ProductionDetailsContent(
       state = ProductionDetailsState(
-        tasks = listOf(
+        tasks = persistentListOf(
           ProductionTaskUi(id = "1", title = "Lock shooting schedule", dueDateLabel = "Apr 12", isDone = false),
           ProductionTaskUi(id = "2", title = "Send call sheets", dueDateLabel = null, isDone = true)
         ),
