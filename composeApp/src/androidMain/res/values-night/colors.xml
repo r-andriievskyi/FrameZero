@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Matches AppTheme.colorSystem.background dark (TokenColorNeutral900). -->
+    <color name="window_background">#FF0B0D14</color>
+</resources>

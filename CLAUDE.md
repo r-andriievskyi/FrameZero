@@ -7,7 +7,6 @@ Owner is an Android engineer with limited iOS/backend experience. **Maximise Kot
 - **Server needs `FIREBASE_CREDENTIALS_PATH`** (service-account JSON) to boot in every mode; `FILE_STORAGE_DIR` (default `./uploads`) holds attachment blobs. Prod (`KTOR_ENV=production`) also needs `JWT_SECRET` + DB vars.
 - **iOS:** open `iosApp/iosApp.xcodeproj` in Xcode. Relink after `shared`/`composeApp` changes: `./gradlew :composeApp:linkDebugFrameworkIosSimulatorArm64`. Don't touch SwiftUI unless asked.
 - **Screenshot tests (Roborazzi):** `check` does NOT verify — run `:composeApp:shared:design_system:verifyRoborazziAndroidHostTest` (or `recordRoborazziAndroidHostTest` to regen goldens) explicitly. These are KMP modules, so Roborazzi tasks carry the `AndroidHostTest`/`IosSimulatorArm64` test-compilation suffix, not the AGP-style `Debug` variant suffix.
-- **Dependency verification:** `gradle/verification-metadata.xml` pins sha256 for every artifact. Regenerate on any dep/plugin bump (command + flags in git history) or the build fails.
 
 ## Modules
 

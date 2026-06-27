@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App window theme applied once the splash is dismissed. Compose draws the
+         actual UI; this only controls the brief pre-Compose window background and
+         system bars. DayNight via the values-night override. -->
+    <style name="Theme.FrameZero" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/window_background</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
+
+    <!-- Cold-start splash (androidx.core:core-splashscreen, backported to API 23). -->
+    <style name="Theme.FrameZero.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/splash_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="postSplashScreenTheme">@style/Theme.FrameZero</item>
+    </style>
+</resources>
