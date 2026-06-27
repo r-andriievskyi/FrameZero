@@ -4,7 +4,6 @@ import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.readRemaining
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.io.readByteArray
-import platform.Foundation.NSData
 import platform.Foundation.NSFileHandle
 import platform.Foundation.NSFileManager
 import platform.Foundation.NSFileSystemFreeSize
@@ -12,7 +11,6 @@ import platform.Foundation.NSHomeDirectory
 import platform.Foundation.NSNumber
 import platform.Foundation.NSURL
 import platform.Foundation.closeFile
-import platform.Foundation.dataWithContentsOfFile
 import platform.Foundation.fileHandleForWritingAtPath
 import platform.Foundation.writeData
 import platform.UIKit.UIDocumentInteractionController
@@ -61,9 +59,6 @@ class IosAttachmentFileManager : AttachmentFileManager {
     }
     return path
   }
-
-  override fun readBytes(localPath: String): ByteArray =
-    (NSData.dataWithContentsOfFile(localPath) ?: NSData()).toByteArray()
 
   override fun delete(localPath: String) {
     fileManager.removeItemAtPath(localPath, null)
