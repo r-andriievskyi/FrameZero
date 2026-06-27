@@ -51,6 +51,7 @@ Owner is an Android engineer with limited iOS/backend experience. **Maximise Kot
 - **Dependencies:** add to `gradle/libs.versions.toml`, not module scripts.
 - **Naming:** `<Interface>Impl` side-by-side; no tech/strategy suffixes (platform actuals keep their prefix).
 - **Tests:** `kotlin.test` in `commonTest`; reuse `shared/test-fixtures` fakes. No mockk/mockito in shared code.
+- **Idiomatic Kotlin:** prefer idiomatic constructs (`?.let`/`?:`, `takeIf`, `require`/`check`/`error`, collection ops, destructuring, string templates, expression bodies) — but only when they improve readability, never to golf.
 
 ### Design system
 

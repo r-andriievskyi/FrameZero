@@ -1,14 +1,20 @@
 package com.frame.zero.core.files
 
+import io.ktor.utils.io.ByteReadChannel
+import io.ktor.utils.io.readRemaining
 import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.io.readByteArray
 import platform.Foundation.NSData
+import platform.Foundation.NSFileHandle
 import platform.Foundation.NSFileManager
 import platform.Foundation.NSFileSystemFreeSize
 import platform.Foundation.NSHomeDirectory
 import platform.Foundation.NSNumber
 import platform.Foundation.NSURL
+import platform.Foundation.closeFile
 import platform.Foundation.dataWithContentsOfFile
-import platform.Foundation.writeToFile
+import platform.Foundation.fileHandleForWritingAtPath
+import platform.Foundation.writeData
 import platform.UIKit.UIDocumentInteractionController
 
 /**
@@ -34,12 +40,25 @@ class IosAttachmentFileManager : AttachmentFileManager {
   override suspend fun saveDownloaded(
     taskId: String,
     fileName: String,
-    bytes: ByteArray
+    channel: ByteReadChannel
   ): String {
     val dir = "$attachmentsRoot/$taskId"
     fileManager.createDirectoryAtPath(dir, true, null, null)
     val path = "$dir/$fileName"
-    bytes.toNSData().writeToFile(path, true)
+    fileManager.createFileAtPath(path, null, null)
+    val handle = NSFileHandle.fileHandleForWritingAtPath(path)
+      ?: error("Unable to open $path for writing")
+    try {
+      while (!channel.isClosedForRead) {
+        val packet = channel.readRemaining(DOWNLOAD_CHUNK_BYTES)
+        while (!packet.exhausted()) {
+          val bytes = packet.readByteArray()
+          if (bytes.isNotEmpty()) handle.writeData(bytes.toNSData())
+        }
+      }
+    } finally {
+      handle.closeFile()
+    }
     return path
   }
 
@@ -70,5 +89,6 @@ class IosAttachmentFileManager : AttachmentFileManager {
 
   private companion object {
     const val ATTACHMENTS_DIR = "attachments"
+    const val DOWNLOAD_CHUNK_BYTES = 64L * 1024
   }
 }

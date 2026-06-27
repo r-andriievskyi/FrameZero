@@ -1,15 +1,18 @@
 package com.frame.zero.core.files
 
+import io.ktor.utils.io.ByteReadChannel
+
 interface AttachmentFileManager {
   fun cachedAttachment(
     taskId: String,
     fileName: String
   ): String?
 
+  /** Streams [channel] straight to disk in chunks so a large attachment never sits whole in the heap. */
   suspend fun saveDownloaded(
     taskId: String,
     fileName: String,
-    bytes: ByteArray
+    channel: ByteReadChannel
   ): String
 
   fun readBytes(localPath: String): ByteArray

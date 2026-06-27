@@ -3,6 +3,7 @@ package com.frame.zero.core.upload
 import com.frame.zero.core.files.AttachmentFileManager
 import com.frame.zero.core.network.NetworkConfig
 import com.frame.zero.domain.Outcome
+import io.ktor.utils.io.ByteReadChannel
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.MockRequestHandleScope
@@ -104,7 +105,7 @@ class UploadTaskUseCaseTest {
     override suspend fun saveDownloaded(
       taskId: String,
       fileName: String,
-      bytes: ByteArray
+      channel: ByteReadChannel
     ): String = ""
 
     override fun readBytes(localPath: String): ByteArray = byteArrayOf(1, 2, 3)

@@ -1,6 +1,7 @@
 package com.frame.zero.feature.task.create
 
 import com.frame.zero.core.files.AttachmentFileManager
+import io.ktor.utils.io.ByteReadChannel
 import com.frame.zero.core.files.FilePicker
 import com.frame.zero.core.files.MAX_ATTACHMENT_BYTES
 import com.frame.zero.core.files.PickedFile
@@ -251,7 +252,7 @@ class CreateTaskViewModelTest {
     override suspend fun saveDownloaded(
       taskId: String,
       fileName: String,
-      bytes: ByteArray
+      channel: ByteReadChannel
     ): String = ""
 
     override fun readBytes(localPath: String): ByteArray = ByteArray(0)
