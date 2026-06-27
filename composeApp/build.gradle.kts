@@ -102,8 +102,8 @@ android {
     applicationId = "com.frame.zero"
     minSdk = libs.versions.android.minSdk.get().toInt()
     targetSdk = libs.versions.android.targetSdk.get().toInt()
-    versionCode = 1
-    versionName = "1.0"
+    versionCode = providers.gradleProperty("framezero.versionCode").get().toInt()
+    versionName = providers.gradleProperty("framezero.versionName").get()
   }
   packaging { resources { excludes += "/META-INF/{AL2.0,LGPL2.1}" } }
   testOptions { unitTests.isIncludeAndroidResources = true }
@@ -116,7 +116,7 @@ android {
     }
     if (releaseKeystoreProps.isNotEmpty()) {
       create("release") {
-        storeFile = file(releaseKeystoreProps.getProperty("storeFile"))
+        storeFile = rootProject.file(releaseKeystoreProps.getProperty("storeFile"))
         storePassword = releaseKeystoreProps.getProperty("storePassword")
         keyAlias = releaseKeystoreProps.getProperty("keyAlias")
         keyPassword = releaseKeystoreProps.getProperty("keyPassword")
@@ -134,7 +134,6 @@ android {
         getDefaultProguardFile("proguard-android-optimize.txt"),
         "proguard-rules.pro"
       )
-      signingConfig = signingConfigs.getByName("debug")
     }
   }
   compileOptions {
