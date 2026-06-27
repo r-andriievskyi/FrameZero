@@ -1,6 +1,5 @@
 package com.frame.zero.core.upload
 
-import com.frame.zero.core.files.toByteArray
 import com.frame.zero.core.files.toNSData
 import com.frame.zero.core.network.NetworkConfig
 import com.frame.zero.core.session.TokenStorage
@@ -9,7 +8,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import platform.Foundation.NSData
+import platform.Foundation.NSFileHandle
+import platform.Foundation.NSFileManager
 import platform.Foundation.NSHTTPURLResponse
 import platform.Foundation.NSMutableURLRequest
 import platform.Foundation.NSTemporaryDirectory
@@ -18,16 +18,20 @@ import platform.Foundation.NSURLSession
 import platform.Foundation.NSURLSessionConfiguration
 import platform.Foundation.NSURLSessionTask
 import platform.Foundation.NSURLSessionTaskDelegateProtocol
-import platform.Foundation.dataWithContentsOfFile
+import platform.Foundation.closeFile
+import platform.Foundation.fileHandleForReadingAtPath
+import platform.Foundation.fileHandleForWritingAtPath
+import platform.Foundation.readDataOfLength
 import platform.Foundation.setHTTPMethod
 import platform.Foundation.setValue
-import platform.Foundation.writeToFile
+import platform.Foundation.writeData
 import platform.darwin.NSObject
 
 /**
  * [TaskUploadScheduler] backed by a background `NSURLSession`: the OS carries the upload even if
  * the app is suspended or killed, relaunching it to deliver completion. The multipart body is
- * built once (shared with the Android path), written to a temp file, and handed to the session.
+ * streamed to a temp file (prefix, then the source file in chunks, then the closing boundary) so
+ * the attachment is never held whole in memory, and the session uploads from that file.
  */
 @OptIn(ExperimentalForeignApi::class)
 class BackgroundUrlSessionTaskUploadScheduler(
@@ -63,12 +67,9 @@ class BackgroundUrlSessionTaskUploadScheduler(
   }
 
   private fun start(upload: PendingTaskUpload) {
-    val fileBytes = (NSData.dataWithContentsOfFile(upload.localPath) ?: return).toByteArray()
     val boundary = multipartBoundary()
     val bodyPath = "${NSTemporaryDirectory()}${upload.uploadId}.multipart"
-    buildTaskMultipartBody(upload.toCreateRequest(), upload.fileName, upload.contentType, fileBytes, boundary)
-      .toNSData()
-      .writeToFile(bodyPath, atomically = true)
+    if (!writeMultipartBodyFile(upload, boundary, bodyPath)) return
 
     val url = NSURL(string = "${networkConfig.baseUrl}/api/v1/tasks")
     val request = NSMutableURLRequest(uRL = url)
@@ -84,8 +85,44 @@ class BackgroundUrlSessionTaskUploadScheduler(
     task.resume()
   }
 
+  /**
+   * Writes the multipart body to [bodyPath] in constant memory: the prefix, then the source file
+   * copied in [UPLOAD_CHUNK_BYTES] chunks, then the closing boundary. Returns false if the source
+   * file or temp body file can't be opened (the record stays pending for retry).
+   */
+  private fun writeMultipartBodyFile(
+    upload: PendingTaskUpload,
+    boundary: String,
+    bodyPath: String
+  ): Boolean {
+    val fileManager = NSFileManager.defaultManager
+    fileManager.createFileAtPath(bodyPath, null, null)
+    val out = NSFileHandle.fileHandleForWritingAtPath(bodyPath) ?: return false
+    val reader = NSFileHandle.fileHandleForReadingAtPath(upload.localPath)
+    if (reader == null) {
+      out.closeFile()
+      return false
+    }
+    try {
+      out.writeData(
+        taskMultipartPrefix(upload.toCreateRequest(), upload.fileName, upload.contentType, boundary).toNSData()
+      )
+      while (true) {
+        val chunk = reader.readDataOfLength(UPLOAD_CHUNK_BYTES)
+        if (chunk.length == 0UL) break
+        out.writeData(chunk)
+      }
+      out.writeData(taskMultipartSuffix(boundary).toNSData())
+    } finally {
+      reader.closeFile()
+      out.closeFile()
+    }
+    return true
+  }
+
   private companion object {
     const val SESSION_ID = "com.frame.zero.task-upload"
+    const val UPLOAD_CHUNK_BYTES: ULong = 65_536UL
   }
 }
 

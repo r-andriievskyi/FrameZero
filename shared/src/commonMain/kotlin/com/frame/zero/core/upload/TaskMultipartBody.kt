@@ -8,32 +8,27 @@ fun multipartBoundary(): String = "FrameZeroBoundary${Random.nextLong().toULong(
 fun multipartContentType(boundary: String): String = "multipart/form-data; boundary=$boundary"
 
 /**
- * Builds the raw `multipart/form-data` body for a task-create request with one file part.
- * Used by the iOS background `NSURLSession` uploader, which needs a concrete body to hand to the
- * platform API. The Android path streams the file part via Ktor's `MultiPartFormDataContent`
- * instead (see `UploadTaskUseCase`) and does not use this builder.
- *
- * Kept as a single in-memory `ByteArray` — fine within the 50 MB attachment cap; streaming the
- * iOS body is tracked separately.
+ * The part of the `multipart/form-data` body that precedes the raw file bytes: the text fields
+ * followed by the file part's headers. Split out from the closing boundary ([taskMultipartSuffix])
+ * so the iOS `NSURLSession` uploader can write the body file incrementally — prefix, then the
+ * source file streamed in chunks, then suffix — without ever holding the attachment in memory.
  */
-fun buildTaskMultipartBody(
+fun taskMultipartPrefix(
   request: CreateTaskRequest,
   fileName: String,
   contentType: String,
-  fileBytes: ByteArray,
   boundary: String
 ): ByteArray {
-  val segments = mutableListOf<ByteArray>()
+  val builder = StringBuilder()
 
   fun textField(
     name: String,
     value: String
   ) {
-    segments += (
-      "--$boundary\r\n" +
-        "Content-Disposition: form-data; name=\"$name\"\r\n\r\n" +
-        "$value\r\n"
-    ).encodeToByteArray()
+    builder
+      .append("--$boundary\r\n")
+      .append("Content-Disposition: form-data; name=\"$name\"\r\n\r\n")
+      .append("$value\r\n")
   }
 
   textField("productionId", request.productionId)
@@ -43,19 +38,36 @@ fun buildTaskMultipartBody(
   request.assigneeUserId?.let { textField("assigneeUserId", it) }
   textField("priority", request.priority.name)
 
-  segments += (
-    "--$boundary\r\n" +
-      "Content-Disposition: form-data; name=\"file\"; filename=\"$fileName\"\r\n" +
-      "Content-Type: $contentType\r\n\r\n"
-  ).encodeToByteArray()
-  segments += fileBytes
-  segments += "\r\n--$boundary--\r\n".encodeToByteArray()
+  builder
+    .append("--$boundary\r\n")
+    .append("Content-Disposition: form-data; name=\"file\"; filename=\"$fileName\"\r\n")
+    .append("Content-Type: $contentType\r\n\r\n")
 
-  val out = ByteArray(segments.sumOf { it.size })
-  var offset = 0
-  for (segment in segments) {
-    segment.copyInto(out, offset)
-    offset += segment.size
-  }
+  return builder.toString().encodeToByteArray()
+}
+
+/** The closing boundary that follows the raw file bytes (see [taskMultipartPrefix]). */
+fun taskMultipartSuffix(boundary: String): ByteArray = "\r\n--$boundary--\r\n".encodeToByteArray()
+
+/**
+ * Builds the raw `multipart/form-data` body for a task-create request with one file part, as a
+ * single in-memory `ByteArray`. The Android path streams the file part via Ktor's
+ * `MultiPartFormDataContent` (see `UploadTaskUseCase`) and iOS streams the body file from
+ * [taskMultipartPrefix]/[taskMultipartSuffix], so this whole-body form is kept mainly as the
+ * canonical, unit-tested definition of the wire framing both platforms share.
+ */
+fun buildTaskMultipartBody(
+  request: CreateTaskRequest,
+  fileName: String,
+  contentType: String,
+  fileBytes: ByteArray,
+  boundary: String
+): ByteArray {
+  val prefix = taskMultipartPrefix(request, fileName, contentType, boundary)
+  val suffix = taskMultipartSuffix(boundary)
+  val out = ByteArray(prefix.size + fileBytes.size + suffix.size)
+  prefix.copyInto(out, 0)
+  fileBytes.copyInto(out, prefix.size)
+  suffix.copyInto(out, prefix.size + fileBytes.size)
   return out
 }
