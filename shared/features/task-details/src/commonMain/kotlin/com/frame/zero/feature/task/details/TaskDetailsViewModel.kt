@@ -152,21 +152,22 @@ class TaskDetailsViewModel(
     contentType: String
   ): String {
     val extension = fileName.substringAfterLast('.', missingDelimiterValue = "")
-    if (extension.isNotBlank() && extension.length <= MAX_EXTENSION_LENGTH) {
-      return extension.uppercase()
+    return if (extension.isNotBlank() && extension.length <= MAX_EXTENSION_LENGTH) {
+      extension.uppercase()
+    } else {
+      contentType.substringAfterLast('/', missingDelimiterValue = "")
+        .substringBefore(';')
+        .ifBlank { contentType }
+        .uppercase()
     }
-    return contentType.substringAfterLast('/', missingDelimiterValue = "")
-      .substringBefore(';')
-      .ifBlank { contentType }
-      .uppercase()
   }
 
   private fun formatFileSize(bytes: Long): String {
     val kb = 1024.0
     val mb = kb * 1024
     return when {
-      bytes >= mb -> formatOneDecimal(bytes / mb) + " MB"
-      bytes >= kb -> formatOneDecimal(bytes / kb) + " KB"
+      bytes >= mb -> "${formatOneDecimal(bytes / mb)} MB"
+      bytes >= kb -> "${formatOneDecimal(bytes / kb)} KB"
       else -> "$bytes B"
     }
   }
@@ -191,10 +192,9 @@ class TaskDetailsViewModel(
 
   private fun initialsFrom(name: String): String =
     name.trim().split(" ")
-      .filter { it.isNotBlank() }
+      .mapNotNull { it.firstOrNull() }
       .take(2)
-      .map { it.first().uppercaseChar() }
-      .joinToString("")
+      .joinToString("") { it.uppercaseChar().toString() }
 
   override fun onDestroy() {
     scope.cancel()

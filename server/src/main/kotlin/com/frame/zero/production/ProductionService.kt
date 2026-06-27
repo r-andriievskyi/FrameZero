@@ -297,12 +297,12 @@ class ProductionService(
     if (role.trim().length > MAX_MEMBER_ROLE_LENGTH) {
       errors["${fieldPrefix}role"] = "Max $MAX_MEMBER_ROLE_LENGTH characters"
     }
-    val trimmedEmail = email?.trim()
-    if (trimmedEmail != null) {
-      if (trimmedEmail.length > MAX_MEMBER_EMAIL_LENGTH) {
-        errors["${fieldPrefix}email"] = "Max $MAX_MEMBER_EMAIL_LENGTH characters"
-      } else if (!Validators.isValidEmail(trimmedEmail)) {
-        errors["${fieldPrefix}email"] = "Invalid email format"
+    email?.trim()?.let { trimmedEmail ->
+      when {
+        trimmedEmail.length > MAX_MEMBER_EMAIL_LENGTH ->
+          errors["${fieldPrefix}email"] = "Max $MAX_MEMBER_EMAIL_LENGTH characters"
+        !Validators.isValidEmail(trimmedEmail) ->
+          errors["${fieldPrefix}email"] = "Invalid email format"
       }
     }
   }

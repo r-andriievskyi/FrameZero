@@ -74,12 +74,12 @@ private fun EventKindBadge(
   kind: ScheduleEventKind,
   modifier: Modifier = Modifier
 ) {
-  val colors = kind.badgeColors()
+  val (backgroundColor, textColor) = kind.badgeColors()
   val shape = RoundedCornerShape(AppTheme.radiusSystem.radius4)
   Box(
     modifier = modifier
       .clip(shape)
-      .background(colors.first)
+      .background(backgroundColor)
       .padding(
         horizontal = AppTheme.spacingSystem.space8,
         vertical = AppTheme.spacingSystem.space4
@@ -89,7 +89,7 @@ private fun EventKindBadge(
     Text(
       text = kind.displayLabel(),
       style = AppTheme.typographySystem.labelSmall,
-      color = colors.second
+      color = textColor
     )
   }
 }

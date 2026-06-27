@@ -18,8 +18,7 @@ data class AppConfig(
         corsAllowedOrigins = System.getenv("CORS_ALLOWED_ORIGINS")
           .orEmpty()
           .split(',')
-          .map { it.trim() }
-          .filter { it.isNotEmpty() },
+          .mapNotNull { it.trim().ifEmpty { null } },
         isDevelopment = System.getProperty("io.ktor.development")?.toBoolean() == true
       )
       config.validate()
