@@ -21,6 +21,9 @@ import io.ktor.http.content.TextContent
 import io.ktor.http.contentType
 import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
+import io.ktor.utils.io.ByteReadChannel
+import io.ktor.utils.io.readRemaining
+import kotlinx.io.readByteArray
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
@@ -199,9 +202,9 @@ class TasksRepositoryImplTest {
     override suspend fun saveDownloaded(
       taskId: String,
       fileName: String,
-      bytes: ByteArray
+      channel: ByteReadChannel
     ): String {
-      savedBytes = bytes
+      savedBytes = channel.readRemaining().readByteArray()
       return "/saved/$taskId/$fileName"
     }
 

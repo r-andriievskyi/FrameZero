@@ -19,8 +19,9 @@ import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.client.request.patch
 import io.ktor.client.request.post
+import io.ktor.client.request.prepareGet
 import io.ktor.client.request.setBody
-import io.ktor.client.statement.readRawBytes
+import io.ktor.client.statement.bodyAsChannel
 
 class TasksRepositoryImpl(
   private val httpClient: HttpClient,
@@ -56,10 +57,11 @@ class TasksRepositoryImpl(
       return Outcome.Failure(DomainError.InsufficientStorage)
     }
     return runCatching {
-      val bytes = httpClient
-        .get("${networkConfig.baseUrl}/api/v1/tasks/$taskId/attachment")
-        .readRawBytes()
-      attachmentFileManager.saveDownloaded(taskId, fileName, bytes)
+      httpClient
+        .prepareGet("${networkConfig.baseUrl}/api/v1/tasks/$taskId/attachment")
+        .execute { response ->
+          attachmentFileManager.saveDownloaded(taskId, fileName, response.bodyAsChannel())
+        }
     }.fold(
       onSuccess = { Outcome.Success(it) },
       onFailure = { Outcome.Failure(it.toDomainError()) }

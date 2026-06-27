@@ -233,7 +233,7 @@ class TaskDetailsViewModelTest {
     override suspend fun saveDownloaded(
       taskId: String,
       fileName: String,
-      bytes: ByteArray
+      channel: io.ktor.utils.io.ByteReadChannel
     ): String = ""
 
     override fun readBytes(localPath: String): ByteArray = ByteArray(0)

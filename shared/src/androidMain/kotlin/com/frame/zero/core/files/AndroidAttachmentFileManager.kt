@@ -4,8 +4,11 @@ import android.content.Context
 import android.content.Intent
 import android.os.StatFs
 import androidx.core.content.FileProvider
+import io.ktor.utils.io.ByteReadChannel
+import io.ktor.utils.io.readRemaining
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.io.readByteArray
 import java.io.File
 
 /**
@@ -29,12 +32,19 @@ class AndroidAttachmentFileManager(
   override suspend fun saveDownloaded(
     taskId: String,
     fileName: String,
-    bytes: ByteArray
+    channel: ByteReadChannel
   ): String =
     withContext(Dispatchers.IO) {
       val dir = File(attachmentsRoot, taskId).apply { mkdirs() }
       val target = File(dir, fileName)
-      target.writeBytes(bytes)
+      target.outputStream().use { out ->
+        while (!channel.isClosedForRead) {
+          val packet = channel.readRemaining(DOWNLOAD_CHUNK_BYTES)
+          while (!packet.exhausted()) {
+            out.write(packet.readByteArray())
+          }
+        }
+      }
       target.absolutePath
     }
 
@@ -63,5 +73,6 @@ class AndroidAttachmentFileManager(
 
   private companion object {
     const val ATTACHMENTS_DIR = "attachments"
+    const val DOWNLOAD_CHUNK_BYTES = 64L * 1024
   }
 }
