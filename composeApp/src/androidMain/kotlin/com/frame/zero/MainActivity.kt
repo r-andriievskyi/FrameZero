@@ -12,6 +12,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import com.arkivanov.decompose.defaultComponentContext
@@ -92,6 +93,7 @@ class MainActivity : FragmentActivity() {
   }
 
   override fun onCreate(savedInstanceState: Bundle?) {
+    installSplashScreen()
     enableEdgeToEdge(
       statusBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT),
       navigationBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT)
@@ -99,7 +101,6 @@ class MainActivity : FragmentActivity() {
     super.onCreate(savedInstanceState)
     (application.koin.get<AndroidFilePicker>()).attach(this)
     lifecycleScope.launch { sessionManager.initialize() }
-    // Keep the sensitive UI out of the recents thumbnail / screenshots while the lock is on.
     lifecycleScope.launch {
       appLockController.enabled.collect { enabled ->
         if (enabled) {

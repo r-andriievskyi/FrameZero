@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Brand blue (matches the launcher-icon background gradient end). -->
+    <color name="splash_background">#FF005BC7</color>
+    <!-- Pre-Compose window background; matches AppTheme.colorSystem.background
+         (TokenColorNeutral050) so the splash→Compose handoff has no flash.
+         Overridden for dark in values-night. -->
+    <color name="window_background">#FFF5F6FA</color>
+</resources>
