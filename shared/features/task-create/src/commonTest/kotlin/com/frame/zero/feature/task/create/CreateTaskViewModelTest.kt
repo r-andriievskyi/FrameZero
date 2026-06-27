@@ -255,8 +255,6 @@ class CreateTaskViewModelTest {
       channel: ByteReadChannel
     ): String = ""
 
-    override fun readBytes(localPath: String): ByteArray = ByteArray(0)
-
     override fun delete(localPath: String) {
       deleted += localPath
     }

@@ -208,8 +208,6 @@ class TasksRepositoryImplTest {
       return "/saved/$taskId/$fileName"
     }
 
-    override fun readBytes(localPath: String): ByteArray = ByteArray(0)
-
     override fun delete(localPath: String) = Unit
 
     override fun openWith(

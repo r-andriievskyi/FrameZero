@@ -15,8 +15,6 @@ interface AttachmentFileManager {
     channel: ByteReadChannel
   ): String
 
-  fun readBytes(localPath: String): ByteArray
-
   fun delete(localPath: String)
 
   fun openWith(

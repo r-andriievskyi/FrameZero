@@ -236,8 +236,6 @@ class TaskDetailsViewModelTest {
       channel: io.ktor.utils.io.ByteReadChannel
     ): String = ""
 
-    override fun readBytes(localPath: String): ByteArray = ByteArray(0)
-
     override fun delete(localPath: String) = Unit
 
     override fun openWith(

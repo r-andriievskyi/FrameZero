@@ -48,8 +48,6 @@ class AndroidAttachmentFileManager(
       target.absolutePath
     }
 
-  override fun readBytes(localPath: String): ByteArray = File(localPath).readBytes()
-
   override fun delete(localPath: String) {
     File(localPath).delete()
   }

@@ -9,9 +9,12 @@ fun multipartContentType(boundary: String): String = "multipart/form-data; bound
 
 /**
  * Builds the raw `multipart/form-data` body for a task-create request with one file part.
- * Shared by the Ktor client (Android path) and the iOS background `NSURLSession` uploader so
- * both produce an identical wire body. Kept as a single in-memory `ByteArray` — fine within the
- * 50 MB attachment cap.
+ * Used by the iOS background `NSURLSession` uploader, which needs a concrete body to hand to the
+ * platform API. The Android path streams the file part via Ktor's `MultiPartFormDataContent`
+ * instead (see `UploadTaskUseCase`) and does not use this builder.
+ *
+ * Kept as a single in-memory `ByteArray` — fine within the 50 MB attachment cap; streaming the
+ * iOS body is tracked separately.
  */
 fun buildTaskMultipartBody(
   request: CreateTaskRequest,
