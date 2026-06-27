@@ -154,7 +154,7 @@ internal fun clientConfig(
           BearerTokens(refreshBody.accessToken, refreshBody.refreshToken)
         }
         sendWithoutRequest { request ->
-          val path = "/" + request.url.pathSegments.filter { it.isNotEmpty() }.joinToString("/")
+          val path = request.url.pathSegments.filter { it.isNotEmpty() }.joinToString("/", prefix = "/")
           path !in UNAUTHENTICATED_PATHS
         }
       }

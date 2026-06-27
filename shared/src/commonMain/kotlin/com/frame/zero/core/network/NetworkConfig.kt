@@ -13,12 +13,10 @@ data class NetworkConfig(
      * [isDebug] mirrors the build flavor so consumers outside `shared` (which can't
      * read the internal generated `BuildKonfig`) can gate debug-only behavior.
      */
-    fun fromBuildConfig(): NetworkConfig =
-      if (BuildKonfig.BASE_URL.isNotEmpty()) {
-        NetworkConfig(baseUrl = BuildKonfig.BASE_URL, isDebug = BuildKonfig.DEBUG)
-      } else {
-        NetworkConfig(baseUrl = "http://${localhostHost()}:$SERVER_PORT", isDebug = BuildKonfig.DEBUG)
-      }
+    fun fromBuildConfig(): NetworkConfig {
+      val baseUrl = BuildKonfig.BASE_URL.ifEmpty { "http://${localhostHost()}:$SERVER_PORT" }
+      return NetworkConfig(baseUrl = baseUrl, isDebug = BuildKonfig.DEBUG)
+    }
   }
 }
 

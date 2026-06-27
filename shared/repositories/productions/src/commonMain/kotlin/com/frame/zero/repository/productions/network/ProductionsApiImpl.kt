@@ -24,7 +24,7 @@ class ProductionsApiImpl(
   ): CursorPagedResponse<ProductionSummaryDto> =
     httpClient.get("${networkConfig.baseUrl}/api/v1/productions") {
       parameter("limit", limit)
-      if (cursor != null) parameter("cursor", cursor)
+      cursor?.let { parameter("cursor", it) }
     }.body()
 
   override suspend fun getDetails(productionId: String): ProductionDetailDto =
