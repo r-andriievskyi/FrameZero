@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.frame.zero.feature.task.details.AttachmentDownloadError
 import com.frame.zero.feature.task.details.TaskAttachment
@@ -81,9 +82,10 @@ internal fun TaskDetailsContent(
       )
 
       when {
-        state.isLoading -> FullScreenProgress(modifier = Modifier.weight(1f))
+        state.isLoading ->
+          FullScreenProgress(modifier = Modifier.weight(1f).testTag(TaskDetailsTestTags.LOADING))
         state.isError -> FullScreenError(
-          modifier = Modifier.weight(1f),
+          modifier = Modifier.weight(1f).testTag(TaskDetailsTestTags.ERROR),
           message = stringResource(Res.string.task_details_error),
           onRetry = { onIntent(TaskDetailsIntent.Refresh) },
           retryLabel = stringResource(Res.string.task_details_retry)
@@ -92,6 +94,7 @@ internal fun TaskDetailsContent(
           Column(
             modifier = Modifier
               .weight(1f)
+              .testTag(TaskDetailsTestTags.CONTENT)
               .verticalScroll(rememberScrollState())
               .padding(horizontal = AppTheme.spacingSystem.space16)
           ) {
@@ -147,6 +150,7 @@ internal fun TaskDetailsContent(
               text = stringResource(Res.string.task_details_mark_complete),
               modifier = Modifier
                 .fillMaxWidth()
+                .testTag(TaskDetailsTestTags.MARK_COMPLETE)
                 .padding(AppTheme.spacingSystem.space16),
               onClick = { onIntent(TaskDetailsIntent.MarkComplete) }
             )

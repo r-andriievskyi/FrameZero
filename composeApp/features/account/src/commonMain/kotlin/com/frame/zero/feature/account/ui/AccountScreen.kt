@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.frame.zero.core.security.BiometricPromptText
 import com.frame.zero.feature.account.AccountComponent
@@ -98,7 +99,8 @@ internal fun AccountContent(
             icon = Res.drawable.ic_user,
             title = stringResource(Res.string.settings_edit_profile),
             subtitle = userName,
-            onClick = onEditProfileClick
+            onClick = onEditProfileClick,
+            modifier = Modifier.testTag(AccountTestTags.EDIT_PROFILE)
           )
           SettingsDivider()
         }
@@ -141,12 +143,13 @@ internal fun AccountContent(
             title = stringResource(Res.string.settings_app_lock),
             subtitle = stringResource(Res.string.settings_app_lock_subtitle),
             checked = state.appLockEnabled,
-            onCheckedChange = { enabled -> onAppLockToggle(enabled, appLockPrompt) }
+            onCheckedChange = { enabled -> onAppLockToggle(enabled, appLockPrompt) },
+            modifier = Modifier.testTag(AccountTestTags.APP_LOCK_TOGGLE)
           )
         }
       }
       VerticalSpacer(spacingSystem.space24)
-      SignOutButton(onClick = onSignOutClick)
+      SignOutButton(onClick = onSignOutClick, modifier = Modifier.testTag(AccountTestTags.SIGN_OUT))
       VerticalSpacer(spacingSystem.space24)
     }
   }

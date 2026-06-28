@@ -37,6 +37,7 @@ import com.frame.zero.domain.production.ProductionPhase
 import com.frame.zero.feature.home.tab.productions.ProductionUi
 import com.frame.zero.feature.home.tab.productions.ProductionsTabComponent
 import com.frame.zero.feature.home.ui.FloatingBottomNavClearance
+import androidx.compose.ui.platform.testTag
 import com.frame.zero.feature.home.ui.tab.productions.components.EmptyState
 import com.frame.zero.feature.home.ui.tab.productions.components.ProductionCard
 import com.frame.zero.feature.home.ui.tab.productions.components.ProductionsSkeleton
@@ -76,7 +77,7 @@ fun ProductionsTab(component: ProductionsTabComponent) {
 }
 
 @Composable
-private fun ProductionsContent(
+internal fun ProductionsContent(
   lazyPagingItems: LazyPagingItems<ProductionUi>,
   onCreateProductionClick: () -> Unit,
   onProductionClick: (productionId: String) -> Unit = {}
@@ -151,15 +152,22 @@ private fun ProductionsContent(
       contentKey = { it }
     ) { target ->
       when (target) {
-        ProductionsContentState.Skeleton -> ProductionsSkeleton()
-        ProductionsContentState.Empty -> EmptyState(onCreateProductionClick = onCreateProductionClick)
-        ProductionsContentState.Error -> FullScreenError(onRetry = lazyPagingItems::refresh)
+        ProductionsContentState.Skeleton ->
+          Box(modifier = Modifier.testTag(ProductionsTabTestTags.SKELETON)) { ProductionsSkeleton() }
+        ProductionsContentState.Empty ->
+          Box(modifier = Modifier.testTag(ProductionsTabTestTags.EMPTY)) {
+            EmptyState(onCreateProductionClick = onCreateProductionClick)
+          }
+        ProductionsContentState.Error ->
+          Box(modifier = Modifier.testTag(ProductionsTabTestTags.ERROR)) {
+            FullScreenError(onRetry = lazyPagingItems::refresh)
+          }
         ProductionsContentState.List -> {
           val count = lazyPagingItems.itemCount
           PagingLazyColumn(
             lazyPagingItems = lazyPagingItems,
             state = pagingState,
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().testTag(ProductionsTabTestTags.LIST),
             contentPadding = PaddingValues(
               bottom = navigationBarsBottom + FloatingBottomNavClearance
             ),

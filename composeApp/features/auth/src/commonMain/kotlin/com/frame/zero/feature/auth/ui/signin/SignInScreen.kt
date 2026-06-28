@@ -12,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.frame.zero.feature.auth.signin.SignInComponent
 import com.frame.zero.feature.auth.signin.SignInIntent
@@ -51,7 +52,7 @@ fun SignInScreen(
 }
 
 @Composable
-private fun SignInContent(
+internal fun SignInContent(
   state: SignInState,
   onIntent: (SignInIntent) -> Unit,
   onCreateAccountClick: () -> Unit
@@ -85,14 +86,15 @@ private fun SignInContent(
       text = stringResource(Res.string.btn_sign_in),
       loading = state.isLoading,
       onClick = { onIntent(SignInIntent.Submit) },
-      modifier = Modifier.fillMaxWidth()
+      modifier = Modifier.fillMaxWidth().testTag(SignInTestTags.SUBMIT)
     )
     state.error?.let { error ->
       VerticalSpacer(spacingSystem.space8)
       Text(
         text = error.asString(),
         color = AppTheme.colorSystem.errorText,
-        style = AppTheme.typographySystem.bodySmall
+        style = AppTheme.typographySystem.bodySmall,
+        modifier = Modifier.testTag(SignInTestTags.ERROR)
       )
     }
     Spacer(modifier = Modifier.weight(1f))
