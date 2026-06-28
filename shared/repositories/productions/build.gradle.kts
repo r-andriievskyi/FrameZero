@@ -21,8 +21,11 @@ kotlin {
     }
 
     commonTest.dependencies {
+      implementation(projects.shared.testFixtures)
       implementation(libs.kotlin.test)
       implementation(libs.kotlinx.coroutines.test)
+      implementation(libs.androidx.room.runtime)
+      implementation(libs.androidx.sqlite.bundled)
     }
   }
 }
