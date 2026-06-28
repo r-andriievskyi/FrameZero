@@ -33,19 +33,23 @@ import kotlin.test.assertNull
 @OptIn(ExperimentalCoroutinesApi::class)
 class ProductionDetailsComponentTest {
   private val mainDispatcher = StandardTestDispatcher()
+  
+  private val lifecycle = LifecycleRegistry()
 
   @BeforeTest
   fun setUp() = Dispatchers.setMain(mainDispatcher)
 
   @AfterTest
-  fun tearDown() = Dispatchers.resetMain()
+  fun tearDown() {
+    lifecycle.destroy()
+    Dispatchers.resetMain()
+  }
 
   @Test
   fun `first resume does not refresh tasks but a later resume does`() =
     runTest(mainDispatcher) {
       val tasksRepo = FakeTasksRepository()
-      val lifecycle = LifecycleRegistry()
-      makeComponent(tasksRepo = tasksRepo, lifecycle = lifecycle)
+      makeComponent(tasksRepo = tasksRepo)
       advanceUntilIdle()
       // ViewModel's own init load is the only list call so far.
       assertEquals(listOf("p1"), tasksRepo.listedProductionIds)
@@ -60,8 +64,6 @@ class ProductionDetailsComponentTest {
       lifecycle.resume()
       advanceUntilIdle()
       assertEquals(listOf("p1", "p1"), tasksRepo.listedProductionIds)
-
-      lifecycle.destroy()
     }
 
   @Test
@@ -112,7 +114,6 @@ class ProductionDetailsComponentTest {
   private fun TestScope.makeComponent(
     productionsRepo: FakeProductionsRepository = FakeProductionsRepository(),
     tasksRepo: FakeTasksRepository = FakeTasksRepository(),
-    lifecycle: LifecycleRegistry = LifecycleRegistry(),
     onBack: () -> Unit = {},
     onDeleted: (String) -> Unit = {},
     onAddTask: (String, String) -> Unit = { _, _ -> }
