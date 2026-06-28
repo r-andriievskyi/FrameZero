@@ -131,8 +131,10 @@ class ProductionsRepositoryImplTest {
     val listMembersCalls: MutableList<String> = mutableListOf()
     val createCalls: MutableList<CreateProductionRequest> = mutableListOf()
 
-    override suspend fun getAll(limit: Int, cursor: String?): CursorPagedResponse<ProductionSummaryDto> =
-      error("not used")
+    override suspend fun getAll(
+      limit: Int,
+      cursor: String?
+    ): CursorPagedResponse<ProductionSummaryDto> = error("not used")
 
     override suspend fun getDetails(productionId: String): ProductionDetailDto {
       getDetailsCalls += productionId
