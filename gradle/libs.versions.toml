@@ -64,6 +64,7 @@ androidx-security-crypto = { module = "androidx.security:security-crypto", versi
 androidx-biometric = { module = "androidx.biometric:biometric", version.ref = "androidxBiometric" }
 androidx-fragment = { module = "androidx.fragment:fragment", version.ref = "androidxFragment" }
 androidx-work-runtime = { module = "androidx.work:work-runtime-ktx", version.ref = "androidxWork" }
+androidx-work-testing = { module = "androidx.work:work-testing", version.ref = "androidxWork" }
 bcrypt = { module = "at.favre.lib:bcrypt", version.ref = "bcrypt" }
 chucker-library = { module = "com.github.chuckerteam.chucker:library", version.ref = "chucker" }
 chucker-libraryNoOp = { module = "com.github.chuckerteam.chucker:library-no-op", version.ref = "chucker" }

@@ -48,7 +48,7 @@ kotlin {
     compilerOptions {
       jvmTarget.set(JvmTarget.JVM_11)
     }
-    withHostTest {}
+    withHostTest { isIncludeAndroidResources = true }
   }
 
   iosArm64()
@@ -83,6 +83,12 @@ kotlin {
       implementation(libs.kotlinx.coroutines.test)
       implementation(libs.ktor.clientMock)
       implementation(libs.multiplatformSettings.test)
+    }
+    getByName("androidHostTest").dependencies {
+      implementation(libs.kotlin.testJunit)
+      implementation(libs.junit)
+      implementation(libs.robolectric)
+      implementation(libs.androidx.work.testing)
     }
   }
 }
