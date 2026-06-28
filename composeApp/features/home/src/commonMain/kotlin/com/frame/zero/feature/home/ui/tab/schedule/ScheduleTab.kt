@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -58,6 +59,25 @@ import kotlin.time.Instant
 @Composable
 fun ScheduleTab(component: ScheduleTabComponent) {
   val state by component.state.collectAsStateWithLifecycle()
+  ScheduleTabContent(
+    state = state,
+    onViewChanged = component::onViewChanged,
+    onDateSelected = component::onDateSelected,
+    onMonthNavigated = component::onMonthNavigated,
+    onTaskClick = component.onTaskClick,
+    onRetry = component::retry
+  )
+}
+
+@Composable
+internal fun ScheduleTabContent(
+  state: ScheduleTabState,
+  onViewChanged: (ScheduleView) -> Unit = {},
+  onDateSelected: (LocalDate) -> Unit = {},
+  onMonthNavigated: (offset: Int) -> Unit = {},
+  onTaskClick: (taskId: String) -> Unit = {},
+  onRetry: () -> Unit = {}
+) {
   Box(
     modifier = Modifier
       .fillMaxSize()
@@ -67,20 +87,25 @@ fun ScheduleTab(component: ScheduleTabComponent) {
       // Only take over the whole tab when there's nothing cached to show; once a
       // schedule is loaded, keep rendering it.
       state.schedule == null && state.error == LoadErrorKind.Network -> FullScreenError(
+        modifier = Modifier.testTag(ScheduleTabTestTags.ERROR),
         message = stringResource(Res.string.error_offline_message)
       )
       state.schedule == null && state.error == LoadErrorKind.Generic -> FullScreenError(
+        modifier = Modifier.testTag(ScheduleTabTestTags.ERROR),
         message = stringResource(Res.string.error_generic_message),
-        onRetry = component::retry
+        onRetry = onRetry
       )
-      state.schedule == null && state.isLoading -> FullScreenProgress()
-      else -> ScheduleContent(
-        state = state,
-        onViewChanged = component::onViewChanged,
-        onDateSelected = component::onDateSelected,
-        onMonthNavigated = component::onMonthNavigated,
-        onTaskClick = component.onTaskClick
-      )
+      state.schedule == null && state.isLoading ->
+        FullScreenProgress(modifier = Modifier.testTag(ScheduleTabTestTags.LOADING))
+      else -> Box(modifier = Modifier.testTag(ScheduleTabTestTags.CONTENT)) {
+        ScheduleContent(
+          state = state,
+          onViewChanged = onViewChanged,
+          onDateSelected = onDateSelected,
+          onMonthNavigated = onMonthNavigated,
+          onTaskClick = onTaskClick
+        )
+      }
     }
   }
 }

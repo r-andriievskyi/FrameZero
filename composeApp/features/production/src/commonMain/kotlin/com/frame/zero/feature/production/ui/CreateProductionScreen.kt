@@ -15,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.frame.zero.domain.production.Genre
@@ -55,7 +56,7 @@ fun CreateProductionScreen(
 }
 
 @Composable
-private fun CreateProductionContent(
+internal fun CreateProductionContent(
   state: CreateProductionState,
   onIntent: (CreateProductionIntent) -> Unit,
   onBack: () -> Unit,
@@ -99,10 +100,12 @@ private fun CreateProductionContent(
       },
       modifier = Modifier.weight(1f)
     ) { step ->
-      when (step) {
-        1 -> Step1Content(state = state, onIntent = onIntent)
-        2 -> Step2Content(state = state, onIntent = onIntent)
-        3 -> Step3Content(state = state, onIntent = onIntent)
+      Box(modifier = Modifier.testTag(CreateProductionTestTags.step(step))) {
+        when (step) {
+          1 -> Step1Content(state = state, onIntent = onIntent)
+          2 -> Step2Content(state = state, onIntent = onIntent)
+          3 -> Step3Content(state = state, onIntent = onIntent)
+        }
       }
     }
   }

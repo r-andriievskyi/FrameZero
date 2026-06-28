@@ -14,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.frame.zero.dto.task.TaskPriority
 import com.frame.zero.feature.task.create.AssignableMemberUi
@@ -72,7 +73,7 @@ fun CreateTaskScreen(
 }
 
 @Composable
-private fun CreateTaskContent(
+internal fun CreateTaskContent(
   state: CreateTaskState,
   onIntent: (CreateTaskIntent) -> Unit,
   onBack: () -> Unit,
@@ -122,7 +123,8 @@ private fun CreateTaskContent(
         Text(
           text = error.asString(),
           style = AppTheme.typographySystem.bodySmall,
-          color = colors.errorText
+          color = colors.errorText,
+          modifier = Modifier.testTag(CreateTaskTestTags.TITLE_ERROR)
         )
       }
 
@@ -212,6 +214,7 @@ private fun CreateTaskContent(
       onClick = { onIntent(CreateTaskIntent.Submit) },
       modifier = Modifier
         .fillMaxWidth()
+        .testTag(CreateTaskTestTags.SUBMIT)
         .padding(spacing.space16)
     )
   }

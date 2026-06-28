@@ -12,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.frame.zero.feature.auth.register.RegisterComponent
 import com.frame.zero.feature.auth.register.RegisterIntent
@@ -53,7 +54,7 @@ fun RegisterScreen(
 }
 
 @Composable
-private fun RegisterContent(
+internal fun RegisterContent(
   state: RegisterState,
   onIntent: (RegisterIntent) -> Unit,
   onSignInClick: () -> Unit
@@ -99,14 +100,15 @@ private fun RegisterContent(
       text = stringResource(Res.string.btn_create_account),
       loading = state.isLoading,
       onClick = { onIntent(RegisterIntent.Submit) },
-      modifier = Modifier.fillMaxWidth()
+      modifier = Modifier.fillMaxWidth().testTag(RegisterTestTags.SUBMIT)
     )
     state.error?.let { error ->
       VerticalSpacer(spacingSystem.space8)
       Text(
         text = error.asString(),
         color = AppTheme.colorSystem.errorText,
-        style = AppTheme.typographySystem.bodySmall
+        style = AppTheme.typographySystem.bodySmall,
+        modifier = Modifier.testTag(RegisterTestTags.ERROR)
       )
     }
     Spacer(modifier = Modifier.weight(1f))
