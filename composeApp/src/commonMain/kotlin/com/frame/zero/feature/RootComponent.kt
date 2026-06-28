@@ -109,9 +109,6 @@ class RootComponent(
         if (stack.value.active.configuration != target) navigation.replaceAll(target)
       }
     }
-    // Deep links are only acted on while logged in. NavigationSignal buffers the last
-    // deep link (replay = 1), so one that arrives while logged out (e.g. tapping a push
-    // notification before sign-in) is delivered here once the session becomes LoggedIn.
     @OptIn(ExperimentalCoroutinesApi::class)
     scope.launch {
       sessionManager.state
