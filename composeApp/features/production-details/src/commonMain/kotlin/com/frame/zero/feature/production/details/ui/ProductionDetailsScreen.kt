@@ -14,6 +14,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import com.frame.zero.core.collections.mapImmutable
 import com.frame.zero.domain.production.ProductionPhase
 import com.frame.zero.feature.production.details.ProductionDetailUi
@@ -52,7 +53,7 @@ fun ProductionDetailsScreen(component: ProductionDetailsComponent) {
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-private fun ProductionDetailsContent(
+internal fun ProductionDetailsContent(
   state: ProductionDetailsState,
   onBack: () -> Unit,
   onIntent: (ProductionDetailsIntent) -> Unit,
@@ -84,14 +85,21 @@ private fun ProductionDetailsContent(
 
       val loadError = state.error
       when {
-        state.isLoading && state.detail == null -> CenteredProgress()
+        state.isLoading && state.detail == null ->
+          CenteredProgress(modifier = Modifier.testTag(ProductionDetailsTestTags.LOADING))
         loadError != null && state.detail == null ->
           FullScreenError(
+            modifier = Modifier.testTag(ProductionDetailsTestTags.ERROR),
             message = loadError.asString(),
             onRetry = { onIntent(ProductionDetailsIntent.Refresh) }
           )
         state.detail != null ->
-          DetailBody(detail = state.detail!!, tasks = state.tasks, onAddTask = onAddTask)
+          DetailBody(
+            detail = state.detail!!,
+            tasks = state.tasks,
+            modifier = Modifier.testTag(ProductionDetailsTestTags.CONTENT),
+            onAddTask = onAddTask
+          )
         else -> Box(modifier = Modifier.fillMaxSize())
       }
     }
