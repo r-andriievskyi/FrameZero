@@ -347,4 +347,38 @@ class TaskRoutesTest {
 
       assertEquals(HttpStatusCode.NoContent, response.status)
     }
+
+  @Test
+  fun `GET task by id for a non-member returns 403`() =
+    testApplication {
+      val env = TestAppEnv()
+      application { env.configure(this) }
+      val ownerId = UUID.randomUUID()
+      val strangerToken = env.tokenFor(UUID.randomUUID())
+      val prod = env.productionService.createProduction(ownerId, productionRequest)
+      val task = env.taskService.create(ownerId, CreateTaskRequest(productionId = prod.id, title = "T"))
+
+      val response = client.get("/api/v1/tasks/${task.id}") {
+        header(HttpHeaders.Authorization, "Bearer $strangerToken")
+      }
+
+      assertEquals(HttpStatusCode.Forbidden, response.status)
+    }
+
+  @Test
+  fun `DELETE task as a non-member returns 403`() =
+    testApplication {
+      val env = TestAppEnv()
+      application { env.configure(this) }
+      val ownerId = UUID.randomUUID()
+      val strangerToken = env.tokenFor(UUID.randomUUID())
+      val prod = env.productionService.createProduction(ownerId, productionRequest)
+      val task = env.taskService.create(ownerId, CreateTaskRequest(productionId = prod.id, title = "T"))
+
+      val response = client.delete("/api/v1/tasks/${task.id}") {
+        header(HttpHeaders.Authorization, "Bearer $strangerToken")
+      }
+
+      assertEquals(HttpStatusCode.Forbidden, response.status)
+    }
 }
