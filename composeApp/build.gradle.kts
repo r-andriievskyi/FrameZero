@@ -85,7 +85,13 @@ kotlin {
       implementation(libs.decompose.extensionsCompose)
       implementation(projects.composeApp.shared.designSystem)
     }
-    commonTest.dependencies { implementation(libs.kotlin.test) }
+    commonTest.dependencies {
+      implementation(libs.kotlin.test)
+      implementation(libs.kotlinx.coroutines.test)
+      implementation(projects.shared.testFixtures)
+      implementation(libs.multiplatformSettings)
+      implementation(libs.multiplatformSettings.test)
+    }
     androidUnitTest.dependencies {
       implementation(libs.kotlin.testJunit)
       implementation(libs.junit)
