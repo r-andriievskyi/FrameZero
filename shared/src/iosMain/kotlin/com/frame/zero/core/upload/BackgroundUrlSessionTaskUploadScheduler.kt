@@ -90,7 +90,7 @@ class BackgroundUrlSessionTaskUploadScheduler(
    * copied in [UPLOAD_CHUNK_BYTES] chunks, then the closing boundary. Returns false if the source
    * file or temp body file can't be opened (the record stays pending for retry).
    */
-  private fun writeMultipartBodyFile(
+  internal fun writeMultipartBodyFile(
     upload: PendingTaskUpload,
     boundary: String,
     bodyPath: String
