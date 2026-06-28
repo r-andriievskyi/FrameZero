@@ -172,12 +172,14 @@ class RootComponentTest {
       root.homeCallbacks.onCreateProductionClick()
       advanceUntilIdle()
       assertEquals(RootComponent.Config.CreateProduction, root.activeConfig)
-      root.backDispatcher.back(); advanceUntilIdle()
+      root.backDispatcher.back()
+      advanceUntilIdle()
 
       root.homeCallbacks.onAccountClick()
       advanceUntilIdle()
       assertEquals(RootComponent.Config.Account, root.activeConfig)
-      root.backDispatcher.back(); advanceUntilIdle()
+      root.backDispatcher.back()
+      advanceUntilIdle()
 
       root.homeCallbacks.onTaskClick("t1")
       advanceUntilIdle()
@@ -339,13 +341,23 @@ class RootComponentTest {
   }
 
   private object NoopAttachmentFileManager : AttachmentFileManager {
-    override fun cachedAttachment(taskId: String, fileName: String): String? = null
+    override fun cachedAttachment(
+      taskId: String,
+      fileName: String
+    ): String? = null
 
-    override suspend fun saveDownloaded(taskId: String, fileName: String, channel: ByteReadChannel): String = ""
+    override suspend fun saveDownloaded(
+      taskId: String,
+      fileName: String,
+      channel: ByteReadChannel
+    ): String = ""
 
     override fun delete(localPath: String) = Unit
 
-    override fun openWith(localPath: String, contentType: String) = Unit
+    override fun openWith(
+      localPath: String,
+      contentType: String
+    ) = Unit
 
     override fun availableBytes(): Long = Long.MAX_VALUE
   }

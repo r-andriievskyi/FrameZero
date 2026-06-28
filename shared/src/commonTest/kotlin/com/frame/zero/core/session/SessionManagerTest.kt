@@ -285,6 +285,31 @@ class SessionManagerTest {
     }
 
   @Test
+  fun `a throwing cleaner does not prevent the remaining cleaners from running`() =
+    runTest {
+      val storage = TokenStorage(MapSettings()).also { it.saveTokens("a", "r") }
+      val before = FakeCleaner(throws = true)
+      val after = FakeCleaner()
+      val manager = SessionManager(
+        storage,
+        FakeAuthOps(),
+        UserCache(MapSettings()),
+        LogoutSignal(),
+        // The first cleaner throwing must be isolated (runCatching fan-out) so a later one still runs.
+        cleaners = listOf(before, after),
+        scope = backgroundScope
+      )
+      manager.onAuthenticated(user)
+
+      manager.logout()
+
+      assertEquals(1, before.clearCalls)
+      assertEquals(1, after.clearCalls)
+      assertEquals(SessionState.LoggedOut, manager.state.value)
+      assertFalse(storage.hasTokens())
+    }
+
+  @Test
   fun `cleaner re-emitting LogoutSignal does not recurse forced logout`() =
     runTest(UnconfinedTestDispatcher()) {
       val storage = TokenStorage(MapSettings()).also { it.saveTokens("a", "r") }
