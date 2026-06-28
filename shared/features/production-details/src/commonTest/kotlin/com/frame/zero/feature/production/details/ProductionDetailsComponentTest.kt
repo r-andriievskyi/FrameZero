@@ -33,7 +33,7 @@ import kotlin.test.assertNull
 @OptIn(ExperimentalCoroutinesApi::class)
 class ProductionDetailsComponentTest {
   private val mainDispatcher = StandardTestDispatcher()
-  
+
   private val lifecycle = LifecycleRegistry()
 
   @BeforeTest
