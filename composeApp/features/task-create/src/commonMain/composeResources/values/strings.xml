@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="new_task_title">New task</string>
-  <string name="new_task_subtitle">in %1$s</string>
   <string name="cancel">Cancel</string>
 
   <string name="label_title">TITLE</string>

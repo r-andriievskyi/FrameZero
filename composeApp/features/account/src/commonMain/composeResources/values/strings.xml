@@ -15,8 +15,6 @@
   <string name="section_workspace">WORKSPACE</string>
   <string name="settings_notifications">Notifications</string>
   <string name="settings_notifications_subtitle">All enabled</string>
-  <string name="settings_team_permissions">Team &amp; permissions</string>
-  <string name="settings_team_members_count">%1$d members</string>
 
   <!-- Security section -->
   <string name="section_security">SECURITY</string>
@@ -25,9 +23,4 @@
   <string name="app_lock_prompt_title">Confirm it\'s you</string>
   <string name="app_lock_prompt_subtitle">Authenticate to change the app lock setting.</string>
   <string name="app_lock_prompt_cancel">Cancel</string>
-
-  <!-- App section -->
-  <string name="section_app">APP</string>
-  <string name="settings_about">About FrameZero</string>
-  <string name="settings_version">Version %1$s</string>
 </resources>

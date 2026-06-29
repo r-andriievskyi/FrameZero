@@ -16,15 +16,10 @@
 
   <!-- Dashboard greeting -->
   <string name="greeting_hello">Hello, %1$s</string>
-  <string name="greeting_stats">%1$d active productions · %2$d open tasks</string>
 
   <!-- My Tasks section -->
   <string name="my_tasks_title">My Tasks</string>
   <string name="my_tasks_see_all">See all</string>
-
-  <!-- Production Status section -->
-  <string name="production_status_title">Production status</string>
-  <string name="production_status_all_projects">All projects</string>
 
   <!-- Stats section -->
   <string name="stats_active_projects">Active Productions</string>
@@ -58,7 +53,6 @@
   <string name="schedule_events_header">EVENTS</string>
   <string name="schedule_tasks_due_header">TASKS DUE</string>
   <string name="schedule_due_today">Due Today</string>
-  <string name="schedule_due_tomorrow">Due Tomorrow</string>
   <string name="schedule_priority_high">High</string>
   <string name="schedule_priority_medium">Medium</string>
   <string name="schedule_priority_low">Low</string>
