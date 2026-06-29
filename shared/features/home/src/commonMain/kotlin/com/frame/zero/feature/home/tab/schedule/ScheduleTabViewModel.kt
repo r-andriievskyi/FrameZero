@@ -70,13 +70,22 @@ class ScheduleTabViewModel(
     }
   }
 
-  fun onViewChanged(view: ScheduleView) {
+  fun onIntent(intent: ScheduleTabIntent) {
+    when (intent) {
+      is ScheduleTabIntent.ViewChanged -> onViewChanged(intent.view)
+      is ScheduleTabIntent.DateSelected -> onDateSelected(intent.date)
+      is ScheduleTabIntent.MonthNavigated -> onMonthNavigated(intent.offset)
+      ScheduleTabIntent.Retry -> retry()
+    }
+  }
+
+  private fun onViewChanged(view: ScheduleView) {
     if (view == _state.value.view) return
     _state.update { it.copy(view = view) }
     load(view = view, date = _state.value.selectedDate ?: today())
   }
 
-  fun onDateSelected(date: LocalDate) {
+  private fun onDateSelected(date: LocalDate) {
     val todayDate = today()
     _state.update {
       it.copy(
@@ -91,11 +100,11 @@ class ScheduleTabViewModel(
     load(view = _state.value.view, date = date)
   }
 
-  fun retry() {
+  private fun retry() {
     load(view = _state.value.view, date = _state.value.selectedDate ?: today())
   }
 
-  fun onMonthNavigated(offset: Int) {
+  private fun onMonthNavigated(offset: Int) {
     _state.update { state ->
       val current = LocalDate(state.displayYear, state.displayMonth, 1)
       val next = current.plus(offset, DateTimeUnit.MONTH)

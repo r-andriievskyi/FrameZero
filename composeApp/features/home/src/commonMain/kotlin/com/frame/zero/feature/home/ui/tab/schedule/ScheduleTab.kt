@@ -33,6 +33,7 @@ import com.frame.zero.feature.home.LoadErrorKind
 import com.frame.zero.feature.home.tab.schedule.DueLabel
 import com.frame.zero.feature.home.tab.schedule.ScheduleEventUiModel
 import com.frame.zero.feature.home.tab.schedule.ScheduleTabComponent
+import com.frame.zero.feature.home.tab.schedule.ScheduleTabIntent
 import com.frame.zero.feature.home.tab.schedule.ScheduleTabState
 import com.frame.zero.feature.home.tab.schedule.ScheduleTaskUiModel
 import com.frame.zero.feature.home.ui.FloatingBottomNavClearance
@@ -61,11 +62,11 @@ fun ScheduleTab(component: ScheduleTabComponent) {
   val state by component.state.collectAsStateWithLifecycle()
   ScheduleTabContent(
     state = state,
-    onViewChanged = component::onViewChanged,
-    onDateSelected = component::onDateSelected,
-    onMonthNavigated = component::onMonthNavigated,
+    onViewChanged = { component.onIntent(ScheduleTabIntent.ViewChanged(it)) },
+    onDateSelected = { component.onIntent(ScheduleTabIntent.DateSelected(it)) },
+    onMonthNavigated = { component.onIntent(ScheduleTabIntent.MonthNavigated(it)) },
     onTaskClick = component.onTaskClick,
-    onRetry = component::retry
+    onRetry = { component.onIntent(ScheduleTabIntent.Retry) }
   )
 }
 

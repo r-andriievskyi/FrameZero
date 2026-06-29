@@ -61,7 +61,7 @@ class AccountViewModelTest {
       val viewModel = AccountViewModel(session, makeLock(), StandardTestDispatcher(testScheduler))
       advanceUntilIdle()
 
-      viewModel.signOut()
+      viewModel.onIntent(AccountIntent.SignOutClicked)
       advanceUntilIdle()
 
       assertEquals(SessionState.LoggedOut, session.state.value)
@@ -75,7 +75,7 @@ class AccountViewModelTest {
       val viewModel = AccountViewModel(session, lock, StandardTestDispatcher(testScheduler))
       advanceUntilIdle()
 
-      viewModel.setAppLockEnabled(enabled = true, prompt = promptText)
+      viewModel.onIntent(AccountIntent.AppLockToggled(enabled = true, prompt = promptText))
       advanceUntilIdle()
 
       assertTrue(viewModel.state.value.appLockEnabled)
@@ -90,7 +90,7 @@ class AccountViewModelTest {
       val viewModel = AccountViewModel(session, lock, StandardTestDispatcher(testScheduler))
       advanceUntilIdle()
 
-      viewModel.setAppLockEnabled(enabled = true, prompt = promptText)
+      viewModel.onIntent(AccountIntent.AppLockToggled(enabled = true, prompt = promptText))
       advanceUntilIdle()
 
       assertFalse(viewModel.state.value.appLockEnabled)
@@ -106,7 +106,7 @@ class AccountViewModelTest {
       advanceUntilIdle()
       assertTrue(viewModel.state.value.appLockEnabled)
 
-      viewModel.setAppLockEnabled(enabled = false, prompt = promptText)
+      viewModel.onIntent(AccountIntent.AppLockToggled(enabled = false, prompt = promptText))
       advanceUntilIdle()
 
       assertFalse(viewModel.state.value.appLockEnabled)
