@@ -49,4 +49,6 @@ sealed interface CreateProductionIntent {
   data object Submit : CreateProductionIntent
 
   data object ToastDismissed : CreateProductionIntent
+
+  data object BackPressed : CreateProductionIntent
 }

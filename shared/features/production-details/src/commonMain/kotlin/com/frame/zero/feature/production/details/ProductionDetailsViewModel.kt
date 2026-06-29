@@ -66,6 +66,7 @@ class ProductionDetailsViewModel(
     when (intent) {
       ProductionDetailsIntent.Refresh -> load()
       ProductionDetailsIntent.RefreshTasks -> loadTasks()
+      ProductionDetailsIntent.AddTaskRequested -> requestAddTask()
       ProductionDetailsIntent.DeleteRequested ->
         _state.update { it.copy(isDeleteDialogVisible = true, deleteError = null) }
       ProductionDetailsIntent.DeleteDismissed ->
@@ -74,6 +75,11 @@ class ProductionDetailsViewModel(
       ProductionDetailsIntent.DeleteErrorDismissed ->
         _state.update { it.copy(deleteError = null) }
     }
+  }
+
+  private fun requestAddTask() {
+    val detail = _state.value.detail ?: return
+    _events.tryEmit(ProductionDetailsEvent.AddTaskRequested(productionId, detail.title))
   }
 
   private fun load() {

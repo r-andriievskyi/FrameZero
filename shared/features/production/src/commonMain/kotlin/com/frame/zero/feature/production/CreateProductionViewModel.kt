@@ -94,6 +94,15 @@ class CreateProductionViewModel(
         }
       CreateProductionIntent.Submit -> submit()
       CreateProductionIntent.ToastDismissed -> _state.update { it.copy(errorToast = null) }
+      CreateProductionIntent.BackPressed -> onBackPressed()
+    }
+  }
+
+  private fun onBackPressed() {
+    if (_state.value.currentStep > 1) {
+      _state.update { it.copy(currentStep = it.currentStep - 1, error = null) }
+    } else {
+      _events.tryEmit(CreateProductionEvent.Dismissed)
     }
   }
 
