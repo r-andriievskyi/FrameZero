@@ -237,7 +237,7 @@ class DashboardTabViewModelTest {
       assertEquals(LoadErrorKind.Generic, viewModel.state.value.error)
 
       shouldFail = false
-      viewModel.retry()
+      viewModel.onIntent(DashboardTabIntent.Retry)
       advanceUntilIdle()
 
       assertNull(viewModel.state.value.error)
@@ -262,7 +262,7 @@ class DashboardTabViewModelTest {
       viewModel.onDestroy()
 
       // retry after destroy should be a no-op since the scope is cancelled
-      viewModel.retry()
+      viewModel.onIntent(DashboardTabIntent.Retry)
       advanceUntilIdle()
 
       // Initial load happened (1 call each), but retry didn't fire new calls
