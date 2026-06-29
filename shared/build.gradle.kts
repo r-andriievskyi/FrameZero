@@ -57,6 +57,7 @@ kotlin {
   sourceSets {
     commonMain.dependencies {
       implementation(projects.shared.database)
+      api(projects.shared.uiText)
       implementation(libs.kotlinx.serialization.json)
       api(libs.kotlinx.coroutines.core)
       api(libs.kotlinx.datetime)

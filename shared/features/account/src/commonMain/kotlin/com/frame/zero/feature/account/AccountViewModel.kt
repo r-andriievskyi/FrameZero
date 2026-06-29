@@ -46,7 +46,14 @@ class AccountViewModel(
     }
   }
 
-  fun setAppLockEnabled(
+  fun onIntent(intent: AccountIntent) {
+    when (intent) {
+      is AccountIntent.AppLockToggled -> setAppLockEnabled(intent.enabled, intent.prompt)
+      AccountIntent.SignOutClicked -> signOut()
+    }
+  }
+
+  private fun setAppLockEnabled(
     enabled: Boolean,
     prompt: BiometricPromptText
   ) {
@@ -63,7 +70,7 @@ class AccountViewModel(
     }
   }
 
-  fun signOut() {
+  private fun signOut() {
     scope.launch { sessionManager.logout() }
   }
 
