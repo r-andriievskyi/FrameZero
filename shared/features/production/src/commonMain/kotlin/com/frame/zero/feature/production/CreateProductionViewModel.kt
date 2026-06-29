@@ -21,6 +21,7 @@ import framezero.shared.features.production.generated.resources.error_unknown_fa
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -42,8 +43,11 @@ class CreateProductionViewModel(
   private val _state = MutableStateFlow(CreateProductionState(totalSteps = TOTAL_STEPS))
   val state: StateFlow<CreateProductionState> = _state.asStateFlow()
 
-  private val _navigationEvents = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
-  val navigationEvents: SharedFlow<Unit> = _navigationEvents.asSharedFlow()
+  private val _events = MutableSharedFlow<CreateProductionEvent>(
+    extraBufferCapacity = 1,
+    onBufferOverflow = BufferOverflow.DROP_OLDEST
+  )
+  val events: SharedFlow<CreateProductionEvent> = _events.asSharedFlow()
 
   fun onIntent(intent: CreateProductionIntent) {
     when (intent) {
@@ -155,7 +159,7 @@ class CreateProductionViewModel(
       when (val outcome = createProductionUseCase(params)) {
         is Outcome.Success -> {
           _state.update { it.copy(isLoading = false) }
-          _navigationEvents.tryEmit(Unit)
+          _events.tryEmit(CreateProductionEvent.Created)
         }
         is Outcome.Failure -> _state.update {
           val message = outcome.error.toUiText()

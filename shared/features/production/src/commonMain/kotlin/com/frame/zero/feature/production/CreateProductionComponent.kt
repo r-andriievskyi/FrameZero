@@ -25,8 +25,12 @@ class CreateProductionComponent(
 
   init {
     lifecycle.doOnDestroy { scope.cancel() }
-    viewModel.navigationEvents
-      .onEach { onCreated() }
+    viewModel.events
+      .onEach { event ->
+        when (event) {
+          CreateProductionEvent.Created -> onCreated()
+        }
+      }
       .launchIn(scope)
   }
 
