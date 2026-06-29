@@ -162,15 +162,15 @@ class CreateProductionViewModelTest {
       viewModel.onIntent(CreateProductionIntent.TitleChanged("Pilot"))
       viewModel.onIntent(CreateProductionIntent.StartDateChanged(start))
       viewModel.onIntent(CreateProductionIntent.WrapDateChanged(wrap))
-      val events = mutableListOf<Unit>()
+      val events = mutableListOf<CreateProductionEvent>()
       backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
-        viewModel.navigationEvents.collect { events += it }
+        viewModel.events.collect { events += it }
       }
 
       viewModel.onIntent(CreateProductionIntent.Submit)
       advanceUntilIdle()
 
-      assertEquals(1, events.size)
+      assertEquals(listOf<CreateProductionEvent>(CreateProductionEvent.Created), events)
       assertNull(viewModel.state.value.error)
       assertEquals(false, viewModel.state.value.isLoading)
     }
