@@ -170,6 +170,10 @@ class RootComponent(
         AccountComponent(
           componentContext = context,
           onBack = { navigation.pop() },
+          onEditProfile = { /* TODO: navigate to edit profile */ },
+          onEmailSettings = { /* TODO: navigate to email settings */ },
+          onPasswordSecurity = { /* TODO: navigate to password & security */ },
+          onNotifications = { /* TODO: navigate to notification settings */ },
           viewModelFactory = accountViewModelFactory
         )
       )

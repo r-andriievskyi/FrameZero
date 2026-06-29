@@ -56,10 +56,10 @@ fun AccountScreen(
   AccountContent(
     state = state,
     onBack = component.onBack,
-    onEditProfileClick = component::onEditProfileClick,
-    onEmailClick = component::onEmailClick,
-    onPasswordSecurityClick = component::onPasswordSecurityClick,
-    onNotificationsClick = component::onNotificationsClick,
+    onEditProfileClick = component.onEditProfile,
+    onEmailClick = component.onEmailSettings,
+    onPasswordSecurityClick = component.onPasswordSecurity,
+    onNotificationsClick = component.onNotifications,
     onAppLockToggle = component::onAppLockToggle,
     onSignOutClick = component::onSignOutClick,
     modifier = modifier
