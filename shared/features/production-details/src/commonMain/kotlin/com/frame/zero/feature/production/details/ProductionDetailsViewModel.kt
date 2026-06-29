@@ -2,8 +2,9 @@ package com.frame.zero.feature.production.details
 
 import com.arkivanov.essenty.instancekeeper.InstanceKeeper
 import com.frame.zero.core.collections.mapImmutable
+import com.frame.zero.core.error.DomainErrorMessages
+import com.frame.zero.core.error.toUiText
 import com.frame.zero.core.format.formatMedium
-import com.frame.zero.domain.DomainError
 import com.frame.zero.domain.Outcome
 import com.frame.zero.domain.production.ProductionDetail
 import com.frame.zero.domain.production.ProductionMember
@@ -13,8 +14,6 @@ import com.frame.zero.feature.production.details.domain.DeleteProductionUseCase
 import com.frame.zero.feature.production.details.domain.GetProductionDetailsUseCase
 import com.frame.zero.feature.production.details.domain.GetProductionTasksUseCase
 import com.frame.zero.feature.production.details.domain.ProductionTask
-import com.frame.zero.ui.UiText
-import com.frame.zero.ui.asUiText
 import framezero.shared.features.production_details.generated.resources.Res
 import framezero.shared.features.production_details.generated.resources.error_auth_failed
 import framezero.shared.features.production_details.generated.resources.error_conflict
@@ -90,7 +89,7 @@ class ProductionDetailsViewModel(
         is Outcome.Success ->
           _state.update { it.copy(isLoading = false, detail = outcome.data.toUi()) }
         is Outcome.Failure ->
-          _state.update { it.copy(isLoading = false, error = outcome.error.toUiText()) }
+          _state.update { it.copy(isLoading = false, error = outcome.error.toUiText(errorMessages)) }
       }
     }
   }
@@ -180,7 +179,7 @@ class ProductionDetailsViewModel(
         }
         is Outcome.Failure ->
           _state.update {
-            it.copy(isDeleting = false, deleteError = outcome.error.toUiText())
+            it.copy(isDeleting = false, deleteError = outcome.error.toUiText(errorMessages))
           }
       }
     }
@@ -190,16 +189,16 @@ class ProductionDetailsViewModel(
     scope.cancel()
   }
 
-  private fun DomainError.toUiText(): UiText =
-    when (this) {
-      is DomainError.Offline -> Res.string.error_network.asUiText()
-      is DomainError.Server -> Res.string.error_server.asUiText()
-      DomainError.NotFound -> Res.string.error_not_found.asUiText()
-      DomainError.Forbidden -> Res.string.error_forbidden.asUiText()
-      DomainError.Conflict -> Res.string.error_conflict.asUiText()
-      DomainError.InvalidCredentials -> Res.string.error_auth_failed.asUiText()
-      DomainError.EmailAlreadyExists,
-      DomainError.InsufficientStorage,
-      is DomainError.Unknown -> Res.string.error_unknown_fallback.asUiText()
-    }
+  private companion object {
+    val errorMessages = DomainErrorMessages(
+      network = Res.string.error_network,
+      server = Res.string.error_server,
+      notFound = Res.string.error_not_found,
+      forbidden = Res.string.error_forbidden,
+      conflict = Res.string.error_conflict,
+      invalidCredentials = Res.string.error_auth_failed,
+      emailExists = Res.string.error_unknown_fallback,
+      fallback = Res.string.error_unknown_fallback
+    )
+  }
 }

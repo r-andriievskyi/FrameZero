@@ -1,11 +1,12 @@
 package com.frame.zero.feature.production
 
 import com.arkivanov.essenty.instancekeeper.InstanceKeeper
-import com.frame.zero.domain.DomainError
+import com.frame.zero.core.error.DomainErrorMessages
+import com.frame.zero.core.error.isOfflineOrServerError
+import com.frame.zero.core.error.toUiText
 import com.frame.zero.domain.Outcome
 import com.frame.zero.dto.production.CreateCrewMemberDto
 import com.frame.zero.feature.production.domain.CreateProductionUseCase
-import com.frame.zero.ui.UiText
 import com.frame.zero.ui.asUiText
 import framezero.shared.features.production.generated.resources.Res
 import framezero.shared.features.production.generated.resources.error_auth_failed
@@ -171,7 +172,7 @@ class CreateProductionViewModel(
           _events.tryEmit(CreateProductionEvent.Created)
         }
         is Outcome.Failure -> _state.update {
-          val message = outcome.error.toUiText()
+          val message = outcome.error.toUiText(errorMessages)
           // Network/server failures are transient → toast; validation/auth errors are
           // user-fixable → inline. Mirrors the auth feature's split.
           if (outcome.error.isOfflineOrServerError) {
@@ -183,22 +184,6 @@ class CreateProductionViewModel(
       }
     }
   }
-
-  private val DomainError.isOfflineOrServerError: Boolean
-    get() = this is DomainError.Offline || this is DomainError.Server || this is DomainError.Unknown
-
-  private fun DomainError.toUiText(): UiText =
-    when (this) {
-      is DomainError.Offline -> Res.string.error_network.asUiText()
-      is DomainError.Server -> Res.string.error_server.asUiText()
-      DomainError.Forbidden -> Res.string.error_forbidden.asUiText()
-      DomainError.Conflict -> Res.string.error_conflict.asUiText()
-      DomainError.InvalidCredentials -> Res.string.error_auth_failed.asUiText()
-      DomainError.EmailAlreadyExists -> Res.string.error_email_exists.asUiText()
-      DomainError.NotFound,
-      DomainError.InsufficientStorage,
-      is DomainError.Unknown -> Res.string.error_unknown_fallback.asUiText()
-    }
 
   private fun formatBudget(cents: Long): String {
     val dollars = cents / 100
@@ -220,5 +205,16 @@ class CreateProductionViewModel(
 
   private companion object {
     const val TOTAL_STEPS = 3
+
+    val errorMessages = DomainErrorMessages(
+      network = Res.string.error_network,
+      server = Res.string.error_server,
+      notFound = Res.string.error_unknown_fallback,
+      forbidden = Res.string.error_forbidden,
+      conflict = Res.string.error_conflict,
+      invalidCredentials = Res.string.error_auth_failed,
+      emailExists = Res.string.error_email_exists,
+      fallback = Res.string.error_unknown_fallback
+    )
   }
 }
