@@ -47,7 +47,7 @@ fun ProductionDetailsScreen(component: ProductionDetailsComponent) {
     state = state,
     onBack = component.onBack,
     onIntent = component::onIntent,
-    onAddTask = component::requestAddTask
+    onAddTask = { component.onIntent(ProductionDetailsIntent.AddTaskRequested) }
   )
 }
 

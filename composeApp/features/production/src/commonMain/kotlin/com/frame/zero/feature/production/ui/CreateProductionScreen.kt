@@ -46,7 +46,7 @@ fun CreateProductionScreen(
     CreateProductionContent(
       state = state,
       onIntent = component::onIntent,
-      onBack = component::navigateBack
+      onBack = { component.onIntent(CreateProductionIntent.BackPressed) }
     )
     ToastHost(
       message = state.errorToast?.asString(),

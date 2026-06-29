@@ -18,6 +18,7 @@ import androidx.compose.ui.platform.testTag
 import com.frame.zero.feature.home.LoadErrorKind
 import com.frame.zero.feature.home.tab.dashboard.DashboardStatsUi
 import com.frame.zero.feature.home.tab.dashboard.DashboardTabComponent
+import com.frame.zero.feature.home.tab.dashboard.DashboardTabIntent
 import com.frame.zero.feature.home.tab.dashboard.DashboardTaskUi
 import com.frame.zero.feature.home.tab.dashboard.DashboardUi
 import com.frame.zero.feature.home.tab.dashboard.DueUrgency
@@ -50,7 +51,7 @@ fun DashboardTab(component: DashboardTabComponent) {
       )
       LoadErrorKind.Generic -> FullScreenError(
         message = stringResource(Res.string.error_generic_message),
-        onRetry = component::retry
+        onRetry = { component.onIntent(DashboardTabIntent.Retry) }
       )
       null -> if (state.isLoading) {
         FullScreenProgress()

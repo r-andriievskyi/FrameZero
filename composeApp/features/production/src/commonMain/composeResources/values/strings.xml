@@ -10,19 +10,12 @@
   <string name="create_field_production_title">PRODUCTION TITLE</string>
   <string name="create_placeholder_production_title">e.g. Echoes of Silence</string>
   <string name="create_field_genre">GENRE</string>
-  <string name="create_field_logline">LOGLINE (OPTIONAL)</string>
-  <string name="create_placeholder_logline">One sentence describing your story…</string>
-
-  <!-- Step 2: Timeline & Phase -->
-  <string name="create_step2_title">Timeline &amp; Phase</string>
-  <string name="create_step2_subtitle">Where are you in the pipeline?</string>
-  <string name="create_field_current_phase">CURRENT PHASE</string>
   <string name="create_field_start_date">START DATE</string>
   <string name="create_field_wrap_date">WRAP DATE</string>
   <string name="create_placeholder_date">DD.MM.YYYY</string>
   <string name="create_field_budget">TOTAL BUDGET (OPTIONAL)</string>
 
-  <!-- Step 3: Build your team -->
+  <!-- Step 2: Build your team -->
   <string name="create_step3_title">Build your team</string>
   <string name="create_step3_subtitle">Add crew members (you can add more later)</string>
   <string name="create_field_name">NAME</string>
@@ -34,7 +27,7 @@
   <string name="create_crew_owner_note">You'll be added as the project owner automatically</string>
   <string name="create_button_skip_continue">Skip &amp; continue</string>
 
-  <!-- Step 4: Review & create -->
+  <!-- Step 3: Review & create -->
   <string name="create_step4_title">Review &amp; create</string>
   <string name="create_step4_subtitle">Everything look right?</string>
   <string name="create_crew_label">CREW (%1$d)</string>
@@ -53,25 +46,12 @@
   <!-- Shared button -->
   <string name="create_button_continue">Continue</string>
 
-  <!-- Phase labels -->
-  <string name="phase_idea">Idea</string>
-  <string name="phase_development">Development</string>
-  <string name="phase_financing">Financing</string>
-  <string name="phase_pre_production">Pre-Production</string>
-  <string name="phase_production">Production</string>
-  <string name="phase_post_production">Post-Production</string>
-  <string name="phase_marketing">Marketing</string>
-  <string name="phase_distribution">Distribution</string>
-  <string name="phase_release">Release</string>
-  <string name="phase_archived">Archived</string>
-
   <!-- Date picker buttons -->
   <string name="date_picker_ok">OK</string>
   <string name="date_picker_cancel">Cancel</string>
 
   <!-- Budget input -->
   <string name="budget_placeholder">500,000</string>
-
 
   <!-- Crew roles -->
   <string name="crew_role_director">Director</string>

@@ -46,15 +46,12 @@ class ProductionDetailsComponent(
       viewModel.events.collect { event ->
         when (event) {
           is ProductionDetailsEvent.Deleted -> onDeleted(event.productionId)
+          is ProductionDetailsEvent.AddTaskRequested ->
+            onAddTask(event.productionId, event.productionTitle)
         }
       }
     }
   }
 
   fun onIntent(intent: ProductionDetailsIntent) = viewModel.onIntent(intent)
-
-  fun requestAddTask() {
-    val detail = viewModel.state.value.detail ?: return
-    onAddTask(productionId, detail.title)
-  }
 }

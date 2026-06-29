@@ -55,8 +55,10 @@ class DashboardTabViewModel(
     }
   }
 
-  fun retry() {
-    load()
+  fun onIntent(intent: DashboardTabIntent) {
+    when (intent) {
+      DashboardTabIntent.Retry -> load()
+    }
   }
 
   @OptIn(ExperimentalTime::class)

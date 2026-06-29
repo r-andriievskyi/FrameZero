@@ -138,7 +138,7 @@ class ScheduleTabViewModelTest {
       advanceUntilIdle()
       val callsBefore = repo.calls.size
 
-      viewModel.onViewChanged(ScheduleView.DAY)
+      viewModel.onIntent(ScheduleTabIntent.ViewChanged(ScheduleView.DAY))
       advanceUntilIdle()
 
       assertEquals(callsBefore, repo.calls.size)
@@ -152,7 +152,7 @@ class ScheduleTabViewModelTest {
       val viewModel = makeViewModel(repo)
       advanceUntilIdle()
 
-      viewModel.onViewChanged(ScheduleView.WEEK)
+      viewModel.onIntent(ScheduleTabIntent.ViewChanged(ScheduleView.WEEK))
       advanceUntilIdle()
 
       assertEquals(ScheduleView.WEEK, viewModel.state.value.view)
@@ -168,7 +168,7 @@ class ScheduleTabViewModelTest {
       val viewModel = makeViewModel(repo)
       advanceUntilIdle()
 
-      viewModel.onViewChanged(ScheduleView.MONTH)
+      viewModel.onIntent(ScheduleTabIntent.ViewChanged(ScheduleView.MONTH))
       advanceUntilIdle()
 
       val date = assertNotNull(viewModel.state.value.selectedDate)
@@ -185,7 +185,7 @@ class ScheduleTabViewModelTest {
       advanceUntilIdle()
       val newDate = LocalDate(2026, 4, 1)
 
-      viewModel.onDateSelected(newDate)
+      viewModel.onIntent(ScheduleTabIntent.DateSelected(newDate))
       advanceUntilIdle()
 
       assertEquals(newDate, viewModel.state.value.selectedDate)
@@ -203,7 +203,7 @@ class ScheduleTabViewModelTest {
       val callsBeforeDestroy = repo.calls.size
 
       viewModel.onDestroy()
-      viewModel.onDateSelected(LocalDate(2026, 4, 1))
+      viewModel.onIntent(ScheduleTabIntent.DateSelected(LocalDate(2026, 4, 1)))
       advanceUntilIdle()
 
       assertEquals(callsBeforeDestroy, repo.calls.size)

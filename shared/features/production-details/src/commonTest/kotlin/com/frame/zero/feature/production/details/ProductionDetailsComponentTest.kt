@@ -28,7 +28,7 @@ import kotlin.test.assertNull
 /**
  * Exercises the [ProductionDetailsComponent] lifecycle/callback glue that sits between the
  * Decompose host and the ViewModel: the skip-first-resume refresh, the `Deleted` event →
- * `onDeleted` callback bridge, and `requestAddTask` reading the loaded title.
+ * `onDeleted` callback bridge, and the `AddTaskRequested` event → `onAddTask` callback bridge.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class ProductionDetailsComponentTest {
@@ -80,7 +80,7 @@ class ProductionDetailsComponentTest {
     }
 
   @Test
-  fun `requestAddTask forwards the production id and loaded title`() =
+  fun `AddTaskRequested forwards the production id and loaded title`() =
     runTest(mainDispatcher) {
       val addTaskCalls = mutableListOf<Pair<String, String>>()
       val component = makeComponent(
@@ -89,23 +89,25 @@ class ProductionDetailsComponentTest {
       )
       advanceUntilIdle()
 
-      component.requestAddTask()
+      component.onIntent(ProductionDetailsIntent.AddTaskRequested)
+      advanceUntilIdle()
 
       assertEquals(listOf("p1" to "Pilot"), addTaskCalls)
     }
 
   @Test
-  fun `requestAddTask is a no-op before the detail has loaded`() =
+  fun `AddTaskRequested is a no-op before the detail has loaded`() =
     runTest(mainDispatcher) {
       val addTaskCalls = mutableListOf<Pair<String, String>>()
-      // getThrows leaves state.detail null, so requestAddTask must not fire.
+      // getThrows leaves state.detail null, so the event must not fire.
       val component = makeComponent(
         productionsRepo = FakeProductionsRepository(getThrows = IllegalStateException("offline")),
         onAddTask = { id, title -> addTaskCalls += id to title }
       )
       advanceUntilIdle()
 
-      component.requestAddTask()
+      component.onIntent(ProductionDetailsIntent.AddTaskRequested)
+      advanceUntilIdle()
 
       assertEquals(emptyList(), addTaskCalls)
       assertNull(component.state.value.detail)

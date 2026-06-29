@@ -25,18 +25,15 @@ class CreateProductionComponent(
 
   init {
     lifecycle.doOnDestroy { scope.cancel() }
-    viewModel.navigationEvents
-      .onEach { onCreated() }
+    viewModel.events
+      .onEach { event ->
+        when (event) {
+          CreateProductionEvent.Created -> onCreated()
+          CreateProductionEvent.Dismissed -> onBack()
+        }
+      }
       .launchIn(scope)
   }
 
   fun onIntent(intent: CreateProductionIntent) = viewModel.onIntent(intent)
-
-  fun navigateBack() {
-    if (viewModel.state.value.currentStep > 1) {
-      viewModel.onIntent(CreateProductionIntent.PreviousStep)
-    } else {
-      onBack()
-    }
-  }
 }

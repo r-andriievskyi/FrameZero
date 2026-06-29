@@ -16,6 +16,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.frame.zero.core.security.BiometricPromptText
 import com.frame.zero.feature.account.AccountComponent
+import com.frame.zero.feature.account.AccountIntent
 import com.frame.zero.feature.account.AccountState
 import com.frame.zero.feature.account.ui.components.SettingsRow
 import com.frame.zero.feature.account.ui.components.SettingsSection
@@ -56,12 +57,12 @@ fun AccountScreen(
   AccountContent(
     state = state,
     onBack = component.onBack,
-    onEditProfileClick = component::onEditProfileClick,
-    onEmailClick = component::onEmailClick,
-    onPasswordSecurityClick = component::onPasswordSecurityClick,
-    onNotificationsClick = component::onNotificationsClick,
-    onAppLockToggle = component::onAppLockToggle,
-    onSignOutClick = component::onSignOutClick,
+    onEditProfileClick = component.onEditProfile,
+    onEmailClick = component.onEmailSettings,
+    onPasswordSecurityClick = component.onPasswordSecurity,
+    onNotificationsClick = component.onNotifications,
+    onAppLockToggle = { enabled, prompt -> component.onIntent(AccountIntent.AppLockToggled(enabled, prompt)) },
+    onSignOutClick = { component.onIntent(AccountIntent.SignOutClicked) },
     modifier = modifier
   )
 }

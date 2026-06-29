@@ -89,6 +89,42 @@ class CreateProductionViewModelTest {
     }
 
   @Test
+  fun `back press past step 1 steps the wizard back without emitting`() =
+    runTest {
+      val viewModel = makeViewModel(FakeProductionsRepository())
+      viewModel.onIntent(CreateProductionIntent.TitleChanged("Pilot"))
+      viewModel.onIntent(CreateProductionIntent.StartDateChanged(start))
+      viewModel.onIntent(CreateProductionIntent.WrapDateChanged(wrap))
+      viewModel.onIntent(CreateProductionIntent.NextStep)
+      val events = mutableListOf<CreateProductionEvent>()
+      backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+        viewModel.events.collect { events += it }
+      }
+
+      viewModel.onIntent(CreateProductionIntent.BackPressed)
+      advanceUntilIdle()
+
+      assertEquals(1, viewModel.state.value.currentStep)
+      assertEquals(emptyList(), events)
+    }
+
+  @Test
+  fun `back press on step 1 emits Dismissed`() =
+    runTest {
+      val viewModel = makeViewModel(FakeProductionsRepository())
+      val events = mutableListOf<CreateProductionEvent>()
+      backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+        viewModel.events.collect { events += it }
+      }
+
+      viewModel.onIntent(CreateProductionIntent.BackPressed)
+      advanceUntilIdle()
+
+      assertEquals(1, viewModel.state.value.currentStep)
+      assertEquals(listOf<CreateProductionEvent>(CreateProductionEvent.Dismissed), events)
+    }
+
+  @Test
   fun `budget changed formats display with thousands separators`() =
     runTest {
       val viewModel = makeViewModel(FakeProductionsRepository())
@@ -162,15 +198,15 @@ class CreateProductionViewModelTest {
       viewModel.onIntent(CreateProductionIntent.TitleChanged("Pilot"))
       viewModel.onIntent(CreateProductionIntent.StartDateChanged(start))
       viewModel.onIntent(CreateProductionIntent.WrapDateChanged(wrap))
-      val events = mutableListOf<Unit>()
+      val events = mutableListOf<CreateProductionEvent>()
       backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
-        viewModel.navigationEvents.collect { events += it }
+        viewModel.events.collect { events += it }
       }
 
       viewModel.onIntent(CreateProductionIntent.Submit)
       advanceUntilIdle()
 
-      assertEquals(1, events.size)
+      assertEquals(listOf<CreateProductionEvent>(CreateProductionEvent.Created), events)
       assertNull(viewModel.state.value.error)
       assertEquals(false, viewModel.state.value.isLoading)
     }

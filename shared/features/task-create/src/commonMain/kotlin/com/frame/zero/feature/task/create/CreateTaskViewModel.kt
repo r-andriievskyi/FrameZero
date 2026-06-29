@@ -2,6 +2,8 @@ package com.frame.zero.feature.task.create
 
 import com.arkivanov.essenty.instancekeeper.InstanceKeeper
 import com.frame.zero.core.collections.mapImmutable
+import com.frame.zero.core.error.DomainErrorMessages
+import com.frame.zero.core.error.toUiText
 import com.frame.zero.domain.task.AssignableMember
 import com.frame.zero.core.files.AttachmentFileManager
 import com.frame.zero.core.files.FilePicker
@@ -9,11 +11,9 @@ import com.frame.zero.core.files.MAX_ATTACHMENT_BYTES
 import com.frame.zero.core.files.PickedFile
 import com.frame.zero.core.upload.PendingTaskUpload
 import com.frame.zero.core.upload.TaskUploadScheduler
-import com.frame.zero.domain.DomainError
 import com.frame.zero.domain.Outcome
 import com.frame.zero.feature.task.create.domain.CreateTaskUseCase
 import com.frame.zero.feature.task.create.domain.GetAssignableMembersUseCase
-import com.frame.zero.ui.UiText
 import com.frame.zero.ui.asUiText
 import framezero.shared.features.task_create.generated.resources.Res
 import framezero.shared.features.task_create.generated.resources.error_auth_failed
@@ -200,7 +200,7 @@ class CreateTaskViewModel(
           _events.tryEmit(CreateTaskEvent.Created(outcome.data.id))
         }
         is Outcome.Failure ->
-          _state.update { it.copy(isLoading = false, errorToast = outcome.error.toUiText()) }
+          _state.update { it.copy(isLoading = false, errorToast = outcome.error.toUiText(errorMessages)) }
       }
     }
   }
@@ -221,20 +221,18 @@ class CreateTaskViewModel(
     scope.cancel()
   }
 
-  private fun DomainError.toUiText(): UiText =
-    when (this) {
-      is DomainError.Offline -> Res.string.error_network.asUiText()
-      is DomainError.Server -> Res.string.error_server.asUiText()
-      DomainError.NotFound -> Res.string.error_not_found.asUiText()
-      DomainError.Forbidden -> Res.string.error_forbidden.asUiText()
-      DomainError.Conflict -> Res.string.error_conflict.asUiText()
-      DomainError.InvalidCredentials -> Res.string.error_auth_failed.asUiText()
-      DomainError.EmailAlreadyExists,
-      DomainError.InsufficientStorage,
-      is DomainError.Unknown -> Res.string.error_unknown_fallback.asUiText()
-    }
-
   private companion object {
     const val DAYS_IN_WEEK = 7
+
+    val errorMessages = DomainErrorMessages(
+      network = Res.string.error_network,
+      server = Res.string.error_server,
+      notFound = Res.string.error_not_found,
+      forbidden = Res.string.error_forbidden,
+      conflict = Res.string.error_conflict,
+      invalidCredentials = Res.string.error_auth_failed,
+      emailExists = Res.string.error_unknown_fallback,
+      fallback = Res.string.error_unknown_fallback
+    )
   }
 }
