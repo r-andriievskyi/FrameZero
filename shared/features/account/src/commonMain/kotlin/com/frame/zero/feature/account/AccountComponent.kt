@@ -8,32 +8,16 @@ import kotlinx.coroutines.flow.StateFlow
 class AccountComponent(
   componentContext: ComponentContext,
   val onBack: () -> Unit,
+  val onEditProfile: () -> Unit,
+  val onEmailSettings: () -> Unit,
+  val onPasswordSecurity: () -> Unit,
+  val onNotifications: () -> Unit,
   viewModelFactory: () -> AccountViewModel
 ) : ComponentContext by componentContext {
   private val viewModel: AccountViewModel = instanceKeeper.getOrCreate { viewModelFactory() }
 
   val state: StateFlow<AccountState>
     get() = viewModel.state
-
-  fun onEditProfileClick() {
-    // TODO: navigate to edit profile
-  }
-
-  fun onEmailClick() {
-    // TODO: navigate to email settings
-  }
-
-  fun onPasswordSecurityClick() {
-    // TODO: navigate to password & security
-  }
-
-  fun onNotificationsClick() {
-    // TODO: navigate to notification settings
-  }
-
-  fun onAboutClick() {
-    // TODO: navigate to about
-  }
 
   fun onAppLockToggle(
     enabled: Boolean,
