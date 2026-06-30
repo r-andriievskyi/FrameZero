@@ -162,7 +162,8 @@ private fun toastColors(severity: ToastSeverity): ToastColorSet {
 private fun AppToastCompactPreview() {
   AppTheme {
     Column(
-      modifier = Modifier.background(AppTheme.colorSystem.background).padding(16.dp),
+      modifier = Modifier.background(AppTheme.colorSystem.background)
+        .padding(AppTheme.spacingSystem.space16),
       verticalArrangement = Arrangement.spacedBy(AppTheme.spacingSystem.space8)
     ) {
       AppToast(
@@ -190,7 +191,8 @@ private fun AppToastCompactPreview() {
 private fun AppToastTwoLinePreview() {
   AppTheme {
     Column(
-      modifier = Modifier.background(AppTheme.colorSystem.background).padding(16.dp),
+      modifier = Modifier.background(AppTheme.colorSystem.background)
+        .padding(AppTheme.spacingSystem.space16),
       verticalArrangement = Arrangement.spacedBy(AppTheme.spacingSystem.space8)
     ) {
       AppToast(

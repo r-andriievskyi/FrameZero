@@ -5,11 +5,9 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
@@ -30,9 +28,9 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.frame.zero.shared.design_system.AppTheme
+import com.frame.zero.shared.design_system.LightDarkPreview
 
 private val MinHeight = 48.dp
 
@@ -93,7 +91,7 @@ fun SingleLineInputField(
       ) {
         if (leadingContent != null) {
           leadingContent()
-          Spacer(modifier = Modifier.width(spacing.space8))
+          HorizontalSpacer(spacing.space8)
         }
 
         Box(modifier = Modifier.weight(1f)) {
@@ -108,7 +106,7 @@ fun SingleLineInputField(
         }
 
         if (trailingContent != null) {
-          Spacer(modifier = Modifier.width(spacing.space8))
+          HorizontalSpacer(spacing.space8)
           trailingContent()
         }
       }
@@ -116,7 +114,7 @@ fun SingleLineInputField(
   )
 }
 
-@Preview
+@LightDarkPreview
 @Composable
 private fun SingleLineInputFieldPlaceholderPreview() {
   AppTheme {

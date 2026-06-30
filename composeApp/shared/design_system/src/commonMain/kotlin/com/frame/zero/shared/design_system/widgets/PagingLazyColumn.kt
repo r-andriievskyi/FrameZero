@@ -60,6 +60,7 @@ private const val AppendLoadingItemKey = "append-loading"
 private const val AppendErrorItemKey = "append-error"
 private const val RefreshIndicatorItemKey = "inline-refresh-indicator"
 private val InlineIndicatorIconSize = 44.dp
+private val InlineIndicatorStrokeWidth = 2.dp
 private const val InlineSpinnerCycleMillis = 900
 private const val FullCircleDeg = 360f
 
@@ -298,7 +299,7 @@ private fun RefreshIconBadge(isRefreshing: Boolean) {
     contentAlignment = Alignment.Center
   ) {
     Canvas(modifier = Modifier.size(InlineIndicatorIconSize / 2)) {
-      val strokeWidthPx = 2.dp.toPx()
+      val strokeWidthPx = InlineIndicatorStrokeWidth.toPx()
       val stroke = Stroke(
         width = strokeWidthPx,
         cap = StrokeCap.Round,

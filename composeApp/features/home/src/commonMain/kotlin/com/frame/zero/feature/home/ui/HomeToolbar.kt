@@ -39,7 +39,7 @@ fun HomeToolbar(
     ),
     verticalAlignment = Alignment.CenterVertically
   ) {
-    val buttonsShape = RoundedCornerShape(AppTheme.spacingSystem.space8)
+    val buttonsShape = RoundedCornerShape(AppTheme.radiusSystem.radius8)
     Image(
       painter = painterResource(Res.drawable.ic_logo),
       contentDescription = stringResource(Res.string.toolbar_logo_cd),
