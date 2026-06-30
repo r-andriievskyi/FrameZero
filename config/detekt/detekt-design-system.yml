@@ -1,0 +1,27 @@
+# Scoped detekt config for the custom :detekt-rules ruleset only.
+#
+# The `detektDesignSystem` task (registered in CodeQualityConventionPlugin) runs with
+# `disableDefaultRuleSets = true`, so detekt's built-in rules never load. This config
+# therefore lists ONLY the design-system ruleset — it must not reference built-in rule
+# sections or config validation would reject them as unknown keys.
+build:
+  maxIssues: 0
+
+config:
+  validation: true
+  warningsAsErrors: false
+
+design-system:
+  HardcodedColorRule:
+    active: true
+  RawDimensionRule:
+    active: true
+    allowedValues: ['0']
+  MaterialThemeRule:
+    active: true
+  BorderWidthRule:
+    active: true
+  RadiusRule:
+    active: true
+  ForbiddenComposeApiRule:
+    active: true
