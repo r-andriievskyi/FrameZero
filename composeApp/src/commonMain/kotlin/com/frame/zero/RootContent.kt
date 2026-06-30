@@ -17,7 +17,7 @@ import com.frame.zero.feature.home.ui.HomeContent
 import com.frame.zero.feature.lock.BiometricLockOverlay
 import com.frame.zero.feature.production.details.ui.ProductionDetailsScreen
 import com.frame.zero.feature.production.ui.CreateProductionScreen
-import com.frame.zero.feature.splash.SplashContent
+import com.frame.zero.feature.splash.PlatformSplash
 import com.frame.zero.feature.task.create.ui.CreateTaskScreen
 import com.frame.zero.feature.task.details.ui.TaskDetailsScreen
 
@@ -30,7 +30,7 @@ fun RootContent(component: RootComponent) {
       animation = stackAnimation()
     ) { child ->
       when (val instance = child.instance) {
-        RootComponent.Child.Splash -> SplashContent()
+        RootComponent.Child.Splash -> PlatformSplash()
         is RootComponent.Child.Auth -> AuthScreen(instance.component)
         is RootComponent.Child.Home -> HomeContent(instance.component)
         is RootComponent.Child.Account -> AccountScreen(instance.component)
