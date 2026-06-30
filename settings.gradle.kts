@@ -33,6 +33,7 @@ plugins {
   id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
 }
 
+include(":detekt-rules")
 include(":composeApp")
 include(":composeApp:features:auth")
 include(":composeApp:features:home")

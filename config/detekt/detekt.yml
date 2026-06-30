@@ -5,10 +5,6 @@ config:
   validation: true
   warningsAsErrors: false
 
-# ktlint owns all formatting. detekt's `formatting` rule set comes from the
-# optional detekt-formatting plugin, which is not on the classpath — declaring
-# the key here fails config validation, so it must stay absent.
-
 complexity:
   LongMethod:
     threshold: 60
@@ -21,10 +17,8 @@ complexity:
     thresholdInClasses: 20
 
 style:
-  # Compose uses raw dp/weight numbers everywhere — magic number rule is too noisy
   MagicNumber:
     active: false
-  # ktlint controls line length
   MaxLineLength:
     active: false
   ReturnCount:
@@ -42,6 +36,5 @@ style:
       - 'androidx.compose.foundation.layout.*'
 
 potential-bugs:
-  # lateinit is often needed for Android view-model injection
   LateinitUsage:
     active: false
