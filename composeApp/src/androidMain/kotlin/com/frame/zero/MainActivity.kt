@@ -19,6 +19,7 @@ import com.arkivanov.decompose.defaultComponentContext
 import com.frame.zero.core.navigation.NavigationSignal
 import com.frame.zero.core.security.AppLockController
 import com.frame.zero.core.session.SessionManager
+import com.frame.zero.core.session.SessionState
 import com.frame.zero.feature.RootComponent
 import com.frame.zero.core.files.AndroidFilePicker
 import com.frame.zero.push.PushNotificationsRouter
@@ -93,7 +94,9 @@ class MainActivity : FragmentActivity() {
   }
 
   override fun onCreate(savedInstanceState: Bundle?) {
-    installSplashScreen()
+    installSplashScreen().setKeepOnScreenCondition {
+      sessionManager.state.value is SessionState.Loading
+    }
     enableEdgeToEdge(
       statusBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT),
       navigationBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT)
