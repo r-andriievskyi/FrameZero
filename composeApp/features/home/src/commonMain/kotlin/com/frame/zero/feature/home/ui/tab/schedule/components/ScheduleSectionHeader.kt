@@ -44,13 +44,13 @@ internal fun ScheduleSectionHeader(
     Text(
       modifier = Modifier.semantics { heading() },
       text = title,
-      style = AppTheme.typographySystem.titleSmall,
+      style = AppTheme.typographySystem.labelLarge,
       color = AppTheme.colorSystem.textPrimary
     )
     HorizontalSpacer(AppTheme.spacingSystem.space8)
     Text(
       text = count.toString(),
-      style = AppTheme.typographySystem.bodySmall,
+      style = AppTheme.typographySystem.labelLarge,
       color = AppTheme.colorSystem.textMuted
     )
   }

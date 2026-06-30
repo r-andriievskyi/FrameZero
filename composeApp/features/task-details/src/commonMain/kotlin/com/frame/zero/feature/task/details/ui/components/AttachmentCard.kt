@@ -15,7 +15,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.frame.zero.feature.task.details.TaskAttachment
@@ -49,7 +48,7 @@ internal fun AttachmentCard(
   Column(modifier = modifier.fillMaxWidth()) {
     Text(
       text = stringResource(Res.string.task_details_attachment),
-      style = typography.caption.copy(fontWeight = FontWeight.Bold),
+      style = typography.labelLarge,
       color = colors.textMuted
     )
     VerticalSpacer(spacing.space8)

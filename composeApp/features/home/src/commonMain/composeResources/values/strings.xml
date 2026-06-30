@@ -50,8 +50,8 @@
   <string name="cd_next_month">Next month</string>
   <string name="today">Today</string>
   <string name="tomorrow">Tomorrow</string>
-  <string name="schedule_events_header">EVENTS</string>
-  <string name="schedule_tasks_due_header">TASKS DUE</string>
+  <string name="schedule_events_header">Events</string>
+  <string name="schedule_tasks_due_header">Tasks due</string>
   <string name="schedule_due_today">Due Today</string>
   <string name="schedule_priority_high">High</string>
   <string name="schedule_priority_medium">Medium</string>
