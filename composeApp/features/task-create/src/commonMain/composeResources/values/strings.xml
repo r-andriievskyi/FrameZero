@@ -3,13 +3,13 @@
   <string name="new_task_title">New task</string>
   <string name="cancel">Cancel</string>
 
-  <string name="label_title">TITLE</string>
+  <string name="label_title">Title</string>
   <string name="title_placeholder">What needs to get done?</string>
 
-  <string name="label_description">DESCRIPTION (OPTIONAL)</string>
+  <string name="label_description">Description (optional)</string>
   <string name="description_placeholder">Add context, deliverables, or links…</string>
 
-  <string name="label_assignee">ASSIGNEE</string>
+  <string name="label_assignee">Assignee</string>
   <string name="assignee_unassigned">Assign to someone</string>
   <string name="assignee_subtitle_count">Optional · %1$d teammates available</string>
   <string name="assignee_subtitle_none">Optional · No teammates available</string>
@@ -17,25 +17,24 @@
   <string name="assignee_search_placeholder">Search teammates</string>
   <string name="assignee_no_results">No teammates match your search</string>
 
-  <string name="label_priority">PRIORITY</string>
+  <string name="label_priority">Priority</string>
   <string name="priority_high">High</string>
   <string name="priority_medium">Medium</string>
   <string name="priority_low">Low</string>
 
-  <string name="label_due_date">DUE DATE</string>
+  <string name="label_due_date">Due date</string>
   <string name="due_today">Today</string>
   <string name="due_tomorrow">Tomorrow</string>
   <string name="due_this_week">This week</string>
   <string name="due_next_week">Next week</string>
   <string name="due_date_placeholder">dd.mm.yyyy</string>
-  <string name="date_picker_ok">OK</string>
+  <string name="date_picker_ok">Ok</string>
   <string name="date_picker_cancel">Cancel</string>
 
-  <string name="label_attachment">ATTACHMENT (OPTIONAL)</string>
+  <string name="label_attachment">Attachment (optional)</string>
   <string name="attach_file_title">Attach a file from device</string>
   <string name="attach_file_subtitle">PDF, image, doc…</string>
   <string name="attachment_remove">Remove</string>
 
   <string name="create_task">Create task</string>
 </resources>
-

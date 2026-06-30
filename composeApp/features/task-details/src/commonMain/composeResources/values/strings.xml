@@ -2,15 +2,15 @@
 <resources>
   <string name="task_details_title">Task</string>
   <string name="task_details_mark_complete">Mark complete</string>
-  <string name="task_details_assignee">ASSIGNEE</string>
-  <string name="task_details_due_date">DUE</string>
+  <string name="task_details_assignee">Assignee</string>
+  <string name="task_details_due_date">Due</string>
   <string name="task_details_today">Today</string>
-  <string name="task_details_error">Couldn\'t load this task.</string>
+  <string name="task_details_error">Couldn't load this task.</string>
   <string name="task_details_retry">Retry</string>
-  <string name="task_details_attachment">ATTACHMENT</string>
+  <string name="task_details_attachment">Attachment</string>
   <string name="task_details_attachment_downloading">Downloading…</string>
-  <string name="task_details_attachment_error_offline">You\'re offline. Connect and try again.</string>
+  <string name="task_details_attachment_error_offline">You're offline. Connect and try again.</string>
   <string name="task_details_attachment_error_storage">Not enough free space to download this file.</string>
-  <string name="task_details_attachment_error_generic">Couldn\'t download the attachment. Try again.</string>
+  <string name="task_details_attachment_error_generic">Couldn't download the attachment. Try again.</string>
   <string name="task_details_attachment_subtitle">%1$s | %2$s</string>
 </resources>

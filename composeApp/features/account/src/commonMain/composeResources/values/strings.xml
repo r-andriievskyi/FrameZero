@@ -5,22 +5,22 @@
   <string name="sign_out">Sign out</string>
 
   <!-- Account section -->
-  <string name="section_account">ACCOUNT</string>
+  <string name="section_account">Account</string>
   <string name="settings_edit_profile">Edit profile</string>
   <string name="settings_email_address">Email address</string>
   <string name="settings_password_security">Password &amp; security</string>
   <string name="settings_password_last_changed">Last changed 3 months ago</string>
 
   <!-- Workspace section -->
-  <string name="section_workspace">WORKSPACE</string>
+  <string name="section_workspace">Workspace</string>
   <string name="settings_notifications">Notifications</string>
   <string name="settings_notifications_subtitle">All enabled</string>
 
   <!-- Security section -->
-  <string name="section_security">SECURITY</string>
+  <string name="section_security">Security</string>
   <string name="settings_app_lock">Biometric app lock</string>
   <string name="settings_app_lock_subtitle">Require Face ID / fingerprint to open the app</string>
-  <string name="app_lock_prompt_title">Confirm it\'s you</string>
+  <string name="app_lock_prompt_title">Confirm it's you</string>
   <string name="app_lock_prompt_subtitle">Authenticate to change the app lock setting.</string>
   <string name="app_lock_prompt_cancel">Cancel</string>
 </resources>

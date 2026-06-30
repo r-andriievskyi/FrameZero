@@ -46,7 +46,7 @@ internal fun AssigneeDueRow(
     Column(modifier = Modifier.weight(1f)) {
       Text(
         text = stringResource(Res.string.task_details_assignee),
-        style = AppTheme.typographySystem.caption.copy(fontWeight = FontWeight.Bold),
+        style = AppTheme.typographySystem.labelLarge,
         color = AppTheme.colorSystem.textMuted
       )
       VerticalSpacer(AppTheme.spacingSystem.space8)
