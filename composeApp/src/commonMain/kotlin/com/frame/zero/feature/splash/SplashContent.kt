@@ -27,7 +27,7 @@ fun SplashContent() {
       verticalArrangement = Arrangement.spacedBy(SplashItemSpacing)
     ) {
       Text(text = stringResource(Res.string.app_name), style = AppTheme.typographySystem.displayMedium)
-      LoadingIndicator()
+      LoadingIndicator(color = AppTheme.colorSystem.accent)
     }
   }
 }
