@@ -105,7 +105,7 @@ internal fun TaskDetailsContent(
             ) {
               Text(
                 text = state.productionName,
-                style = AppTheme.typographySystem.bodyLarge,
+                style = AppTheme.typographySystem.titleLarge,
                 color = colorSystem.textSecondary
               )
               PriorityBadge(priority = state.priority)

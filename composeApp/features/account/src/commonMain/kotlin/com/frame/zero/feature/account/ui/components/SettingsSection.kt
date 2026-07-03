@@ -24,7 +24,7 @@ internal fun SettingsSection(
   Column(modifier = modifier.fillMaxWidth()) {
     Text(
       text = title,
-      style = AppTheme.typographySystem.labelSmall,
+      style = AppTheme.typographySystem.labelLarge,
       color = colorSystem.textMuted,
       fontWeight = FontWeight.SemiBold,
       modifier = Modifier.padding(bottom = AppTheme.spacingSystem.space8)
@@ -46,7 +46,7 @@ internal fun SettingsSection(
 @Composable
 private fun SettingsSectionPreview() {
   AppTheme {
-    SettingsSection(title = "ACCOUNT") {
+    SettingsSection(title = "Account") {
     }
   }
 }
