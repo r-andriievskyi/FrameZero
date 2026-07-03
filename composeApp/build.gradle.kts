@@ -14,6 +14,7 @@ plugins {
   alias(libs.plugins.kotlinSerialization)
   alias(libs.plugins.googleServices)
   alias(libs.plugins.firebaseCrashlytics)
+  alias(libs.plugins.firebasePerf)
   id("crossplatform.code.quality")
 }
 
@@ -131,12 +132,18 @@ android {
     }
   }
   buildTypes {
+    getByName("debug") {
+      // Gate Firebase Performance from process start (before any Kotlin runs), so the SDK's
+      // automatic app-start/network/screen traces never reach the production dashboard.
+      manifestPlaceholders["firebasePerformanceEnabled"] = false
+    }
     getByName("release") {
       if (releaseKeystoreProps.isNotEmpty()) {
         signingConfig = signingConfigs.getByName("release")
       }
       isMinifyEnabled = true
       isShrinkResources = true
+      manifestPlaceholders["firebasePerformanceEnabled"] = true
       proguardFiles(
         getDefaultProguardFile("proguard-android-optimize.txt"),
         "proguard-rules.pro"

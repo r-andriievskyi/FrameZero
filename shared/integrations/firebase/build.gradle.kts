@@ -14,6 +14,7 @@ kotlin {
       implementation(libs.gitlive.firebase.app)
       implementation(libs.gitlive.firebase.analytics)
       implementation(libs.gitlive.firebase.crashlytics)
+      implementation(libs.gitlive.firebase.perf)
     }
     androidMain.dependencies {
       implementation(project.dependencies.platform(libs.firebase.bom))

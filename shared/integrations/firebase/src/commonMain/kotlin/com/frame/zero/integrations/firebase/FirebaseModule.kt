@@ -3,6 +3,7 @@ package com.frame.zero.integrations.firebase
 import com.frame.zero.core.analytics.AnalyticsSink
 import com.frame.zero.core.logging.LogSink
 import com.frame.zero.core.network.NetworkConfig
+import com.frame.zero.core.performance.PerformanceSink
 import com.frame.zero.core.push.PushTokenProvider
 import org.koin.core.module.Module
 import org.koin.dsl.bind
@@ -12,5 +13,6 @@ val firebaseModule: Module =
   module {
     single { FirebaseAnalyticsSink() } bind AnalyticsSink::class
     single { FirebaseCrashlyticsLogSink(collectionEnabled = !get<NetworkConfig>().isDebug) } bind LogSink::class
+    single { FirebasePerformanceSink() } bind PerformanceSink::class
     single { firebasePushTokenProvider() } bind PushTokenProvider::class
   }
