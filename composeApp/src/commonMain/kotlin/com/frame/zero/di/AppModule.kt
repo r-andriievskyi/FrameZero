@@ -3,6 +3,7 @@ package com.frame.zero.di
 import com.frame.zero.core.analytics.analyticsModule
 import com.frame.zero.core.logging.loggingModule
 import com.frame.zero.core.network.networkModule
+import com.frame.zero.core.performance.performanceModule
 import com.frame.zero.core.security.securityModule
 import com.frame.zero.core.session.sessionModule
 import com.frame.zero.core.upload.uploadModule
@@ -25,6 +26,7 @@ import org.koin.mp.KoinPlatformTools
 val appModules = listOf(
   loggingModule,
   analyticsModule,
+  performanceModule,
   firebaseModule,
   networkModule,
   databaseModule,

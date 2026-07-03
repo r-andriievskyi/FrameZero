@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		44C42F862FDE21A800EE8DFF /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 44C42F852FDE21A800EE8DFF /* FirebaseAnalytics */; };
 		44C42F882FDE21A800EE8DFF /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 44C42F872FDE21A800EE8DFF /* FirebaseCrashlytics */; };
+		44C42F8A2FDE21A800EE8DFF /* FirebasePerformance in Frameworks */ = {isa = PBXBuildFile; productRef = 44C42F892FDE21A800EE8DFF /* FirebasePerformance */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -48,6 +49,7 @@
 			files = (
 				44C42F862FDE21A800EE8DFF /* FirebaseAnalytics in Frameworks */,
 				44C42F882FDE21A800EE8DFF /* FirebaseCrashlytics in Frameworks */,
+				44C42F8A2FDE21A800EE8DFF /* FirebasePerformance in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -94,6 +96,7 @@
 			packageProductDependencies = (
 				44C42F852FDE21A800EE8DFF /* FirebaseAnalytics */,
 				44C42F872FDE21A800EE8DFF /* FirebaseCrashlytics */,
+				44C42F892FDE21A800EE8DFF /* FirebasePerformance */,
 			);
 			productName = iosApp;
 			productReference = B6366071525E4BFF0502EC39 /* FrameZero.app */;
@@ -188,6 +191,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"iosApp/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
+				FIREBASE_PERF_COLLECTION_ENABLED = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = iosApp/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -341,6 +345,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"iosApp/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
+				FIREBASE_PERF_COLLECTION_ENABLED = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = iosApp/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -402,6 +407,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 44C42F842FDE21A800EE8DFF /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseCrashlytics;
+		};
+		44C42F892FDE21A800EE8DFF /* FirebasePerformance */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 44C42F842FDE21A800EE8DFF /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebasePerformance;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
