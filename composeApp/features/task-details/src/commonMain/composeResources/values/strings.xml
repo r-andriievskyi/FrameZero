@@ -13,4 +13,9 @@
   <string name="task_details_attachment_error_storage">Not enough free space to download this file.</string>
   <string name="task_details_attachment_error_generic">Couldn't download the attachment. Try again.</string>
   <string name="task_details_attachment_subtitle">%1$s | %2$s</string>
+  <string name="task_details_participants">Participants</string>
+  <string name="task_details_participants_manage">Manage</string>
+  <string name="task_details_participants_none">No participants yet</string>
+  <string name="task_details_participants_search_placeholder">Search teammates</string>
+  <string name="task_details_participants_no_results">No teammates match your search</string>
 </resources>

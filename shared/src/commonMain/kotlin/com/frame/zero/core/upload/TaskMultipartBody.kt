@@ -37,6 +37,8 @@ fun taskMultipartPrefix(
   request.dueDate?.let { textField("dueDate", it.toString()) }
   request.assigneeUserId?.let { textField("assigneeUserId", it) }
   textField("priority", request.priority.name)
+  // Repeated field: one part per participant, standard form-data list encoding.
+  request.participantUserIds.forEach { textField("participantUserIds", it) }
 
   builder
     .append("--$boundary\r\n")

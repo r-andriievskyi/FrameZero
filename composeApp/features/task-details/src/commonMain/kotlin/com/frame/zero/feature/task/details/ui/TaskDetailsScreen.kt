@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.frame.zero.feature.task.details.AssignableMemberUi
 import com.frame.zero.feature.task.details.AttachmentDownloadError
 import com.frame.zero.feature.task.details.TaskAttachment
 import com.frame.zero.feature.task.details.TaskDetailsComponent
@@ -28,6 +29,7 @@ import com.frame.zero.feature.task.details.TaskPriority
 import com.frame.zero.feature.task.details.TaskStatus
 import com.frame.zero.feature.task.details.ui.components.AssigneeDueRow
 import com.frame.zero.feature.task.details.ui.components.AttachmentCard
+import com.frame.zero.feature.task.details.ui.components.ParticipantsSection
 import com.frame.zero.feature.task.details.ui.components.PriorityBadge
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
@@ -36,6 +38,8 @@ import com.frame.zero.shared.design_system.widgets.FullScreenError
 import com.frame.zero.shared.design_system.widgets.FullScreenProgress
 import com.frame.zero.shared.design_system.widgets.TopToolbar
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer
+import com.frame.zero.shared.design_system.widgets.toast.ToastHost
+import com.frame.zero.ui.asString
 import framezero.composeapp.features.task_details.generated.resources.Res
 import framezero.composeapp.features.task_details.generated.resources.task_details_attachment_error_generic
 import framezero.composeapp.features.task_details.generated.resources.task_details_attachment_error_offline
@@ -44,6 +48,7 @@ import framezero.composeapp.features.task_details.generated.resources.task_detai
 import framezero.composeapp.features.task_details.generated.resources.task_details_mark_complete
 import framezero.composeapp.features.task_details.generated.resources.task_details_retry
 import framezero.composeapp.features.task_details.generated.resources.task_details_title
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.stringResource
 
@@ -53,12 +58,17 @@ fun TaskDetailsScreen(
   modifier: Modifier = Modifier
 ) {
   val state by component.state.collectAsStateWithLifecycle()
-  TaskDetailsContent(
-    state = state,
-    onBack = component.onBack,
-    onIntent = component::onIntent,
-    modifier = modifier
-  )
+  Box(modifier = modifier.fillMaxSize()) {
+    TaskDetailsContent(
+      state = state,
+      onBack = component.onBack,
+      onIntent = component::onIntent
+    )
+    ToastHost(
+      message = state.participantsError?.asString(),
+      onDismiss = { component.onIntent(TaskDetailsIntent.ParticipantsErrorDismissed) }
+    )
+  }
 }
 
 @Composable
@@ -126,6 +136,19 @@ internal fun TaskDetailsContent(
             )
             VerticalSpacer(AppTheme.spacingSystem.space24)
 
+            ParticipantsSection(
+              participants = state.participants,
+              isPickerVisible = state.isParticipantPickerVisible,
+              query = state.participantQuery,
+              members = state.filteredAssignableMembers,
+              isUpdating = state.isUpdatingParticipants,
+              onOpen = { onIntent(TaskDetailsIntent.ParticipantPickerOpened) },
+              onDismiss = { onIntent(TaskDetailsIntent.ParticipantPickerDismissed) },
+              onQueryChange = { onIntent(TaskDetailsIntent.ParticipantSearchChanged(it)) },
+              onToggle = { onIntent(TaskDetailsIntent.ParticipantToggled(it)) }
+            )
+            VerticalSpacer(AppTheme.spacingSystem.space24)
+
             if (state.description.isNotBlank()) {
               Text(
                 text = state.description,
@@ -187,6 +210,10 @@ private fun TaskDetailsContentPreview() {
         dueDate = LocalDate(2026, 4, 26),
         isDueToday = true,
         showMarkCompleteButton = true,
+        participants = persistentListOf(
+          AssignableMemberUi("u2", "Jake Morse", "JM", "#009688"),
+          AssignableMemberUi("u3", "Priya Shah", "PS", "#3F51B5")
+        ),
         attachment = TaskAttachment(
           fileName = "Scene12_rev4.pdf",
           typeLabel = "PDF",

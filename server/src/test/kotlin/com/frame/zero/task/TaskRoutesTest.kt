@@ -5,12 +5,14 @@ import com.frame.zero.domain.production.Genre
 import com.frame.zero.dto.production.CreateProductionRequest
 import com.frame.zero.dto.task.CreateTaskRequest
 import com.frame.zero.dto.task.TaskDetailDto
+import com.frame.zero.dto.task.UpdateTaskParticipantsRequest
 import io.ktor.client.request.delete
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.post
+import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.client.statement.readRawBytes
@@ -360,6 +362,69 @@ class TaskRoutesTest {
 
       val response = client.get("/api/v1/tasks/${task.id}") {
         header(HttpHeaders.Authorization, "Bearer $strangerToken")
+      }
+
+      assertEquals(HttpStatusCode.Forbidden, response.status)
+    }
+
+  @Test
+  fun `PUT participants replaces the list and returns the updated task`() =
+    testApplication {
+      val env = TestAppEnv()
+      application { env.configure(this) }
+      val userId = UUID.randomUUID()
+      val token = env.tokenFor(userId)
+      val prod = env.productionService.createProduction(userId, productionRequest)
+      val crew = env.productionMembers.add(UUID.fromString(prod.id), UUID.randomUUID(), "Cre W", "Grip", null)
+      val task = env.taskService.create(userId, CreateTaskRequest(productionId = prod.id, title = "T"))
+
+      val response = client.put("/api/v1/tasks/${task.id}/participants") {
+        header(HttpHeaders.Authorization, "Bearer $token")
+        contentType(ContentType.Application.Json)
+        setBody(
+          json.encodeToString(
+            UpdateTaskParticipantsRequest(participantUserIds = listOf(crew.userId.toString()))
+          )
+        )
+      }
+
+      assertEquals(HttpStatusCode.OK, response.status)
+      val body = json.decodeFromString<TaskDetailDto>(response.bodyAsText())
+      assertEquals(listOf(crew.userId.toString()), body.participants.map { it.userId })
+    }
+
+  @Test
+  fun `PUT participants without token returns 401`() =
+    testApplication {
+      val env = TestAppEnv()
+      application { env.configure(this) }
+
+      val response = client.put("/api/v1/tasks/${UUID.randomUUID()}/participants") {
+        contentType(ContentType.Application.Json)
+        setBody(json.encodeToString(UpdateTaskParticipantsRequest(participantUserIds = emptyList())))
+      }
+
+      assertEquals(HttpStatusCode.Unauthorized, response.status)
+    }
+
+  @Test
+  fun `PUT participants by a member who is neither creator nor assignee returns 403`() =
+    testApplication {
+      val env = TestAppEnv()
+      application { env.configure(this) }
+      val ownerId = UUID.randomUUID()
+      val bystanderId = UUID.randomUUID()
+      val bystanderToken = env.tokenFor(bystanderId)
+      val prod = env.productionService.createProduction(ownerId, productionRequest)
+      env.productionMembers.add(UUID.fromString(prod.id), bystanderId, "By Stander", "Gaffer", null)
+      val task = env.taskService.create(ownerId, CreateTaskRequest(productionId = prod.id, title = "T"))
+
+      val response = client.put("/api/v1/tasks/${task.id}/participants") {
+        header(HttpHeaders.Authorization, "Bearer $bystanderToken")
+        contentType(ContentType.Application.Json)
+        setBody(
+          json.encodeToString(UpdateTaskParticipantsRequest(participantUserIds = listOf(bystanderId.toString())))
+        )
       }
 
       assertEquals(HttpStatusCode.Forbidden, response.status)

@@ -16,6 +16,9 @@ data class CreateTaskState(
   val assigneeUserId: String? = null,
   val isAssigneePickerVisible: Boolean = false,
   val assigneeQuery: String = "",
+  val participantUserIds: ImmutableList<String> = persistentListOf(),
+  val isParticipantPickerVisible: Boolean = false,
+  val participantQuery: String = "",
   val priority: TaskPriority = TaskPriority.MEDIUM,
   val dueDate: LocalDate? = null,
   val attachment: PickedFile? = null,
@@ -32,12 +35,22 @@ data class CreateTaskState(
 
   /** Members matching the current search query — drives the assignee bottom sheet list. */
   val filteredAssignableMembers: ImmutableList<AssignableMemberUi>
-    get() {
-      val query = assigneeQuery.trim()
-      return if (query.isEmpty()) {
-        assignableMembers
-      } else {
-        assignableMembers.filter { it.name.contains(query, ignoreCase = true) }.toImmutableList()
-      }
+    get() = membersMatching(assigneeQuery)
+
+  /** Members selected as participants, in the order the production lists them. */
+  val selectedParticipants: ImmutableList<AssignableMemberUi>
+    get() = assignableMembers.filter { it.userId in participantUserIds }.toImmutableList()
+
+  /** Members matching the participant search query — drives the participants bottom sheet list. */
+  val filteredParticipantMembers: ImmutableList<AssignableMemberUi>
+    get() = membersMatching(participantQuery)
+
+  private fun membersMatching(rawQuery: String): ImmutableList<AssignableMemberUi> {
+    val query = rawQuery.trim()
+    return if (query.isEmpty()) {
+      assignableMembers
+    } else {
+      assignableMembers.filter { it.name.contains(query, ignoreCase = true) }.toImmutableList()
     }
+  }
 }

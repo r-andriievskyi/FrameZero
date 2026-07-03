@@ -20,12 +20,16 @@ object TasksTable : Table("tasks") {
 
   val idempotencyKey = varchar("idempotency_key", 64).nullable()
 
+  // Nullable because rows created before V5 have no recorded creator.
+  val createdByUserId = javaUUID("created_by_user_id").references(UsersTable.id).nullable()
+
   override val primaryKey = PrimaryKey(id)
 
   init {
     index("idx_tasks_production", false, productionId)
     index("idx_tasks_assignee", false, assigneeUserId)
     index("idx_tasks_due_date", false, dueDate)
+    index("idx_tasks_created_by", false, createdByUserId)
     uniqueIndex("tasks_idempotency_key_unique", idempotencyKey)
   }
 }

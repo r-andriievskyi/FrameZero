@@ -12,6 +12,12 @@ interface TasksRepository {
 
   suspend fun createTask(request: CreateTaskRequest): TaskDetailDto
 
+  /** Replaces the task's participant set; returns the updated detail. */
+  suspend fun updateParticipants(
+    taskId: String,
+    userIds: List<String>
+  ): TaskDetailDto
+
   suspend fun downloadAttachment(
     taskId: String,
     fileName: String,

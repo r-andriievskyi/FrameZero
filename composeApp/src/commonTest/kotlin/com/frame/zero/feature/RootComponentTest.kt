@@ -39,7 +39,9 @@ import com.frame.zero.feature.production.details.domain.GetProductionTasksUseCas
 import com.frame.zero.feature.production.domain.CreateProductionUseCase
 import com.frame.zero.feature.task.details.TaskDetailsViewModel
 import com.frame.zero.feature.task.details.usecase.CompleteTaskUseCase
+import com.frame.zero.feature.task.details.usecase.GetAssignableMembersUseCase
 import com.frame.zero.feature.task.details.usecase.GetTaskDetailsUseCase
+import com.frame.zero.feature.task.details.usecase.UpdateTaskParticipantsUseCase
 import com.frame.zero.testing.FakeAuthRepository
 import com.frame.zero.testing.FakeConnectivityObserver
 import com.frame.zero.testing.FakeDashboardRepository
@@ -303,6 +305,8 @@ class RootComponentTest {
           taskId = taskId,
           getTaskDetailsUseCase = GetTaskDetailsUseCase(tasks),
           completeTaskUseCase = CompleteTaskUseCase(tasks),
+          getAssignableMembersUseCase = GetAssignableMembersUseCase(productions),
+          updateTaskParticipantsUseCase = UpdateTaskParticipantsUseCase(tasks),
           tasksRepository = tasks,
           attachmentFileManager = NoopAttachmentFileManager
         )

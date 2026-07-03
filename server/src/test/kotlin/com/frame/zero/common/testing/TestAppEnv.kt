@@ -82,7 +82,8 @@ internal class TestAppEnv {
     FilesystemFileStorage(
       java.nio.file.Files.createTempDirectory("framezero-test-uploads").toFile().absolutePath
     )
-  val taskService = TaskService(tasks, access, transactor, notificationsRepo, assignmentNotifier, fileStorage)
+  val taskService =
+    TaskService(tasks, access, productionMembers, transactor, notificationsRepo, assignmentNotifier, fileStorage)
   val scheduleService = ScheduleService(scheduleEvents, tasks, access, transactor)
   val notificationService = NotificationService(notificationsRepo, transactor)
   val deviceTokenService = DeviceTokenService(deviceTokens, transactor)

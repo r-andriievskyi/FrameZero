@@ -15,10 +15,12 @@ class FakeTasksRepository(
   private val task: TaskDetailDto = taskDetailDto(),
   private val completedTask: TaskDetailDto = task,
   private val created: TaskDetailDto = task,
+  private val updatedParticipantsTask: TaskDetailDto? = null,
   private val tasks: List<TaskSummaryDto> = emptyList(),
   private val getThrows: Throwable? = null,
   private val completeThrows: Throwable? = null,
   private val createThrows: Throwable? = null,
+  private val updateParticipantsThrows: Throwable? = null,
   private val listThrows: Throwable? = null,
   private val downloadedPath: String = "/local/attachment",
   private val downloadError: DomainError? = null
@@ -26,6 +28,7 @@ class FakeTasksRepository(
   val getCalls: MutableList<String> = mutableListOf()
   val completeCalls: MutableList<String> = mutableListOf()
   val createRequests: MutableList<CreateTaskRequest> = mutableListOf()
+  val updateParticipantsCalls: MutableList<Pair<String, List<String>>> = mutableListOf()
   val downloadCalls: MutableList<String> = mutableListOf()
   val listedProductionIds: MutableList<String> = mutableListOf()
 
@@ -45,6 +48,15 @@ class FakeTasksRepository(
     createRequests += request
     createThrows?.let { throw it }
     return created
+  }
+
+  override suspend fun updateParticipants(
+    taskId: String,
+    userIds: List<String>
+  ): TaskDetailDto {
+    updateParticipantsCalls += taskId to userIds
+    updateParticipantsThrows?.let { throw it }
+    return updatedParticipantsTask ?: task
   }
 
   override suspend fun downloadAttachment(

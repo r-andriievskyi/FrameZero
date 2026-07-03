@@ -5,6 +5,7 @@ import com.frame.zero.domain.production.ProductionPhase
 import com.frame.zero.dto.production.ProductionDetailDto
 import com.frame.zero.dto.production.ProductionMemberDto
 import com.frame.zero.dto.task.TaskDetailDto
+import com.frame.zero.dto.task.TaskParticipantDto
 import com.frame.zero.dto.task.TaskPriority
 import com.frame.zero.dto.task.TaskStatus
 import kotlinx.datetime.LocalDate
@@ -60,7 +61,8 @@ fun taskDetailDto(
   productionId: String = "p1",
   title: String = "Storyboard",
   description: String? = null,
-  priority: TaskPriority = TaskPriority.MEDIUM
+  priority: TaskPriority = TaskPriority.MEDIUM,
+  participants: List<TaskParticipantDto> = emptyList()
 ): TaskDetailDto =
   TaskDetailDto(
     id = id,
@@ -73,5 +75,17 @@ fun taskDetailDto(
     priority = priority,
     assigneeUserId = null,
     assignee = null,
-    createdAt = Instant.fromEpochMilliseconds(0)
+    createdAt = Instant.fromEpochMilliseconds(0),
+    participants = participants
+  )
+
+fun taskParticipantDto(
+  userId: String = "u1",
+  name: String = "Ada",
+  avatarColorHex: String? = "#FF0000"
+): TaskParticipantDto =
+  TaskParticipantDto(
+    userId = userId,
+    name = name,
+    avatarColorHex = avatarColorHex
   )

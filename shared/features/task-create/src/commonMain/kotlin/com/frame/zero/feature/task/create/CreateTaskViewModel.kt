@@ -27,6 +27,7 @@ import framezero.shared.features.task_create.generated.resources.error_title_req
 import framezero.shared.features.task_create.generated.resources.error_unknown_fallback
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.BufferOverflow
@@ -95,6 +96,13 @@ class CreateTaskViewModel(
         _state.update {
           it.copy(assigneeUserId = intent.userId, isAssigneePickerVisible = false, assigneeQuery = "")
         }
+      CreateTaskIntent.ParticipantPickerOpened ->
+        _state.update { it.copy(isParticipantPickerVisible = true, participantQuery = "") }
+      CreateTaskIntent.ParticipantPickerDismissed ->
+        _state.update { it.copy(isParticipantPickerVisible = false, participantQuery = "") }
+      is CreateTaskIntent.ParticipantSearchChanged ->
+        _state.update { it.copy(participantQuery = intent.query) }
+      is CreateTaskIntent.ParticipantToggled -> toggleParticipant(intent.userId)
       is CreateTaskIntent.PriorityChanged ->
         _state.update { it.copy(priority = intent.priority) }
       is CreateTaskIntent.DueDateChanged ->
@@ -105,6 +113,17 @@ class CreateTaskViewModel(
       CreateTaskIntent.AttachmentRemoved -> removeAttachment()
       CreateTaskIntent.Submit -> submit()
       CreateTaskIntent.ToastDismissed -> _state.update { it.copy(errorToast = null) }
+    }
+  }
+
+  private fun toggleParticipant(userId: String) {
+    _state.update { current ->
+      val updated = if (userId in current.participantUserIds) {
+        current.participantUserIds.filterNot { it == userId }
+      } else {
+        current.participantUserIds + userId
+      }
+      current.copy(participantUserIds = updated.toImmutableList())
     }
   }
 
@@ -173,6 +192,7 @@ class CreateTaskViewModel(
         dueDate = current.dueDate,
         assigneeUserId = current.assigneeUserId,
         priority = current.priority,
+        participantUserIds = current.participantUserIds.toList(),
         fileName = attachment.name,
         contentType = attachment.contentType,
         localPath = attachment.localPath,
@@ -192,7 +212,8 @@ class CreateTaskViewModel(
         description = current.description.ifBlank { null },
         dueDate = current.dueDate,
         assigneeUserId = current.assigneeUserId,
-        priority = current.priority
+        priority = current.priority,
+        participantUserIds = current.participantUserIds.toList()
       )
       when (val outcome = createTaskUseCase(params)) {
         is Outcome.Success -> {

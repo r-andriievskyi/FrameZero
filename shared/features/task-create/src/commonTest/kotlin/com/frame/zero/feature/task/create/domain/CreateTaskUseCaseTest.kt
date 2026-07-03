@@ -20,7 +20,8 @@ class CreateTaskUseCaseTest {
     description: String? = "Draft the opening scene",
     dueDate: LocalDate? = LocalDate(2026, 6, 24),
     assigneeUserId: String? = "u1",
-    priority: TaskPriority = TaskPriority.HIGH
+    priority: TaskPriority = TaskPriority.HIGH,
+    participantUserIds: List<String> = listOf("u2", "u3")
   ): CreateTaskUseCase.Params =
     CreateTaskUseCase.Params(
       productionId = "p1",
@@ -28,7 +29,8 @@ class CreateTaskUseCaseTest {
       description = description,
       dueDate = dueDate,
       assigneeUserId = assigneeUserId,
-      priority = priority
+      priority = priority,
+      participantUserIds = participantUserIds
     )
 
   @Test
@@ -47,6 +49,7 @@ class CreateTaskUseCaseTest {
       assertEquals(LocalDate(2026, 6, 24), request.dueDate)
       assertEquals("u1", request.assigneeUserId)
       assertEquals(TaskPriority.HIGH, request.priority)
+      assertEquals(listOf("u2", "u3"), request.participantUserIds)
     }
 
   @Test

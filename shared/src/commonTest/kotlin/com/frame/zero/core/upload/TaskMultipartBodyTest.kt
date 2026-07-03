@@ -10,7 +10,12 @@ class TaskMultipartBodyTest {
   fun `builds a well-formed multipart body with the file part`() {
     val boundary = "BOUNDARY123"
     val body = buildTaskMultipartBody(
-      request = CreateTaskRequest(productionId = "p1", title = "Storyboard", priority = TaskPriority.HIGH),
+      request = CreateTaskRequest(
+        productionId = "p1",
+        title = "Storyboard",
+        priority = TaskPriority.HIGH,
+        participantUserIds = listOf("u1", "u2")
+      ),
       fileName = "doc.pdf",
       contentType = "application/pdf",
       fileBytes = "PDFDATA".encodeToByteArray(),
@@ -22,6 +27,8 @@ class TaskMultipartBodyTest {
     assertTrue(text.contains("name=\"productionId\"\r\n\r\np1\r\n"))
     assertTrue(text.contains("name=\"title\"\r\n\r\nStoryboard\r\n"))
     assertTrue(text.contains("name=\"priority\"\r\n\r\nHIGH\r\n"))
+    assertTrue(text.contains("name=\"participantUserIds\"\r\n\r\nu1\r\n"))
+    assertTrue(text.contains("name=\"participantUserIds\"\r\n\r\nu2\r\n"))
     assertTrue(text.contains("name=\"file\"; filename=\"doc.pdf\""))
     assertTrue(text.contains("Content-Type: application/pdf"))
     assertTrue(text.contains("PDFDATA"))
@@ -42,5 +49,6 @@ class TaskMultipartBodyTest {
     assertTrue(!text.contains("name=\"description\""))
     assertTrue(!text.contains("name=\"dueDate\""))
     assertTrue(!text.contains("name=\"assigneeUserId\""))
+    assertTrue(!text.contains("name=\"participantUserIds\""))
   }
 }

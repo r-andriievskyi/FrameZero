@@ -1,13 +1,28 @@
 package com.frame.zero.feature.task.details
 
 import com.arkivanov.essenty.instancekeeper.InstanceKeeper
+import com.frame.zero.core.error.DomainErrorMessages
+import com.frame.zero.core.error.toUiText
 import com.frame.zero.core.files.AttachmentFileManager
 import com.frame.zero.domain.DomainError
 import com.frame.zero.domain.Outcome
+import com.frame.zero.domain.task.AssignableMember
 import com.frame.zero.dto.task.TaskDetailDto
+import com.frame.zero.dto.task.TaskParticipantDto
 import com.frame.zero.feature.task.details.usecase.CompleteTaskUseCase
+import com.frame.zero.feature.task.details.usecase.GetAssignableMembersUseCase
 import com.frame.zero.feature.task.details.usecase.GetTaskDetailsUseCase
+import com.frame.zero.feature.task.details.usecase.UpdateTaskParticipantsUseCase
 import com.frame.zero.repository.tasks.TasksRepository
+import framezero.shared.features.task_details.generated.resources.Res
+import framezero.shared.features.task_details.generated.resources.error_auth_failed
+import framezero.shared.features.task_details.generated.resources.error_conflict
+import framezero.shared.features.task_details.generated.resources.error_forbidden
+import framezero.shared.features.task_details.generated.resources.error_network
+import framezero.shared.features.task_details.generated.resources.error_not_found
+import framezero.shared.features.task_details.generated.resources.error_server
+import framezero.shared.features.task_details.generated.resources.error_unknown_fallback
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -30,6 +45,8 @@ class TaskDetailsViewModel(
   private val taskId: String,
   private val getTaskDetailsUseCase: GetTaskDetailsUseCase,
   private val completeTaskUseCase: CompleteTaskUseCase,
+  private val getAssignableMembersUseCase: GetAssignableMembersUseCase,
+  private val updateTaskParticipantsUseCase: UpdateTaskParticipantsUseCase,
   private val tasksRepository: TasksRepository,
   private val attachmentFileManager: AttachmentFileManager,
   dispatcher: CoroutineContext = Dispatchers.Main.immediate
@@ -49,6 +66,14 @@ class TaskDetailsViewModel(
       TaskDetailsIntent.MarkComplete -> markComplete()
       TaskDetailsIntent.DownloadAttachment -> downloadAttachment()
       TaskDetailsIntent.AttachmentErrorDismissed -> _state.update { it.copy(attachmentError = null) }
+      TaskDetailsIntent.ParticipantPickerOpened ->
+        _state.update { it.copy(isParticipantPickerVisible = true, participantQuery = "") }
+      TaskDetailsIntent.ParticipantPickerDismissed ->
+        _state.update { it.copy(isParticipantPickerVisible = false, participantQuery = "") }
+      is TaskDetailsIntent.ParticipantSearchChanged ->
+        _state.update { it.copy(participantQuery = intent.query) }
+      is TaskDetailsIntent.ParticipantToggled -> toggleParticipant(intent.userId)
+      TaskDetailsIntent.ParticipantsErrorDismissed -> _state.update { it.copy(participantsError = null) }
     }
   }
 
@@ -78,6 +103,58 @@ class TaskDetailsViewModel(
       else -> AttachmentDownloadError.GENERIC
     }
 
+  private fun toggleParticipant(userId: String) {
+    val current = _state.value
+    if (current.isUpdatingParticipants) return
+    val currentIds = current.participants.map { it.userId }
+    val updatedIds = if (userId in currentIds) currentIds - userId else currentIds + userId
+    _state.update { it.copy(isUpdatingParticipants = true) }
+    scope.launch {
+      val params = UpdateTaskParticipantsUseCase.Params(taskId = taskId, participantUserIds = updatedIds)
+      when (val outcome = updateTaskParticipantsUseCase(params)) {
+        is Outcome.Success ->
+          _state.update {
+            it.copy(
+              participants = outcome.data.participants.map { p -> p.toUi() }.toImmutableList(),
+              isUpdatingParticipants = false
+            )
+          }
+        is Outcome.Failure ->
+          _state.update {
+            it.copy(isUpdatingParticipants = false, participantsError = outcome.error.toUiText(errorMessages))
+          }
+      }
+    }
+  }
+
+  private fun loadAssignableMembers(productionId: String) {
+    scope.launch {
+      val params = GetAssignableMembersUseCase.Params(productionId = productionId)
+      // A failure here just leaves the picker empty; it doesn't affect the rest of the screen.
+      when (val outcome = getAssignableMembersUseCase(params)) {
+        is Outcome.Success ->
+          _state.update { it.copy(assignableMembers = outcome.data.map { member -> member.toUi() }.toImmutableList()) }
+        is Outcome.Failure -> Unit
+      }
+    }
+  }
+
+  private fun AssignableMember.toUi(): AssignableMemberUi =
+    AssignableMemberUi(
+      userId = userId,
+      name = name,
+      initials = initials,
+      avatarColorHex = avatarColorHex
+    )
+
+  private fun TaskParticipantDto.toUi(): AssignableMemberUi =
+    AssignableMemberUi(
+      userId = userId,
+      name = name,
+      initials = initialsFrom(name),
+      avatarColorHex = avatarColorHex
+    )
+
   @OptIn(ExperimentalTime::class)
   private fun load() {
     scope.launch {
@@ -86,7 +163,10 @@ class TaskDetailsViewModel(
         .toLocalDateTime(TimeZone.currentSystemDefault())
         .date
       when (val result = getTaskDetailsUseCase(taskId)) {
-        is Outcome.Success -> _state.update { result.data.toTaskDetailsState(today) }
+        is Outcome.Success -> {
+          _state.update { result.data.toTaskDetailsState(today) }
+          loadAssignableMembers(result.data.productionId)
+        }
         is Outcome.Failure -> _state.update { it.copy(isLoading = false, isError = true) }
       }
     }
@@ -109,6 +189,7 @@ class TaskDetailsViewModel(
       taskId = id,
       title = title,
       productionName = productionTitle,
+      productionId = productionId,
       priority = priority.toFeaturePriority(),
       status = mappedStatus,
       assignee = assignee?.let { member ->
@@ -130,6 +211,7 @@ class TaskDetailsViewModel(
           sizeBytes = it.sizeBytes
         )
       },
+      participants = participants.map { it.toUi() }.toImmutableList(),
       isLoading = false,
       isError = false,
       showMarkCompleteButton = mappedStatus != TaskStatus.COMPLETED
@@ -192,5 +274,16 @@ class TaskDetailsViewModel(
 
   private companion object {
     const val MAX_EXTENSION_LENGTH = 5
+
+    val errorMessages = DomainErrorMessages(
+      network = Res.string.error_network,
+      server = Res.string.error_server,
+      notFound = Res.string.error_not_found,
+      forbidden = Res.string.error_forbidden,
+      conflict = Res.string.error_conflict,
+      invalidCredentials = Res.string.error_auth_failed,
+      emailExists = Res.string.error_unknown_fallback,
+      fallback = Res.string.error_unknown_fallback
+    )
   }
 }

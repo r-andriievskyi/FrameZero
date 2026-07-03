@@ -25,6 +25,7 @@ data class PendingTaskUpload(
   val dueDate: LocalDate? = null,
   val assigneeUserId: String? = null,
   val priority: TaskPriority = TaskPriority.MEDIUM,
+  val participantUserIds: List<String> = emptyList(),
   val fileName: String,
   val contentType: String,
   val localPath: String,
@@ -38,6 +39,7 @@ data class PendingTaskUpload(
       description = description,
       dueDate = dueDate,
       assigneeUserId = assigneeUserId,
-      priority = priority
+      priority = priority,
+      participantUserIds = participantUserIds
     )
 }

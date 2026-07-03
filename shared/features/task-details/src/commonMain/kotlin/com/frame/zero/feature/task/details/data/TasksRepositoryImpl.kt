@@ -11,6 +11,7 @@ import com.frame.zero.dto.task.CreateTaskRequest
 import com.frame.zero.dto.task.TaskDetailDto
 import com.frame.zero.dto.task.TaskStatus
 import com.frame.zero.dto.task.TaskSummaryDto
+import com.frame.zero.dto.task.UpdateTaskParticipantsRequest
 import com.frame.zero.dto.task.UpdateTaskRequest
 import com.frame.zero.repository.tasks.TasksRepository
 import io.ktor.client.HttpClient
@@ -20,6 +21,7 @@ import io.ktor.client.request.parameter
 import io.ktor.client.request.patch
 import io.ktor.client.request.post
 import io.ktor.client.request.prepareGet
+import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsChannel
 
@@ -42,6 +44,15 @@ class TasksRepositoryImpl(
     httpClient
       .post("${networkConfig.baseUrl}/api/v1/tasks") {
         setBody(request)
+      }.body()
+
+  override suspend fun updateParticipants(
+    taskId: String,
+    userIds: List<String>
+  ): TaskDetailDto =
+    httpClient
+      .put("${networkConfig.baseUrl}/api/v1/tasks/$taskId/participants") {
+        setBody(UpdateTaskParticipantsRequest(participantUserIds = userIds))
       }.body()
 
   override suspend fun downloadAttachment(

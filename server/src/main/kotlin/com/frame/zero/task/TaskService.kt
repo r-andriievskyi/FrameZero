@@ -8,19 +8,23 @@ import com.frame.zero.dto.task.CreateTaskRequest
 import com.frame.zero.dto.task.TaskAssigneeDto
 import com.frame.zero.dto.task.TaskAttachmentDto
 import com.frame.zero.dto.task.TaskDetailDto
+import com.frame.zero.dto.task.TaskParticipantDto
 import com.frame.zero.dto.task.TaskStatus
 import com.frame.zero.dto.task.TaskSummaryDto
+import com.frame.zero.dto.task.UpdateTaskParticipantsRequest
 import com.frame.zero.dto.task.UpdateTaskRequest
 import com.frame.zero.notification.NotificationRepository
 import com.frame.zero.notification.TaskAssignmentNotifier
 import com.frame.zero.production.AccessLevel
 import com.frame.zero.production.ProductionAccessService
+import com.frame.zero.production.ProductionMemberRepository
 import com.frame.zero.storage.FileStorage
 import java.util.UUID
 
 class TaskService(
   private val tasks: TaskRepository,
   private val access: ProductionAccessService,
+  private val members: ProductionMemberRepository,
   private val transactor: Transactor,
   private val notifications: NotificationRepository,
   private val assignmentNotifier: TaskAssignmentNotifier,
@@ -83,6 +87,7 @@ class TaskService(
         access.requireAccess(userId, productionId, AccessLevel.WRITE)
 
         val assigneeId = request.assigneeUserId?.let { parseUuidField("assigneeUserId", it) }
+        val participantIds = validatedParticipantIds(productionId, request.participantUserIds)
 
         val task = tasks.create(
           productionId = productionId,
@@ -92,7 +97,9 @@ class TaskService(
           assigneeUserId = assigneeId,
           priority = request.priority,
           idempotencyKey = idempotencyKey,
-          attachment = attachment
+          attachment = attachment,
+          createdByUserId = userId,
+          participantUserIds = participantIds
         )
 
         val notifyAssignee = assigneeId?.takeIf { it != userId }
@@ -163,13 +170,19 @@ class TaskService(
 
       val assigneeId = request.assigneeUserId?.let { parseUuidField("assigneeUserId", it) }
 
+      val participantIds = request.participantUserIds?.let { rawIds ->
+        requireParticipantEditor(userId, task)
+        validatedParticipantIds(task.productionId, rawIds)
+      }
+
       val updated = tasks.update(
         id = taskId,
         title = request.title?.trim(),
         description = request.description?.trim(),
         dueDate = request.dueDate,
         status = request.status,
-        assigneeUserId = assigneeId
+        assigneeUserId = assigneeId,
+        participantUserIds = participantIds
       ) ?: throw AppException(AppError.NotFound)
 
       val notifyAssignee = assigneeId?.takeIf { it != task.assigneeUserId && it != userId }
@@ -186,6 +199,66 @@ class TaskService(
       assignmentNotifier.notifyTaskAssigned(assigneeId, id, dto.title)
     }
     return dto
+  }
+
+  suspend fun updateParticipants(
+    userId: UUID,
+    taskId: UUID,
+    request: UpdateTaskParticipantsRequest
+  ): TaskDetailDto =
+    transactor.transaction {
+      val task = tasks.findById(taskId) ?: throw AppException(AppError.NotFound)
+      // Any production member may read the task; membership stays the outer
+      // boundary, with the creator/assignee rule layered on top for writes.
+      access.requireAccess(userId, task.productionId, AccessLevel.WRITE)
+      requireParticipantEditor(userId, task)
+
+      val participantIds = validatedParticipantIds(task.productionId, request.participantUserIds)
+      val updated = tasks.update(
+        id = taskId,
+        title = null,
+        description = null,
+        dueDate = null,
+        status = null,
+        assigneeUserId = null,
+        participantUserIds = participantIds
+      ) ?: throw AppException(AppError.NotFound)
+      updated.toDetailDto()
+    }
+
+  /** Only the task creator or the current assignee may modify the participant list. */
+  private fun requireParticipantEditor(
+    userId: UUID,
+    task: TaskRecord
+  ) {
+    val isCreator = task.createdByUserId != null && task.createdByUserId == userId
+    val isAssignee = task.assigneeUserId != null && task.assigneeUserId == userId
+    if (!isCreator && !isAssignee) throw AppException(AppError.Forbidden)
+  }
+
+  /**
+   * Parses and dedupes the raw participant ids, then checks each one is a
+   * member of the task's production (one membership query, not one per id).
+   */
+  private suspend fun validatedParticipantIds(
+    productionId: UUID,
+    rawParticipantUserIds: List<String>
+  ): Set<UUID> {
+    val participantIds = rawParticipantUserIds
+      .map { parseUuidField("participantUserIds", it) }
+      .toSet()
+    if (participantIds.isEmpty()) return participantIds
+
+    val memberUserIds = members.findByProduction(productionId).mapNotNullTo(mutableSetOf()) { it.userId }
+    val outsiders = participantIds - memberUserIds
+    if (outsiders.isNotEmpty()) {
+      throw AppException(
+        AppError.ValidationError(
+          mapOf("participantUserIds" to "Not a member of the production: ${outsiders.joinToString()}")
+        )
+      )
+    }
+    return participantIds
   }
 
   suspend fun delete(
@@ -248,6 +321,13 @@ class TaskService(
           fileName = it.fileName,
           sizeBytes = it.sizeBytes,
           contentType = it.contentType
+        )
+      },
+      participants = participants.map {
+        TaskParticipantDto(
+          userId = it.userId.toString(),
+          name = it.name,
+          avatarColorHex = it.avatarColorHex
         )
       }
     )
