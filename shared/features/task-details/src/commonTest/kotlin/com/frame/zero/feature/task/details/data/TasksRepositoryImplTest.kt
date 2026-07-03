@@ -49,6 +49,17 @@ class TasksRepositoryImplTest {
     }
 
   @Test
+  fun `getTask tolerates a payload with no participants field`() =
+    runTest {
+      // Old cached/queued payloads predate the participants field entirely.
+      val repo = repository(mutableListOf()) { taskDetailJson(id = "t1") }
+
+      val task = repo.getTask("t1")
+
+      assertEquals(emptyList(), task.participants)
+    }
+
+  @Test
   fun `completeTask PATCHes the task with a DONE status body`() =
     runTest {
       val requests = mutableListOf<HttpRequestData>()
@@ -80,6 +91,22 @@ class TasksRepositoryImplTest {
       assertTrue(sentBody.contains("\"productionId\":\"p1\""))
       assertTrue(sentBody.contains("\"title\":\"Storyboard\""))
       assertEquals("t9", created.id)
+    }
+
+  @Test
+  fun `updateParticipants PUTs the participant ids and returns the updated detail`() =
+    runTest {
+      val requests = mutableListOf<HttpRequestData>()
+      val repo = repository(requests) { taskDetailJson(id = "t1") }
+
+      val updated = repo.updateParticipants("t1", listOf("u1", "u2"))
+
+      val request = requests.single()
+      assertEquals(HttpMethod.Put, request.method)
+      assertEquals("/api/v1/tasks/t1/participants", request.url.encodedPath)
+      val sentBody = (request.body as TextContent).text
+      assertTrue(sentBody.contains("\"participantUserIds\":[\"u1\",\"u2\"]"))
+      assertEquals("t1", updated.id)
     }
 
   @Test

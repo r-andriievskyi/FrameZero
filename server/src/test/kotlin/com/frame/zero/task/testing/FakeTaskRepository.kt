@@ -5,6 +5,7 @@ import com.frame.zero.dto.task.TaskStatus
 import com.frame.zero.task.AttachmentRecord
 import com.frame.zero.task.DuplicateIdempotencyKeyException
 import com.frame.zero.task.NewAttachment
+import com.frame.zero.task.TaskParticipantRecord
 import com.frame.zero.task.TaskRecord
 import com.frame.zero.task.TaskRepository
 import kotlin.time.Clock
@@ -23,7 +24,9 @@ internal open class FakeTaskRepository : TaskRepository {
     assigneeUserId: UUID?,
     priority: TaskPriority,
     idempotencyKey: String?,
-    attachment: NewAttachment?
+    attachment: NewAttachment?,
+    createdByUserId: UUID?,
+    participantUserIds: Set<UUID>
   ): TaskRecord {
     // Model the unique index on tasks.idempotency_key so concurrent-retry tests
     // hit the same collision path as Postgres.
@@ -46,7 +49,9 @@ internal open class FakeTaskRepository : TaskRepository {
         createdAt = Clock.System.now(),
         attachment = attachment?.let {
           AttachmentRecord(it.fileName, it.contentType, it.sizeBytes, it.storageKey)
-        }
+        },
+        createdByUserId = createdByUserId,
+        participants = participantUserIds.map { it.toParticipantRecord() }
       )
     tasks += record
     if (idempotencyKey != null) idempotencyKeys[idempotencyKey] = record.id
@@ -54,6 +59,10 @@ internal open class FakeTaskRepository : TaskRepository {
   }
 
   override suspend fun findById(id: UUID): TaskRecord? = tasks.firstOrNull { it.id == id }
+
+  // Display fields are synthesized: the fake has no users table to join against.
+  private fun UUID.toParticipantRecord(): TaskParticipantRecord =
+    TaskParticipantRecord(userId = this, name = "User $this", avatarColorHex = null)
 
   override suspend fun findByIdempotencyKey(idempotencyKey: String): TaskRecord? =
     idempotencyKeys[idempotencyKey]?.let { id -> tasks.firstOrNull { it.id == id } }
@@ -105,7 +114,8 @@ internal open class FakeTaskRepository : TaskRepository {
     description: String?,
     dueDate: LocalDate?,
     status: TaskStatus?,
-    assigneeUserId: UUID?
+    assigneeUserId: UUID?,
+    participantUserIds: Set<UUID>?
   ): TaskRecord? {
     val idx = tasks.indexOfFirst { it.id == id }
     if (idx < 0) return null
@@ -115,7 +125,8 @@ internal open class FakeTaskRepository : TaskRepository {
         description = description ?: tasks[idx].description,
         dueDate = dueDate ?: tasks[idx].dueDate,
         status = status ?: tasks[idx].status,
-        assigneeUserId = assigneeUserId ?: tasks[idx].assigneeUserId
+        assigneeUserId = assigneeUserId ?: tasks[idx].assigneeUserId,
+        participants = participantUserIds?.map { it.toParticipantRecord() } ?: tasks[idx].participants
       )
     tasks[idx] = updated
     return updated

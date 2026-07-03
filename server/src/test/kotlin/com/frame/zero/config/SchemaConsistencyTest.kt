@@ -8,6 +8,7 @@ import com.frame.zero.notification.NotificationsTable
 import com.frame.zero.production.ProductionMembersTable
 import com.frame.zero.production.ProductionsTable
 import com.frame.zero.schedule.ScheduleEventsTable
+import com.frame.zero.task.TaskParticipantsTable
 import com.frame.zero.task.TasksTable
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -45,6 +46,7 @@ class SchemaConsistencyTest {
           ProductionsTable,
           ProductionMembersTable,
           TasksTable,
+          TaskParticipantsTable,
           ScheduleEventsTable,
           NotificationsTable,
           DeviceTokensTable

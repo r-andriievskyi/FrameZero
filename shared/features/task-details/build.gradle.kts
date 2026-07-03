@@ -8,13 +8,16 @@ kotlin {
   sourceSets {
     commonMain.dependencies {
       api(projects.shared)
+      api(projects.shared.uiText)
       api(libs.decompose)
       implementation(projects.shared.repositories.tasks)
+      implementation(projects.shared.repositories.productions)
       implementation(libs.koin.core)
       implementation(libs.kotlinx.coroutines.core)
       implementation(libs.ktor.clientCore)
       implementation(libs.ktor.clientContentNegotiation)
       implementation(libs.ktor.clientSerializationJson)
+      implementation(libs.compose.components.resources)
     }
     commonTest.dependencies {
       implementation(projects.shared.testFixtures)

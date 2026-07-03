@@ -25,6 +25,7 @@ import com.frame.zero.feature.task.create.ui.components.AssigneeSelector
 import com.frame.zero.feature.task.create.ui.components.AttachmentRow
 import com.frame.zero.feature.task.create.ui.components.DueDateSection
 import com.frame.zero.feature.task.create.ui.components.MultiLineInputField
+import com.frame.zero.feature.task.create.ui.components.ParticipantsSelector
 import com.frame.zero.feature.task.create.ui.components.PrioritySelector
 import com.frame.zero.feature.task.create.ui.components.SectionLabel
 import com.frame.zero.shared.design_system.AppTheme
@@ -47,9 +48,12 @@ import framezero.composeapp.features.task_create.generated.resources.label_assig
 import framezero.composeapp.features.task_create.generated.resources.label_description
 import framezero.composeapp.features.task_create.generated.resources.label_attachment
 import framezero.composeapp.features.task_create.generated.resources.label_due_date
+import framezero.composeapp.features.task_create.generated.resources.label_participants
 import framezero.composeapp.features.task_create.generated.resources.label_priority
 import framezero.composeapp.features.task_create.generated.resources.label_title
 import framezero.composeapp.features.task_create.generated.resources.new_task_title
+import framezero.composeapp.features.task_create.generated.resources.participants_subtitle_count
+import framezero.composeapp.features.task_create.generated.resources.participants_subtitle_none
 import framezero.composeapp.features.task_create.generated.resources.title_placeholder
 import org.jetbrains.compose.resources.stringResource
 
@@ -183,6 +187,32 @@ internal fun CreateTaskContent(
 
       VerticalSpacer(spacing.space24)
 
+      SectionLabel(text = stringResource(Res.string.label_participants))
+      VerticalSpacer(spacing.space8)
+      ParticipantsSelector(
+        selected = state.selectedParticipants,
+        isPickerVisible = state.isParticipantPickerVisible,
+        query = state.participantQuery,
+        members = state.filteredParticipantMembers,
+        selectedUserIds = state.participantUserIds,
+        onOpen = { onIntent(CreateTaskIntent.ParticipantPickerOpened) },
+        onDismiss = { onIntent(CreateTaskIntent.ParticipantPickerDismissed) },
+        onQueryChange = { onIntent(CreateTaskIntent.ParticipantSearchChanged(it)) },
+        onToggle = { onIntent(CreateTaskIntent.ParticipantToggled(it)) }
+      )
+      VerticalSpacer(spacing.space4)
+      Text(
+        text = if (state.participantUserIds.isEmpty()) {
+          stringResource(Res.string.participants_subtitle_none)
+        } else {
+          stringResource(Res.string.participants_subtitle_count, state.participantUserIds.size)
+        },
+        style = AppTheme.typographySystem.bodySmall,
+        color = colors.textMuted
+      )
+
+      VerticalSpacer(spacing.space24)
+
       SectionLabel(text = stringResource(Res.string.label_priority))
       VerticalSpacer(spacing.space8)
       PrioritySelector(
@@ -231,7 +261,8 @@ private fun CreateTaskContentPreview() {
         assignableMembers = persistentListOf(
           AssignableMemberUi("u1", "Sara Lin", "SL", "#9C27B0"),
           AssignableMemberUi("u2", "Jake Morse", "JM", "#009688")
-        )
+        ),
+        participantUserIds = persistentListOf("u2")
       ),
       onIntent = {},
       onBack = {}

@@ -17,6 +17,13 @@
   <string name="assignee_search_placeholder">Search teammates</string>
   <string name="assignee_no_results">No teammates match your search</string>
 
+  <string name="label_participants">Participants</string>
+  <string name="participants_add">Add participants</string>
+  <string name="participants_subtitle_count">Optional · %1$d selected</string>
+  <string name="participants_subtitle_none">Optional · No one added yet</string>
+  <string name="participants_search_placeholder">Search teammates</string>
+  <string name="participants_no_results">No teammates match your search</string>
+
   <string name="label_priority">Priority</string>
   <string name="priority_high">High</string>
   <string name="priority_medium">Medium</string>

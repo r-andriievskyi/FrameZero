@@ -30,6 +30,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -129,6 +130,90 @@ class CreateTaskViewModelTest {
       advanceUntilIdle()
 
       assertTrue(viewModel.state.value.assignableMembers.isEmpty())
+    }
+
+  @Test
+  fun `participant picker open dismiss and search update state`() =
+    runTest {
+      val viewModel = makeViewModel()
+      advanceUntilIdle()
+
+      viewModel.onIntent(CreateTaskIntent.ParticipantPickerOpened)
+      assertTrue(viewModel.state.value.isParticipantPickerVisible)
+
+      viewModel.onIntent(CreateTaskIntent.ParticipantSearchChanged("ja"))
+      assertEquals("ja", viewModel.state.value.participantQuery)
+
+      viewModel.onIntent(CreateTaskIntent.ParticipantPickerDismissed)
+      assertFalse(viewModel.state.value.isParticipantPickerVisible)
+      assertEquals("", viewModel.state.value.participantQuery)
+    }
+
+  @Test
+  fun `toggling a participant twice selects then deselects them`() =
+    runTest {
+      val viewModel = makeViewModel()
+      advanceUntilIdle()
+
+      viewModel.onIntent(CreateTaskIntent.ParticipantToggled("u1"))
+      assertEquals(listOf("u1"), viewModel.state.value.participantUserIds)
+
+      viewModel.onIntent(CreateTaskIntent.ParticipantToggled("u2"))
+      assertEquals(listOf("u1", "u2"), viewModel.state.value.participantUserIds)
+
+      viewModel.onIntent(CreateTaskIntent.ParticipantToggled("u1"))
+      assertEquals(listOf("u2"), viewModel.state.value.participantUserIds)
+    }
+
+  @Test
+  fun `selected participants are reflected as a filtered member subset`() =
+    runTest {
+      val productions = FakeProductionsRepository(
+        members = listOf(
+          productionMemberDto(userId = "u1", name = "Ada"),
+          productionMemberDto(userId = "u2", name = "Jake")
+        )
+      )
+      val viewModel = makeViewModel(productions = productions)
+      advanceUntilIdle()
+
+      viewModel.onIntent(CreateTaskIntent.ParticipantToggled("u2"))
+
+      assertEquals(listOf("Jake"), viewModel.state.value.selectedParticipants.map { it.name })
+    }
+
+  @Test
+  fun `submit forwards selected participant ids to the create request`() =
+    runTest {
+      val tasks = FakeTasksRepository()
+      val viewModel = makeViewModel(tasks = tasks)
+      advanceUntilIdle()
+
+      viewModel.onIntent(CreateTaskIntent.TitleChanged("Storyboard"))
+      viewModel.onIntent(CreateTaskIntent.ParticipantToggled("u1"))
+      viewModel.onIntent(CreateTaskIntent.ParticipantToggled("u2"))
+      viewModel.onIntent(CreateTaskIntent.Submit)
+      advanceUntilIdle()
+
+      assertEquals(listOf("u1", "u2"), tasks.createRequests.single().participantUserIds)
+    }
+
+  @Test
+  fun `submitting with an attachment carries selected participants into the pending upload`() =
+    runTest {
+      val file = PickedFile("doc.pdf", 1_024, "application/pdf", "/tmp/doc.pdf")
+      val scheduler = FakeTaskUploadScheduler()
+      val viewModel = makeViewModel(filePicker = FakeFilePicker(file), uploadScheduler = scheduler)
+      advanceUntilIdle()
+
+      viewModel.onIntent(CreateTaskIntent.TitleChanged("Storyboard"))
+      viewModel.onIntent(CreateTaskIntent.ParticipantToggled("u1"))
+      viewModel.onIntent(CreateTaskIntent.AttachFileClicked)
+      advanceUntilIdle()
+      viewModel.onIntent(CreateTaskIntent.Submit)
+      advanceUntilIdle()
+
+      assertEquals(listOf("u1"), scheduler.enqueued.single().participantUserIds)
     }
 
   @Test

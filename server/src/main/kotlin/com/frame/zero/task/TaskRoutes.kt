@@ -9,6 +9,7 @@ import com.frame.zero.dto.common.CursorPagedResponse
 import com.frame.zero.dto.task.CreateTaskRequest
 import com.frame.zero.dto.task.TaskPriority
 import com.frame.zero.dto.task.TaskStatus
+import com.frame.zero.dto.task.UpdateTaskParticipantsRequest
 import com.frame.zero.dto.task.UpdateTaskRequest
 import com.frame.zero.storage.FileStorage
 import io.ktor.http.ContentDisposition
@@ -30,6 +31,7 @@ import io.ktor.server.routing.delete
 import io.ktor.server.routing.get
 import io.ktor.server.routing.patch
 import io.ktor.server.routing.post
+import io.ktor.server.routing.put
 import io.ktor.server.routing.route
 import io.ktor.utils.io.jvm.javaio.toInputStream
 import kotlinx.coroutines.Dispatchers
@@ -116,6 +118,14 @@ fun Route.taskRoutes() {
           val taskId = call.pathUuid("id")
           val request = call.receive<UpdateTaskRequest>()
           call.respond(service.update(userId, taskId, request))
+        }
+
+        put("/participants") {
+          val service by call.inject<TaskService>()
+          val userId = call.userId()
+          val taskId = call.pathUuid("id")
+          val request = call.receive<UpdateTaskParticipantsRequest>()
+          call.respond(service.updateParticipants(userId, taskId, request))
         }
 
         delete {

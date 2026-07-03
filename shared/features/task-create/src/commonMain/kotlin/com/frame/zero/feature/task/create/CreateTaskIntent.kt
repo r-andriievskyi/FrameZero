@@ -24,6 +24,18 @@ sealed interface CreateTaskIntent {
     val userId: String?
   ) : CreateTaskIntent
 
+  data object ParticipantPickerOpened : CreateTaskIntent
+
+  data object ParticipantPickerDismissed : CreateTaskIntent
+
+  data class ParticipantSearchChanged(
+    val query: String
+  ) : CreateTaskIntent
+
+  data class ParticipantToggled(
+    val userId: String
+  ) : CreateTaskIntent
+
   data class PriorityChanged(
     val priority: TaskPriority
   ) : CreateTaskIntent

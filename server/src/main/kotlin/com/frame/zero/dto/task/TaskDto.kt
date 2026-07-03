@@ -39,11 +39,19 @@ data class TaskDetailDto(
   val assigneeUserId: String?,
   val assignee: TaskAssigneeDto?,
   val createdAt: Instant,
-  val attachment: TaskAttachmentDto? = null
+  val attachment: TaskAttachmentDto? = null,
+  val participants: List<TaskParticipantDto> = emptyList()
 )
 
 @Serializable
 data class TaskAssigneeDto(
+  val userId: String,
+  val name: String,
+  val avatarColorHex: String?
+)
+
+@Serializable
+data class TaskParticipantDto(
   val userId: String,
   val name: String,
   val avatarColorHex: String?
@@ -63,7 +71,8 @@ data class CreateTaskRequest(
   val description: String? = null,
   val dueDate: LocalDate? = null,
   val assigneeUserId: String? = null,
-  val priority: TaskPriority = TaskPriority.MEDIUM
+  val priority: TaskPriority = TaskPriority.MEDIUM,
+  val participantUserIds: List<String> = emptyList()
 )
 
 @Serializable
@@ -72,5 +81,12 @@ data class UpdateTaskRequest(
   val description: String? = null,
   val dueDate: LocalDate? = null,
   val status: TaskStatus? = null,
-  val assigneeUserId: String? = null
+  val assigneeUserId: String? = null,
+  // Null means "leave participants unchanged"; a list (even empty) replaces them.
+  val participantUserIds: List<String>? = null
+)
+
+@Serializable
+data class UpdateTaskParticipantsRequest(
+  val participantUserIds: List<String>
 )

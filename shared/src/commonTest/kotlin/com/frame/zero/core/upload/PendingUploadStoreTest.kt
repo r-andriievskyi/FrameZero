@@ -37,10 +37,37 @@ class PendingUploadStoreTest {
   fun `payload round-trips all fields`() =
     runTest {
       val store = PendingUploadStore(FakePendingUploadDao())
-      val original = upload("b").copy(description = "notes", assigneeUserId = "u9")
+      val original = upload("b").copy(
+        description = "notes",
+        assigneeUserId = "u9",
+        participantUserIds = listOf("u1", "u2")
+      )
 
       store.add(original)
 
       assertEquals(original, store.get("b"))
+    }
+
+  @Test
+  fun `payload persisted before participants existed still deserializes`() =
+    runTest {
+      val dao = FakePendingUploadDao()
+      // A queued payload written by an app version that predates participantUserIds.
+      dao.upsert(
+        com.frame.zero.database.PendingUploadEntity(
+          uploadId = "old",
+          status = PendingUploadStatus.Uploading.name,
+          payload = """
+            {"uploadId":"old","productionId":"p1","title":"T","fileName":"f.bin",
+             "contentType":"application/octet-stream","localPath":"/tmp/old","idempotencyKey":"key-old"}
+          """.trimIndent()
+        )
+      )
+      val store = PendingUploadStore(dao)
+
+      val restored = store.get("old")
+
+      assertEquals(upload("old"), restored)
+      assertEquals(emptyList(), restored?.participantUserIds)
     }
 }

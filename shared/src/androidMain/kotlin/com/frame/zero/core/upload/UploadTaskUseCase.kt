@@ -41,6 +41,7 @@ class UploadTaskUseCase(
         request.dueDate?.let { append("dueDate", it.toString()) }
         request.assigneeUserId?.let { append("assigneeUserId", it) }
         append("priority", request.priority.name)
+        request.participantUserIds.forEach { append("participantUserIds", it) }
         append(
           key = "file",
           value = ChannelProvider(size = file.length()) { file.readChannel() },

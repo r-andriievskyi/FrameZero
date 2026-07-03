@@ -144,6 +144,73 @@ class TaskRepositoryImplTest {
     }
 
   @Test
+  fun `create persists participants that findById returns with resolved display fields`() =
+    runBlocking {
+      val ownerId = users.create("owner@x.com", "h", "Own", "Er").id
+      val crewId = users.create("crew@x.com", "h", "Cre", "W").id
+      val prod = newProduction(ownerId)
+
+      val created = tasks.create(
+        productionId = prod.id,
+        title = "Team task",
+        description = null,
+        dueDate = null,
+        assigneeUserId = null,
+        createdByUserId = ownerId,
+        participantUserIds = setOf(crewId)
+      )
+
+      assertEquals(listOf(crewId), created.participants.map { it.userId })
+      val found = tasks.findById(created.id)
+      assertEquals(ownerId, found?.createdByUserId)
+      val participant = found?.participants?.single()
+      assertEquals(crewId, participant?.userId)
+      assertEquals("Cre W", participant?.name, "name must come from the users join")
+    }
+
+  @Test
+  fun `update with a non-null participantUserIds replaces the whole participant set`() =
+    runBlocking {
+      val ownerId = users.create("owner@x.com", "h", "Own", "Er").id
+      val firstId = users.create("first@x.com", "h", "Fir", "St").id
+      val secondId = users.create("second@x.com", "h", "Sec", "Ond").id
+      val prod = newProduction(ownerId)
+      val task = tasks.create(prod.id, "T", null, null, null, participantUserIds = setOf(firstId))
+
+      tasks.update(task.id, null, null, null, null, null, participantUserIds = setOf(secondId))
+
+      assertEquals(listOf(secondId), tasks.findById(task.id)?.participants?.map { it.userId })
+
+      tasks.update(task.id, null, null, null, null, null, participantUserIds = emptySet())
+      assertTrue(tasks.findById(task.id)?.participants.orEmpty().isEmpty())
+    }
+
+  @Test
+  fun `update with a null participantUserIds leaves the participant set untouched`() =
+    runBlocking {
+      val ownerId = users.create("owner@x.com", "h", "Own", "Er").id
+      val firstId = users.create("first@x.com", "h", "Fir", "St").id
+      val prod = newProduction(ownerId)
+      val task = tasks.create(prod.id, "T", null, null, null, participantUserIds = setOf(firstId))
+
+      val updated = tasks.update(task.id, "Renamed", null, null, null, null, participantUserIds = null)
+
+      assertEquals("Renamed", updated?.title)
+      assertEquals(listOf(firstId), updated?.participants?.map { it.userId })
+    }
+
+  @Test
+  fun `delete removes a task that still has participants`() =
+    runBlocking {
+      val ownerId = users.create("owner@x.com", "h", "Own", "Er").id
+      val prod = newProduction(ownerId)
+      val task = tasks.create(prod.id, "T", null, null, null, participantUserIds = setOf(ownerId))
+
+      assertTrue(tasks.delete(task.id), "RESTRICT participant rows must not block task deletion")
+      assertTrue(tasks.findById(task.id) == null)
+    }
+
+  @Test
   fun `tasks of soft-deleted productions are excluded from every user-facing query`() =
     runBlocking {
       val ownerId = users.create("owner@x.com", "h", "Own", "Er").id

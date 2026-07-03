@@ -16,7 +16,8 @@ class CreateTaskUseCase(
     val description: String?,
     val dueDate: LocalDate?,
     val assigneeUserId: String?,
-    val priority: TaskPriority
+    val priority: TaskPriority,
+    val participantUserIds: List<String> = emptyList()
   )
 
   override suspend fun execute(params: Params): TaskDetailDto =
@@ -27,7 +28,8 @@ class CreateTaskUseCase(
         description = params.description?.trim()?.ifBlank { null },
         dueDate = params.dueDate,
         assigneeUserId = params.assigneeUserId,
-        priority = params.priority
+        priority = params.priority,
+        participantUserIds = params.participantUserIds
       )
     )
 }

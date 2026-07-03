@@ -7,6 +7,7 @@ import com.frame.zero.domain.production.Genre
 import com.frame.zero.dto.device.DevicePlatform
 import com.frame.zero.dto.production.CreateProductionRequest
 import com.frame.zero.dto.task.CreateTaskRequest
+import com.frame.zero.dto.task.UpdateTaskParticipantsRequest
 import com.frame.zero.dto.task.UpdateTaskRequest
 import com.frame.zero.notification.TaskAssignmentNotifier
 import com.frame.zero.task.testing.FakeTaskRepository
@@ -202,6 +203,7 @@ class TaskServiceTest {
         TaskService(
           racingRepo,
           env.access,
+          env.productionMembers,
           env.transactor,
           env.notificationsRepo,
           env.assignmentNotifier,
@@ -222,6 +224,159 @@ class TaskServiceTest {
 
       assertEquals(winner.id.toString(), result.id, "must return the winning task, not 500")
       assertFalse(env.fileStorage.exists(blob.storageKey), "the loser's orphaned blob must be cleaned up")
+    }
+
+  @Test
+  fun `create stores deduped participants alongside the task`() =
+    runBlocking {
+      val env = TestAppEnv()
+      val owner = UUID.randomUUID()
+      val prod = env.productionService.createProduction(owner, productionRequest)
+      val crew = env.productionMembers.add(UUID.fromString(prod.id), UUID.randomUUID(), "Cre W", "Grip", null)
+      val crewId = crew.userId.toString()
+
+      val task = env.taskService.create(
+        owner,
+        CreateTaskRequest(
+          productionId = prod.id,
+          title = "Team task",
+          // The same id twice must collapse to a single participant row.
+          participantUserIds = listOf(crewId, crewId)
+        )
+      )
+
+      assertEquals(listOf(crewId), task.participants.map { it.userId })
+    }
+
+  @Test
+  fun `create rejects a participant who is not a member of the production`() =
+    runBlocking {
+      val env = TestAppEnv()
+      val owner = UUID.randomUUID()
+      val prod = env.productionService.createProduction(owner, productionRequest)
+
+      val error = assertFailsWith<AppException> {
+        env.taskService.create(
+          owner,
+          CreateTaskRequest(
+            productionId = prod.id,
+            title = "T",
+            participantUserIds = listOf(UUID.randomUUID().toString())
+          )
+        )
+      }
+
+      assertTrue(error.error is AppError.ValidationError)
+      assertTrue(env.tasks.tasks.isEmpty(), "the task must not be created when validation fails")
+    }
+
+  @Test
+  fun `the task creator can replace the participant list`() =
+    runBlocking {
+      val env = TestAppEnv()
+      val owner = UUID.randomUUID()
+      val prod = env.productionService.createProduction(owner, productionRequest)
+      val crew = env.productionMembers.add(UUID.fromString(prod.id), UUID.randomUUID(), "Cre W", "Grip", null)
+      val task = env.taskService.create(owner, CreateTaskRequest(productionId = prod.id, title = "T"))
+
+      val updated = env.taskService.updateParticipants(
+        owner,
+        UUID.fromString(task.id),
+        UpdateTaskParticipantsRequest(participantUserIds = listOf(crew.userId.toString()))
+      )
+
+      assertEquals(listOf(crew.userId.toString()), updated.participants.map { it.userId })
+    }
+
+  @Test
+  fun `the current assignee can replace the participant list`() =
+    runBlocking {
+      val env = TestAppEnv()
+      val owner = UUID.randomUUID()
+      val prod = env.productionService.createProduction(owner, productionRequest)
+      val productionId = UUID.fromString(prod.id)
+      val assigneeId = UUID.randomUUID()
+      env.productionMembers.add(productionId, assigneeId, "Assig Nee", "VFX Supervisor", null)
+      val task = env.taskService.create(
+        owner,
+        CreateTaskRequest(productionId = prod.id, title = "T", assigneeUserId = assigneeId.toString())
+      )
+
+      // The assignee may also list themself as a participant — deduped, harmless.
+      val updated = env.taskService.updateParticipants(
+        assigneeId,
+        UUID.fromString(task.id),
+        UpdateTaskParticipantsRequest(
+          participantUserIds = listOf(assigneeId.toString(), assigneeId.toString())
+        )
+      )
+
+      assertEquals(listOf(assigneeId.toString()), updated.participants.map { it.userId })
+    }
+
+  @Test
+  fun `a production member who is neither creator nor assignee cannot modify participants`() =
+    runBlocking {
+      val env = TestAppEnv()
+      val owner = UUID.randomUUID()
+      val prod = env.productionService.createProduction(owner, productionRequest)
+      val bystanderId = UUID.randomUUID()
+      env.productionMembers.add(UUID.fromString(prod.id), bystanderId, "By Stander", "Gaffer", null)
+      val task = env.taskService.create(owner, CreateTaskRequest(productionId = prod.id, title = "T"))
+
+      val error = assertFailsWith<AppException> {
+        env.taskService.updateParticipants(
+          bystanderId,
+          UUID.fromString(task.id),
+          UpdateTaskParticipantsRequest(participantUserIds = listOf(bystanderId.toString()))
+        )
+      }
+
+      assertEquals(AppError.Forbidden, error.error)
+    }
+
+  @Test
+  fun `updateParticipants rejects ids outside the production membership`() =
+    runBlocking {
+      val env = TestAppEnv()
+      val owner = UUID.randomUUID()
+      val prod = env.productionService.createProduction(owner, productionRequest)
+      val task = env.taskService.create(owner, CreateTaskRequest(productionId = prod.id, title = "T"))
+
+      val error = assertFailsWith<AppException> {
+        env.taskService.updateParticipants(
+          owner,
+          UUID.fromString(task.id),
+          UpdateTaskParticipantsRequest(participantUserIds = listOf(UUID.randomUUID().toString()))
+        )
+      }
+
+      assertTrue(error.error is AppError.ValidationError)
+      assertTrue(env.tasks.tasks.single().participants.isEmpty(), "participants must stay unchanged")
+    }
+
+  @Test
+  fun `patch update with participants enforces the creator-or-assignee rule`() =
+    runBlocking {
+      val env = TestAppEnv()
+      val owner = UUID.randomUUID()
+      val prod = env.productionService.createProduction(owner, productionRequest)
+      val bystanderId = UUID.randomUUID()
+      env.productionMembers.add(UUID.fromString(prod.id), bystanderId, "By Stander", "Gaffer", null)
+      val task = env.taskService.create(owner, CreateTaskRequest(productionId = prod.id, title = "T"))
+
+      val error = assertFailsWith<AppException> {
+        env.taskService.update(
+          bystanderId,
+          UUID.fromString(task.id),
+          UpdateTaskRequest(participantUserIds = listOf(bystanderId.toString()))
+        )
+      }
+      assertEquals(AppError.Forbidden, error.error)
+
+      // Omitting the field (null) leaves participants untouched and is open to any member.
+      env.taskService.update(bystanderId, UUID.fromString(task.id), UpdateTaskRequest(title = "Renamed"))
+      assertEquals("Renamed", env.tasks.tasks.single().title)
     }
 
   @Test

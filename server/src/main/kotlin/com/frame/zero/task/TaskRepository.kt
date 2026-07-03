@@ -54,7 +54,16 @@ data class TaskRecord(
   val assigneeName: String?,
   val assigneeAvatarColorHex: String?,
   val createdAt: Instant,
-  val attachment: AttachmentRecord? = null
+  val attachment: AttachmentRecord? = null,
+  val createdByUserId: UUID? = null,
+  val participants: List<TaskParticipantRecord> = emptyList()
+)
+
+/** A task participant with display fields resolved from the users table. */
+data class TaskParticipantRecord(
+  val userId: UUID,
+  val name: String,
+  val avatarColorHex: String?
 )
 
 /** Attachment metadata for a task; [storageKey] locates the bytes in [com.frame.zero.storage.FileStorage]. */
@@ -82,7 +91,9 @@ interface TaskRepository {
     assigneeUserId: UUID?,
     priority: TaskPriority = TaskPriority.MEDIUM,
     idempotencyKey: String? = null,
-    attachment: NewAttachment? = null
+    attachment: NewAttachment? = null,
+    createdByUserId: UUID? = null,
+    participantUserIds: Set<UUID> = emptySet()
   ): TaskRecord
 
   suspend fun findById(id: UUID): TaskRecord?
@@ -119,7 +130,9 @@ interface TaskRepository {
     description: String?,
     dueDate: LocalDate?,
     status: TaskStatus?,
-    assigneeUserId: UUID?
+    assigneeUserId: UUID?,
+    // Null means "leave participants unchanged"; a set (even empty) replaces them.
+    participantUserIds: Set<UUID>? = null
   ): TaskRecord?
 
   suspend fun delete(id: UUID): Boolean
@@ -134,7 +147,9 @@ class TaskRepositoryImpl : TaskRepository {
     assigneeUserId: UUID?,
     priority: TaskPriority,
     idempotencyKey: String?,
-    attachment: NewAttachment?
+    attachment: NewAttachment?,
+    createdByUserId: UUID?,
+    participantUserIds: Set<UUID>
   ): TaskRecord =
     dbQuery {
       val newId = UUID.randomUUID()
@@ -151,6 +166,7 @@ class TaskRepositoryImpl : TaskRepository {
           it[TasksTable.assigneeUserId] = assigneeUserId
           it[createdAt] = now
           it[TasksTable.idempotencyKey] = idempotencyKey
+          it[TasksTable.createdByUserId] = createdByUserId
         }
       } catch (exception: SQLException) {
         // Two concurrent requests with the same Idempotency-Key can both pass the
@@ -161,26 +177,12 @@ class TaskRepositoryImpl : TaskRepository {
         }
         throw exception
       }
-      if (attachment != null) {
-        TaskAttachmentsTable.insert {
-          it[id] = UUID.randomUUID()
-          it[taskId] = newId
-          it[fileName] = attachment.fileName
-          it[contentType] = attachment.contentType
-          it[sizeBytes] = attachment.sizeBytes
-          it[storageKey] = attachment.storageKey
-          it[createdAt] = now
-        }
-      }
-      val prodTitle = ProductionsTable
-        .selectAll()
-        .where { ProductionsTable.id eq productionId }
-        .singleOrNull()
-        ?.get(ProductionsTable.title).orEmpty()
+      insertAttachment(newId, now, attachment)
+      insertParticipants(newId, participantUserIds)
       TaskRecord(
         id = newId,
         productionId = productionId,
-        productionTitle = prodTitle,
+        productionTitle = productionTitleOf(productionId),
         title = title,
         description = description,
         dueDate = dueDate,
@@ -192,7 +194,9 @@ class TaskRepositoryImpl : TaskRepository {
         createdAt = now,
         attachment = attachment?.let {
           AttachmentRecord(it.fileName, it.contentType, it.sizeBytes, it.storageKey)
-        }
+        },
+        createdByUserId = createdByUserId,
+        participants = participantsFor(newId)
       )
     }
 
@@ -203,7 +207,7 @@ class TaskRepositoryImpl : TaskRepository {
         .where { TasksTable.id eq id }
         .singleOrNull()
         ?.toRecord()
-        ?.let { it.copy(attachment = attachmentFor(it.id)) }
+        ?.let { it.copy(attachment = attachmentFor(it.id), participants = participantsFor(it.id)) }
     }
 
   override suspend fun findByIdempotencyKey(idempotencyKey: String): TaskRecord? =
@@ -213,7 +217,7 @@ class TaskRepositoryImpl : TaskRepository {
         .where { TasksTable.idempotencyKey eq idempotencyKey }
         .singleOrNull()
         ?.toRecord()
-        ?.let { it.copy(attachment = attachmentFor(it.id)) }
+        ?.let { it.copy(attachment = attachmentFor(it.id), participants = participantsFor(it.id)) }
     }
 
   override suspend fun findAttachment(taskId: UUID): AttachmentRecord? = dbQuery { attachmentFor(taskId) }
@@ -331,29 +335,46 @@ class TaskRepositoryImpl : TaskRepository {
     description: String?,
     dueDate: LocalDate?,
     status: TaskStatus?,
-    assigneeUserId: UUID?
+    assigneeUserId: UUID?,
+    participantUserIds: Set<UUID>?
   ): TaskRecord? =
     dbQuery {
-      val updated = TasksTable.update({ TasksTable.id eq id }) { row ->
-        title?.let { row[TasksTable.title] = it }
-        description?.let { row[TasksTable.description] = it }
-        dueDate?.let { row[TasksTable.dueDate] = it }
-        status?.let { row[TasksTable.status] = it.name }
-        assigneeUserId?.let { row[TasksTable.assigneeUserId] = it }
+      // A participants-only call (e.g. from updateParticipants) has no basic
+      // fields to set; Exposed's update() requires at least one assigned
+      // column, so skip straight to an existence check in that case.
+      val hasFieldChanges =
+        title != null || description != null || dueDate != null || status != null || assigneeUserId != null
+      val exists = if (hasFieldChanges) {
+        TasksTable.update({ TasksTable.id eq id }) { row ->
+          title?.let { row[TasksTable.title] = it }
+          description?.let { row[TasksTable.description] = it }
+          dueDate?.let { row[TasksTable.dueDate] = it }
+          status?.let { row[TasksTable.status] = it.name }
+          assigneeUserId?.let { row[TasksTable.assigneeUserId] = it }
+        } > 0
+      } else {
+        TasksTable.selectAll().where { TasksTable.id eq id }.limit(1).any()
       }
-      if (updated == 0) {
+      if (!exists) {
         null
       } else {
+        if (participantUserIds != null) {
+          TaskParticipantsTable.deleteWhere { taskId eq id }
+          insertParticipants(id, participantUserIds)
+        }
         tasksWithRelations
           .selectAll()
           .where { TasksTable.id eq id }
           .singleOrNull()
           ?.toRecord()
+          ?.let { it.copy(participants = participantsFor(it.id)) }
       }
     }
 
   override suspend fun delete(id: UUID): Boolean =
     dbQuery {
+      // Participant rows RESTRICT deletes of their task, so clear them first.
+      TaskParticipantsTable.deleteWhere { taskId eq id }
       TasksTable.deleteWhere { TasksTable.id eq id } > 0
     }
 
@@ -390,6 +411,60 @@ class TaskRepositoryImpl : TaskRepository {
       UsersTable.id
     )
 
+  // The helpers below must be called inside a dbQuery transaction.
+
+  private fun productionTitleOf(productionId: UUID): String =
+    ProductionsTable
+      .selectAll()
+      .where { ProductionsTable.id eq productionId }
+      .singleOrNull()
+      ?.get(ProductionsTable.title).orEmpty()
+
+  private fun insertAttachment(
+    taskId: UUID,
+    now: Instant,
+    attachment: NewAttachment?
+  ) {
+    if (attachment == null) return
+    TaskAttachmentsTable.insert {
+      it[id] = UUID.randomUUID()
+      it[TaskAttachmentsTable.taskId] = taskId
+      it[fileName] = attachment.fileName
+      it[contentType] = attachment.contentType
+      it[sizeBytes] = attachment.sizeBytes
+      it[storageKey] = attachment.storageKey
+      it[createdAt] = now
+    }
+  }
+
+  private fun insertParticipants(
+    taskId: UUID,
+    participantUserIds: Set<UUID>
+  ) {
+    participantUserIds.forEach { participantId ->
+      TaskParticipantsTable.insert {
+        it[TaskParticipantsTable.taskId] = taskId
+        it[userId] = participantId
+      }
+    }
+  }
+
+  // Participants with display fields resolved in one users join — never a
+  // per-participant lookup. Kept separate from the list join so summary
+  // queries stay lean.
+  private fun participantsFor(taskId: UUID): List<TaskParticipantRecord> =
+    (TaskParticipantsTable innerJoin UsersTable)
+      .selectAll()
+      .where { TaskParticipantsTable.taskId eq taskId }
+      .orderBy(UsersTable.firstName to SortOrder.ASC, UsersTable.id to SortOrder.ASC)
+      .map {
+        TaskParticipantRecord(
+          userId = it[TaskParticipantsTable.userId],
+          name = "${it[UsersTable.firstName]} ${it[UsersTable.lastName]}".trim(),
+          avatarColorHex = it[UsersTable.avatarColorHex]
+        )
+      }
+
   // Attachment metadata for a task, if any. Must be called inside a dbQuery
   // transaction. Kept separate from the list join so summary queries stay lean.
   private fun attachmentFor(taskId: UUID): AttachmentRecord? =
@@ -422,6 +497,7 @@ class TaskRepositoryImpl : TaskRepository {
         "$it ${this.getOrNull(UsersTable.lastName).orEmpty()}".trim()
       },
       assigneeAvatarColorHex = this.getOrNull(UsersTable.avatarColorHex),
-      createdAt = this[TasksTable.createdAt]
+      createdAt = this[TasksTable.createdAt],
+      createdByUserId = this[TasksTable.createdByUserId]
     )
 }
