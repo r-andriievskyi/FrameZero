@@ -2,6 +2,7 @@ package com.frame.zero.task
 
 import com.frame.zero.AppError
 import com.frame.zero.AppException
+import com.frame.zero.common.TaskCircleRevocationListener
 import com.frame.zero.common.Transactor
 import com.frame.zero.common.parseUuidField
 import com.frame.zero.dto.task.CreateTaskRequest
@@ -28,7 +29,10 @@ class TaskService(
   private val transactor: Transactor,
   private val notifications: NotificationRepository,
   private val assignmentNotifier: TaskAssignmentNotifier,
-  private val fileStorage: FileStorage
+  private val fileStorage: FileStorage,
+  // Notified after a task's circle changes so chat can drop stale live
+  // subscriptions. Defaults to a no-op for contexts without chat wired in.
+  private val circleRevocation: TaskCircleRevocationListener = TaskCircleRevocationListener.NONE
 ) {
   suspend fun list(
     userId: UUID,
@@ -162,6 +166,9 @@ class TaskService(
     taskId: UUID,
     request: UpdateTaskRequest
   ): TaskDetailDto {
+    // Captured inside the transaction, emitted after commit: the new circle when
+    // the assignee or participant list changed (either can shrink chat access).
+    var circleAfterChange: Set<UUID>? = null
     val (dto, assignment) = transactor.transaction {
       val task = tasks.findById(taskId) ?: throw AppException(AppError.NotFound)
       access.requireAccess(userId, task.productionId, AccessLevel.WRITE)
@@ -185,6 +192,8 @@ class TaskService(
         participantUserIds = participantIds
       ) ?: throw AppException(AppError.NotFound)
 
+      if (assigneeId != null || participantIds != null) circleAfterChange = updated.circleUserIds()
+
       val notifyAssignee = assigneeId?.takeIf { it != task.assigneeUserId && it != userId }
       if (notifyAssignee != null) {
         notifications.create(
@@ -195,6 +204,7 @@ class TaskService(
       updated.toDetailDto() to notifyAssignee?.let { it to updated.id }
     }
 
+    circleAfterChange?.let { circleRevocation.onTaskCircleChanged(taskId, it) }
     assignment?.let { (assigneeId, id) ->
       assignmentNotifier.notifyTaskAssigned(assigneeId, id, dto.title)
     }
@@ -205,8 +215,9 @@ class TaskService(
     userId: UUID,
     taskId: UUID,
     request: UpdateTaskParticipantsRequest
-  ): TaskDetailDto =
-    transactor.transaction {
+  ): TaskDetailDto {
+    var circleAfterChange: Set<UUID>? = null
+    val dto = transactor.transaction {
       val task = tasks.findById(taskId) ?: throw AppException(AppError.NotFound)
       // Any production member may read the task; membership stays the outer
       // boundary, with the creator/assignee rule layered on top for writes.
@@ -223,8 +234,12 @@ class TaskService(
         assigneeUserId = null,
         participantUserIds = participantIds
       ) ?: throw AppException(AppError.NotFound)
+      circleAfterChange = updated.circleUserIds()
       updated.toDetailDto()
     }
+    circleAfterChange?.let { circleRevocation.onTaskCircleChanged(taskId, it) }
+    return dto
+  }
 
   /** Only the task creator or the current assignee may modify the participant list. */
   private fun requireParticipantEditor(

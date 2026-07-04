@@ -2,6 +2,7 @@ package com.frame.zero.auth
 
 import com.frame.zero.AppError
 import com.frame.zero.AppException
+import com.frame.zero.common.isUniqueViolation
 import com.frame.zero.common.nowTruncatedToMicros
 import com.frame.zero.config.dbQuery
 import org.jetbrains.exposed.v1.core.ResultRow
@@ -11,8 +12,6 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
 import java.sql.SQLException
 import java.util.UUID
 import kotlin.time.Instant
-
-private const val UNIQUE_VIOLATION_SQL_STATE = "23505"
 
 data class UserRecord(
   val id: UUID,
@@ -89,11 +88,6 @@ class UserRepositoryImpl : UserRepository {
         createdAt = now
       )
     }
-
-  private fun SQLException.isUniqueViolation(): Boolean =
-    generateSequence(this as Throwable) { it.cause }
-      .filterIsInstance<SQLException>()
-      .any { it.sqlState == UNIQUE_VIOLATION_SQL_STATE }
 
   private fun ResultRow.toRecord(): UserRecord =
     UserRecord(

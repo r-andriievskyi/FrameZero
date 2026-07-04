@@ -3,6 +3,7 @@ package com.frame.zero.task
 import com.frame.zero.auth.UsersTable
 import com.frame.zero.common.decodeCursor
 import com.frame.zero.common.encodeCursor
+import com.frame.zero.common.isUniqueViolation
 import com.frame.zero.common.nowTruncatedToMicros
 import com.frame.zero.config.dbQuery
 import com.frame.zero.dto.task.TaskPriority
@@ -32,7 +33,6 @@ import java.util.UUID
 import kotlin.time.Instant
 
 private const val NULL_DUE_DATE_CURSOR = Long.MAX_VALUE
-private const val UNIQUE_VIOLATION_SQL_STATE = "23505"
 
 /**
  * Thrown when a task insert collides with an existing row's unique idempotency
@@ -58,6 +58,14 @@ data class TaskRecord(
   val createdByUserId: UUID? = null,
   val participants: List<TaskParticipantRecord> = emptyList()
 )
+
+/** The task circle: creator + current assignee + participants. Chat's authorization boundary. */
+fun TaskRecord.circleUserIds(): Set<UUID> =
+  buildSet {
+    createdByUserId?.let { add(it) }
+    assigneeUserId?.let { add(it) }
+    participants.forEach { add(it.userId) }
+  }
 
 /** A task participant with display fields resolved from the users table. */
 data class TaskParticipantRecord(
@@ -377,11 +385,6 @@ class TaskRepositoryImpl : TaskRepository {
       TaskParticipantsTable.deleteWhere { taskId eq id }
       TasksTable.deleteWhere { TasksTable.id eq id } > 0
     }
-
-  private fun SQLException.isUniqueViolation(): Boolean =
-    generateSequence(this as Throwable) { it.cause }
-      .filterIsInstance<SQLException>()
-      .any { it.sqlState == UNIQUE_VIOLATION_SQL_STATE }
 
   private fun accessibleProductionIds(userId: UUID): List<UUID> {
     val memberProductionIds = ProductionMembersTable

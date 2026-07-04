@@ -2,6 +2,9 @@ package com.frame.zero.config
 
 import com.frame.zero.auth.RefreshTokensTable
 import com.frame.zero.auth.UsersTable
+import com.frame.zero.chat.ConversationParticipantsTable
+import com.frame.zero.chat.ConversationsTable
+import com.frame.zero.chat.MessagesTable
 import com.frame.zero.common.testing.PostgresTestDatabase
 import com.frame.zero.notification.DeviceTokensTable
 import com.frame.zero.notification.NotificationsTable
@@ -49,7 +52,10 @@ class SchemaConsistencyTest {
           TaskParticipantsTable,
           ScheduleEventsTable,
           NotificationsTable,
-          DeviceTokensTable
+          DeviceTokensTable,
+          ConversationsTable,
+          ConversationParticipantsTable,
+          MessagesTable
         )
       }
     assertTrue(

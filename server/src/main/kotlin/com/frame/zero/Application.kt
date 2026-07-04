@@ -3,6 +3,11 @@ package com.frame.zero
 import com.frame.zero.auth.JwtService
 import com.frame.zero.auth.authModule
 import com.frame.zero.auth.authRoutes
+import com.frame.zero.chat.CHAT_SEND_RATE_LIMIT_NAME
+import com.frame.zero.chat.chatModule
+import com.frame.zero.chat.chatRoutes
+import com.frame.zero.chat.chatWebSocket
+import com.frame.zero.common.userId
 import com.frame.zero.config.AppConfig
 import com.frame.zero.config.DatabaseFactory
 import com.frame.zero.config.pingDatabase
@@ -43,6 +48,7 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
+import io.ktor.server.websocket.WebSockets
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import kotlinx.serialization.SerializationException
@@ -55,6 +61,7 @@ import kotlin.time.Duration.Companion.minutes
 private const val MAX_CALL_ID_LENGTH = 128
 private const val AUTH_RATE_LIMIT = 10
 val AUTH_RATE_LIMIT_NAME = RateLimitName("auth")
+private const val CHAT_SEND_RATE_LIMIT = 60
 
 fun main() {
   val config = AppConfig.fromEnv()
@@ -81,7 +88,8 @@ fun Application.module(
       taskModule(config),
       scheduleModule(),
       notificationModule(config),
-      dashboardModule()
+      dashboardModule(),
+      chatModule()
     )
   }
 
@@ -108,15 +116,9 @@ fun Application.module(
 
   installCors(config)
 
-  install(RateLimit) {
-    register(AUTH_RATE_LIMIT_NAME) {
-      rateLimiter(limit = AUTH_RATE_LIMIT, refillPeriod = 1.minutes)
-      // Key the limit per client so one caller can't exhaust the bucket for
-      // everyone (the default key is global). Behind a proxy, install
-      // XForwardedHeaders so origin.remoteHost reflects the real client IP.
-      requestKey { call -> call.request.origin.remoteHost }
-    }
-  }
+  installRateLimits()
+
+  install(WebSockets)
 
   install(Authentication) {
     jwt("auth-jwt") {
@@ -140,6 +142,27 @@ fun Application.module(
     scheduleRoutes()
     notificationRoutes()
     deviceTokenRoutes()
+    chatRoutes()
+    chatWebSocket()
+  }
+}
+
+private fun Application.installRateLimits() {
+  install(RateLimit) {
+    register(AUTH_RATE_LIMIT_NAME) {
+      rateLimiter(limit = AUTH_RATE_LIMIT, refillPeriod = 1.minutes)
+      // Key the limit per client so one caller can't exhaust the bucket for
+      // everyone (the default key is global). Behind a proxy, install
+      // XForwardedHeaders so origin.remoteHost reflects the real client IP.
+      requestKey { call -> call.request.origin.remoteHost }
+    }
+    // Abuse limit on the chat send route. Keyed per authenticated user, not IP —
+    // the route sits behind auth-jwt, and an IP key would let one chatty user in
+    // an office/NAT exhaust the bucket for every colleague behind the same proxy.
+    register(CHAT_SEND_RATE_LIMIT_NAME) {
+      rateLimiter(limit = CHAT_SEND_RATE_LIMIT, refillPeriod = 1.minutes)
+      requestKey { call -> runCatching { call.userId() }.getOrElse { call.request.origin.remoteHost } }
+    }
   }
 }
 
@@ -148,8 +171,6 @@ private fun Application.installMetrics(metricsRegistry: PrometheusMeterRegistry)
     registry = metricsRegistry
   }
   routing {
-    // Prometheus scrape endpoint. Pair with a request latency/throughput
-    // dashboard; Hikari pool stats are bound in DatabaseFactory.
     get("/metrics") {
       call.respond(metricsRegistry.scrape())
     }
