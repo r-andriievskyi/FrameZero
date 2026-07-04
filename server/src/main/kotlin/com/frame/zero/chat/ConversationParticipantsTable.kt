@@ -10,7 +10,7 @@ object ConversationParticipantsTable : Table("conversation_participants") {
   val conversationId = javaUUID("conversation_id").references(ConversationsTable.id, onDelete = ReferenceOption.CASCADE)
   val userId = javaUUID("user_id").references(UsersTable.id)
 
-  val lastReadSeq = long("last_read_seq")
+  val lastReadOrdinal = long("last_read_ordinal")
   val joinedAt = timestamp("joined_at")
 
   override val primaryKey = PrimaryKey(conversationId, userId)

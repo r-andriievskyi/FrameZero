@@ -24,7 +24,7 @@ sealed interface ConversationDto {
 data class ChatMessageDto(
   val id: String,
   val conversationId: String,
-  val seq: Long,
+  val ordinal: Long,
   val senderUserId: String,
   val body: String,
   val clientMessageId: String,

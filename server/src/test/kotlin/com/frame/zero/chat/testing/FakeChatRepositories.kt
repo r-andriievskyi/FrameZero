@@ -55,12 +55,12 @@ internal class FakeMessageRepository : MessageRepository {
       it.conversationId == conversationId && it.senderUserId == senderUserId && it.clientMessageId == clientMessageId
     }?.let { return AppendResult(it, isNew = false) }
 
-    val nextSeq = (messages.filter { it.conversationId == conversationId }.maxOfOrNull { it.seq } ?: 0L) + 1
+    val nextOrdinal = (messages.filter { it.conversationId == conversationId }.maxOfOrNull { it.ordinal } ?: 0L) + 1
     val record =
       MessageRecord(
         id = UUID.randomUUID(),
         conversationId = conversationId,
-        seq = nextSeq,
+        ordinal = nextOrdinal,
         senderUserId = senderUserId,
         body = body,
         clientMessageId = clientMessageId,
@@ -72,11 +72,11 @@ internal class FakeMessageRepository : MessageRepository {
 
   override suspend fun findByConversation(
     conversationId: UUID,
-    beforeSeq: Long?,
+    before: Long?,
     limit: Int
   ): List<MessageRecord> =
     messages
-      .filter { it.conversationId == conversationId && (beforeSeq == null || it.seq < beforeSeq) }
-      .sortedByDescending { it.seq }
+      .filter { it.conversationId == conversationId && (before == null || it.ordinal < before) }
+      .sortedByDescending { it.ordinal }
       .take(limit)
 }

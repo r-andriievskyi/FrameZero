@@ -29,7 +29,7 @@ CREATE TABLE conversation_participants (
     -- Read-state, not ACL: rows are created lazily on first interaction (subscribe,
     -- send). Authorization is always evaluated against the task circle at request
     -- time, so a stale row here never grants access.
-    last_read_seq   BIGINT    NOT NULL,
+    last_read_ordinal   BIGINT    NOT NULL,
     joined_at       TIMESTAMP NOT NULL,
     PRIMARY KEY (conversation_id, user_id)
 );
@@ -41,9 +41,9 @@ CREATE TABLE messages (
     -- from the owning task's deletion).
     conversation_id   UUID        NOT NULL CONSTRAINT fk_messages_conversation_id__id REFERENCES conversations (id) ON DELETE CASCADE ON UPDATE RESTRICT,
     -- Server-assigned monotonic counter per conversation (not a timestamp): gap
-    -- detection on reconnect is "give me everything after seq N", and read markers
+    -- detection on reconnect is "give me everything after ordinal N", and read markers
     -- become exact. The unique index makes the counter's contract enforceable.
-    seq               BIGINT      NOT NULL,
+    ordinal               BIGINT      NOT NULL,
     sender_user_id    UUID        NOT NULL CONSTRAINT fk_messages_sender_user_id__id REFERENCES users (id) ON DELETE RESTRICT ON UPDATE RESTRICT,
     body              TEXT        NOT NULL,
     -- Client-generated idempotency token: a retried send with the same value from
@@ -53,5 +53,5 @@ CREATE TABLE messages (
     client_message_id VARCHAR(64) NOT NULL,
     created_at        TIMESTAMP   NOT NULL
 );
-CREATE UNIQUE INDEX messages_conversation_seq_unique ON messages (conversation_id, seq);
+CREATE UNIQUE INDEX messages_conversation_ordinal_unique ON messages (conversation_id, ordinal);
 CREATE UNIQUE INDEX messages_conv_sender_client_id_unique ON messages (conversation_id, sender_user_id, client_message_id);

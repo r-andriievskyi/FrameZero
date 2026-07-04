@@ -313,6 +313,8 @@ class RootComponentTest {
       },
       // Not navigated to in these tests; a CreateTask push would need the upload graph.
       createTaskViewModelFactory = { _, _ -> error("create-task navigation is not exercised here") },
+      // Not navigated to in these tests; a Chat push would need the chat graph.
+      chatViewModelFactory = { error("chat navigation is not exercised here") },
       accountViewModelFactory = { AccountViewModel(session, appLockController) }
     )
     lifecycle.resume()

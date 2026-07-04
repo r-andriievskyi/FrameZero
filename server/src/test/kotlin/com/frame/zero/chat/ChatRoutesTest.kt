@@ -113,7 +113,7 @@ class ChatRoutesTest {
       assertEquals(HttpStatusCode.Created, response.status)
       val message = json.decodeFromString<ChatMessageDto>(response.bodyAsText())
       assertEquals("hello", message.body)
-      assertEquals(1L, message.seq)
+      assertEquals(1L, message.ordinal)
     }
 
   @Test
@@ -135,7 +135,7 @@ class ChatRoutesTest {
 
       assertEquals(HttpStatusCode.OK, response.status)
       val page = json.decodeFromString<CursorPagedResponse<ChatMessageDto>>(response.bodyAsText())
-      assertEquals(listOf(2L, 1L), page.items.map { it.seq })
+      assertEquals(listOf(2L, 1L), page.items.map { it.ordinal })
     }
 
   @Test

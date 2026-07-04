@@ -56,33 +56,33 @@ class MessageRepositoryImplTest {
   }
 
   @Test
-  fun `append assigns a per-conversation seq starting at one and incrementing`() =
+  fun `append assigns a per-conversation ordinal starting at one and incrementing`() =
     runBlocking {
       val first = messages.append(conversationId, senderId, "one", "c1")
       val second = messages.append(conversationId, senderId, "two", "c2")
       val third = messages.append(conversationId, senderId, "three", "c3")
 
-      assertEquals(1L, first.message.seq)
-      assertEquals(2L, second.message.seq)
-      assertEquals(3L, third.message.seq)
+      assertEquals(1L, first.message.ordinal)
+      assertEquals(2L, second.message.ordinal)
+      assertEquals(3L, third.message.ordinal)
       assertTrue(first.isNew)
       assertTrue(second.isNew)
       assertTrue(third.isNew)
     }
 
   @Test
-  fun `append is idempotent on conversation, sender and clientMessageId and does not advance seq`() =
+  fun `append is idempotent on conversation, sender and clientMessageId and does not advance ordinal`() =
     runBlocking {
       val first = messages.append(conversationId, senderId, "hello", "c1")
       val retry = messages.append(conversationId, senderId, "hello", "c1")
 
       assertEquals(first.message.id, retry.message.id, "retry must return the same message")
-      assertEquals(first.message.seq, retry.message.seq, "retry must not advance seq")
+      assertEquals(first.message.ordinal, retry.message.ordinal, "retry must not advance ordinal")
       assertFalse(retry.isNew, "a replayed clientMessageId must not be reported as new")
 
-      // The next new client id gets the next seq, proving the retry consumed none.
+      // The next new client id gets the next ordinal, proving the retry consumed none.
       val next = messages.append(conversationId, senderId, "world", "c2")
-      assertEquals(first.message.seq + 1, next.message.seq)
+      assertEquals(first.message.ordinal + 1, next.message.ordinal)
     }
 
   @Test
@@ -95,9 +95,9 @@ class MessageRepositoryImplTest {
       val second = messages.append(otherConversationId, senderId, "hello elsewhere", "c1")
 
       assertTrue(second.isNew, "the same clientMessageId in a different conversation must persist a new message")
-      assertEquals(1L, second.message.seq, "seq is per-conversation")
-      assertEquals(1, messages.findByConversation(otherConversationId, beforeSeq = null, limit = 10).size)
-      assertEquals(1, messages.findByConversation(conversationId, beforeSeq = null, limit = 10).size)
+      assertEquals(1L, second.message.ordinal, "ordinal is per-conversation")
+      assertEquals(1, messages.findByConversation(otherConversationId, before = null, limit = 10).size)
+      assertEquals(1, messages.findByConversation(conversationId, before = null, limit = 10).size)
     }
 
   @Test
@@ -107,19 +107,19 @@ class MessageRepositoryImplTest {
       messages.append(conversationId, senderId, "two", "c2")
       messages.append(conversationId, senderId, "three", "c3")
 
-      val page = messages.findByConversation(conversationId, beforeSeq = null, limit = 10)
-      assertEquals(listOf(3L, 2L, 1L), page.map { it.seq })
+      val page = messages.findByConversation(conversationId, before = null, limit = 10)
+      assertEquals(listOf(3L, 2L, 1L), page.map { it.ordinal })
     }
 
   @Test
-  fun `findByConversation with beforeSeq returns only earlier messages, newest-first`() =
+  fun `findByConversation with before returns only earlier messages, newest-first`() =
     runBlocking {
       messages.append(conversationId, senderId, "one", "c1")
       messages.append(conversationId, senderId, "two", "c2")
       messages.append(conversationId, senderId, "three", "c3")
 
-      val page = messages.findByConversation(conversationId, beforeSeq = 3L, limit = 10)
-      assertEquals(listOf(2L, 1L), page.map { it.seq }, "beforeSeq is exclusive")
+      val page = messages.findByConversation(conversationId, before = 3L, limit = 10)
+      assertEquals(listOf(2L, 1L), page.map { it.ordinal }, "before is exclusive")
     }
 
   @Test
@@ -129,7 +129,7 @@ class MessageRepositoryImplTest {
       messages.append(conversationId, senderId, "two", "c2")
       messages.append(conversationId, senderId, "three", "c3")
 
-      val page = messages.findByConversation(conversationId, beforeSeq = null, limit = 2)
-      assertEquals(listOf(3L, 2L), page.map { it.seq })
+      val page = messages.findByConversation(conversationId, before = null, limit = 2)
+      assertEquals(listOf(3L, 2L), page.map { it.ordinal })
     }
 }

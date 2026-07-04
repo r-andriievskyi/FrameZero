@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="chat_error_network">You're offline. Connect and try again.</string>
+  <string name="chat_error_server">Something went wrong on our end. Try again.</string>
+  <string name="chat_error_not_found">This conversation is no longer available.</string>
+  <string name="chat_error_forbidden">You don't have access to this conversation.</string>
+  <string name="chat_error_conflict">Couldn't send that message. Try again.</string>
+  <string name="chat_error_auth_failed">Your session expired. Sign in again.</string>
+  <string name="chat_error_unknown">Something went wrong. Try again.</string>
+</resources>

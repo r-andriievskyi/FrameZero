@@ -18,7 +18,7 @@ import kotlin.time.Instant
 data class MessageRecord(
   val id: UUID,
   val conversationId: UUID,
-  val seq: Long,
+  val ordinal: Long,
   val senderUserId: UUID,
   val body: String,
   val clientMessageId: String,
@@ -33,10 +33,10 @@ data class AppendResult(
 
 interface MessageRepository {
   /**
-   * Inserts the next message in [conversationId] with a server-assigned [seq],
+   * Inserts the next message in [conversationId] with a server-assigned [ordinal],
    * idempotent on `(conversationId, senderUserId, clientMessageId)`. A retried send
    * with the same client id in the same conversation returns the already-persisted
-   * message without advancing `seq`, and [AppendResult.isNew] is false so callers
+   * message without advancing `ordinal`, and [AppendResult.isNew] is false so callers
    * know not to re-fan-out a duplicate.
    */
   suspend fun append(
@@ -47,12 +47,12 @@ interface MessageRepository {
   ): AppendResult
 
   /**
-   * Newest-first page of messages, optionally older than [beforeSeq] (exclusive)
+   * Newest-first page of messages, optionally older than [before] (exclusive)
    * for backfill. Returns up to [limit] rows.
    */
   suspend fun findByConversation(
     conversationId: UUID,
-    beforeSeq: Long?,
+    before: Long?,
     limit: Int
   ): List<MessageRecord>
 }
@@ -69,7 +69,7 @@ class MessageRepositoryImpl : MessageRepository {
         ?.let { return@dbQuery AppendResult(it, isNew = false) }
 
       // Lock the conversation row so concurrent sends serialize: two of them can't
-      // read the same MAX(seq) and collide on messages_conversation_seq_unique.
+      // read the same MAX(ordinal) and collide on messages_conversation_ordinal_unique.
       ConversationsTable
         .selectAll()
         .where { ConversationsTable.id eq conversationId }
@@ -77,13 +77,13 @@ class MessageRepositoryImpl : MessageRepository {
         .singleOrNull()
 
       val currentMax = MessagesTable
-        .select(MessagesTable.seq)
+        .select(MessagesTable.ordinal)
         .where { MessagesTable.conversationId eq conversationId }
-        .orderBy(MessagesTable.seq to SortOrder.DESC)
+        .orderBy(MessagesTable.ordinal to SortOrder.DESC)
         .limit(1)
         .firstOrNull()
-        ?.get(MessagesTable.seq)
-      val nextSeq = (currentMax ?: 0L) + 1
+        ?.get(MessagesTable.ordinal)
+      val nextOrdinal = (currentMax ?: 0L) + 1
       val newId = UUID.randomUUID()
       val now = nowTruncatedToMicros()
 
@@ -95,7 +95,7 @@ class MessageRepositoryImpl : MessageRepository {
         MessagesTable.insert {
           it[id] = newId
           it[MessagesTable.conversationId] = conversationId
-          it[seq] = nextSeq
+          it[ordinal] = nextOrdinal
           it[MessagesTable.senderUserId] = senderUserId
           it[MessagesTable.body] = body
           it[MessagesTable.clientMessageId] = clientMessageId
@@ -115,14 +115,14 @@ class MessageRepositoryImpl : MessageRepository {
       }
 
       AppendResult(
-        MessageRecord(newId, conversationId, nextSeq, senderUserId, body, clientMessageId, now),
+        MessageRecord(newId, conversationId, nextOrdinal, senderUserId, body, clientMessageId, now),
         isNew = true
       )
     }
 
   override suspend fun findByConversation(
     conversationId: UUID,
-    beforeSeq: Long?,
+    before: Long?,
     limit: Int
   ): List<MessageRecord> =
     dbQuery {
@@ -130,9 +130,9 @@ class MessageRepositoryImpl : MessageRepository {
         .selectAll()
         .where {
           var cond = MessagesTable.conversationId eq conversationId
-          if (beforeSeq != null) cond = cond and (MessagesTable.seq less beforeSeq)
+          if (before != null) cond = cond and (MessagesTable.ordinal less before)
           cond
-        }.orderBy(MessagesTable.seq to SortOrder.DESC)
+        }.orderBy(MessagesTable.ordinal to SortOrder.DESC)
         .limit(limit)
         .map { it.toRecord() }
     }
@@ -156,7 +156,7 @@ class MessageRepositoryImpl : MessageRepository {
     MessageRecord(
       id = this[MessagesTable.id],
       conversationId = this[MessagesTable.conversationId],
-      seq = this[MessagesTable.seq],
+      ordinal = this[MessagesTable.ordinal],
       senderUserId = this[MessagesTable.senderUserId],
       body = this[MessagesTable.body],
       clientMessageId = this[MessagesTable.clientMessageId],

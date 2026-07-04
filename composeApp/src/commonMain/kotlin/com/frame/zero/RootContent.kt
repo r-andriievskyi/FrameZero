@@ -13,6 +13,7 @@ import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.feature.RootComponent
 import com.frame.zero.feature.account.ui.AccountScreen
 import com.frame.zero.feature.auth.ui.AuthScreen
+import com.frame.zero.feature.chat.ui.ChatScreen
 import com.frame.zero.feature.home.ui.HomeContent
 import com.frame.zero.feature.lock.BiometricLockOverlay
 import com.frame.zero.feature.production.details.ui.ProductionDetailsScreen
@@ -38,6 +39,7 @@ fun RootContent(component: RootComponent) {
         is RootComponent.Child.ProductionDetails -> ProductionDetailsScreen(instance.component)
         is RootComponent.Child.TaskDetails -> TaskDetailsScreen(instance.component)
         is RootComponent.Child.CreateTask -> CreateTaskScreen(instance.component)
+        is RootComponent.Child.Chat -> ChatScreen(instance.component)
       }
     }
     if (isLocked) {
