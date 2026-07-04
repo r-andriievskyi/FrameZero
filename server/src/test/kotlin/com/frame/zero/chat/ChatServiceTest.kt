@@ -48,7 +48,7 @@ class ChatServiceTest {
     }
 
   @Test
-  fun `send assigns an incrementing seq and is idempotent on clientMessageId`() =
+  fun `send assigns an incrementing ordinal and is idempotent on clientMessageId`() =
     runBlocking {
       val env = TestAppEnv()
       val owner = UUID.randomUUID()
@@ -60,8 +60,8 @@ class ChatServiceTest {
       val second = env.chatService.send(owner, convId, "c2", "world")
       val retry = env.chatService.send(owner, convId, "c1", "hello")
 
-      assertEquals(1L, first.seq)
-      assertEquals(2L, second.seq)
+      assertEquals(1L, first.ordinal)
+      assertEquals(2L, second.ordinal)
       assertEquals(first.id, retry.id, "a replayed clientMessageId returns the same message")
       assertEquals(2, env.chatMessages.messages.size, "replay must not persist a second message")
     }
@@ -122,10 +122,10 @@ class ChatServiceTest {
       env.chatService.send(owner, convId, "c1", "one")
       env.chatService.send(owner, convId, "c2", "two")
 
-      val (items, nextCursor) = env.chatService.listMessages(owner, convId, beforeSeq = null, limit = 2)
+      val (items, nextCursor) = env.chatService.listMessages(owner, convId, before = null, limit = 2)
 
-      assertEquals(listOf(2L, 1L), items.map { it.seq }, "newest-first")
-      assertEquals("1", nextCursor, "cursor is the oldest seq of a full page")
+      assertEquals(listOf(2L, 1L), items.map { it.ordinal }, "newest-first")
+      assertEquals("1", nextCursor, "cursor is the oldest ordinal of a full page")
     }
 
   @Test

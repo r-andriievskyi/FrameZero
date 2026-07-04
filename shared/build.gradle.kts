@@ -64,6 +64,7 @@ kotlin {
       api(libs.kotlinx.collections.immutable)
       api(libs.koin.core)
       implementation(libs.ktor.clientCore)
+      implementation(libs.ktor.clientWebsockets)
       implementation(libs.multiplatformSettings)
       implementation(libs.ktor.clientAuth)
       implementation(libs.ktor.clientContentNegotiation)

@@ -13,7 +13,7 @@ object MessagesTable : Table("messages") {
   val conversationId = javaUUID("conversation_id").references(ConversationsTable.id, onDelete = ReferenceOption.CASCADE)
 
   // Server-assigned monotonic counter per conversation; unique per conversation.
-  val seq = long("seq")
+  val ordinal = long("ordinal")
   val senderUserId = javaUUID("sender_user_id").references(UsersTable.id)
   val body = text("body")
 
@@ -24,7 +24,7 @@ object MessagesTable : Table("messages") {
   override val primaryKey = PrimaryKey(id)
 
   init {
-    uniqueIndex("messages_conversation_seq_unique", conversationId, seq)
+    uniqueIndex("messages_conversation_ordinal_unique", conversationId, ordinal)
     uniqueIndex("messages_conv_sender_client_id_unique", conversationId, senderUserId, clientMessageId)
   }
 }

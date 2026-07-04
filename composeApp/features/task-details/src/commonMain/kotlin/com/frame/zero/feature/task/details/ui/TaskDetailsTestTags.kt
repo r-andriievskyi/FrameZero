@@ -5,4 +5,5 @@ internal object TaskDetailsTestTags {
   const val ERROR = "task-details:error"
   const val CONTENT = "task-details:content"
   const val MARK_COMPLETE = "task-details:mark-complete"
+  const val OPEN_CHAT = "task-details:open-chat"
 }

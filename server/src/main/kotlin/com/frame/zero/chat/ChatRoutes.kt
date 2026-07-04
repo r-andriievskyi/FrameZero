@@ -38,10 +38,10 @@ fun Route.chatRoutes() {
       get {
         val service by call.inject<ChatService>()
         val conversationId = call.pathUuid("id")
-        val beforeSeq = call.request.queryParameters["beforeSeq"]?.toLongOrNull()
+        val before = call.request.queryParameters["before"]?.toLongOrNull()
         val limit = call.request.queryParameters["limit"]?.toIntOrNull()
           ?.coerceIn(1, MAX_MESSAGE_PAGE) ?: DEFAULT_MESSAGE_PAGE
-        val (items, nextCursor) = service.listMessages(call.userId(), conversationId, beforeSeq, limit)
+        val (items, nextCursor) = service.listMessages(call.userId(), conversationId, before, limit)
         call.respond(CursorPagedResponse(items = items, nextCursor = nextCursor))
       }
 

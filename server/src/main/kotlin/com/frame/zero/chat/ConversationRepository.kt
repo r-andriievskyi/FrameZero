@@ -109,7 +109,7 @@ class ConversationRepositoryImpl : ConversationRepository {
       ConversationParticipantsTable.insertIgnore {
         it[ConversationParticipantsTable.conversationId] = conversationId
         it[ConversationParticipantsTable.userId] = userId
-        it[lastReadSeq] = 0
+        it[lastReadOrdinal] = 0
         it[joinedAt] = nowTruncatedToMicros()
       }
     }

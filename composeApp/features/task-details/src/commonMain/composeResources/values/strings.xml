@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="task_details_title">Task</string>
+  <string name="task_details_open_chat">Chat</string>
   <string name="task_details_mark_complete">Mark complete</string>
   <string name="task_details_assignee">Assignee</string>
   <string name="task_details_due_date">Due</string>

@@ -21,6 +21,8 @@ import com.frame.zero.core.session.SessionState
 import com.frame.zero.feature.account.AccountComponent
 import com.frame.zero.feature.account.AccountViewModel
 import com.frame.zero.feature.auth.AuthComponent
+import com.frame.zero.feature.chat.ChatComponent
+import com.frame.zero.feature.chat.ChatViewModel
 import com.frame.zero.feature.home.HomeComponent
 import com.frame.zero.feature.production.CreateProductionComponent
 import com.frame.zero.feature.production.CreateProductionViewModel
@@ -64,6 +66,7 @@ class RootComponent(
     productionId: String,
     productionTitle: String
   ) -> CreateTaskViewModel,
+  private val chatViewModelFactory: (taskId: String) -> ChatViewModel,
   private val accountViewModelFactory: () -> AccountViewModel
 ) : ComponentContext by componentContext {
   private val navigation = StackNavigation<Config>()
@@ -211,7 +214,20 @@ class RootComponent(
           componentContext = context,
           taskId = config.taskId,
           onBack = { navigation.pop() },
+          onOpenChat = {
+            @OptIn(DelicateDecomposeApi::class)
+            navigation.push(Config.Chat(config.taskId))
+          },
           viewModelFactory = taskDetailsViewModelFactory
+        )
+      )
+
+      is Config.Chat -> Child.Chat(
+        ChatComponent(
+          componentContext = context,
+          taskId = config.taskId,
+          onBack = { navigation.pop() },
+          viewModelFactory = chatViewModelFactory
         )
       )
 
@@ -259,6 +275,11 @@ class RootComponent(
       val productionId: String,
       val productionTitle: String
     ) : Config
+
+    @Serializable
+    data class Chat(
+      val taskId: String
+    ) : Config
   }
 
   sealed interface Child {
@@ -290,6 +311,10 @@ class RootComponent(
 
     data class CreateTask(
       val component: CreateTaskComponent
+    ) : Child
+
+    data class Chat(
+      val component: ChatComponent
     ) : Child
   }
 }

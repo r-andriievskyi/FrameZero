@@ -9,9 +9,11 @@ import androidx.room.RoomDatabaseConstructor
   entities = [
     ProductionEntity::class,
     ProductionRemoteKeyEntity::class,
-    PendingUploadEntity::class
+    PendingUploadEntity::class,
+    ConversationEntity::class,
+    MessageEntity::class
   ],
-  version = 2,
+  version = 3,
   exportSchema = false
 )
 @ConstructedBy(FrameZeroDatabaseConstructor::class)
@@ -19,6 +21,8 @@ abstract class FrameZeroDatabase : RoomDatabase() {
   abstract fun productionsCacheDao(): ProductionsDao
 
   abstract fun pendingUploadsDao(): PendingUploadDao
+
+  abstract fun chatDao(): ChatDao
 }
 
 @Suppress("KotlinNoActualForExpect", "NO_ACTUAL_FOR_EXPECT")

@@ -23,6 +23,7 @@ import io.ktor.client.plugins.logging.DEFAULT
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
+import io.ktor.client.plugins.websocket.WebSockets
 import io.ktor.client.request.accept
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -50,6 +51,7 @@ internal fun connectivityGuard(connectivityObserver: ConnectivityObserver) =
 val networkModule: Module = module {
   single { NetworkConfig.fromBuildConfig() }
   single { provideHttpClient(get(), get(), get(), get(), get(), isDebug = BuildKonfig.DEBUG) }
+  single { ChatSocketClient(httpClient = get(), networkConfig = get(), logger = get()) }
 }
 
 private fun provideHttpClient(
@@ -79,6 +81,7 @@ internal fun clientConfig(
 ): HttpClientConfig<*>.() -> Unit =
   {
     install(connectivityGuard(connectivityObserver))
+    install(WebSockets)
 
     defaultRequest {
       contentType(ContentType.Application.Json)

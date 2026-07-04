@@ -30,18 +30,18 @@ class ChatService(
   suspend fun listMessages(
     userId: UUID,
     conversationId: UUID,
-    beforeSeq: Long?,
+    before: Long?,
     limit: Int
   ): Pair<List<ChatMessageDto>, String?> =
     transactor.transaction {
       authorizeConversation(userId, conversationId)
-      val records = messageRepository.findByConversation(conversationId, beforeSeq, limit)
-      val nextCursor = if (records.size == limit) records.last().seq.toString() else null
+      val records = messageRepository.findByConversation(conversationId, before, limit)
+      val nextCursor = if (records.size == limit) records.last().ordinal.toString() else null
       records.map { it.toDto() } to nextCursor
     }
 
   /**
-   * Persists a message (server-assigned seq, idempotent on `clientMessageId`) and
+   * Persists a message (server-assigned ordinal, idempotent on `clientMessageId`) and
    * broadcasts it to live subscribers **after** the transaction commits, so a
    * failed insert never fans out a phantom message. A replayed `clientMessageId`
    * is not re-broadcast — subscribers already got it the first time.
@@ -121,7 +121,7 @@ class ChatService(
     ChatMessageDto(
       id = id.toString(),
       conversationId = conversationId.toString(),
-      seq = seq,
+      ordinal = ordinal,
       senderUserId = senderUserId.toString(),
       body = body,
       clientMessageId = clientMessageId,
