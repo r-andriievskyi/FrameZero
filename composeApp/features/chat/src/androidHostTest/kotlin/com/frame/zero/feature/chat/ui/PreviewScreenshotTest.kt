@@ -1,4 +1,4 @@
-package com.frame.zero.feature.auth.ui
+package com.frame.zero.feature.chat.ui
 
 import com.frame.zero.shared.screenshot.BasePreviewScreenshotTest
 import org.robolectric.ParameterizedRobolectricTestRunner
@@ -11,6 +11,6 @@ class PreviewScreenshotTest(
   companion object {
     @JvmStatic
     @ParameterizedRobolectricTestRunner.Parameters(name = "{0}")
-    fun previews() = scanPreviews("com.frame.zero.feature.auth.ui")
+    fun previews() = scanPreviews("com.frame.zero.feature.chat.ui")
   }
 }

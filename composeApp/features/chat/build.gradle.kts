@@ -1,5 +1,6 @@
 plugins {
   id("crossplatform.library.compose")
+  id("crossplatform.screenshot")
 }
 
 base { archivesName = "ui-feature-chat" }
