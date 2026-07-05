@@ -11,10 +11,11 @@ class PreviewScreenshotTest(
   companion object {
     @JvmStatic
     @ParameterizedRobolectricTestRunner.Parameters(name = "{0}")
-    fun previews() = scanPreviews(
-      packageTree = "com.frame.zero.shared.design_system",
-      // Both render Material3's morphing LoadingIndicator, which never reaches an idle frame.
-      excludedPreviews = setOf("CtaButtonPreview", "FullScreenProgressPreview")
-    )
+    fun previews() =
+      scanPreviews(
+        packageTree = "com.frame.zero.shared.design_system",
+        // Both render Material3's morphing LoadingIndicator, which never reaches an idle frame.
+        excludedPreviews = setOf("CtaButtonPreview", "FullScreenProgressPreview")
+      )
   }
 }

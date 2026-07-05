@@ -11,9 +11,10 @@ class PreviewScreenshotTest(
   companion object {
     @JvmStatic
     @ParameterizedRobolectricTestRunner.Parameters(name = "{0}")
-    fun previews() = scanPreviews(
-      packageTree = "com.frame.zero.feature.home.ui",
-      excludedPreviews = setOf("ProductionsSkeletonPreview", "ProductionsContentPreview")
-    )
+    fun previews() =
+      scanPreviews(
+        packageTree = "com.frame.zero.feature.home.ui",
+        excludedPreviews = setOf("ProductionsSkeletonPreview", "ProductionsContentPreview")
+      )
   }
 }
