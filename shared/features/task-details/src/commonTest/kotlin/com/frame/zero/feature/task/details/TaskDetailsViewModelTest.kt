@@ -2,8 +2,6 @@ package com.frame.zero.feature.task.details
 
 import com.frame.zero.dto.task.TaskAssigneeDto
 import com.frame.zero.dto.task.TaskDetailDto
-import androidx.paging.PagingData
-import com.frame.zero.domain.chat.ChatMessage
 import com.frame.zero.domain.chat.Conversation
 import com.frame.zero.feature.task.details.usecase.CompleteTaskUseCase
 import com.frame.zero.feature.task.details.usecase.GetAssignableMembersUseCase
@@ -11,14 +9,13 @@ import com.frame.zero.feature.task.details.usecase.GetTaskDetailsUseCase
 import com.frame.zero.feature.task.details.usecase.ObserveTaskChatUnreadUseCase
 import com.frame.zero.feature.task.details.usecase.UpdateTaskParticipantsUseCase
 import com.frame.zero.repository.chat.ChatRepository
+import com.frame.zero.testing.FakeChatRepository
 import com.frame.zero.testing.FakeProductionsRepository
 import com.frame.zero.testing.FakeTasksRepository
 import com.frame.zero.testing.productionMemberDto
 import com.frame.zero.testing.taskParticipantDto
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -390,32 +387,6 @@ class TaskDetailsViewModelTest {
       attachmentFileManager = attachmentFileManager,
       dispatcher = StandardTestDispatcher(scope.testScheduler)
     )
-
-  /** Only [observeConversation] matters here; the rest are unused by these tests. */
-  private class FakeChatRepository(
-    private val conversation: Conversation? = null
-  ) : ChatRepository {
-    override suspend fun getOrCreateConversation(taskId: String): Conversation = error("unused")
-
-    override suspend fun cachedConversation(taskId: String): Conversation? = conversation
-
-    override fun observeConversation(taskId: String): Flow<Conversation?> = flowOf(conversation)
-
-    override fun messages(conversationId: String): Flow<PagingData<ChatMessage>> = flowOf(PagingData.empty())
-
-    override suspend fun subscribe(conversationId: String) = Unit
-
-    override suspend fun send(
-      conversationId: String,
-      clientMessageId: String,
-      body: String
-    ) = Unit
-
-    override suspend fun markRead(
-      conversationId: String,
-      lastReadOrdinal: Long
-    ) = Unit
-  }
 
   private class FakeAttachmentFileManager : com.frame.zero.core.files.AttachmentFileManager {
     val opened: MutableList<String> = mutableListOf()
