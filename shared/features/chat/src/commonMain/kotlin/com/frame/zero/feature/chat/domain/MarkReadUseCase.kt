@@ -12,6 +12,5 @@ class MarkReadUseCase(
     val lastReadOrdinal: Long
   )
 
-  override suspend fun execute(params: Params) =
-    chatRepository.markRead(params.conversationId, params.lastReadOrdinal)
+  override suspend fun execute(params: Params) = chatRepository.markRead(params.conversationId, params.lastReadOrdinal)
 }
