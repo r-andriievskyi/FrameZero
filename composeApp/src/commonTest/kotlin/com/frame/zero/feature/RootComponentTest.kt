@@ -41,8 +41,10 @@ import com.frame.zero.feature.task.details.TaskDetailsViewModel
 import com.frame.zero.feature.task.details.usecase.CompleteTaskUseCase
 import com.frame.zero.feature.task.details.usecase.GetAssignableMembersUseCase
 import com.frame.zero.feature.task.details.usecase.GetTaskDetailsUseCase
+import com.frame.zero.feature.task.details.usecase.ObserveTaskChatUnreadUseCase
 import com.frame.zero.feature.task.details.usecase.UpdateTaskParticipantsUseCase
 import com.frame.zero.testing.FakeAuthRepository
+import com.frame.zero.testing.FakeChatRepository
 import com.frame.zero.testing.FakeConnectivityObserver
 import com.frame.zero.testing.FakeDashboardRepository
 import com.frame.zero.testing.FakeProductionsRepository
@@ -308,6 +310,7 @@ class RootComponentTest {
           getAssignableMembersUseCase = GetAssignableMembersUseCase(productions),
           updateTaskParticipantsUseCase = UpdateTaskParticipantsUseCase(tasks),
           tasksRepository = tasks,
+          observeTaskChatUnreadUseCase = ObserveTaskChatUnreadUseCase(FakeChatRepository()),
           attachmentFileManager = NoopAttachmentFileManager
         )
       },

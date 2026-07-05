@@ -3,6 +3,8 @@ package com.frame.zero.repository.chat.network
 import com.frame.zero.core.network.NetworkConfig
 import com.frame.zero.dto.chat.ChatMessageDto
 import com.frame.zero.dto.chat.ConversationDto
+import com.frame.zero.dto.chat.MarkReadRequest
+import com.frame.zero.dto.chat.MarkReadResponse
 import com.frame.zero.dto.chat.SendMessageRequest
 import com.frame.zero.dto.common.CursorPagedResponse
 import io.ktor.client.HttpClient
@@ -10,6 +12,7 @@ import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.client.request.post
+import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 
 class ChatApiImpl(
@@ -40,4 +43,14 @@ class ChatApiImpl(
     httpClient.post(
       "${networkConfig.baseUrl}/api/v1/conversations/$conversationId/messages"
     ) { setBody(request) }.body()
+
+  override suspend fun markRead(
+    conversationId: String,
+    lastReadOrdinal: Long
+  ): Long =
+    httpClient.put(
+      "${networkConfig.baseUrl}/api/v1/conversations/$conversationId/read"
+    ) { setBody(MarkReadRequest(lastReadOrdinal)) }
+      .body<MarkReadResponse>()
+      .lastReadOrdinal
 }

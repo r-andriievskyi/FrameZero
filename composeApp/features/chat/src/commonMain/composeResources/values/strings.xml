@@ -7,4 +7,5 @@
   <string name="chat_day_today">Today</string>
   <string name="chat_day_yesterday">Yesterday</string>
   <string name="chat_empty">No messages yet. Say hello.</string>
+  <string name="chat_new_messages">New messages</string>
 </resources>

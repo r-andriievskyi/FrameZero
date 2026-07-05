@@ -15,6 +15,9 @@ internal class FakeConversationRepository : ConversationRepository {
   // (conversationId, userId) pairs created lazily on first interaction.
   val participants: MutableSet<Pair<UUID, UUID>> = mutableSetOf()
 
+  // Read cursors keyed by (conversationId, userId); absent = 0.
+  val lastReadOrdinals: MutableMap<Pair<UUID, UUID>, Long> = mutableMapOf()
+
   override suspend fun findById(id: UUID): ConversationRecord? = conversations.firstOrNull { it.id == id }
 
   override suspend fun findByTaskId(taskId: UUID): ConversationRecord? =
@@ -38,6 +41,19 @@ internal class FakeConversationRepository : ConversationRepository {
     userId: UUID
   ) {
     participants += conversationId to userId
+  }
+
+  override suspend fun lastReadOrdinal(
+    conversationId: UUID,
+    userId: UUID
+  ): Long = lastReadOrdinals[conversationId to userId] ?: 0L
+
+  override suspend fun updateLastReadOrdinal(
+    conversationId: UUID,
+    userId: UUID,
+    ordinal: Long
+  ) {
+    lastReadOrdinals[conversationId to userId] = ordinal
   }
 }
 
@@ -79,4 +95,7 @@ internal class FakeMessageRepository : MessageRepository {
       .filter { it.conversationId == conversationId && (before == null || it.ordinal < before) }
       .sortedByDescending { it.ordinal }
       .take(limit)
+
+  override suspend fun maxOrdinal(conversationId: UUID): Long =
+    messages.filter { it.conversationId == conversationId }.maxOfOrNull { it.ordinal } ?: 0L
 }

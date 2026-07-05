@@ -70,6 +70,25 @@ class ChatHub {
   }
 
   /**
+   * Fan a frame out to every socket belonging to [userId] — used for READ, which
+   * syncs a reader's own devices and must never leak to the rest of a conversation.
+   * Not subscription-gated: a device on the task list (unsubscribed) still updates
+   * its unread badge.
+   */
+  suspend fun sendToUser(
+    userId: UUID,
+    frame: ChatSocketFrame
+  ) {
+    val text = chatJson.encodeToString(ChatSocketFrame.serializer(), frame)
+    val targets = mutex.withLock {
+      connections.filter { it.userId == userId }.map { it.session }
+    }
+    targets.forEach { session ->
+      sendScope.launch { runCatching { session.send(Frame.Text(text)) } }
+    }
+  }
+
+  /**
    * Drops [conversationId] from the subscriptions of any connected user not in
    * [allowedUserIds] — the revocation triggered when a task's circle shrinks.
    */

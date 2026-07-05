@@ -27,4 +27,12 @@ sealed interface ChatSocketFrame {
   data class Message(
     val message: ChatMessageDto
   ) : ChatSocketFrame
+
+  /** Server → client: the user's own read cursor advanced on another device. */
+  @Serializable
+  @SerialName("READ")
+  data class Read(
+    val conversationId: String,
+    val lastReadOrdinal: Long
+  ) : ChatSocketFrame
 }

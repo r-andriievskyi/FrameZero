@@ -24,7 +24,11 @@ sealed interface ConversationDto {
     override val id: String,
     override val productionId: String,
     override val createdAt: Instant,
-    val taskId: String
+    val taskId: String,
+    // Read-state fields (see the server copy): latest = MAX(ordinal), lastRead = this
+    // user's cursor. Unread is derived on the client, never sent as a wire field.
+    val latestOrdinal: Long,
+    val lastReadOrdinal: Long
   ) : ConversationDto
 }
 
@@ -43,4 +47,15 @@ data class ChatMessageDto(
 data class SendMessageRequest(
   val clientMessageId: String,
   val body: String
+)
+
+@Serializable
+data class MarkReadRequest(
+  val lastReadOrdinal: Long
+)
+
+/** The read cursor the server actually applied after forward-only clamping. */
+@Serializable
+data class MarkReadResponse(
+  val lastReadOrdinal: Long
 )

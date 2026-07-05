@@ -41,7 +41,9 @@ class ChatRepositoryImpl(
       socketClient.events.collect { event ->
         when (event) {
           is ChatSocketEvent.MessageReceived ->
-            dao.upsertMessages(listOf(event.message.toEntity()))
+            dao.upsertMessagesAndAdvanceLatest(listOf(event.message.toEntity()))
+          is ChatSocketEvent.ReadUpdated ->
+            dao.advanceLastReadOrdinal(event.conversationId, event.lastReadOrdinal)
           ChatSocketEvent.Connected -> scope.launch { syncTracked() }
         }
       }
@@ -64,6 +66,9 @@ class ChatRepositoryImpl(
 
   override suspend fun cachedConversation(taskId: String): Conversation? = dao.conversationByTaskId(taskId)?.toDomain()
 
+  override fun observeConversation(taskId: String): Flow<Conversation?> =
+    dao.observeConversationByTaskId(taskId).map { it?.toDomain() }
+
   override suspend fun subscribe(conversationId: String) {
     mutex.withLock { tracked.add(conversationId) }
     // Initial history comes from the pager's REFRESH; the socket's Connected event drives the
@@ -80,7 +85,19 @@ class ChatRepositoryImpl(
     // response is deduped by the server rather than posting a duplicate.
     val request = SendMessageRequest(clientMessageId = clientMessageId, body = body)
     val message = api.send(conversationId, request)
-    dao.upsertMessages(listOf(message.toEntity()))
+    dao.upsertMessagesAndAdvanceLatest(listOf(message.toEntity()))
+    // The sender has by definition read their own message: advance the local read cursor so
+    // it never shows as unread on the badge. The server cursor is advanced separately by the
+    // screen's mark-read; READ then syncs the user's other devices.
+    dao.advanceLastReadOrdinal(conversationId, message.ordinal)
+  }
+
+  override suspend fun markRead(
+    conversationId: String,
+    lastReadOrdinal: Long
+  ) {
+    val applied = api.markRead(conversationId, lastReadOrdinal)
+    dao.advanceLastReadOrdinal(conversationId, applied)
   }
 
   private suspend fun syncTracked() {
@@ -106,7 +123,7 @@ class ChatRepositoryImpl(
       }
       val page = api.listMessages(conversationId, before, limit)
       if (page.items.isEmpty()) break
-      dao.upsertMessages(page.items.map { it.toEntity() })
+      dao.upsertMessagesAndAdvanceLatest(page.items.map { it.toEntity() })
       val oldestInPage = page.items.last().ordinal
       // Fresh cache: the newest page is enough; older history loads via paging.
       if (since == null) break

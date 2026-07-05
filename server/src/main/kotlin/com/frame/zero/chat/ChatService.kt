@@ -24,7 +24,10 @@ class ChatService(
       val task = taskCircleAccessService.requireCircle(userId, taskId)
       val conversation = conversationRepository.getOrCreateTaskConversation(taskId, task.productionId)
       conversationRepository.ensureParticipant(conversation.id, userId)
-      conversation.toDto()
+      conversation.toDto(
+        latestOrdinal = messageRepository.maxOrdinal(conversation.id),
+        lastReadOrdinal = conversationRepository.lastReadOrdinal(conversation.id, userId)
+      )
     }
 
   suspend fun listMessages(
@@ -67,6 +70,34 @@ class ChatService(
     return dto
   }
 
+  /**
+   * Advances the caller's read cursor in [conversationId], clamped forward-only to
+   * `[current, latest]` so a stale or malicious client can never move it backwards or
+   * past the newest message. Broadcasts a `READ` frame to the caller's own other
+   * connections only when the cursor actually moves. Returns the applied ordinal.
+   */
+  suspend fun markRead(
+    userId: UUID,
+    conversationId: UUID,
+    requestedOrdinal: Long
+  ): Long {
+    val (applied, changed) = transactor.transaction {
+      authorizeConversation(userId, conversationId)
+      conversationRepository.ensureParticipant(conversationId, userId)
+      val current = conversationRepository.lastReadOrdinal(conversationId, userId)
+      val latest = messageRepository.maxOrdinal(conversationId)
+      val clamped = requestedOrdinal.coerceAtMost(latest).coerceAtLeast(current)
+      if (clamped != current) {
+        conversationRepository.updateLastReadOrdinal(conversationId, userId, clamped)
+      }
+      clamped to (clamped != current)
+    }
+    if (changed) {
+      hub.sendToUser(userId, ChatSocketFrame.Read(conversationId.toString(), applied))
+    }
+    return applied
+  }
+
   /** Non-throwing task-circle check for the WebSocket SUBSCRIBE path. */
   suspend fun canAccessConversation(
     userId: UUID,
@@ -103,7 +134,10 @@ class ChatService(
     }
   }
 
-  private fun ConversationRecord.toDto(): ConversationDto =
+  private fun ConversationRecord.toDto(
+    latestOrdinal: Long,
+    lastReadOrdinal: Long
+  ): ConversationDto =
     when (kind) {
       // Exhaustive on purpose: adding DIRECT storage forces a matching DTO subtype
       // here rather than silently falling back to a TASK shape.
@@ -112,7 +146,9 @@ class ChatService(
           id = id.toString(),
           productionId = productionId.toString(),
           createdAt = createdAt,
-          taskId = requireNotNull(taskId) { "TASK conversation $id has no taskId" }.toString()
+          taskId = requireNotNull(taskId) { "TASK conversation $id has no taskId" }.toString(),
+          latestOrdinal = latestOrdinal,
+          lastReadOrdinal = lastReadOrdinal
         )
       ConversationKind.DIRECT -> error("DIRECT conversations are not implemented yet")
     }

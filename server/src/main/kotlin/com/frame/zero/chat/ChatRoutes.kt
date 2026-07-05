@@ -3,6 +3,8 @@ package com.frame.zero.chat
 import com.frame.zero.common.pathUuid
 import com.frame.zero.common.userId
 import com.frame.zero.dto.chat.ChatSocketFrame
+import com.frame.zero.dto.chat.MarkReadRequest
+import com.frame.zero.dto.chat.MarkReadResponse
 import com.frame.zero.dto.chat.SendMessageRequest
 import com.frame.zero.dto.common.CursorPagedResponse
 import io.ktor.http.HttpStatusCode
@@ -14,6 +16,7 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
+import io.ktor.server.routing.put
 import io.ktor.server.routing.route
 import io.ktor.server.websocket.webSocket
 import io.ktor.websocket.Frame
@@ -54,6 +57,14 @@ fun Route.chatRoutes() {
           call.respond(HttpStatusCode.Created, message)
         }
       }
+    }
+
+    put("/api/v1/conversations/{id}/read") {
+      val service by call.inject<ChatService>()
+      val conversationId = call.pathUuid("id")
+      val request = call.receive<MarkReadRequest>()
+      val applied = service.markRead(call.userId(), conversationId, request.lastReadOrdinal)
+      call.respond(MarkReadResponse(applied))
     }
   }
 }
@@ -108,7 +119,8 @@ private suspend fun handleClientFrame(
         hub.subscribe(connection, conversationId)
       }
     }
-    // MESSAGE is server→client only in the MVP; a client that sends one is ignored.
+    // MESSAGE and READ are server→client only; a client that sends one is ignored.
     is ChatSocketFrame.Message -> {}
+    is ChatSocketFrame.Read -> {}
   }
 }

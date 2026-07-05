@@ -35,7 +35,7 @@ internal class ChatMessagesRemoteMediator(
       }
 
       val response = api.listMessages(conversationId, before, state.config.pageSize)
-      dao.upsertMessages(response.items.map { it.toEntity() })
+      dao.upsertMessagesAndAdvanceLatest(response.items.map { it.toEntity() })
 
       MediatorResult.Success(endOfPaginationReached = response.nextCursor == null)
     } catch (exception: CancellationException) {

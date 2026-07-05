@@ -16,5 +16,9 @@ data class ConversationEntity(
   @PrimaryKey val id: String,
   val taskId: String,
   val productionId: String,
-  val createdAtEpochMs: Long
+  val createdAtEpochMs: Long,
+  // Read state, kept live locally: latestOrdinal advances as messages arrive (REST/WS),
+  // lastReadOrdinal advances on mark-read and on READ frames from the user's other devices.
+  val latestOrdinal: Long,
+  val lastReadOrdinal: Long
 )

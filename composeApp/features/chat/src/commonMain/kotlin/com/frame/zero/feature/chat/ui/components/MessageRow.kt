@@ -12,18 +12,24 @@ import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import kotlinx.datetime.LocalDate
 
 /**
- * One row in the message list: an optional day separator above the bubble. The list decides
- * [showDaySeparator] (true for the oldest message of each day); rendering it inside the row —
- * above the bubble — puts the label at the top of that day's group under `reverseLayout`.
+ * One row in the message list: an optional "New messages" divider and day separator above the
+ * bubble. The list decides [showDaySeparator] (true for the oldest message of each day) and
+ * [showNewMessagesDivider] (true for the first unread message); rendering them inside the row —
+ * above the bubble — puts them at the top of the group under `reverseLayout`.
  */
 @Composable
 internal fun MessageRow(
   message: ChatMessageUi,
   showDaySeparator: Boolean,
+  showNewMessagesDivider: Boolean,
   today: LocalDate,
   modifier: Modifier = Modifier
 ) {
   Column(modifier = modifier) {
+    if (showNewMessagesDivider) {
+      NewMessagesDivider()
+      VerticalSpacer(AppTheme.spacingSystem.space4)
+    }
     if (showDaySeparator) {
       DaySeparator(day = message.day, today = today)
       VerticalSpacer(AppTheme.spacingSystem.space4)
@@ -51,6 +57,7 @@ private fun MessageRowPreview() {
           day = LocalDate(2026, 7, 4)
         ),
         showDaySeparator = true,
+        showNewMessagesDivider = false,
         today = LocalDate(2026, 7, 4)
       )
       MessageRow(
@@ -63,6 +70,7 @@ private fun MessageRowPreview() {
           day = LocalDate(2026, 7, 4)
         ),
         showDaySeparator = false,
+        showNewMessagesDivider = true,
         today = LocalDate(2026, 7, 4)
       )
     }

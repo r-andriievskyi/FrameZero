@@ -12,6 +12,7 @@ import com.frame.zero.dto.task.TaskParticipantDto
 import com.frame.zero.feature.task.details.usecase.CompleteTaskUseCase
 import com.frame.zero.feature.task.details.usecase.GetAssignableMembersUseCase
 import com.frame.zero.feature.task.details.usecase.GetTaskDetailsUseCase
+import com.frame.zero.feature.task.details.usecase.ObserveTaskChatUnreadUseCase
 import com.frame.zero.feature.task.details.usecase.UpdateTaskParticipantsUseCase
 import com.frame.zero.repository.tasks.TasksRepository
 import framezero.shared.features.task_details.generated.resources.Res
@@ -47,6 +48,7 @@ class TaskDetailsViewModel(
   private val completeTaskUseCase: CompleteTaskUseCase,
   private val getAssignableMembersUseCase: GetAssignableMembersUseCase,
   private val updateTaskParticipantsUseCase: UpdateTaskParticipantsUseCase,
+  private val observeTaskChatUnreadUseCase: ObserveTaskChatUnreadUseCase,
   private val tasksRepository: TasksRepository,
   private val attachmentFileManager: AttachmentFileManager,
   dispatcher: CoroutineContext = Dispatchers.Main.immediate
@@ -56,8 +58,25 @@ class TaskDetailsViewModel(
   private val _state = MutableStateFlow(TaskDetailsState(taskId = taskId, isLoading = true))
   val state: StateFlow<TaskDetailsState> = _state.asStateFlow()
 
+  // Last observed chat unread. load() rebuilds the whole state from the task DTO (which has no
+  // unread), so it re-applies this through the single [applyUnread] owner rather than scattering
+  // copy(unreadChatCount = …) across every state-rebuild path.
+  private var lastUnreadChatCount = 0
+
   init {
     load()
+    observeChatUnread()
+  }
+
+  private fun observeChatUnread() {
+    scope.launch {
+      observeTaskChatUnreadUseCase(taskId).collect { count -> applyUnread(count) }
+    }
+  }
+
+  private fun applyUnread(count: Int) {
+    lastUnreadChatCount = count
+    _state.update { it.copy(unreadChatCount = count) }
   }
 
   fun onIntent(intent: TaskDetailsIntent) {
@@ -133,7 +152,13 @@ class TaskDetailsViewModel(
       // A failure here just leaves the picker empty; it doesn't affect the rest of the screen.
       when (val outcome = getAssignableMembersUseCase(params)) {
         is Outcome.Success ->
-          _state.update { it.copy(assignableMembers = outcome.data.map { member -> member.toUi() }.toImmutableList()) }
+          _state.update {
+            it.copy(
+              assignableMembers = outcome.data.map { member ->
+                member.toUi()
+              }.toImmutableList()
+            )
+          }
         is Outcome.Failure -> Unit
       }
     }
@@ -164,7 +189,7 @@ class TaskDetailsViewModel(
         .date
       when (val result = getTaskDetailsUseCase(taskId)) {
         is Outcome.Success -> {
-          _state.update { result.data.toTaskDetailsState(today) }
+          _state.update { result.data.toTaskDetailsState(today).copy(unreadChatCount = lastUnreadChatCount) }
           loadAssignableMembers(result.data.productionId)
         }
         is Outcome.Failure -> _state.update { it.copy(isLoading = false, isError = true) }
