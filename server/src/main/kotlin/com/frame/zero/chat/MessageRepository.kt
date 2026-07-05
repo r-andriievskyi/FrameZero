@@ -55,6 +55,9 @@ interface MessageRepository {
     before: Long?,
     limit: Int
   ): List<MessageRecord>
+
+  /** Highest `ordinal` in [conversationId], or 0 when the conversation has no messages yet. */
+  suspend fun maxOrdinal(conversationId: UUID): Long
 }
 
 class MessageRepositoryImpl : MessageRepository {
@@ -135,6 +138,17 @@ class MessageRepositoryImpl : MessageRepository {
         }.orderBy(MessagesTable.ordinal to SortOrder.DESC)
         .limit(limit)
         .map { it.toRecord() }
+    }
+
+  override suspend fun maxOrdinal(conversationId: UUID): Long =
+    dbQuery {
+      MessagesTable
+        .select(MessagesTable.ordinal)
+        .where { MessagesTable.conversationId eq conversationId }
+        .orderBy(MessagesTable.ordinal to SortOrder.DESC)
+        .limit(1)
+        .firstOrNull()
+        ?.get(MessagesTable.ordinal) ?: 0L
     }
 
   // Must run inside a dbQuery transaction.

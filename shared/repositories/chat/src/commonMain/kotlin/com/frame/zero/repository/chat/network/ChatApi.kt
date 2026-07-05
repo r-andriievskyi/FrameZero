@@ -18,4 +18,9 @@ interface ChatApi {
     conversationId: String,
     request: SendMessageRequest
   ): ChatMessageDto
+
+  suspend fun markRead(
+    conversationId: String,
+    lastReadOrdinal: Long
+  ): Long
 }

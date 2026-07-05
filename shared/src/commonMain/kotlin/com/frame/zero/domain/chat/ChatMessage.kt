@@ -18,5 +18,13 @@ data class Conversation(
   val id: String,
   val taskId: String,
   val productionId: String,
-  val createdAt: Instant
-)
+  val createdAt: Instant,
+  /** Highest message [ChatMessage.ordinal] known for this conversation, 0 when empty. */
+  val latestOrdinal: Long,
+  /** This user's read cursor; messages with a higher ordinal are unread. */
+  val lastReadOrdinal: Long
+) {
+  /** Unread = everything past the read cursor. Derived here, never a wire field. */
+  val unreadCount: Long
+    get() = (latestOrdinal - lastReadOrdinal).coerceAtLeast(0)
+}

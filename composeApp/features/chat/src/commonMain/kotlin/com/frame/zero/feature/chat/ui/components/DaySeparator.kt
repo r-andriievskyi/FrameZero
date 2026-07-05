@@ -4,12 +4,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import com.frame.zero.core.format.formatShort
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
@@ -40,17 +37,10 @@ internal fun DaySeparator(
       .padding(vertical = AppTheme.spacingSystem.space8),
     contentAlignment = Alignment.Center
   ) {
-    Text(
+    PillLabel(
       text = label,
-      style = AppTheme.typographySystem.labelMedium,
-      color = AppTheme.colorSystem.textMuted,
-      modifier = Modifier
-        .clip(RoundedCornerShape(AppTheme.radiusSystem.radiusMax))
-        .background(AppTheme.colorSystem.surfaceElevated)
-        .padding(
-          horizontal = AppTheme.spacingSystem.space12,
-          vertical = AppTheme.spacingSystem.space4
-        )
+      backgroundColor = AppTheme.colorSystem.surfaceElevated,
+      contentColor = AppTheme.colorSystem.textMuted
     )
   }
 }

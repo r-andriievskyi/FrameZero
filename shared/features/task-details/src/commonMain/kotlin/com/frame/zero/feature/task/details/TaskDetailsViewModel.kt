@@ -12,6 +12,7 @@ import com.frame.zero.dto.task.TaskParticipantDto
 import com.frame.zero.feature.task.details.usecase.CompleteTaskUseCase
 import com.frame.zero.feature.task.details.usecase.GetAssignableMembersUseCase
 import com.frame.zero.feature.task.details.usecase.GetTaskDetailsUseCase
+import com.frame.zero.feature.task.details.usecase.ObserveTaskChatUnreadUseCase
 import com.frame.zero.feature.task.details.usecase.UpdateTaskParticipantsUseCase
 import com.frame.zero.repository.tasks.TasksRepository
 import framezero.shared.features.task_details.generated.resources.Res
@@ -47,17 +48,35 @@ class TaskDetailsViewModel(
   private val completeTaskUseCase: CompleteTaskUseCase,
   private val getAssignableMembersUseCase: GetAssignableMembersUseCase,
   private val updateTaskParticipantsUseCase: UpdateTaskParticipantsUseCase,
+  private val observeTaskChatUnreadUseCase: ObserveTaskChatUnreadUseCase,
   private val tasksRepository: TasksRepository,
   private val attachmentFileManager: AttachmentFileManager,
   dispatcher: CoroutineContext = Dispatchers.Main.immediate
 ) : InstanceKeeper.Instance {
   private val scope = CoroutineScope(dispatcher + SupervisorJob())
 
-  private val _state = MutableStateFlow(TaskDetailsState(taskId = taskId, isLoading = true))
-  val state: StateFlow<TaskDetailsState> = _state.asStateFlow()
+  private val _details = MutableStateFlow(TaskDetailsState(taskId = taskId, isLoading = true))
+  val state: StateFlow<TaskDetailsState> = _details.asStateFlow()
+
+  // Last observed chat unread. load() rebuilds the whole state from the task DTO (which has no
+  // unread), so it re-applies this through the single [applyUnread] owner rather than scattering
+  // copy(unreadChatCount = …) across every state-rebuild path.
+  private var lastUnreadChatCount = 0
 
   init {
     load()
+    observeChatUnread()
+  }
+
+  private fun observeChatUnread() {
+    scope.launch {
+      observeTaskChatUnreadUseCase(taskId).collect { count -> applyUnread(count) }
+    }
+  }
+
+  private fun applyUnread(count: Int) {
+    lastUnreadChatCount = count
+    _details.update { it.copy(unreadChatCount = count) }
   }
 
   fun onIntent(intent: TaskDetailsIntent) {
@@ -65,31 +84,31 @@ class TaskDetailsViewModel(
       TaskDetailsIntent.Refresh -> load()
       TaskDetailsIntent.MarkComplete -> markComplete()
       TaskDetailsIntent.DownloadAttachment -> downloadAttachment()
-      TaskDetailsIntent.AttachmentErrorDismissed -> _state.update { it.copy(attachmentError = null) }
+      TaskDetailsIntent.AttachmentErrorDismissed -> _details.update { it.copy(attachmentError = null) }
       TaskDetailsIntent.ParticipantPickerOpened ->
-        _state.update { it.copy(isParticipantPickerVisible = true, participantQuery = "") }
+        _details.update { it.copy(isParticipantPickerVisible = true, participantQuery = "") }
       TaskDetailsIntent.ParticipantPickerDismissed ->
-        _state.update { it.copy(isParticipantPickerVisible = false, participantQuery = "") }
+        _details.update { it.copy(isParticipantPickerVisible = false, participantQuery = "") }
       is TaskDetailsIntent.ParticipantSearchChanged ->
-        _state.update { it.copy(participantQuery = intent.query) }
+        _details.update { it.copy(participantQuery = intent.query) }
       is TaskDetailsIntent.ParticipantToggled -> toggleParticipant(intent.userId)
-      TaskDetailsIntent.ParticipantsErrorDismissed -> _state.update { it.copy(participantsError = null) }
+      TaskDetailsIntent.ParticipantsErrorDismissed -> _details.update { it.copy(participantsError = null) }
     }
   }
 
   private fun downloadAttachment() {
-    val attachment = _state.value.attachment ?: return
-    if (_state.value.isDownloadingAttachment) return
-    _state.update { it.copy(isDownloadingAttachment = true, attachmentError = null) }
+    val attachment = _details.value.attachment ?: return
+    if (_details.value.isDownloadingAttachment) return
+    _details.update { it.copy(isDownloadingAttachment = true, attachmentError = null) }
     scope.launch {
       val outcome = tasksRepository.downloadAttachment(taskId, attachment.fileName, attachment.sizeBytes)
       when (outcome) {
         is Outcome.Success -> {
           attachmentFileManager.openWith(outcome.data, attachment.contentType)
-          _state.update { it.copy(isDownloadingAttachment = false) }
+          _details.update { it.copy(isDownloadingAttachment = false) }
         }
         is Outcome.Failure ->
-          _state.update {
+          _details.update {
             it.copy(isDownloadingAttachment = false, attachmentError = outcome.error.toDownloadError())
           }
       }
@@ -104,23 +123,23 @@ class TaskDetailsViewModel(
     }
 
   private fun toggleParticipant(userId: String) {
-    val current = _state.value
+    val current = _details.value
     if (current.isUpdatingParticipants) return
     val currentIds = current.participants.map { it.userId }
     val updatedIds = if (userId in currentIds) currentIds - userId else currentIds + userId
-    _state.update { it.copy(isUpdatingParticipants = true) }
+    _details.update { it.copy(isUpdatingParticipants = true) }
     scope.launch {
       val params = UpdateTaskParticipantsUseCase.Params(taskId = taskId, participantUserIds = updatedIds)
       when (val outcome = updateTaskParticipantsUseCase(params)) {
         is Outcome.Success ->
-          _state.update {
+          _details.update {
             it.copy(
               participants = outcome.data.participants.map { p -> p.toUi() }.toImmutableList(),
               isUpdatingParticipants = false
             )
           }
         is Outcome.Failure ->
-          _state.update {
+          _details.update {
             it.copy(isUpdatingParticipants = false, participantsError = outcome.error.toUiText(errorMessages))
           }
       }
@@ -133,7 +152,7 @@ class TaskDetailsViewModel(
       // A failure here just leaves the picker empty; it doesn't affect the rest of the screen.
       when (val outcome = getAssignableMembersUseCase(params)) {
         is Outcome.Success ->
-          _state.update { it.copy(assignableMembers = outcome.data.map { member -> member.toUi() }.toImmutableList()) }
+          _details.update { it.copy(assignableMembers = outcome.data.map { member -> member.toUi() }.toImmutableList()) }
         is Outcome.Failure -> Unit
       }
     }
@@ -158,16 +177,16 @@ class TaskDetailsViewModel(
   @OptIn(ExperimentalTime::class)
   private fun load() {
     scope.launch {
-      _state.update { it.copy(isLoading = true, isError = false) }
+      _details.update { it.copy(isLoading = true, isError = false) }
       val today = Clock.System.now()
         .toLocalDateTime(TimeZone.currentSystemDefault())
         .date
       when (val result = getTaskDetailsUseCase(taskId)) {
         is Outcome.Success -> {
-          _state.update { result.data.toTaskDetailsState(today) }
+          _details.update { result.data.toTaskDetailsState(today).copy(unreadChatCount = lastUnreadChatCount) }
           loadAssignableMembers(result.data.productionId)
         }
-        is Outcome.Failure -> _state.update { it.copy(isLoading = false, isError = true) }
+        is Outcome.Failure -> _details.update { it.copy(isLoading = false, isError = true) }
       }
     }
   }
@@ -175,7 +194,7 @@ class TaskDetailsViewModel(
   private fun markComplete() {
     scope.launch {
       when (completeTaskUseCase(taskId)) {
-        is Outcome.Success -> _state.update {
+        is Outcome.Success -> _details.update {
           it.copy(status = TaskStatus.COMPLETED, showMarkCompleteButton = false)
         }
         is Outcome.Failure -> Unit

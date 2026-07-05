@@ -7,8 +7,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
@@ -69,6 +71,9 @@ import org.jetbrains.compose.resources.stringResource
 
 private val ChatButtonSize = 40.dp
 private val ChatIconSize = 20.dp
+private val UnreadBadgeMinSize = 18.dp
+private val UnreadBadgeOverhang = 4.dp
+private const val MaxUnreadBadgeCount = 99
 
 @Composable
 fun TaskDetailsScreen(
@@ -111,7 +116,7 @@ internal fun TaskDetailsContent(
         onBack = onBack,
         trailingContent = {
           if (!state.isLoading && !state.isError) {
-            ChatAction(onClick = onOpenChat)
+            ChatAction(onClick = onOpenChat, unreadCount = state.unreadChatCount)
           }
         }
       )
@@ -212,40 +217,76 @@ internal fun TaskDetailsContent(
 @Composable
 private fun ChatAction(
   onClick: () -> Unit,
+  unreadCount: Int,
   modifier: Modifier = Modifier
 ) {
   val colorSystem = AppTheme.colorSystem
   val shape = RoundedCornerShape(AppTheme.radiusSystem.radius8)
+  // Wrapper doesn't clip, so the unread badge can overhang the button's top-end corner.
+  Box(modifier = modifier) {
+    Box(
+      modifier = Modifier
+        .testTag(TaskDetailsTestTags.OPEN_CHAT)
+        .size(ChatButtonSize)
+        .clip(shape)
+        .background(colorSystem.cardBackground)
+        .border(width = AppTheme.borderSystem.hairline, color = colorSystem.border, shape = shape)
+        .clickableWithRipple(
+          color = colorSystem.accentDim,
+          bounded = true,
+          role = Role.Button,
+          onClickLabel = stringResource(Res.string.task_details_open_chat),
+          onClick = onClick
+        ),
+      contentAlignment = Alignment.Center
+    ) {
+      val iconColor = colorSystem.textPrimary
+      Canvas(modifier = Modifier.size(ChatIconSize)) {
+        val w = size.width
+        val h = size.height
+        val stroke = Stroke(width = size.minDimension * 0.1f, cap = StrokeCap.Round, join = StrokeJoin.Round)
+        val bubble = Path().apply {
+          addRoundRect(RoundRect(0f, 0f, w, h * 0.72f, CornerRadius(h * 0.22f)))
+          // Tail dropping from the bottom-left of the bubble.
+          moveTo(w * 0.30f, h * 0.68f)
+          lineTo(w * 0.20f, h * 0.96f)
+          lineTo(w * 0.50f, h * 0.68f)
+        }
+        drawPath(bubble, iconColor, style = stroke)
+      }
+    }
+    if (unreadCount > 0) {
+      UnreadBadge(
+        count = unreadCount,
+        modifier = Modifier
+          .align(Alignment.TopEnd)
+          .offset(x = UnreadBadgeOverhang, y = -UnreadBadgeOverhang)
+      )
+    }
+  }
+}
+
+@Composable
+private fun UnreadBadge(
+  count: Int,
+  modifier: Modifier = Modifier
+) {
+  val colorSystem = AppTheme.colorSystem
+  val label = if (count > MaxUnreadBadgeCount) "$MaxUnreadBadgeCount+" else count.toString()
   Box(
     modifier = modifier
-      .testTag(TaskDetailsTestTags.OPEN_CHAT)
-      .size(ChatButtonSize)
-      .clip(shape)
-      .background(colorSystem.cardBackground)
-      .border(width = AppTheme.borderSystem.hairline, color = colorSystem.border, shape = shape)
-      .clickableWithRipple(
-        color = colorSystem.accentDim,
-        bounded = true,
-        role = Role.Button,
-        onClickLabel = stringResource(Res.string.task_details_open_chat),
-        onClick = onClick
-      ),
+      .testTag(TaskDetailsTestTags.CHAT_UNREAD_BADGE)
+      .defaultMinSize(minWidth = UnreadBadgeMinSize, minHeight = UnreadBadgeMinSize)
+      .clip(RoundedCornerShape(AppTheme.radiusSystem.radiusMax))
+      .background(colorSystem.accent)
+      .padding(horizontal = AppTheme.spacingSystem.space4),
     contentAlignment = Alignment.Center
   ) {
-    val iconColor = colorSystem.textPrimary
-    Canvas(modifier = Modifier.size(ChatIconSize)) {
-      val w = size.width
-      val h = size.height
-      val stroke = Stroke(width = size.minDimension * 0.1f, cap = StrokeCap.Round, join = StrokeJoin.Round)
-      val bubble = Path().apply {
-        addRoundRect(RoundRect(0f, 0f, w, h * 0.72f, CornerRadius(h * 0.22f)))
-        // Tail dropping from the bottom-left of the bubble.
-        moveTo(w * 0.30f, h * 0.68f)
-        lineTo(w * 0.20f, h * 0.96f)
-        lineTo(w * 0.50f, h * 0.68f)
-      }
-      drawPath(bubble, iconColor, style = stroke)
-    }
+    Text(
+      text = label,
+      style = AppTheme.typographySystem.labelSmall,
+      color = colorSystem.textOnAccent
+    )
   }
 }
 

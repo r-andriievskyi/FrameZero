@@ -129,6 +129,30 @@ class ChatServiceTest {
     }
 
   @Test
+  fun `markRead advances the cursor forward-only and the conversation reports unread state`() =
+    runBlocking {
+      val env = TestAppEnv()
+      val owner = UUID.randomUUID()
+      val prod = env.productionService.createProduction(owner, productionRequest)
+      val task = env.taskService.create(owner, CreateTaskRequest(productionId = prod.id, title = "T"))
+      val taskId = UUID.fromString(task.id)
+      val convId = UUID.fromString(env.chatService.getOrCreateTaskConversation(owner, taskId).id)
+      env.chatService.send(owner, convId, "c1", "one")
+      env.chatService.send(owner, convId, "c2", "two")
+
+      assertEquals(1L, env.chatService.markRead(owner, convId, 1))
+      // Clamps past the newest ordinal (2) rather than trusting the client.
+      assertEquals(2L, env.chatService.markRead(owner, convId, 99))
+      // Never moves backwards.
+      assertEquals(2L, env.chatService.markRead(owner, convId, 0))
+
+      val conversation = env.chatService.getOrCreateTaskConversation(owner, taskId)
+      assertIs<ConversationDto.Task>(conversation)
+      assertEquals(2L, conversation.latestOrdinal)
+      assertEquals(2L, conversation.lastReadOrdinal)
+    }
+
+  @Test
   fun `canAccessConversation is true for a circle member and false for an outsider`() =
     runBlocking {
       val env = TestAppEnv()

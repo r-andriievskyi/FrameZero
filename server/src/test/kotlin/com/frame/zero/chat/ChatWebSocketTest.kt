@@ -74,6 +74,41 @@ class ChatWebSocketTest {
     }
 
   @Test
+  fun `markRead pushes a READ frame to the user's own socket`() =
+    testApplication {
+      val env = TestAppEnv()
+      application { env.configure(this) }
+      val owner = UUID.randomUUID()
+      val token = env.tokenFor(owner)
+      val prod = env.productionService.createProduction(owner, productionRequest)
+      val task = env.taskService.create(owner, CreateTaskRequest(productionId = prod.id, title = "T"))
+      val conversationId = UUID.fromString(
+        env.chatService.getOrCreateTaskConversation(owner, UUID.fromString(task.id)).id
+      )
+      // Give the cursor room to advance one ordinal per retry so every attempt broadcasts.
+      repeat(20) { env.chatService.send(owner, conversationId, "cid-$it", "m$it") }
+
+      val wsClient = createClient { install(WebSockets) }
+
+      var received: ChatSocketFrame.Read? = null
+      wsClient.webSocket("/ws", request = { header(HttpHeaders.Authorization, "Bearer $token") }) {
+        // No subscribe: READ targets the user's connections directly, not a subscription.
+        for (attempt in 1..20) {
+          env.chatService.markRead(owner, conversationId, attempt.toLong())
+          val frame = withTimeoutOrNull(300) { incoming.receive() }
+          if (frame is Frame.Text) {
+            received = chatJson.decodeFromString(ChatSocketFrame.serializer(), frame.readText())
+              as? ChatSocketFrame.Read
+            if (received != null) break
+          }
+        }
+      }
+
+      val read = assertNotNull(received, "a READ frame must reach the user's own socket")
+      assertEquals(conversationId.toString(), read.conversationId)
+    }
+
+  @Test
   fun `the socket upgrade requires a valid token`() =
     testApplication {
       val env = TestAppEnv()

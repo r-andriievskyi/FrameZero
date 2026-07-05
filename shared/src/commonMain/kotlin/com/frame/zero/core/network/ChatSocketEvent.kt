@@ -7,5 +7,11 @@ sealed interface ChatSocketEvent {
     val message: ChatMessageDto
   ) : ChatSocketEvent
 
+  /** The user's read cursor advanced on another device. */
+  data class ReadUpdated(
+    val conversationId: String,
+    val lastReadOrdinal: Long
+  ) : ChatSocketEvent
+
   data object Connected : ChatSocketEvent
 }

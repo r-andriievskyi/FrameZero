@@ -9,6 +9,7 @@ import com.frame.zero.core.error.toUiText
 import com.frame.zero.domain.Outcome
 import com.frame.zero.domain.chat.ChatMessage
 import com.frame.zero.feature.chat.domain.GetCurrentUserIdUseCase
+import com.frame.zero.feature.chat.domain.MarkReadUseCase
 import com.frame.zero.feature.chat.domain.OpenConversationUseCase
 import com.frame.zero.feature.chat.domain.SendMessageUseCase
 import com.frame.zero.repository.chat.ChatRepository
@@ -53,6 +54,7 @@ class ChatViewModel(
   private val chatRepository: ChatRepository,
   private val openConversationUseCase: OpenConversationUseCase,
   private val sendMessageUseCase: SendMessageUseCase,
+  private val markReadUseCase: MarkReadUseCase,
   private val getCurrentUserIdUseCase: GetCurrentUserIdUseCase,
   private val timeZone: TimeZone = TimeZone.currentSystemDefault(),
   dispatcher: CoroutineContext = Dispatchers.Main.immediate
@@ -75,6 +77,15 @@ class ChatViewModel(
   // retries so a resend after a lost response is deduped server-side; reset when the draft
   // changes (new content = new message) or a send succeeds.
   private var pendingClientMessageId: String? = null
+
+  // Highest ordinal the server has confirmed as read, so scroll-driven MarkRead intents
+  // don't fire a redundant PUT once the cursor is there. Advanced only on success, so a
+  // failed mark-read is retried by the next scroll-to-bottom.
+  private var lastMarkedOrdinal = 0L
+
+  // Ordinal of the mark-read currently in flight, to dedupe concurrent intents without
+  // blocking a retry: on completion it falls back to lastMarkedOrdinal.
+  private var inFlightOrdinal = 0L
 
   @OptIn(ExperimentalCoroutinesApi::class)
   val messages: Flow<PagingData<ChatMessageUi>> =
@@ -100,15 +111,38 @@ class ChatViewModel(
       ChatIntent.SendClicked -> send()
       ChatIntent.Retry -> scope.launch { openConversation() }
       ChatIntent.SendErrorDismissed -> _state.update { it.copy(sendError = null) }
+      is ChatIntent.MarkRead -> markRead(intent.ordinal)
     }
+  }
+
+  private fun markRead(ordinal: Long) {
+    val id = conversationId.value ?: return
+    // Skip if already confirmed or a request for this ordinal (or newer) is in flight.
+    if (ordinal <= maxOf(lastMarkedOrdinal, inFlightOrdinal)) return
+    inFlightOrdinal = ordinal
+    scope.launch {
+      when (markReadUseCase(MarkReadUseCase.Params(id, ordinal))) {
+        is Outcome.Success -> lastMarkedOrdinal = maxOf(lastMarkedOrdinal, ordinal)
+        // Failure leaves lastMarkedOrdinal untouched so the next scroll-to-bottom retries.
+        is Outcome.Failure -> Unit
+      }
+      // Release the in-flight guard down to what's confirmed, re-enabling a retry.
+      inFlightOrdinal = lastMarkedOrdinal
+    }
+    // The divider is intentionally not moved — it stays put for the session.
   }
 
   private suspend fun openConversation() {
     _state.update { it.copy(isLoadingConversation = true, conversationError = null) }
     when (val outcome = openConversationUseCase(taskId)) {
       is Outcome.Success -> {
-        conversationId.value = outcome.data.id
-        _state.update { it.copy(isLoadingConversation = false, isReady = true) }
+        val conversation = outcome.data
+        conversationId.value = conversation.id
+        lastMarkedOrdinal = conversation.lastReadOrdinal
+        val divider = conversation.lastReadOrdinal.takeIf { conversation.unreadCount > 0 }
+        _state.update {
+          it.copy(isLoadingConversation = false, isReady = true, newMessagesDividerOrdinal = divider)
+        }
       }
       is Outcome.Failure ->
         _state.update {

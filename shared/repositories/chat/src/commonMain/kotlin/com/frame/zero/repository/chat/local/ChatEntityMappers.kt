@@ -37,7 +37,9 @@ internal fun ConversationDto.toDomain(): Conversation =
         id = id,
         taskId = taskId,
         productionId = productionId,
-        createdAt = createdAt
+        createdAt = createdAt,
+        latestOrdinal = latestOrdinal,
+        lastReadOrdinal = lastReadOrdinal
       )
   }
 
@@ -46,7 +48,9 @@ internal fun Conversation.toEntity(): ConversationEntity =
     id = id,
     taskId = taskId,
     productionId = productionId,
-    createdAtEpochMs = createdAt.toEpochMilliseconds()
+    createdAtEpochMs = createdAt.toEpochMilliseconds(),
+    latestOrdinal = latestOrdinal,
+    lastReadOrdinal = lastReadOrdinal
   )
 
 internal fun ConversationEntity.toDomain(): Conversation =
@@ -54,5 +58,7 @@ internal fun ConversationEntity.toDomain(): Conversation =
     id = id,
     taskId = taskId,
     productionId = productionId,
-    createdAt = Instant.fromEpochMilliseconds(createdAtEpochMs)
+    createdAt = Instant.fromEpochMilliseconds(createdAtEpochMs),
+    latestOrdinal = latestOrdinal,
+    lastReadOrdinal = lastReadOrdinal
   )

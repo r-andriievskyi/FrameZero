@@ -117,6 +117,8 @@ class ChatSocketClient(
       }.getOrNull() ?: continue
       when (parsed) {
         is ChatSocketFrame.Message -> _events.emit(ChatSocketEvent.MessageReceived(parsed.message))
+        is ChatSocketFrame.Read ->
+          _events.emit(ChatSocketEvent.ReadUpdated(parsed.conversationId, parsed.lastReadOrdinal))
         // SUBSCRIBE is client→server only; a server echo is ignored.
         is ChatSocketFrame.Subscribe -> Unit
       }

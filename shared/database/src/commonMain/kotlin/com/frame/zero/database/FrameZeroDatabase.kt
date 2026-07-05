@@ -13,7 +13,7 @@ import androidx.room.RoomDatabaseConstructor
     ConversationEntity::class,
     MessageEntity::class
   ],
-  version = 3,
+  version = 4,
   exportSchema = false
 )
 @ConstructedBy(FrameZeroDatabaseConstructor::class)

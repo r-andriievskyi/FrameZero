@@ -4,10 +4,13 @@ import com.frame.zero.common.isUniqueViolation
 import com.frame.zero.common.nowTruncatedToMicros
 import com.frame.zero.config.dbQuery
 import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.insertIgnore
+import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.update
 import java.sql.SQLException
 import java.util.UUID
 import kotlin.time.Instant
@@ -44,6 +47,19 @@ interface ConversationRepository {
   suspend fun ensureParticipant(
     conversationId: UUID,
     userId: UUID
+  )
+
+  /** [userId]'s `last_read_ordinal` in [conversationId], or 0 when they have no row yet. */
+  suspend fun lastReadOrdinal(
+    conversationId: UUID,
+    userId: UUID
+  ): Long
+
+  /** Sets [userId]'s `last_read_ordinal` in [conversationId] to [ordinal]. */
+  suspend fun updateLastReadOrdinal(
+    conversationId: UUID,
+    userId: UUID,
+    ordinal: Long
   )
 }
 
@@ -111,6 +127,37 @@ class ConversationRepositoryImpl : ConversationRepository {
         it[ConversationParticipantsTable.userId] = userId
         it[lastReadOrdinal] = 0
         it[joinedAt] = nowTruncatedToMicros()
+      }
+    }
+  }
+
+  override suspend fun lastReadOrdinal(
+    conversationId: UUID,
+    userId: UUID
+  ): Long =
+    dbQuery {
+      ConversationParticipantsTable
+        .select(ConversationParticipantsTable.lastReadOrdinal)
+        .where {
+          (ConversationParticipantsTable.conversationId eq conversationId) and
+            (ConversationParticipantsTable.userId eq userId)
+        }.singleOrNull()
+        ?.get(ConversationParticipantsTable.lastReadOrdinal) ?: 0L
+    }
+
+  override suspend fun updateLastReadOrdinal(
+    conversationId: UUID,
+    userId: UUID,
+    ordinal: Long
+  ) {
+    dbQuery {
+      ConversationParticipantsTable.update(
+        where = {
+          (ConversationParticipantsTable.conversationId eq conversationId) and
+            (ConversationParticipantsTable.userId eq userId)
+        }
+      ) {
+        it[lastReadOrdinal] = ordinal
       }
     }
   }

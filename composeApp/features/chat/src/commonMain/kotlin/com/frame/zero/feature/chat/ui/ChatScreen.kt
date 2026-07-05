@@ -15,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -39,6 +40,7 @@ import framezero.composeapp.features.chat.generated.resources.chat_message_place
 import framezero.composeapp.features.chat.generated.resources.chat_retry
 import framezero.composeapp.features.chat.generated.resources.chat_send
 import framezero.composeapp.features.chat.generated.resources.chat_title
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
@@ -61,6 +63,18 @@ fun ChatScreen(
       when (event) {
         ChatEvent.MessageSent -> listState.animateScrollToItem(0)
       }
+    }
+  }
+
+  // The list is reverseLayout, so index 0 is the newest message; parked at the bottom means
+  // it's seen. A snapshotFlow keeps the per-frame scroll read out of the composition (so the
+  // screen doesn't recompose while scrolling) and re-emits when the newest ordinal changes
+  // while still parked at the bottom. The VM dedupes and only advances the cursor forward.
+  LaunchedEffect(messages) {
+    snapshotFlow {
+      if (messages.itemCount > 0 && listState.firstVisibleItemIndex == 0) messages.peek(0)?.ordinal else null
+    }.distinctUntilChanged().collect { ordinal ->
+      ordinal?.let { component.onIntent(ChatIntent.MarkRead(it)) }
     }
   }
 
@@ -93,7 +107,8 @@ fun ChatScreen(
           else -> MessageList(
             messages = messages,
             listState = listState,
-            today = today
+            today = today,
+            newMessagesDividerOrdinal = state.newMessagesDividerOrdinal
           )
         }
       }
@@ -120,6 +135,7 @@ private fun MessageList(
   messages: androidx.paging.compose.LazyPagingItems<com.frame.zero.feature.chat.ChatMessageUi>,
   listState: androidx.compose.foundation.lazy.LazyListState,
   today: kotlinx.datetime.LocalDate,
+  newMessagesDividerOrdinal: Long?,
   modifier: Modifier = Modifier
 ) {
   LazyColumn(
@@ -140,10 +156,16 @@ private fun MessageList(
       // The list is newest-first; a day separator sits above the oldest message of each day,
       // which — in reverseLayout — renders at the top of that day's group. peek() throws past
       // the end, so only look at the next-older item when there is one.
-      val olderDay = if (index + 1 < messages.itemCount) messages.peek(index + 1)?.day else null
+      val olderMessage = if (index + 1 < messages.itemCount) messages.peek(index + 1) else null
+      // The "New messages" divider goes above the first unread message — this row is unread
+      // (ordinal past the cursor) while the next-older row is read (or absent).
+      val showNewMessagesDivider = newMessagesDividerOrdinal != null &&
+        message.ordinal > newMessagesDividerOrdinal &&
+        (olderMessage == null || olderMessage.ordinal <= newMessagesDividerOrdinal)
       MessageRow(
         message = message,
-        showDaySeparator = message.day != olderDay,
+        showDaySeparator = message.day != olderMessage?.day,
+        showNewMessagesDivider = showNewMessagesDivider,
         today = today
       )
     }
