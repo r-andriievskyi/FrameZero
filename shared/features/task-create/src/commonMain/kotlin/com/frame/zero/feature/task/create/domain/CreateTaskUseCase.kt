@@ -1,15 +1,15 @@
 package com.frame.zero.feature.task.create.domain
 
 import com.frame.zero.domain.UseCase
-import com.frame.zero.dto.task.CreateTaskRequest
-import com.frame.zero.dto.task.TaskDetailDto
+import com.frame.zero.domain.task.NewTask
+import com.frame.zero.domain.task.TaskDetail
 import com.frame.zero.domain.task.TaskPriority
 import com.frame.zero.repository.tasks.TasksRepository
 import kotlinx.datetime.LocalDate
 
 class CreateTaskUseCase(
   private val tasksRepository: TasksRepository
-) : UseCase<CreateTaskUseCase.Params, TaskDetailDto>() {
+) : UseCase<CreateTaskUseCase.Params, TaskDetail>() {
   data class Params(
     val productionId: String,
     val title: String,
@@ -20,9 +20,9 @@ class CreateTaskUseCase(
     val participantUserIds: List<String> = emptyList()
   )
 
-  override suspend fun execute(params: Params): TaskDetailDto =
+  override suspend fun execute(params: Params): TaskDetail =
     tasksRepository.createTask(
-      CreateTaskRequest(
+      NewTask(
         productionId = params.productionId,
         title = params.title.trim(),
         description = params.description?.trim()?.ifBlank { null },

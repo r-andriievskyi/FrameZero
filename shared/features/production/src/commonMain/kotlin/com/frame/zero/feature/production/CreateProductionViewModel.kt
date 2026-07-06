@@ -5,7 +5,7 @@ import com.frame.zero.core.error.DomainErrorMessages
 import com.frame.zero.core.error.isOfflineOrServerError
 import com.frame.zero.core.error.toUiText
 import com.frame.zero.domain.Outcome
-import com.frame.zero.dto.production.CreateCrewMemberDto
+import com.frame.zero.domain.production.NewCrewMember
 import com.frame.zero.feature.production.domain.CreateProductionUseCase
 import com.frame.zero.ui.asUiText
 import framezero.shared.features.production.generated.resources.Res
@@ -164,7 +164,7 @@ class CreateProductionViewModel(
         startDate = start,
         wrapDate = wrap,
         budgetCents = current.budgetCents,
-        crew = current.crewMembers.map { CreateCrewMemberDto(name = it.name, role = it.role) }
+        crew = current.crewMembers.map { NewCrewMember(name = it.name, role = it.role) }
       )
       when (val outcome = createProductionUseCase(params)) {
         is Outcome.Success -> {

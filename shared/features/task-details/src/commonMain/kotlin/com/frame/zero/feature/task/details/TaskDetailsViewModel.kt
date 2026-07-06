@@ -7,8 +7,8 @@ import com.frame.zero.core.files.AttachmentFileManager
 import com.frame.zero.domain.DomainError
 import com.frame.zero.domain.Outcome
 import com.frame.zero.domain.task.AssignableMember
-import com.frame.zero.dto.task.TaskDetailDto
-import com.frame.zero.dto.task.TaskParticipantDto
+import com.frame.zero.domain.task.TaskDetail
+import com.frame.zero.domain.task.TaskParticipant
 import com.frame.zero.feature.task.details.usecase.CompleteTaskUseCase
 import com.frame.zero.feature.task.details.usecase.GetAssignableMembersUseCase
 import com.frame.zero.feature.task.details.usecase.GetTaskDetailsUseCase
@@ -39,8 +39,8 @@ import kotlinx.datetime.toLocalDateTime
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
-import com.frame.zero.domain.task.TaskPriority as DtoTaskPriority
-import com.frame.zero.domain.task.TaskStatus as DtoTaskStatus
+import com.frame.zero.domain.task.TaskPriority as DomainTaskPriority
+import com.frame.zero.domain.task.TaskStatus as DomainTaskStatus
 
 class TaskDetailsViewModel(
   private val taskId: String,
@@ -172,7 +172,7 @@ class TaskDetailsViewModel(
       avatarColorHex = avatarColorHex
     )
 
-  private fun TaskParticipantDto.toUi(): AssignableMemberUi =
+  private fun TaskParticipant.toUi(): AssignableMemberUi =
     AssignableMemberUi(
       userId = userId,
       name = name,
@@ -208,7 +208,7 @@ class TaskDetailsViewModel(
     }
   }
 
-  private fun TaskDetailDto.toTaskDetailsState(today: LocalDate): TaskDetailsState {
+  private fun TaskDetail.toTaskDetailsState(today: LocalDate): TaskDetailsState {
     val mappedStatus = status.toFeatureStatus()
     return TaskDetailsState(
       taskId = id,
@@ -274,17 +274,17 @@ class TaskDetailsViewModel(
     return "${rounded / 10}.${rounded % 10}"
   }
 
-  private fun DtoTaskStatus.toFeatureStatus(): TaskStatus =
+  private fun DomainTaskStatus.toFeatureStatus(): TaskStatus =
     when (this) {
-      DtoTaskStatus.OPEN -> TaskStatus.IN_PROGRESS
-      DtoTaskStatus.DONE -> TaskStatus.COMPLETED
+      DomainTaskStatus.OPEN -> TaskStatus.IN_PROGRESS
+      DomainTaskStatus.DONE -> TaskStatus.COMPLETED
     }
 
-  private fun DtoTaskPriority.toFeaturePriority(): TaskPriority =
+  private fun DomainTaskPriority.toFeaturePriority(): TaskPriority =
     when (this) {
-      DtoTaskPriority.HIGH -> TaskPriority.HIGH
-      DtoTaskPriority.MEDIUM -> TaskPriority.MEDIUM
-      DtoTaskPriority.LOW -> TaskPriority.LOW
+      DomainTaskPriority.HIGH -> TaskPriority.HIGH
+      DomainTaskPriority.MEDIUM -> TaskPriority.MEDIUM
+      DomainTaskPriority.LOW -> TaskPriority.LOW
     }
 
   private fun initialsFrom(name: String): String =

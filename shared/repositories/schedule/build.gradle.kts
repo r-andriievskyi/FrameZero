@@ -7,7 +7,7 @@ kotlin {
 
   sourceSets {
     commonMain.dependencies {
-      api(projects.shared.dto)
+      api(projects.shared.domain)
       implementation(libs.koin.core)
       implementation(libs.kotlinx.coroutines.core)
     }

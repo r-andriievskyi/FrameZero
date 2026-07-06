@@ -2,7 +2,7 @@ package com.frame.zero.feature.task.create.domain
 
 import com.frame.zero.domain.UseCase
 import com.frame.zero.domain.task.AssignableMember
-import com.frame.zero.dto.production.ProductionMemberDto
+import com.frame.zero.domain.production.ProductionMember
 import com.frame.zero.repository.productions.ProductionsRepository
 
 class GetAssignableMembersUseCase(
@@ -22,7 +22,7 @@ class GetAssignableMembersUseCase(
       .map { it.toAssignableMember() }
 }
 
-private fun ProductionMemberDto.toAssignableMember(): AssignableMember =
+private fun ProductionMember.toAssignableMember(): AssignableMember =
   AssignableMember(
     userId = requireNotNull(userId),
     name = name,

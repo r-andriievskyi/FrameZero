@@ -5,7 +5,7 @@ import com.frame.zero.core.network.NetworkConfig
 import com.frame.zero.core.network.connectivity.ConnectivityObserver
 import com.frame.zero.domain.DomainError
 import com.frame.zero.domain.Outcome
-import com.frame.zero.dto.task.CreateTaskRequest
+import com.frame.zero.domain.task.NewTask
 import com.frame.zero.domain.task.TaskPriority
 import com.frame.zero.domain.task.TaskStatus
 import io.ktor.client.HttpClient
@@ -81,7 +81,7 @@ class TasksRepositoryImplTest {
       val repo = repository(requests) { taskDetailJson(id = "t9") }
 
       val created = repo.createTask(
-        CreateTaskRequest(productionId = "p1", title = "Storyboard", priority = TaskPriority.HIGH)
+        NewTask(productionId = "p1", title = "Storyboard", priority = TaskPriority.HIGH)
       )
 
       val request = requests.single()

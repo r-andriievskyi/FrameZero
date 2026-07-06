@@ -1,7 +1,7 @@
 package com.frame.zero.repository.user
 
-import com.frame.zero.auth.dto.UserDto
+import com.frame.zero.domain.User
 
 interface UserRepository {
-  suspend fun getMe(): UserDto
+  suspend fun getMe(): User
 }

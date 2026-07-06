@@ -1,6 +1,6 @@
 package com.frame.zero.feature.auth.data
 
-import com.frame.zero.auth.dto.UserDto
+import com.frame.zero.domain.User
 import com.frame.zero.core.network.NetworkConfig
 import com.frame.zero.core.session.TokenStorage
 import com.russhwolf.settings.MapSettings
@@ -34,7 +34,7 @@ class AuthRepositoryImplTest {
   // -- register --------------------------------------------------------------
 
   @Test
-  fun `register success returns UserDto and persists tokens`() =
+  fun `register success returns User and persists tokens`() =
     runTest {
       val env =
         TestEnv { _ ->
@@ -55,7 +55,7 @@ class AuthRepositoryImplTest {
         )
 
       assertEquals(
-        UserDto(id = "u1", email = "new@x.com", firstName = "Jane", lastName = "Doe"),
+        User(id = "u1", email = "new@x.com", firstName = "Jane", lastName = "Doe"),
         dto
       )
       assertEquals("a-tok", env.storage.getAccessToken())
@@ -110,7 +110,7 @@ class AuthRepositoryImplTest {
   // -- login -----------------------------------------------------------------
 
   @Test
-  fun `login success returns UserDto and persists tokens`() =
+  fun `login success returns User and persists tokens`() =
     runTest {
       val env =
         TestEnv { _ ->
@@ -124,7 +124,7 @@ class AuthRepositoryImplTest {
 
       val dto = env.repository.login(email = "u@x.com", password = "secret")
 
-      assertEquals(UserDto(id = "u1", email = "u@x.com", firstName = "", lastName = ""), dto)
+      assertEquals(User(id = "u1", email = "u@x.com", firstName = "", lastName = ""), dto)
       assertEquals("a-tok", env.storage.getAccessToken())
       assertEquals("r-tok", env.storage.getRefreshToken())
     }
@@ -228,7 +228,7 @@ class AuthRepositoryImplTest {
   // -- getCurrentUser --------------------------------------------------------
 
   @Test
-  fun `getCurrentUser returns UserDto on 200`() =
+  fun `getCurrentUser returns User on 200`() =
     runTest {
       val env =
         TestEnv { _ ->
@@ -240,7 +240,7 @@ class AuthRepositoryImplTest {
 
       val dto = env.repository.getCurrentUser()
 
-      assertEquals(UserDto(id = "u1", email = "u@x.com", firstName = "Jane", lastName = "Doe"), dto)
+      assertEquals(User(id = "u1", email = "u@x.com", firstName = "Jane", lastName = "Doe"), dto)
     }
 
   @Test
@@ -285,7 +285,7 @@ class AuthRepositoryImplTest {
 
       val dto = env.repository.fetchCurrentUser()
 
-      assertEquals(UserDto(id = "u1", email = "u@x.com", firstName = "", lastName = ""), dto)
+      assertEquals(User(id = "u1", email = "u@x.com", firstName = "", lastName = ""), dto)
       assertEquals(
         "http://test/auth/me",
         env.requests

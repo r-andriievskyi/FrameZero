@@ -16,7 +16,7 @@ Owner is Android engineer, limited iOS/backend experience. **Maximise Kotlin sha
 | `shared/domain/` | Domain models, `Outcome`/`UseCase` base, `DomainError` + `toDomainError()`, `OfflineException`. Depends on no app module. |
 | `shared/dto/` | Client wire DTOs (`com.frame.zero.dto.*`, `auth.dto.*`) + DTO→domain mappers. Depends only on `shared/domain`. |
 | `shared/features/<name>/` | Per-feature logic: Decompose `Component`, ViewModel, state/intent, Koin module. |
-| `shared/repositories/<name>/` | Repository contract; most modules are interface-only (impls live in the owning feature's `data/`). `productions` + `chat` split into `:api` (interface, features depend on this) / `:impl` (Ktor/Room/mappers/Koin module — only `composeApp` sees it). `productions` = offline-first reference. |
+| `shared/repositories/<name>/` | Repository contract; most modules are interface-only (impls live in the owning feature's `data/`). `productions` + `chat` split into `:api` (interface, features depend on this) / `:impl` (Ktor/Room/mappers/Koin module — only `composeApp` sees it). **Contracts speak domain types only** (incl. command types `NewTask`/`NewProduction`) — DTO↔domain mapping happens inside the impl, never in use cases/ViewModels. `productions` = offline-first reference. |
 | `shared/database/` | Single shared Room DB (`FrameZeroDatabase`, all entities/DAOs, `databaseModule`). Depends on no app module. |
 | `shared/test-fixtures/` | Cross-feature fakes/builders (`com.frame.zero.testing`). |
 | `shared/ui_text/` | `UiText` so shared ViewModels carry strings without Compose. |

@@ -10,7 +10,7 @@ import com.frame.zero.feature.production.details.domain.GetProductionDetailsUseC
 import com.frame.zero.feature.production.details.domain.GetProductionTasksUseCase
 import com.frame.zero.testing.FakeProductionsRepository
 import com.frame.zero.testing.FakeTasksRepository
-import com.frame.zero.testing.productionDetailDto
+import com.frame.zero.testing.productionDetail
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -84,7 +84,7 @@ class ProductionDetailsComponentTest {
     runTest(mainDispatcher) {
       val addTaskCalls = mutableListOf<Pair<String, String>>()
       val component = makeComponent(
-        productionsRepo = FakeProductionsRepository(detail = productionDetailDto(id = "p1", title = "Pilot")),
+        productionsRepo = FakeProductionsRepository(detail = productionDetail(id = "p1", title = "Pilot")),
         onAddTask = { id, title -> addTaskCalls += id to title }
       )
       advanceUntilIdle()

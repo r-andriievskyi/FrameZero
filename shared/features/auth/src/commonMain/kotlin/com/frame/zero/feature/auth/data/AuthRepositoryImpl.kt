@@ -8,6 +8,8 @@ import com.frame.zero.auth.dto.UserDto
 import com.frame.zero.core.network.NetworkConfig
 import com.frame.zero.core.session.SessionAuthOperations
 import com.frame.zero.core.session.TokenStorage
+import com.frame.zero.domain.User
+import com.frame.zero.domain.toDomain
 import com.frame.zero.repository.auth.AuthRepository
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -26,7 +28,7 @@ class AuthRepositoryImpl(
     password: String,
     firstName: String,
     lastName: String
-  ): UserDto {
+  ): User {
     val response: AuthResponse =
       httpClient
         .post("${networkConfig.baseUrl}/auth/register") {
@@ -40,20 +42,20 @@ class AuthRepositoryImpl(
           )
         }.body()
     tokenStorage.saveTokens(response.accessToken, response.refreshToken)
-    return response.user
+    return response.user.toDomain()
   }
 
   override suspend fun login(
     email: String,
     password: String
-  ): UserDto {
+  ): User {
     val response: AuthResponse =
       httpClient
         .post("${networkConfig.baseUrl}/auth/login") {
           setBody(LoginRequest(email = email, password = password))
         }.body()
     tokenStorage.saveTokens(response.accessToken, response.refreshToken)
-    return response.user
+    return response.user.toDomain()
   }
 
   override suspend fun logout() {
@@ -66,9 +68,13 @@ class AuthRepositoryImpl(
     tokenStorage.clearTokens()
   }
 
-  override suspend fun getCurrentUser(): UserDto = httpClient.get("${networkConfig.baseUrl}/auth/me").body()
+  override suspend fun getCurrentUser(): User =
+    httpClient
+      .get("${networkConfig.baseUrl}/auth/me")
+      .body<UserDto>()
+      .toDomain()
 
-  override suspend fun fetchCurrentUser(): UserDto = getCurrentUser()
+  override suspend fun fetchCurrentUser(): User = getCurrentUser()
 
   override suspend fun signOutRemote() = logout()
 }

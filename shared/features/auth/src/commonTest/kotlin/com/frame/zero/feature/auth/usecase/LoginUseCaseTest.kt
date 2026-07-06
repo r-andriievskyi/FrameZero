@@ -1,6 +1,5 @@
 package com.frame.zero.feature.auth.usecase
 
-import com.frame.zero.auth.dto.UserDto
 import com.frame.zero.core.session.LogoutSignal
 import com.frame.zero.core.session.SessionManager
 import com.frame.zero.core.session.SessionState
@@ -21,13 +20,12 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
 class LoginUseCaseTest {
-  private val userDto = UserDto(id = "u1", email = "u@x.com", firstName = "", lastName = "")
   private val user = User(id = "u1", email = "u@x.com")
 
   @Test
   fun `success transitions session to LoggedIn`() =
     runTest {
-      val repo = FakeAuthRepository(loginUserDto = userDto)
+      val repo = FakeAuthRepository(loginUser = user)
       val session = makeSessionManager()
 
       val loginUseCase = LoginUseCase(repo, session)
@@ -55,7 +53,7 @@ class LoginUseCaseTest {
   @Test
   fun `forwards email and password to repository`() =
     runTest {
-      val repo = FakeAuthRepository(loginUserDto = userDto)
+      val repo = FakeAuthRepository(loginUser = user)
 
       LoginUseCase(repo, makeSessionManager())(
         LoginUseCase.Params(email = "typed@x.com", password = "secret")

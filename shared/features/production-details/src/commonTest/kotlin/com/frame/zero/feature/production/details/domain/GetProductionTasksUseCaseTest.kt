@@ -4,7 +4,7 @@ import com.frame.zero.domain.OfflineException
 import com.frame.zero.domain.DomainError
 import com.frame.zero.domain.Outcome
 import com.frame.zero.domain.task.TaskStatus
-import com.frame.zero.dto.task.TaskSummaryDto
+import com.frame.zero.domain.task.TaskSummary
 import com.frame.zero.testing.FakeTasksRepository
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.LocalDate
@@ -18,8 +18,8 @@ class GetProductionTasksUseCaseTest {
     title: String = "Storyboard",
     dueDate: LocalDate? = LocalDate(2026, 6, 24),
     status: TaskStatus = TaskStatus.OPEN
-  ): TaskSummaryDto =
-    TaskSummaryDto(
+  ): TaskSummary =
+    TaskSummary(
       id = id,
       title = title,
       productionTitle = "Pilot",

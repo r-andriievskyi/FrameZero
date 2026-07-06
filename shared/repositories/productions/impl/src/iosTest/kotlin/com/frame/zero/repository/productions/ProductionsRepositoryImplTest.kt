@@ -6,15 +6,17 @@ import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import com.frame.zero.database.FrameZeroDatabase
 import com.frame.zero.database.ProductionEntity
 import com.frame.zero.domain.production.Genre
+import com.frame.zero.domain.production.NewProduction
 import com.frame.zero.domain.production.ProductionPhase
+import com.frame.zero.domain.production.toProductionDetail
+import com.frame.zero.domain.production.toProductionMember
 import com.frame.zero.dto.common.CursorPagedResponse
 import com.frame.zero.dto.production.CreateProductionRequest
 import com.frame.zero.dto.production.ProductionDetailDto
 import com.frame.zero.dto.production.ProductionMemberDto
 import com.frame.zero.dto.production.ProductionSummaryDto
 import com.frame.zero.repository.productions.network.ProductionsApi
-import com.frame.zero.testing.productionDetailDto
-import com.frame.zero.testing.productionMemberDto
+import kotlin.time.Instant
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.LocalDate
@@ -77,9 +79,9 @@ class ProductionsRepositoryImplTest {
       val api = FakeProductionsApi(detail = detail, members = members, created = detail)
       val repo = ProductionsRepositoryImpl(api, database)
 
-      assertEquals(detail, repo.getDetails("p9"))
-      assertEquals(members, repo.listMembers("p9"))
-      assertEquals(detail, repo.create(createRequest()))
+      assertEquals(detail.toProductionDetail(), repo.getDetails("p9"))
+      assertEquals(members.map { it.toProductionMember() }, repo.listMembers("p9"))
+      assertEquals(detail.toProductionDetail(), repo.create(newProduction()))
       assertEquals(listOf("p9"), api.getDetailsCalls)
       assertEquals(listOf("p9"), api.listMembersCalls)
       assertEquals(api.createCalls.single().title, "New")
@@ -112,8 +114,8 @@ class ProductionsRepositoryImplTest {
     pageOrder = pageOrder
   )
 
-  private fun createRequest() =
-    CreateProductionRequest(
+  private fun newProduction() =
+    NewProduction(
       title = "New",
       genre = Genre.DRAMA,
       startDate = LocalDate(2026, 4, 1),
@@ -157,3 +159,36 @@ class ProductionsRepositoryImplTest {
     }
   }
 }
+
+private fun productionDetailDto(
+  id: String = "p1",
+  title: String = "Pilot"
+): ProductionDetailDto =
+  ProductionDetailDto(
+    id = id,
+    title = title,
+    genre = Genre.DRAMA,
+    logline = null,
+    phase = ProductionPhase.IDEA,
+    progressPercent = 0,
+    daysLeft = 0,
+    startDate = LocalDate(2026, 4, 1),
+    wrapDate = LocalDate(2026, 5, 1),
+    budgetCents = null,
+    membersCount = 0,
+    keyCrew = emptyList(),
+    pipeline = emptyList(),
+    createdAt = Instant.fromEpochMilliseconds(0),
+    updatedAt = Instant.fromEpochMilliseconds(0)
+  )
+
+private fun productionMemberDto(id: String = "m1"): ProductionMemberDto =
+  ProductionMemberDto(
+    id = id,
+    userId = "u1",
+    name = "Ada",
+    role = "Director",
+    initials = "AD",
+    avatarColorHex = "#FF0000",
+    addedAt = Instant.fromEpochMilliseconds(0)
+  )

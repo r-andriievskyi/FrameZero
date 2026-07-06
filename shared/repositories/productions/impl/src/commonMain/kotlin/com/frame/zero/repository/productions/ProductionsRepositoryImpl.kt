@@ -5,11 +5,14 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
-import com.frame.zero.domain.production.Production
-import com.frame.zero.dto.production.CreateProductionRequest
-import com.frame.zero.dto.production.ProductionDetailDto
-import com.frame.zero.dto.production.ProductionMemberDto
 import com.frame.zero.database.FrameZeroDatabase
+import com.frame.zero.domain.production.NewProduction
+import com.frame.zero.domain.production.Production
+import com.frame.zero.domain.production.ProductionDetail
+import com.frame.zero.domain.production.ProductionMember
+import com.frame.zero.domain.production.toCreateRequest
+import com.frame.zero.domain.production.toProductionDetail
+import com.frame.zero.domain.production.toProductionMember
 import com.frame.zero.repository.productions.local.toProduction
 import com.frame.zero.repository.productions.network.ProductionsApi
 import kotlinx.coroutines.flow.Flow
@@ -31,12 +34,14 @@ class ProductionsRepositoryImpl(
     ).flow.map { pagingData -> pagingData.map { entity -> entity.toProduction() } }
   }
 
-  override suspend fun getDetails(productionId: String): ProductionDetailDto = remoteApi.getDetails(productionId)
+  override suspend fun getDetails(productionId: String): ProductionDetail =
+    remoteApi.getDetails(productionId).toProductionDetail()
 
-  override suspend fun listMembers(productionId: String): List<ProductionMemberDto> =
-    remoteApi.listMembers(productionId)
+  override suspend fun listMembers(productionId: String): List<ProductionMember> =
+    remoteApi.listMembers(productionId).map { it.toProductionMember() }
 
-  override suspend fun create(request: CreateProductionRequest): ProductionDetailDto = remoteApi.create(request)
+  override suspend fun create(production: NewProduction): ProductionDetail =
+    remoteApi.create(production.toCreateRequest()).toProductionDetail()
 
   override suspend fun delete(productionId: String) {
     remoteApi.delete(productionId)

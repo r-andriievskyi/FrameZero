@@ -1,11 +1,11 @@
 package com.frame.zero.feature.auth.register
 
-import com.frame.zero.auth.dto.UserDto
 import com.frame.zero.core.session.LogoutSignal
 import com.frame.zero.core.session.SessionManager
 import com.frame.zero.core.session.TokenStorage
 import com.frame.zero.core.session.UserCache
 import com.frame.zero.domain.DomainError
+import com.frame.zero.domain.User
 import com.frame.zero.domain.DomainException
 import com.frame.zero.feature.auth.domain.RegisterUseCase
 import com.frame.zero.testing.FakeAuthRepository
@@ -29,7 +29,7 @@ import kotlin.test.assertNull
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class RegisterViewModelTest {
-  private val userDto = UserDto(id = "u1", email = "u@x.com", firstName = "", lastName = "")
+  private val user = User(id = "u1", email = "u@x.com")
 
   @Test
   fun `initial state is empty without loading or error`() =
@@ -69,7 +69,7 @@ class RegisterViewModelTest {
   @Test
   fun `Submit with blank fields sets validation error and skips repository`() =
     runTest {
-      val repo = FakeAuthRepository(registerUserDto = userDto)
+      val repo = FakeAuthRepository(registerUser = user)
       val vm = makeViewModel(this, repo)
 
       vm.onIntent(RegisterIntent.Submit)
@@ -82,7 +82,7 @@ class RegisterViewModelTest {
   @Test
   fun `successful Submit clears loading and error`() =
     runTest {
-      val repo = FakeAuthRepository(registerUserDto = userDto)
+      val repo = FakeAuthRepository(registerUser = user)
       val vm = makeViewModel(this, repo)
 
       vm.onIntent(RegisterIntent.EmailChanged("u@x.com"))
@@ -145,7 +145,7 @@ class RegisterViewModelTest {
   @Test
   fun `Submit routes to register and not login`() =
     runTest {
-      val repo = FakeAuthRepository(registerUserDto = userDto)
+      val repo = FakeAuthRepository(registerUser = user)
       val vm = makeViewModel(this, repo)
 
       vm.onIntent(RegisterIntent.EmailChanged("u@x.com"))

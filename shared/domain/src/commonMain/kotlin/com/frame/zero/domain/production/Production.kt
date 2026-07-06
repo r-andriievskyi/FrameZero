@@ -12,3 +12,15 @@ data class Production(
   val membersCount: Int,
   val updatedAt: Instant
 )
+
+fun ProductionDetail.toProduction(): Production =
+  Production(
+    id = id,
+    title = title,
+    genre = genre,
+    phase = phase,
+    progressPercent = progressPercent,
+    daysLeft = daysLeft,
+    membersCount = membersCount,
+    updatedAt = updatedAt
+  )

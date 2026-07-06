@@ -1,7 +1,7 @@
 package com.frame.zero.feature.task.details
 
-import com.frame.zero.dto.task.TaskAssigneeDto
-import com.frame.zero.dto.task.TaskDetailDto
+import com.frame.zero.domain.task.TaskAssignee
+import com.frame.zero.domain.task.TaskDetail
 import com.frame.zero.domain.chat.Conversation
 import com.frame.zero.feature.task.details.usecase.CompleteTaskUseCase
 import com.frame.zero.feature.task.details.usecase.GetAssignableMembersUseCase
@@ -12,8 +12,8 @@ import com.frame.zero.repository.chat.ChatRepository
 import com.frame.zero.testing.FakeChatRepository
 import com.frame.zero.testing.FakeProductionsRepository
 import com.frame.zero.testing.FakeTasksRepository
-import com.frame.zero.testing.productionMemberDto
-import com.frame.zero.testing.taskParticipantDto
+import com.frame.zero.testing.productionMember
+import com.frame.zero.testing.taskParticipant
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -30,21 +30,21 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
-import com.frame.zero.domain.task.TaskStatus as DtoTaskStatus
+import com.frame.zero.domain.task.TaskStatus as DomainTaskStatus
 
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalTime::class)
 class TaskDetailsViewModelTest {
-  private val openTask = TaskDetailDto(
+  private val openTask = TaskDetail(
     id = "t1",
     productionId = "p1",
     productionTitle = "Echoes of Silence",
     title = "Review Scene 12",
     description = "Check the revised pages.",
     dueDate = null,
-    status = DtoTaskStatus.OPEN,
+    status = DomainTaskStatus.OPEN,
     priority = com.frame.zero.domain.task.TaskPriority.HIGH,
     assigneeUserId = "u1",
-    assignee = TaskAssigneeDto(userId = "u1", name = "Maya Rivera", avatarColorHex = "#0097A7"),
+    assignee = TaskAssignee(userId = "u1", name = "Maya Rivera", avatarColorHex = "#0097A7"),
     createdAt = Instant.fromEpochMilliseconds(0L)
   )
 
@@ -103,20 +103,20 @@ class TaskDetailsViewModelTest {
   @Test
   fun `init sets loading true before completion`() =
     runTest {
-      val gate = CompletableDeferred<TaskDetailDto>()
+      val gate = CompletableDeferred<TaskDetail>()
       val repo = object : com.frame.zero.repository.tasks.TasksRepository {
-        override suspend fun getTask(id: String): TaskDetailDto = gate.await()
+        override suspend fun getTask(id: String): TaskDetail = gate.await()
 
-        override suspend fun completeTask(id: String): TaskDetailDto = openTask
+        override suspend fun completeTask(id: String): TaskDetail = openTask
 
-        override suspend fun createTask(request: com.frame.zero.dto.task.CreateTaskRequest): TaskDetailDto = openTask
+        override suspend fun createTask(task: com.frame.zero.domain.task.NewTask): TaskDetail = openTask
 
         override suspend fun updateParticipants(
           taskId: String,
           userIds: List<String>
-        ): TaskDetailDto = openTask
+        ): TaskDetail = openTask
 
-        override suspend fun listForProduction(productionId: String): List<com.frame.zero.dto.task.TaskSummaryDto> =
+        override suspend fun listForProduction(productionId: String): List<com.frame.zero.domain.task.TaskSummary> =
           emptyList()
 
         override suspend fun downloadAttachment(
@@ -161,7 +161,7 @@ class TaskDetailsViewModelTest {
   @Test
   fun `done task maps to completed and hides button`() =
     runTest {
-      val repo = FakeTasksRepository(task = openTask.copy(status = DtoTaskStatus.DONE))
+      val repo = FakeTasksRepository(task = openTask.copy(status = DomainTaskStatus.DONE))
       val viewModel = makeViewModel(this, repo)
 
       advanceUntilIdle()
@@ -175,7 +175,7 @@ class TaskDetailsViewModelTest {
     runTest {
       val repo = FakeTasksRepository(
         task = openTask,
-        completedTask = openTask.copy(status = DtoTaskStatus.DONE)
+        completedTask = openTask.copy(status = DomainTaskStatus.DONE)
       )
       val viewModel = makeViewModel(this, repo)
       advanceUntilIdle()
@@ -195,22 +195,22 @@ class TaskDetailsViewModelTest {
       val repo = object : com.frame.zero.repository.tasks.TasksRepository {
         var calls = 0
 
-        override suspend fun getTask(id: String): TaskDetailDto {
+        override suspend fun getTask(id: String): TaskDetail {
           calls++
           if (shouldFail) throw RuntimeException("boom")
           return openTask
         }
 
-        override suspend fun completeTask(id: String): TaskDetailDto = openTask
+        override suspend fun completeTask(id: String): TaskDetail = openTask
 
-        override suspend fun createTask(request: com.frame.zero.dto.task.CreateTaskRequest): TaskDetailDto = openTask
+        override suspend fun createTask(task: com.frame.zero.domain.task.NewTask): TaskDetail = openTask
 
         override suspend fun updateParticipants(
           taskId: String,
           userIds: List<String>
-        ): TaskDetailDto = openTask
+        ): TaskDetail = openTask
 
-        override suspend fun listForProduction(productionId: String): List<com.frame.zero.dto.task.TaskSummaryDto> =
+        override suspend fun listForProduction(productionId: String): List<com.frame.zero.domain.task.TaskSummary> =
           emptyList()
 
         override suspend fun downloadAttachment(
@@ -236,7 +236,7 @@ class TaskDetailsViewModelTest {
   fun `loads assignable members for the task's production after load succeeds`() =
     runTest {
       val productions = FakeProductionsRepository(
-        members = listOf(productionMemberDto(userId = "u2", name = "Jake"))
+        members = listOf(productionMember(userId = "u2", name = "Jake"))
       )
       val viewModel = makeViewModel(this, FakeTasksRepository(task = openTask), productions = productions)
 
@@ -249,7 +249,7 @@ class TaskDetailsViewModelTest {
   @Test
   fun `initial participants come from the loaded task detail`() =
     runTest {
-      val task = openTask.copy(participants = listOf(taskParticipantDto(userId = "u2", name = "Jake")))
+      val task = openTask.copy(participants = listOf(taskParticipant(userId = "u2", name = "Jake")))
       val viewModel = makeViewModel(this, FakeTasksRepository(task = task))
 
       advanceUntilIdle()
@@ -260,11 +260,11 @@ class TaskDetailsViewModelTest {
   @Test
   fun `toggling an unselected participant adds them and calls the repository with the full set`() =
     runTest {
-      val task = openTask.copy(participants = listOf(taskParticipantDto(userId = "u2", name = "Jake")))
+      val task = openTask.copy(participants = listOf(taskParticipant(userId = "u2", name = "Jake")))
       val updated = task.copy(
         participants = listOf(
-          taskParticipantDto(userId = "u2", name = "Jake"),
-          taskParticipantDto(userId = "u3", name = "Mia")
+          taskParticipant(userId = "u2", name = "Jake"),
+          taskParticipant(userId = "u3", name = "Mia")
         )
       )
       val repo = FakeTasksRepository(task = task, updatedParticipantsTask = updated)
@@ -282,7 +282,7 @@ class TaskDetailsViewModelTest {
   @Test
   fun `toggling a selected participant removes them`() =
     runTest {
-      val task = openTask.copy(participants = listOf(taskParticipantDto(userId = "u2", name = "Jake")))
+      val task = openTask.copy(participants = listOf(taskParticipant(userId = "u2", name = "Jake")))
       val updated = task.copy(participants = emptyList())
       val repo = FakeTasksRepository(task = task, updatedParticipantsTask = updated)
       val viewModel = makeViewModel(this, repo)
@@ -298,7 +298,7 @@ class TaskDetailsViewModelTest {
   @Test
   fun `a failed participant update surfaces an error and keeps the previous list`() =
     runTest {
-      val task = openTask.copy(participants = listOf(taskParticipantDto(userId = "u2", name = "Jake")))
+      val task = openTask.copy(participants = listOf(taskParticipant(userId = "u2", name = "Jake")))
       val repo = FakeTasksRepository(
         task = task,
         updateParticipantsThrows = com.frame.zero.domain.OfflineException()

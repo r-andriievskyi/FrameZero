@@ -1,7 +1,6 @@
 package com.frame.zero.core.session
 
 import com.frame.zero.domain.User
-import com.frame.zero.domain.toDomain
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -37,8 +36,7 @@ class SessionManager(
     }
     runCatching { authOperations.fetchCurrentUser() }
       .fold(
-        onSuccess = { dto ->
-          val user = dto.toDomain()
+        onSuccess = { user ->
           userCache.save(user)
           _state.update { SessionState.LoggedIn(user) }
         },

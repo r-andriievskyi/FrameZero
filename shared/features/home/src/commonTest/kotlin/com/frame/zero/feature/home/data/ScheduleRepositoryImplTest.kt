@@ -1,6 +1,7 @@
 package com.frame.zero.feature.home.data
 
 import com.frame.zero.core.network.NetworkConfig
+import com.frame.zero.domain.schedule.ScheduleView
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
@@ -11,6 +12,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.LocalDate
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -23,7 +25,7 @@ class ScheduleRepositoryImplTest {
         """{"rangeStart":"2026-03-01","rangeEnd":"2026-03-31","days":[]}"""
       }
 
-      repo.getSchedule(view = "month", date = "2026-03")
+      repo.getSchedule(view = ScheduleView.MONTH, date = LocalDate(2026, 3, 5))
 
       val request = requests.single()
       assertEquals("/api/v1/schedule", request.url.encodedPath)
@@ -44,7 +46,7 @@ class ScheduleRepositoryImplTest {
         """.trimIndent()
       }
 
-      val response = repo.getSchedule(view = "week", date = "2026-03-05")
+      val response = repo.getSchedule(view = ScheduleView.WEEK, date = LocalDate(2026, 3, 5))
 
       assertEquals(1, response.days.size)
       assertEquals("2026-03-01", response.rangeStart.toString())

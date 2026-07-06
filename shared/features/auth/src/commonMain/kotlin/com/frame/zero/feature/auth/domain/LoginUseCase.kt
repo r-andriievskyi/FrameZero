@@ -4,7 +4,6 @@ import com.frame.zero.core.session.SessionManager
 import com.frame.zero.domain.DomainError
 import com.frame.zero.domain.UseCase
 import com.frame.zero.domain.User
-import com.frame.zero.domain.toDomain
 import com.frame.zero.repository.auth.AuthRepository
 
 class LoginUseCase(
@@ -19,7 +18,7 @@ class LoginUseCase(
   override fun mapError(throwable: Throwable): DomainError = throwable.toDomainError()
 
   override suspend fun execute(params: Params): User {
-    val user = authRepository.login(params.email, params.password).toDomain()
+    val user = authRepository.login(params.email, params.password)
     sessionManager.onAuthenticated(user)
     return user
   }

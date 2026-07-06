@@ -1,6 +1,6 @@
 package com.frame.zero.repository.auth
 
-import com.frame.zero.auth.dto.UserDto
+import com.frame.zero.domain.User
 
 interface AuthRepository {
   suspend fun register(
@@ -8,14 +8,14 @@ interface AuthRepository {
     password: String,
     firstName: String,
     lastName: String
-  ): UserDto
+  ): User
 
   suspend fun login(
     email: String,
     password: String
-  ): UserDto
+  ): User
 
   suspend fun logout()
 
-  suspend fun getCurrentUser(): UserDto
+  suspend fun getCurrentUser(): User
 }
