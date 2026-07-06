@@ -16,6 +16,7 @@ plugins {
     alias(libs.plugins.googleServices) apply false
     alias(libs.plugins.firebaseCrashlytics) apply false
     alias(libs.plugins.firebasePerf) apply false
+    alias(libs.plugins.moduleGraph)
 }
 
 subprojects {
@@ -24,3 +25,16 @@ subprojects {
         rootProject.dependencies.add("kover", module)
     }
 }
+
+// Generates a Mermaid module dependency graph into docs/module-graph.md.
+// Regenerate with: ./gradlew createModuleGraph
+moduleGraphConfig {
+    readmePath.set("${rootDir}/docs/module-graph.md")
+    heading.set("## Module Graph")
+    // Hide cross-cutting noise: the detekt ruleset every module wires in, and
+    // the root-project kover aggregation edges that fan out to every module.
+    excludedModulesRegex.set(".*:detekt-rules")
+    excludedConfigurationsRegex.set("kover|detektPlugins")
+}
+
+
