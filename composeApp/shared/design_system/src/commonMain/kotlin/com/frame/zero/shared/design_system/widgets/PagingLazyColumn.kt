@@ -61,7 +61,6 @@ private const val AppendErrorItemKey = "append-error"
 private const val RefreshIndicatorItemKey = "inline-refresh-indicator"
 private val InlineIndicatorIconSize = 44.dp
 private val InlineIndicatorStrokeWidth = 2.dp
-private const val InlineSpinnerCycleMillis = 900
 private const val FullCircleDeg = 360f
 
 /**
@@ -277,13 +276,14 @@ private fun RefreshIconBadge(isRefreshing: Boolean) {
   val onAccentColor = AppTheme.colorSystem.textOnAccent
 
   val rotation = remember { mutableFloatStateOf(0f) }
+  val loopMillis = AppTheme.motionSystem.durationLoop
   LaunchedEffect(isRefreshing) {
     if (isRefreshing) {
       animate(
         initialValue = 0f,
         targetValue = FullCircleDeg,
         animationSpec = infiniteRepeatable(
-          animation = tween(durationMillis = InlineSpinnerCycleMillis)
+          animation = tween(durationMillis = loopMillis)
         )
       ) { value, _ -> rotation.floatValue = value }
     } else {

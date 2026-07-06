@@ -36,4 +36,7 @@ object AppTheme {
 
   val borderSystem: BorderSystem
     @Composable get() = LocalAppTheme.current.borderSystem
+
+  val motionSystem: MotionSystem
+    @Composable get() = LocalAppTheme.current.motionSystem
 }

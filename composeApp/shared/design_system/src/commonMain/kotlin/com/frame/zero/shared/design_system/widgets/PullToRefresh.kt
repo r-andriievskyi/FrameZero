@@ -52,7 +52,6 @@ private const val DragRubberBand = 0.5f
 private const val SpinnerSweepMin = 12f
 private const val SpinnerSweepMax = 270f
 private const val SpinnerPullRotationDeg = 360f
-private const val InfiniteSpinnerCycleMillis = 900
 private const val MinIndicatorAlpha = 0.35f
 private const val FullCircleDeg = 360f
 
@@ -212,13 +211,14 @@ object PullToRefreshDefaults {
     if (state.pullDistance <= 0f && !state.isRefreshing) return
 
     val refreshingRotation = remember { mutableFloatStateOf(0f) }
+    val loopMillis = AppTheme.motionSystem.durationLoop
     LaunchedEffect(state.isRefreshing) {
       if (state.isRefreshing) {
         animate(
           initialValue = 0f,
           targetValue = FullCircleDeg,
           animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = InfiniteSpinnerCycleMillis)
+            animation = tween(durationMillis = loopMillis)
           )
         ) { value, _ -> refreshingRotation.floatValue = value }
       } else {
