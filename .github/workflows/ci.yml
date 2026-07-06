@@ -54,6 +54,8 @@ jobs:
       # remote build cache re-running them here just repeats the work.
       - name: Build and unit tests
         run: ./gradlew check -x lint -PskipStaticAnalysis
+      - name: Enforce coverage floor
+        run: ./gradlew koverVerify
       - name: Coverage summary
         if: always()
         run: |
