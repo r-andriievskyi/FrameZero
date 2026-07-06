@@ -1,7 +1,7 @@
 package com.frame.zero.core.network
 
 import com.frame.zero.core.network.connectivity.ConnectivityObserver
-import com.frame.zero.core.network.connectivity.OfflineException
+import com.frame.zero.domain.OfflineException
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond

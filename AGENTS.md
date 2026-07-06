@@ -36,6 +36,7 @@ FrameZero is a Kotlin Multiplatform (KMP) app targeting Android and iOS, with a 
 ./gradlew ktlintCheck                  # Verify formatting (CI)
 ./gradlew detekt                       # Static analysis
 ./gradlew check                        # Full CI gate: ktlintCheck + detekt + tests
+./gradlew createModuleGraph            # Regenerate docs/module-graph.md (Mermaid module dependency graph)
 ```
 
 ## Patterns to Follow

@@ -1,6 +1,6 @@
 package com.frame.zero.testing
 
-import com.frame.zero.auth.dto.UserDto
+import com.frame.zero.domain.User
 import com.frame.zero.repository.auth.AuthRepository
 
 data class RegisterCall(
@@ -11,12 +11,12 @@ data class RegisterCall(
 )
 
 class FakeAuthRepository(
-  private val loginUserDto: UserDto = UserDto("", "", "", ""),
+  private val loginUser: User = User("", "", "", ""),
   private val loginThrows: Throwable? = null,
-  private val registerUserDto: UserDto = UserDto("", "", "", ""),
+  private val registerUser: User = User("", "", "", ""),
   private val registerThrows: Throwable? = null,
   private val logoutThrows: Throwable? = null,
-  private val currentUserDto: UserDto = UserDto("", "", "", ""),
+  private val currentUser: User = User("", "", "", ""),
   private val currentUserThrows: Throwable? = null
 ) : AuthRepository {
   val loginCalls: MutableList<Pair<String, String>> = mutableListOf()
@@ -27,10 +27,10 @@ class FakeAuthRepository(
   override suspend fun login(
     email: String,
     password: String
-  ): UserDto {
+  ): User {
     loginCalls += email to password
     loginThrows?.let { throw it }
-    return loginUserDto
+    return loginUser
   }
 
   override suspend fun register(
@@ -38,10 +38,10 @@ class FakeAuthRepository(
     password: String,
     firstName: String,
     lastName: String
-  ): UserDto {
+  ): User {
     registerCalls += RegisterCall(email, password, firstName, lastName)
     registerThrows?.let { throw it }
-    return registerUserDto
+    return registerUser
   }
 
   override suspend fun logout() {
@@ -49,8 +49,8 @@ class FakeAuthRepository(
     logoutThrows?.let { throw it }
   }
 
-  override suspend fun getCurrentUser(): UserDto {
+  override suspend fun getCurrentUser(): User {
     currentUserThrows?.let { throw it }
-    return currentUserDto
+    return currentUser
   }
 }

@@ -5,11 +5,15 @@ import com.frame.zero.core.network.NetworkConfig
 import com.frame.zero.core.network.connectivity.ConnectivityObserver
 import com.frame.zero.domain.DomainError
 import com.frame.zero.domain.Outcome
+import com.frame.zero.domain.task.NewTask
+import com.frame.zero.domain.task.TaskDetail
+import com.frame.zero.domain.task.TaskStatus
+import com.frame.zero.domain.task.TaskSummary
+import com.frame.zero.domain.task.toCreateRequest
+import com.frame.zero.domain.task.toDomain
 import com.frame.zero.domain.toDomainError
 import com.frame.zero.dto.common.CursorPagedResponse
-import com.frame.zero.dto.task.CreateTaskRequest
 import com.frame.zero.dto.task.TaskDetailDto
-import com.frame.zero.dto.task.TaskStatus
 import com.frame.zero.dto.task.TaskSummaryDto
 import com.frame.zero.dto.task.UpdateTaskParticipantsRequest
 import com.frame.zero.dto.task.UpdateTaskRequest
@@ -31,29 +35,32 @@ class TasksRepositoryImpl(
   private val connectivityObserver: ConnectivityObserver,
   private val attachmentFileManager: AttachmentFileManager
 ) : TasksRepository {
-  override suspend fun getTask(id: String): TaskDetailDto =
-    httpClient.get("${networkConfig.baseUrl}/api/v1/tasks/$id").body()
+  override suspend fun getTask(id: String): TaskDetail =
+    httpClient.get("${networkConfig.baseUrl}/api/v1/tasks/$id").body<TaskDetailDto>().toDomain()
 
-  override suspend fun completeTask(id: String): TaskDetailDto =
+  override suspend fun completeTask(id: String): TaskDetail =
     httpClient
       .patch("${networkConfig.baseUrl}/api/v1/tasks/$id") {
         setBody(UpdateTaskRequest(status = TaskStatus.DONE))
-      }.body()
+      }.body<TaskDetailDto>()
+      .toDomain()
 
-  override suspend fun createTask(request: CreateTaskRequest): TaskDetailDto =
+  override suspend fun createTask(task: NewTask): TaskDetail =
     httpClient
       .post("${networkConfig.baseUrl}/api/v1/tasks") {
-        setBody(request)
-      }.body()
+        setBody(task.toCreateRequest())
+      }.body<TaskDetailDto>()
+      .toDomain()
 
   override suspend fun updateParticipants(
     taskId: String,
     userIds: List<String>
-  ): TaskDetailDto =
+  ): TaskDetail =
     httpClient
       .put("${networkConfig.baseUrl}/api/v1/tasks/$taskId/participants") {
         setBody(UpdateTaskParticipantsRequest(participantUserIds = userIds))
-      }.body()
+      }.body<TaskDetailDto>()
+      .toDomain()
 
   override suspend fun downloadAttachment(
     taskId: String,
@@ -79,13 +86,14 @@ class TasksRepositoryImpl(
     )
   }
 
-  override suspend fun listForProduction(productionId: String): List<TaskSummaryDto> =
+  override suspend fun listForProduction(productionId: String): List<TaskSummary> =
     httpClient
       .get("${networkConfig.baseUrl}/api/v1/tasks") {
         parameter("productionId", productionId)
         parameter("limit", PRODUCTION_TASKS_PAGE_SIZE)
       }.body<CursorPagedResponse<TaskSummaryDto>>()
       .items
+      .map { it.toDomain() }
 
   private companion object {
     // The production-details card shows a single page of recent tasks; it is not

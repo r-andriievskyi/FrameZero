@@ -1,6 +1,5 @@
 package com.frame.zero.feature.auth.signin
 
-import com.frame.zero.auth.dto.UserDto
 import com.frame.zero.core.session.LogoutSignal
 import com.frame.zero.core.session.SessionManager
 import com.frame.zero.core.session.TokenStorage
@@ -33,7 +32,6 @@ import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class SignInViewModelTest {
-  private val userDto = UserDto(id = "u1", email = "u@x.com", firstName = "", lastName = "")
   private val user = User(id = "u1", email = "u@x.com")
 
   @Test
@@ -66,7 +64,7 @@ class SignInViewModelTest {
   @Test
   fun `Submit with blank email sets validation error and skips repository`() =
     runTest {
-      val repo = FakeAuthRepository(loginUserDto = userDto)
+      val repo = FakeAuthRepository(loginUser = user)
       val vm = makeViewModel(this, repo)
 
       vm.onIntent(SignInIntent.PasswordChanged("p"))
@@ -80,7 +78,7 @@ class SignInViewModelTest {
   @Test
   fun `Submit with blank password sets validation error`() =
     runTest {
-      val repo = FakeAuthRepository(loginUserDto = userDto)
+      val repo = FakeAuthRepository(loginUser = user)
       val vm = makeViewModel(this, repo)
 
       vm.onIntent(SignInIntent.EmailChanged("u@x.com"))
@@ -93,7 +91,7 @@ class SignInViewModelTest {
   @Test
   fun `successful Submit clears loading and error`() =
     runTest {
-      val repo = FakeAuthRepository(loginUserDto = userDto)
+      val repo = FakeAuthRepository(loginUser = user)
       val vm = makeViewModel(this, repo)
 
       vm.onIntent(SignInIntent.EmailChanged("u@x.com"))
@@ -170,7 +168,7 @@ class SignInViewModelTest {
   @Test
   fun `second Submit while the first is in flight is ignored`() =
     runTest {
-      val gate = CompletableDeferred<UserDto>()
+      val gate = CompletableDeferred<User>()
       val repo = GatedAuthRepository(loginGate = gate)
       val vm = makeViewModel(this, repo)
 
@@ -186,7 +184,7 @@ class SignInViewModelTest {
 
       assertEquals(1, repo.loginInvocations)
 
-      gate.complete(userDto)
+      gate.complete(user)
       advanceUntilIdle()
     }
 
@@ -211,7 +209,7 @@ class SignInViewModelTest {
   }
 
   private class GatedAuthRepository(
-    private val loginGate: CompletableDeferred<UserDto>
+    private val loginGate: CompletableDeferred<User>
   ) : AuthRepository {
     var loginInvocations: Int = 0
       private set
@@ -219,7 +217,7 @@ class SignInViewModelTest {
     override suspend fun login(
       email: String,
       password: String
-    ): UserDto {
+    ): User {
       loginInvocations++
       return loginGate.await()
     }
@@ -229,10 +227,10 @@ class SignInViewModelTest {
       password: String,
       firstName: String,
       lastName: String
-    ): UserDto = error("not expected")
+    ): User = error("not expected")
 
     override suspend fun logout() = Unit
 
-    override suspend fun getCurrentUser(): UserDto = error("not expected")
+    override suspend fun getCurrentUser(): User = error("not expected")
   }
 }

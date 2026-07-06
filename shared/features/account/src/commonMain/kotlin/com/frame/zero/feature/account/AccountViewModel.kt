@@ -21,14 +21,16 @@ import kotlin.coroutines.CoroutineContext
 class AccountViewModel(
   private val sessionManager: SessionManager,
   private val appLockController: AppLockController,
-  dispatcher: CoroutineContext = Dispatchers.Main.immediate
+  dispatcher: CoroutineContext = Dispatchers.Main.immediate,
+  isDebug: Boolean = false
 ) : InstanceKeeper.Instance {
   private val scope = CoroutineScope(dispatcher + SupervisorJob())
 
   private val _state = MutableStateFlow(
     AccountState(
       appLockSupported = appLockController.isBiometricAvailable() || appLockController.isEnabled,
-      appLockEnabled = appLockController.isEnabled
+      appLockEnabled = appLockController.isEnabled,
+      developerOptionsEnabled = isDebug
     )
   )
   val state: StateFlow<AccountState> = _state.asStateFlow()

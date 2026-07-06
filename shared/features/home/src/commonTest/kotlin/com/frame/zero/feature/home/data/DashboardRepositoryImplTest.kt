@@ -33,7 +33,7 @@ class DashboardRepositoryImplTest {
 
       val response = repo.getDashboard()
 
-      assertEquals("Ada", response.greeting.displayName)
+      assertEquals("Ada", response.displayName)
       assertEquals(2, response.stats.activeProjects)
       assertEquals(3, response.stats.openTasks)
     }

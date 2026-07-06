@@ -23,4 +23,9 @@
   <string name="app_lock_prompt_title">Confirm it's you</string>
   <string name="app_lock_prompt_subtitle">Authenticate to change the app lock setting.</string>
   <string name="app_lock_prompt_cancel">Cancel</string>
+
+  <!-- Developer section (debug builds only) -->
+  <string name="section_developer">Developer</string>
+  <string name="settings_design_system">Design system gallery</string>
+  <string name="settings_design_system_subtitle">Browse components &amp; tokens</string>
 </resources>

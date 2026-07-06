@@ -1,6 +1,6 @@
 package com.frame.zero.feature.auth.data
 
-import com.frame.zero.core.network.connectivity.OfflineException
+import com.frame.zero.domain.OfflineException
 import com.frame.zero.domain.DomainError
 import com.frame.zero.feature.auth.domain.toDomainError
 import io.ktor.client.HttpClient

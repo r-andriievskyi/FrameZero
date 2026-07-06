@@ -27,8 +27,8 @@ import com.frame.zero.domain.schedule.ScheduleEvent
 import com.frame.zero.domain.schedule.ScheduleEventKind
 import com.frame.zero.domain.schedule.ScheduleTask
 import com.frame.zero.domain.schedule.ScheduleView
-import com.frame.zero.dto.task.TaskPriority
-import com.frame.zero.dto.task.TaskStatus
+import com.frame.zero.domain.task.TaskPriority
+import com.frame.zero.domain.task.TaskStatus
 import com.frame.zero.feature.home.LoadErrorKind
 import com.frame.zero.feature.home.tab.schedule.DueLabel
 import com.frame.zero.feature.home.tab.schedule.ScheduleEventUiModel

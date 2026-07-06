@@ -9,12 +9,10 @@ kotlin {
     commonMain.dependencies {
       api(projects.shared)
       api(libs.decompose)
-      implementation(libs.koin.core)
-      implementation(libs.kotlinx.coroutines.core)
+      implementation(libs.bundles.koinRuntime)
     }
     commonTest.dependencies {
-      implementation(libs.kotlin.test)
-      implementation(libs.kotlinx.coroutines.test)
+      implementation(libs.bundles.commonTest)
       implementation(libs.multiplatformSettings)
       implementation(libs.multiplatformSettings.test)
     }

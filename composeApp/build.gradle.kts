@@ -71,8 +71,8 @@ kotlin {
       implementation(projects.shared.features.taskDetails)
       implementation(projects.shared.features.taskCreate)
       implementation(projects.shared.features.chat)
-      implementation(projects.shared.repositories.productions)
-      implementation(projects.shared.repositories.chat)
+      implementation(projects.shared.repositories.productions.impl)
+      implementation(projects.shared.repositories.chat.impl)
       implementation(projects.shared.repositories.deviceToken)
       implementation(projects.shared.integrations.firebase)
       implementation(projects.composeApp.features.account)
@@ -90,8 +90,7 @@ kotlin {
       implementation(projects.composeApp.shared.designSystem)
     }
     commonTest.dependencies {
-      implementation(libs.kotlin.test)
-      implementation(libs.kotlinx.coroutines.test)
+      implementation(libs.bundles.commonTest)
       implementation(projects.shared.testFixtures)
       implementation(libs.multiplatformSettings)
       implementation(libs.multiplatformSettings.test)
@@ -160,3 +159,16 @@ android {
 }
 
 dependencies { debugImplementation(libs.compose.uiTooling) }
+
+// Same workaround as :shared:integrations:firebase — this module links the GitLive Firebase
+// klib, whose native frameworks (FirebaseCore, …) are supplied via Xcode/SPM only to the app
+// link, never to Gradle. Kotlin/Native *test* executables therefore fail at `ld` with
+// "framework 'FirebaseCore' not found". Tests in commonTest still run on the Android host.
+// Remove once the native frameworks are made available to the Gradle link.
+val skippedIosTestTasks = setOf(
+  "linkDebugTestIosArm64",
+  "linkDebugTestIosSimulatorArm64",
+  "iosArm64Test",
+  "iosSimulatorArm64Test"
+)
+tasks.matching { it.name in skippedIosTestTasks }.configureEach { enabled = false }

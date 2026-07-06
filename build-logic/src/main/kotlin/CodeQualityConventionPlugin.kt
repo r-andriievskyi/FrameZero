@@ -32,6 +32,12 @@ class CodeQualityConventionPlugin : Plugin<Project> {
         baseline = file("detekt-baseline.xml")
       }
 
+      if (providers.gradleProperty("skipStaticAnalysis").isPresent) {
+        tasks.configureEach {
+          if (this is Detekt || name.contains("ktlint", ignoreCase = true)) enabled = false
+        }
+      }
+
       registerDesignSystemDetekt()
     }
   }

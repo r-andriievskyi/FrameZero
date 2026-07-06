@@ -1,8 +1,8 @@
 package com.frame.zero.feature.home.tab.schedule
 
-import com.frame.zero.core.network.connectivity.OfflineException
+import com.frame.zero.domain.OfflineException
 import com.frame.zero.domain.schedule.ScheduleView
-import com.frame.zero.dto.schedule.ScheduleResponse
+import com.frame.zero.domain.schedule.Schedule
 import com.frame.zero.feature.home.LoadErrorKind
 import com.frame.zero.testing.FakeConnectivityObserver
 import com.frame.zero.testing.FakeScheduleRepository
@@ -15,7 +15,6 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.number
 import kotlinx.io.IOException
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -28,7 +27,7 @@ import kotlin.test.assertTrue
 class ScheduleTabViewModelTest {
   private val testDispatcher = StandardTestDispatcher()
 
-  private val scheduleResponse = ScheduleResponse(
+  private val scheduleResponse = Schedule(
     rangeStart = LocalDate(2026, 5, 1),
     rangeEnd = LocalDate(2026, 5, 7),
     days = emptyList()
@@ -37,7 +36,7 @@ class ScheduleTabViewModelTest {
   @Test
   fun `init loads schedule for today using DAY view and clears loading`() =
     runTest(testDispatcher) {
-      val repo = FakeScheduleRepository(response = scheduleResponse)
+      val repo = FakeScheduleRepository(schedule = scheduleResponse)
       val viewModel = makeViewModel(repo)
 
       advanceUntilIdle()
@@ -48,14 +47,14 @@ class ScheduleTabViewModelTest {
       assertEquals(ScheduleView.DAY, viewModel.state.value.view)
       val today = assertNotNull(viewModel.state.value.selectedDate)
       val call = repo.calls.single()
-      assertEquals("day", call.view)
-      assertEquals(today.toString(), call.date)
+      assertEquals(ScheduleView.DAY, call.view)
+      assertEquals(today, call.date)
     }
 
   @Test
   fun `init sets isLoading true before completion`() =
     runTest(testDispatcher) {
-      val gate = CompletableDeferred<ScheduleResponse>()
+      val gate = CompletableDeferred<Schedule>()
       val repo = GatedScheduleRepository(gate)
       val viewModel = makeViewModel(repo)
 
@@ -103,9 +102,9 @@ class ScheduleTabViewModelTest {
         var calls = 0
 
         override suspend fun getSchedule(
-          view: String,
-          date: String
-        ): ScheduleResponse {
+          view: ScheduleView,
+          date: LocalDate
+        ): Schedule {
           calls++
           if (shouldFail) throw OfflineException()
           return scheduleResponse
@@ -133,7 +132,7 @@ class ScheduleTabViewModelTest {
   @Test
   fun `onViewChanged with the same view does not trigger a reload`() =
     runTest(testDispatcher) {
-      val repo = FakeScheduleRepository(response = scheduleResponse)
+      val repo = FakeScheduleRepository(schedule = scheduleResponse)
       val viewModel = makeViewModel(repo)
       advanceUntilIdle()
       val callsBefore = repo.calls.size
@@ -148,7 +147,7 @@ class ScheduleTabViewModelTest {
   @Test
   fun `onViewChanged with a new view updates state and reloads using the new view`() =
     runTest(testDispatcher) {
-      val repo = FakeScheduleRepository(response = scheduleResponse)
+      val repo = FakeScheduleRepository(schedule = scheduleResponse)
       val viewModel = makeViewModel(repo)
       advanceUntilIdle()
 
@@ -157,14 +156,14 @@ class ScheduleTabViewModelTest {
 
       assertEquals(ScheduleView.WEEK, viewModel.state.value.view)
       assertEquals(2, repo.calls.size)
-      assertEquals("week", repo.calls.last().view)
-      assertEquals(viewModel.state.value.selectedDate.toString(), repo.calls.last().date)
+      assertEquals(ScheduleView.WEEK, repo.calls.last().view)
+      assertEquals(viewModel.state.value.selectedDate, repo.calls.last().date)
     }
 
   @Test
-  fun `onViewChanged to MONTH formats the date param as yyyy-MM`() =
+  fun `onViewChanged to MONTH reloads with the selected date`() =
     runTest(testDispatcher) {
-      val repo = FakeScheduleRepository(response = scheduleResponse)
+      val repo = FakeScheduleRepository(schedule = scheduleResponse)
       val viewModel = makeViewModel(repo)
       advanceUntilIdle()
 
@@ -172,15 +171,14 @@ class ScheduleTabViewModelTest {
       advanceUntilIdle()
 
       val date = assertNotNull(viewModel.state.value.selectedDate)
-      val expected = "${date.year}-${date.month.number.toString().padStart(2, '0')}"
-      assertEquals("month", repo.calls.last().view)
-      assertEquals(expected, repo.calls.last().date)
+      assertEquals(ScheduleView.MONTH, repo.calls.last().view)
+      assertEquals(date, repo.calls.last().date)
     }
 
   @Test
   fun `onDateSelected updates selectedDate and reloads with the new date`() =
     runTest(testDispatcher) {
-      val repo = FakeScheduleRepository(response = scheduleResponse)
+      val repo = FakeScheduleRepository(schedule = scheduleResponse)
       val viewModel = makeViewModel(repo)
       advanceUntilIdle()
       val newDate = LocalDate(2026, 4, 1)
@@ -190,14 +188,14 @@ class ScheduleTabViewModelTest {
 
       assertEquals(newDate, viewModel.state.value.selectedDate)
       assertEquals(2, repo.calls.size)
-      assertEquals("day", repo.calls.last().view)
-      assertEquals(newDate.toString(), repo.calls.last().date)
+      assertEquals(ScheduleView.DAY, repo.calls.last().view)
+      assertEquals(newDate, repo.calls.last().date)
     }
 
   @Test
   fun `onDestroy cancels scope so subsequent date changes do not call the repository`() =
     runTest(testDispatcher) {
-      val repo = FakeScheduleRepository(response = scheduleResponse)
+      val repo = FakeScheduleRepository(schedule = scheduleResponse)
       val viewModel = makeViewModel(repo)
       advanceUntilIdle()
       val callsBeforeDestroy = repo.calls.size
@@ -217,11 +215,11 @@ class ScheduleTabViewModelTest {
     )
 
   private class GatedScheduleRepository(
-    private val gate: CompletableDeferred<ScheduleResponse>
+    private val gate: CompletableDeferred<Schedule>
   ) : ScheduleRepository {
     override suspend fun getSchedule(
-      view: String,
-      date: String
-    ): ScheduleResponse = gate.await()
+      view: ScheduleView,
+      date: LocalDate
+    ): Schedule = gate.await()
   }
 }

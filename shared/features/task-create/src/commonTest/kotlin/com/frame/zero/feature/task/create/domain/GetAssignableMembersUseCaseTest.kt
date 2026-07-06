@@ -3,7 +3,7 @@ package com.frame.zero.feature.task.create.domain
 import com.frame.zero.domain.Outcome
 import com.frame.zero.domain.task.AssignableMember
 import com.frame.zero.testing.FakeProductionsRepository
-import com.frame.zero.testing.productionMemberDto
+import com.frame.zero.testing.productionMember
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -15,7 +15,7 @@ class GetAssignableMembersUseCaseTest {
     runTest {
       val repo = FakeProductionsRepository(
         members = listOf(
-          productionMemberDto(id = "m1", userId = "u1", name = "Ada", initials = "AD", avatarColorHex = "#111")
+          productionMember(id = "m1", userId = "u1", name = "Ada", initials = "AD", avatarColorHex = "#111")
         )
       )
 
@@ -33,8 +33,8 @@ class GetAssignableMembersUseCaseTest {
     runTest {
       val repo = FakeProductionsRepository(
         members = listOf(
-          productionMemberDto(id = "m1", userId = "u1", name = "Ada"),
-          productionMemberDto(id = "m2", userId = null, name = "Unlinked crew")
+          productionMember(id = "m1", userId = "u1", name = "Ada"),
+          productionMember(id = "m2", userId = null, name = "Unlinked crew")
         )
       )
 
@@ -49,8 +49,8 @@ class GetAssignableMembersUseCaseTest {
     runTest {
       val repo = FakeProductionsRepository(
         members = listOf(
-          productionMemberDto(id = "m1", userId = "u1", name = "Ada"),
-          productionMemberDto(id = "m2", userId = "u1", name = "Ada (Producer hat)")
+          productionMember(id = "m1", userId = "u1", name = "Ada"),
+          productionMember(id = "m2", userId = "u1", name = "Ada (Producer hat)")
         )
       )
 

@@ -1,6 +1,5 @@
 package com.frame.zero.core.session
 
-import com.frame.zero.auth.dto.UserDto
 import com.frame.zero.domain.User
 import com.russhwolf.settings.MapSettings
 import kotlinx.coroutines.CompletableDeferred
@@ -18,8 +17,7 @@ import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class SessionManagerTest {
-  private val userDto = UserDto(id = "u1", email = "u@x.com", firstName = "", lastName = "")
-  private val user = User(id = "u1", email = "u@x.com")
+  private val user = User(id = "u1", email = "u@x.com", firstName = "", lastName = "")
 
   @Test
   fun `initialize transitions to LoggedOut when no tokens stored`() =
@@ -35,7 +33,7 @@ class SessionManagerTest {
   fun `initialize transitions to LoggedIn when tokens valid and fetch succeeds`() =
     runTest {
       val storage = TokenStorage(MapSettings()).also { it.saveTokens("a", "r") }
-      val ops = FakeAuthOps(currentUserDto = userDto)
+      val ops = FakeAuthOps(currentUser = user)
       val manager = SessionManager(storage, ops, UserCache(MapSettings()), LogoutSignal(), scope = backgroundScope)
 
       manager.initialize()
@@ -51,7 +49,7 @@ class SessionManagerTest {
       val cache = UserCache(MapSettings())
       val manager = SessionManager(
         storage,
-        FakeAuthOps(currentUserDto = userDto),
+        FakeAuthOps(currentUser = user),
         cache,
         LogoutSignal(),
         scope = backgroundScope
@@ -67,9 +65,9 @@ class SessionManagerTest {
     runTest {
       val storage = TokenStorage(MapSettings()).also { it.saveTokens("a", "r") }
       val cache = UserCache(MapSettings()).also { it.save(user) }
-      val gate = CompletableDeferred<UserDto>()
+      val gate = CompletableDeferred<User>()
       val ops = object : SessionAuthOperations {
-        override suspend fun fetchCurrentUser(): UserDto = gate.await()
+        override suspend fun fetchCurrentUser(): User = gate.await()
 
         override suspend fun signOutRemote() = Unit
       }
@@ -81,7 +79,7 @@ class SessionManagerTest {
       assertEquals(SessionState.LoggedIn(user), manager.state.value)
       assertTrue(job.isActive)
 
-      gate.complete(userDto)
+      gate.complete(user)
       job.join()
       assertEquals(SessionState.LoggedIn(user), manager.state.value)
     }
@@ -111,7 +109,7 @@ class SessionManagerTest {
       val storage = TokenStorage(MapSettings()).also { it.saveTokens("a", "r") }
       val cache = UserCache(MapSettings()).also { it.save(user) }
       val ops = object : SessionAuthOperations {
-        override suspend fun fetchCurrentUser(): UserDto {
+        override suspend fun fetchCurrentUser(): User {
           // The auth plugin clears the tokens when a 401 cannot be recovered
           // by a refresh; simulate that before failing.
           storage.clearTokens()
@@ -349,17 +347,17 @@ class SessionManagerTest {
     )
 
   private class FakeAuthOps(
-    private val currentUserDto: UserDto = UserDto("", "", "", ""),
+    private val currentUser: User = User("", "", "", ""),
     private val fetchThrows: Boolean = false,
     private val signOutThrows: Boolean = false
   ) : SessionAuthOperations {
     var fetchCalls = 0
     var signOutCalls = 0
 
-    override suspend fun fetchCurrentUser(): UserDto {
+    override suspend fun fetchCurrentUser(): User {
       fetchCalls++
       if (fetchThrows) throw RuntimeException("fetch failed")
-      return currentUserDto
+      return currentUser
     }
 
     override suspend fun signOutRemote() {

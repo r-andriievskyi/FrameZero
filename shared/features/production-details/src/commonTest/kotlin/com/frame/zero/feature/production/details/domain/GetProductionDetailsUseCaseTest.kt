@@ -1,11 +1,11 @@
 package com.frame.zero.feature.production.details.domain
 
-import com.frame.zero.core.network.connectivity.OfflineException
+import com.frame.zero.domain.OfflineException
 import com.frame.zero.domain.DomainError
 import com.frame.zero.domain.Outcome
 import com.frame.zero.domain.production.ProductionDetail
 import com.frame.zero.testing.FakeProductionsRepository
-import com.frame.zero.testing.productionDetailDto
+import com.frame.zero.testing.productionDetail
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -15,7 +15,7 @@ class GetProductionDetailsUseCaseTest {
   @Test
   fun `success maps dto to domain detail and forwards id`() =
     runTest {
-      val repo = FakeProductionsRepository(detail = productionDetailDto(id = "p7", title = "Pilot"))
+      val repo = FakeProductionsRepository(detail = productionDetail(id = "p7", title = "Pilot"))
 
       val outcome = GetProductionDetailsUseCase(repo)(GetProductionDetailsUseCase.Params("p7"))
 

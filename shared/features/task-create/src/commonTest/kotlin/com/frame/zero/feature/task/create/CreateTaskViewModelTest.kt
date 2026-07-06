@@ -5,15 +5,15 @@ import io.ktor.utils.io.ByteReadChannel
 import com.frame.zero.core.files.FilePicker
 import com.frame.zero.core.files.MAX_ATTACHMENT_BYTES
 import com.frame.zero.core.files.PickedFile
-import com.frame.zero.core.network.connectivity.OfflineException
+import com.frame.zero.domain.OfflineException
 import com.frame.zero.core.upload.PendingTaskUpload
 import com.frame.zero.core.upload.TaskUploadScheduler
 import com.frame.zero.feature.task.create.domain.CreateTaskUseCase
 import com.frame.zero.feature.task.create.domain.GetAssignableMembersUseCase
 import com.frame.zero.testing.FakeProductionsRepository
 import com.frame.zero.testing.FakeTasksRepository
-import com.frame.zero.testing.productionMemberDto
-import com.frame.zero.testing.taskDetailDto
+import com.frame.zero.testing.productionMember
+import com.frame.zero.testing.taskDetail
 import com.frame.zero.ui.asUiText
 import framezero.shared.features.task_create.generated.resources.Res
 import framezero.shared.features.task_create.generated.resources.error_network
@@ -62,7 +62,7 @@ class CreateTaskViewModelTest {
   @Test
   fun `submit success emits Created event and clears loading`() =
     runTest {
-      val tasks = FakeTasksRepository(created = taskDetailDto(id = "t42"))
+      val tasks = FakeTasksRepository(created = taskDetail(id = "t42"))
       val viewModel = makeViewModel(tasks = tasks)
       advanceUntilIdle()
       val events = mutableListOf<CreateTaskEvent>()
@@ -112,7 +112,7 @@ class CreateTaskViewModelTest {
   fun `loadMembers populates assignable members on success`() =
     runTest {
       val productions = FakeProductionsRepository(
-        members = listOf(productionMemberDto(userId = "u1", name = "Ada"))
+        members = listOf(productionMember(userId = "u1", name = "Ada"))
       )
       val viewModel = makeViewModel(productions = productions)
 
@@ -170,8 +170,8 @@ class CreateTaskViewModelTest {
     runTest {
       val productions = FakeProductionsRepository(
         members = listOf(
-          productionMemberDto(userId = "u1", name = "Ada"),
-          productionMemberDto(userId = "u2", name = "Jake")
+          productionMember(userId = "u1", name = "Ada"),
+          productionMember(userId = "u2", name = "Jake")
         )
       )
       val viewModel = makeViewModel(productions = productions)

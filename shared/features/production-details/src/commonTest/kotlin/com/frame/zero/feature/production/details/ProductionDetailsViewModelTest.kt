@@ -1,18 +1,18 @@
 package com.frame.zero.feature.production.details
 
 import androidx.paging.PagingData
+import com.frame.zero.domain.production.NewProduction
 import com.frame.zero.domain.production.Production
-import com.frame.zero.dto.production.CreateProductionRequest
-import com.frame.zero.dto.production.ProductionDetailDto
-import com.frame.zero.dto.production.ProductionMemberDto
-import com.frame.zero.dto.task.TaskStatus
-import com.frame.zero.dto.task.TaskSummaryDto
+import com.frame.zero.domain.production.ProductionDetail
+import com.frame.zero.domain.production.ProductionMember
+import com.frame.zero.domain.task.TaskStatus
+import com.frame.zero.domain.task.TaskSummary
 import com.frame.zero.feature.production.details.domain.DeleteProductionUseCase
 import com.frame.zero.feature.production.details.domain.GetProductionDetailsUseCase
 import com.frame.zero.feature.production.details.domain.GetProductionTasksUseCase
 import com.frame.zero.testing.FakeProductionsRepository
 import com.frame.zero.testing.FakeTasksRepository
-import com.frame.zero.testing.productionDetailDto
+import com.frame.zero.testing.productionDetail
 import com.frame.zero.repository.productions.ProductionsRepository
 import com.frame.zero.repository.tasks.TasksRepository
 import kotlinx.coroutines.CompletableDeferred
@@ -40,7 +40,7 @@ class ProductionDetailsViewModelTest {
   @Test
   fun `init loads detail and clears loading`() =
     runTest {
-      val repo = FakeProductionsRepository(detail = productionDetailDto(id = "p1", title = "Pilot"))
+      val repo = FakeProductionsRepository(detail = productionDetail(id = "p1", title = "Pilot"))
       val viewModel = makeViewModel(repo)
 
       advanceUntilIdle()
@@ -55,14 +55,14 @@ class ProductionDetailsViewModelTest {
     runTest {
       val tasksRepo = FakeTasksRepository(
         tasks = listOf(
-          TaskSummaryDto(
+          TaskSummary(
             id = "t1",
             title = "Lock schedule",
             productionTitle = "Pilot",
             dueDate = LocalDate(2026, 4, 12),
             status = TaskStatus.OPEN
           ),
-          TaskSummaryDto(
+          TaskSummary(
             id = "t2",
             title = "Send call sheets",
             productionTitle = "Pilot",
@@ -188,11 +188,11 @@ class ProductionDetailsViewModelTest {
 
     override fun observeProductions(): Flow<PagingData<Production>> = flowOf(PagingData.empty())
 
-    override suspend fun getDetails(productionId: String): ProductionDetailDto = productionDetailDto()
+    override suspend fun getDetails(productionId: String): ProductionDetail = productionDetail()
 
-    override suspend fun listMembers(productionId: String): List<ProductionMemberDto> = emptyList()
+    override suspend fun listMembers(productionId: String): List<ProductionMember> = emptyList()
 
-    override suspend fun create(request: CreateProductionRequest): ProductionDetailDto = error("not used")
+    override suspend fun create(production: NewProduction): ProductionDetail = error("not used")
 
     override suspend fun delete(productionId: String) {
       deleteCalls++

@@ -23,6 +23,7 @@ import com.frame.zero.feature.account.AccountViewModel
 import com.frame.zero.feature.auth.AuthComponent
 import com.frame.zero.feature.chat.ChatComponent
 import com.frame.zero.feature.chat.ChatViewModel
+import com.frame.zero.feature.gallery.DesignSystemGalleryComponent
 import com.frame.zero.feature.home.HomeComponent
 import com.frame.zero.feature.production.CreateProductionComponent
 import com.frame.zero.feature.production.CreateProductionViewModel
@@ -177,7 +178,18 @@ class RootComponent(
           onEmailSettings = { /* TODO: navigate to email settings */ },
           onPasswordSecurity = { /* TODO: navigate to password & security */ },
           onNotifications = { /* TODO: navigate to notification settings */ },
+          onDeveloperOptions = {
+            @OptIn(DelicateDecomposeApi::class)
+            navigation.push(Config.Gallery)
+          },
           viewModelFactory = accountViewModelFactory
+        )
+      )
+
+      Config.Gallery -> Child.Gallery(
+        DesignSystemGalleryComponent(
+          componentContext = context,
+          onBack = { navigation.pop() }
         )
       )
 
@@ -258,6 +270,9 @@ class RootComponent(
     data object Account : Config
 
     @Serializable
+    data object Gallery : Config
+
+    @Serializable
     data object CreateProduction : Config
 
     @Serializable
@@ -295,6 +310,10 @@ class RootComponent(
 
     data class Account(
       val component: AccountComponent
+    ) : Child
+
+    data class Gallery(
+      val component: DesignSystemGalleryComponent
     ) : Child
 
     data class CreateProduction(

@@ -1,7 +1,7 @@
 package com.frame.zero.repository.dashboard
 
-import com.frame.zero.dto.dashboard.DashboardResponse
+import com.frame.zero.domain.dashboard.Dashboard
 
 interface DashboardRepository {
-  suspend fun getDashboard(): DashboardResponse
+  suspend fun getDashboard(): Dashboard
 }

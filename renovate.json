@@ -1,0 +1,35 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    "group:allNonMajor",
+    "schedule:weekly"
+  ],
+  "labels": ["dependencies"],
+  "packageRules": [
+    {
+      "description": "Kotlin and KSP move in lockstep and break the most — isolated PR, never batched",
+      "groupName": "kotlin toolchain",
+      "matchPackageNames": [
+        "org.jetbrains.kotlin**",
+        "com.google.devtools.ksp**"
+      ]
+    },
+    {
+      "description": "AGP bumps need manual review of compileSdk and the build-logic convention plugins",
+      "groupName": "android gradle plugin",
+      "matchPackageNames": [
+        "com.android.tools.build**",
+        "com.android.application",
+        "com.android.kotlin.multiplatform.library"
+      ]
+    },
+    {
+      "description": "Compose Multiplatform releases lag the Kotlin cadence — keep them a separate PR",
+      "groupName": "compose multiplatform",
+      "matchPackageNames": [
+        "org.jetbrains.compose**"
+      ]
+    }
+  ]
+}

@@ -1,11 +1,11 @@
 package com.frame.zero.feature.task.details.usecase
 
-import com.frame.zero.core.network.connectivity.OfflineException
+import com.frame.zero.domain.OfflineException
 import com.frame.zero.domain.DomainError
 import com.frame.zero.domain.Outcome
-import com.frame.zero.dto.task.TaskDetailDto
-import com.frame.zero.dto.task.TaskPriority
-import com.frame.zero.dto.task.TaskStatus
+import com.frame.zero.domain.task.TaskDetail
+import com.frame.zero.domain.task.TaskPriority
+import com.frame.zero.domain.task.TaskStatus
 import com.frame.zero.testing.FakeTasksRepository
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -14,7 +14,7 @@ import kotlin.test.assertIs
 import kotlin.time.Instant
 
 class GetTaskDetailsUseCaseTest {
-  private val task = TaskDetailDto(
+  private val task = TaskDetail(
     id = "t1",
     productionId = "p1",
     productionTitle = "Pilot",
@@ -35,7 +35,7 @@ class GetTaskDetailsUseCaseTest {
 
       val outcome = GetTaskDetailsUseCase(repo)("t1")
 
-      val success = assertIs<Outcome.Success<TaskDetailDto>>(outcome)
+      val success = assertIs<Outcome.Success<TaskDetail>>(outcome)
       assertEquals(task, success.data)
       assertEquals(listOf("t1"), repo.getCalls)
     }

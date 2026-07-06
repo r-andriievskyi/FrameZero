@@ -1,12 +1,12 @@
 package com.frame.zero.feature.task.create.domain
 
-import com.frame.zero.core.network.connectivity.OfflineException
+import com.frame.zero.domain.OfflineException
 import com.frame.zero.domain.DomainError
 import com.frame.zero.domain.Outcome
-import com.frame.zero.dto.task.TaskDetailDto
-import com.frame.zero.dto.task.TaskPriority
+import com.frame.zero.domain.task.TaskDetail
+import com.frame.zero.domain.task.TaskPriority
 import com.frame.zero.testing.FakeTasksRepository
-import com.frame.zero.testing.taskDetailDto
+import com.frame.zero.testing.taskDetail
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.LocalDate
 import kotlin.test.Test
@@ -36,11 +36,11 @@ class CreateTaskUseCaseTest {
   @Test
   fun `success forwards request fields and returns the created task`() =
     runTest {
-      val repo = FakeTasksRepository(created = taskDetailDto(id = "t9", title = "Storyboard"))
+      val repo = FakeTasksRepository(created = taskDetail(id = "t9", title = "Storyboard"))
 
       val outcome = CreateTaskUseCase(repo)(params())
 
-      val success = assertIs<Outcome.Success<TaskDetailDto>>(outcome)
+      val success = assertIs<Outcome.Success<TaskDetail>>(outcome)
       assertEquals("t9", success.data.id)
       val request = repo.createRequests.single()
       assertEquals("p1", request.productionId)

@@ -10,20 +10,15 @@ kotlin {
   sourceSets {
     commonMain.dependencies {
       api(projects.shared)
-      implementation(libs.koin.core)
-      implementation(libs.kotlinx.coroutines.core)
-      implementation(libs.ktor.clientCore)
-      implementation(libs.ktor.clientContentNegotiation)
+      implementation(libs.bundles.koinRuntime)
+      implementation(libs.bundles.ktorClient)
     }
 
     commonTest.dependencies {
-      implementation(libs.kotlin.test)
-      implementation(libs.kotlinx.coroutines.test)
+      implementation(libs.bundles.commonTest)
       implementation(libs.multiplatformSettings)
       implementation(libs.multiplatformSettings.test)
-      implementation(libs.ktor.clientMock)
-      implementation(libs.ktor.clientContentNegotiation)
-      implementation(libs.ktor.clientSerializationJson)
+      implementation(libs.bundles.ktorClientTest)
       implementation(libs.kotlinx.serialization.json)
     }
   }

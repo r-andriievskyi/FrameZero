@@ -2,9 +2,9 @@ package com.frame.zero.testing
 
 import com.frame.zero.domain.DomainError
 import com.frame.zero.domain.Outcome
-import com.frame.zero.dto.task.CreateTaskRequest
-import com.frame.zero.dto.task.TaskDetailDto
-import com.frame.zero.dto.task.TaskSummaryDto
+import com.frame.zero.domain.task.NewTask
+import com.frame.zero.domain.task.TaskDetail
+import com.frame.zero.domain.task.TaskSummary
 import com.frame.zero.repository.tasks.TasksRepository
 
 /**
@@ -12,11 +12,11 @@ import com.frame.zero.repository.tasks.TasksRepository
  * Construct with the data/errors a test needs; assert against the recorded call lists.
  */
 class FakeTasksRepository(
-  private val task: TaskDetailDto = taskDetailDto(),
-  private val completedTask: TaskDetailDto = task,
-  private val created: TaskDetailDto = task,
-  private val updatedParticipantsTask: TaskDetailDto? = null,
-  private val tasks: List<TaskSummaryDto> = emptyList(),
+  private val task: TaskDetail = taskDetail(),
+  private val completedTask: TaskDetail = task,
+  private val created: TaskDetail = task,
+  private val updatedParticipantsTask: TaskDetail? = null,
+  private val tasks: List<TaskSummary> = emptyList(),
   private val getThrows: Throwable? = null,
   private val completeThrows: Throwable? = null,
   private val createThrows: Throwable? = null,
@@ -27,25 +27,25 @@ class FakeTasksRepository(
 ) : TasksRepository {
   val getCalls: MutableList<String> = mutableListOf()
   val completeCalls: MutableList<String> = mutableListOf()
-  val createRequests: MutableList<CreateTaskRequest> = mutableListOf()
+  val createRequests: MutableList<NewTask> = mutableListOf()
   val updateParticipantsCalls: MutableList<Pair<String, List<String>>> = mutableListOf()
   val downloadCalls: MutableList<String> = mutableListOf()
   val listedProductionIds: MutableList<String> = mutableListOf()
 
-  override suspend fun getTask(id: String): TaskDetailDto {
+  override suspend fun getTask(id: String): TaskDetail {
     getCalls += id
     getThrows?.let { throw it }
     return task
   }
 
-  override suspend fun completeTask(id: String): TaskDetailDto {
+  override suspend fun completeTask(id: String): TaskDetail {
     completeCalls += id
     completeThrows?.let { throw it }
     return completedTask
   }
 
-  override suspend fun createTask(request: CreateTaskRequest): TaskDetailDto {
-    createRequests += request
+  override suspend fun createTask(task: NewTask): TaskDetail {
+    createRequests += task
     createThrows?.let { throw it }
     return created
   }
@@ -53,7 +53,7 @@ class FakeTasksRepository(
   override suspend fun updateParticipants(
     taskId: String,
     userIds: List<String>
-  ): TaskDetailDto {
+  ): TaskDetail {
     updateParticipantsCalls += taskId to userIds
     updateParticipantsThrows?.let { throw it }
     return updatedParticipantsTask ?: task
@@ -68,7 +68,7 @@ class FakeTasksRepository(
     return downloadError?.let { Outcome.Failure(it) } ?: Outcome.Success(downloadedPath)
   }
 
-  override suspend fun listForProduction(productionId: String): List<TaskSummaryDto> {
+  override suspend fun listForProduction(productionId: String): List<TaskSummary> {
     listedProductionIds += productionId
     listThrows?.let { throw it }
     return tasks

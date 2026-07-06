@@ -4,7 +4,6 @@ import com.frame.zero.core.session.SessionManager
 import com.frame.zero.domain.DomainError
 import com.frame.zero.domain.UseCase
 import com.frame.zero.domain.User
-import com.frame.zero.domain.toDomain
 import com.frame.zero.repository.auth.AuthRepository
 
 class RegisterUseCase(
@@ -24,7 +23,6 @@ class RegisterUseCase(
     val user =
       authRepository
         .register(params.email, params.password, params.firstName, params.lastName)
-        .toDomain()
     sessionManager.onAuthenticated(user)
     return user
   }

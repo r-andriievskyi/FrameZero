@@ -1,6 +1,8 @@
 package com.frame.zero.feature.home.data
 
 import com.frame.zero.core.network.NetworkConfig
+import com.frame.zero.domain.dashboard.Dashboard
+import com.frame.zero.domain.dashboard.toDomain
 import com.frame.zero.dto.dashboard.DashboardResponse
 import com.frame.zero.repository.dashboard.DashboardRepository
 import io.ktor.client.HttpClient
@@ -11,6 +13,6 @@ class DashboardRepositoryImpl(
   private val httpClient: HttpClient,
   private val networkConfig: NetworkConfig
 ) : DashboardRepository {
-  override suspend fun getDashboard(): DashboardResponse =
-    httpClient.get("${networkConfig.baseUrl}/api/v1/dashboard").body()
+  override suspend fun getDashboard(): Dashboard =
+    httpClient.get("${networkConfig.baseUrl}/api/v1/dashboard").body<DashboardResponse>().toDomain()
 }

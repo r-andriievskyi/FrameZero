@@ -12,6 +12,15 @@ import com.frame.zero.shared.design_system.tokens.LabelMedium
 import com.frame.zero.shared.design_system.tokens.LabelSmall
 import com.frame.zero.shared.design_system.tokens.MonoMedium
 import com.frame.zero.shared.design_system.tokens.MonoSmall
+import com.frame.zero.shared.design_system.tokens.TokenDurationFast
+import com.frame.zero.shared.design_system.tokens.TokenDurationLoop
+import com.frame.zero.shared.design_system.tokens.TokenDurationMedium
+import com.frame.zero.shared.design_system.tokens.TokenDurationSlow
+import com.frame.zero.shared.design_system.tokens.TokenEasingAccelerate
+import com.frame.zero.shared.design_system.tokens.TokenEasingDecelerate
+import com.frame.zero.shared.design_system.tokens.TokenEasingEmphasized
+import com.frame.zero.shared.design_system.tokens.TokenEasingLinear
+import com.frame.zero.shared.design_system.tokens.TokenEasingStandard
 import com.frame.zero.shared.design_system.tokens.TitleExtraLarge
 import com.frame.zero.shared.design_system.tokens.TitleLarge
 import com.frame.zero.shared.design_system.tokens.TitleMedium
@@ -91,7 +100,8 @@ data class ThemeOptions(
   val typographySystem: TypographySystem,
   val spacingSystem: SpacingSystem,
   val radiusSystem: RadiusSystem,
-  val borderSystem: BorderSystem
+  val borderSystem: BorderSystem,
+  val motionSystem: MotionSystem
 ) {
   companion object {
     fun light() =
@@ -138,7 +148,8 @@ data class ThemeOptions(
         typographySystem = sharedTypography(),
         spacingSystem = sharedSpacing(),
         radiusSystem = sharedRadius(),
-        borderSystem = sharedBorder()
+        borderSystem = sharedBorder(),
+        motionSystem = sharedMotion()
       )
 
     fun dark() =
@@ -185,7 +196,8 @@ data class ThemeOptions(
         typographySystem = sharedTypography(),
         spacingSystem = sharedSpacing(),
         radiusSystem = sharedRadius(),
-        borderSystem = sharedBorder()
+        borderSystem = sharedBorder(),
+        motionSystem = sharedMotion()
       )
 
     private fun sharedTypography() =
@@ -230,6 +242,19 @@ data class ThemeOptions(
     private fun sharedBorder() =
       BorderSystem(
         hairline = TokenBorderHairline
+      )
+
+    private fun sharedMotion() =
+      MotionSystem(
+        durationFast = TokenDurationFast,
+        durationMedium = TokenDurationMedium,
+        durationSlow = TokenDurationSlow,
+        durationLoop = TokenDurationLoop,
+        easingStandard = TokenEasingStandard,
+        easingEmphasized = TokenEasingEmphasized,
+        easingDecelerate = TokenEasingDecelerate,
+        easingAccelerate = TokenEasingAccelerate,
+        easingLinear = TokenEasingLinear
       )
   }
 }

@@ -1,13 +1,13 @@
 package com.frame.zero.feature.production.domain
 
-import com.frame.zero.core.network.connectivity.OfflineException
+import com.frame.zero.domain.OfflineException
 import com.frame.zero.domain.DomainError
 import com.frame.zero.domain.Outcome
 import com.frame.zero.domain.production.Genre
 import com.frame.zero.domain.production.Production
-import com.frame.zero.dto.production.CreateCrewMemberDto
+import com.frame.zero.domain.production.NewCrewMember
 import com.frame.zero.testing.FakeProductionsRepository
-import com.frame.zero.testing.productionDetailDto
+import com.frame.zero.testing.productionDetail
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.LocalDate
 import kotlinx.io.IOException
@@ -19,7 +19,7 @@ class CreateProductionUseCaseTest {
   private fun params(
     title: String = "Pilot",
     logline: String? = "A story",
-    crew: List<CreateCrewMemberDto> = emptyList()
+    crew: List<NewCrewMember> = emptyList()
   ): CreateProductionUseCase.Params =
     CreateProductionUseCase.Params(
       title = title,
@@ -34,8 +34,8 @@ class CreateProductionUseCaseTest {
   @Test
   fun `success builds request from params and returns domain production`() =
     runTest {
-      val repo = FakeProductionsRepository(detail = productionDetailDto(id = "p9", title = "Pilot"))
-      val crew = listOf(CreateCrewMemberDto(name = "Ada", role = "Director"))
+      val repo = FakeProductionsRepository(detail = productionDetail(id = "p9", title = "Pilot"))
+      val crew = listOf(NewCrewMember(name = "Ada", role = "Director"))
 
       val outcome = CreateProductionUseCase(repo)(params(crew = crew))
 

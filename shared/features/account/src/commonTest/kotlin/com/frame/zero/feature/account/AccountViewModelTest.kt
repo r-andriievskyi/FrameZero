@@ -1,6 +1,5 @@
 package com.frame.zero.feature.account
 
-import com.frame.zero.auth.dto.UserDto
 import com.frame.zero.core.security.AppLockController
 import com.frame.zero.core.security.BiometricAuthenticator
 import com.frame.zero.core.security.BiometricAvailability
@@ -144,7 +143,7 @@ class AccountViewModelTest {
     )
 
   private object FakeAuthOps : SessionAuthOperations {
-    override suspend fun fetchCurrentUser(): UserDto = UserDto(id = "", email = "", firstName = "", lastName = "")
+    override suspend fun fetchCurrentUser(): User = User(id = "", email = "")
 
     override suspend fun signOutRemote() = Unit
   }

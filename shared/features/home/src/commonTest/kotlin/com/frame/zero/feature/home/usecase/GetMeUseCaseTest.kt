@@ -1,7 +1,6 @@
 package com.frame.zero.feature.home.usecase
 
-import com.frame.zero.auth.dto.UserDto
-import com.frame.zero.core.network.connectivity.OfflineException
+import com.frame.zero.domain.OfflineException
 import com.frame.zero.domain.DomainError
 import com.frame.zero.domain.Outcome
 import com.frame.zero.domain.User
@@ -16,7 +15,7 @@ class GetMeUseCaseTest {
   fun `success maps user dto to domain user`() =
     runTest {
       val repo = FakeUserRepository(
-        userDto = UserDto(id = "u1", email = "u@x.com", firstName = "Ada", lastName = "Lovelace")
+        user = User(id = "u1", email = "u@x.com", firstName = "Ada", lastName = "Lovelace")
       )
 
       val outcome = GetMeUseCase(repo)()

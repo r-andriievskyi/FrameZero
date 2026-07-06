@@ -93,6 +93,7 @@ class AccountContentTest {
     state: AccountState,
     onEditProfileClick: () -> Unit = {},
     onSignOutClick: () -> Unit = {},
+    onDeveloperOptionsClick: () -> Unit = {},
     onAppLockToggle: (Boolean, com.frame.zero.core.security.BiometricPromptText) -> Unit = { _, _ -> }
   ) {
     composeRule.setContent {
@@ -104,6 +105,7 @@ class AccountContentTest {
           onEmailClick = {},
           onPasswordSecurityClick = {},
           onNotificationsClick = {},
+          onDeveloperOptionsClick = onDeveloperOptionsClick,
           onAppLockToggle = onAppLockToggle,
           onSignOutClick = onSignOutClick
         )

@@ -1,6 +1,6 @@
 package com.frame.zero.feature.production
 
-import com.frame.zero.core.network.connectivity.OfflineException
+import com.frame.zero.domain.OfflineException
 import com.frame.zero.feature.production.domain.CreateProductionUseCase
 import com.frame.zero.testing.FakeProductionsRepository
 import com.frame.zero.ui.asUiText

@@ -32,14 +32,18 @@ import framezero.composeapp.features.account.generated.resources.app_lock_prompt
 import framezero.composeapp.features.account.generated.resources.app_lock_prompt_subtitle
 import framezero.composeapp.features.account.generated.resources.app_lock_prompt_title
 import framezero.composeapp.features.account.generated.resources.ic_bell
+import framezero.composeapp.features.account.generated.resources.ic_info
 import framezero.composeapp.features.account.generated.resources.ic_lock
 import framezero.composeapp.features.account.generated.resources.ic_mail
 import framezero.composeapp.features.account.generated.resources.ic_user
 import framezero.composeapp.features.account.generated.resources.section_account
+import framezero.composeapp.features.account.generated.resources.section_developer
 import framezero.composeapp.features.account.generated.resources.section_security
 import framezero.composeapp.features.account.generated.resources.section_workspace
 import framezero.composeapp.features.account.generated.resources.settings_app_lock
 import framezero.composeapp.features.account.generated.resources.settings_app_lock_subtitle
+import framezero.composeapp.features.account.generated.resources.settings_design_system
+import framezero.composeapp.features.account.generated.resources.settings_design_system_subtitle
 import framezero.composeapp.features.account.generated.resources.settings_edit_profile
 import framezero.composeapp.features.account.generated.resources.settings_email_address
 import framezero.composeapp.features.account.generated.resources.settings_notifications
@@ -61,6 +65,7 @@ fun AccountScreen(
     onEmailClick = component.onEmailSettings,
     onPasswordSecurityClick = component.onPasswordSecurity,
     onNotificationsClick = component.onNotifications,
+    onDeveloperOptionsClick = component.onDeveloperOptions,
     onAppLockToggle = { enabled, prompt -> component.onIntent(AccountIntent.AppLockToggled(enabled, prompt)) },
     onSignOutClick = { component.onIntent(AccountIntent.SignOutClicked) },
     modifier = modifier
@@ -75,6 +80,7 @@ internal fun AccountContent(
   onEmailClick: () -> Unit,
   onPasswordSecurityClick: () -> Unit,
   onNotificationsClick: () -> Unit,
+  onDeveloperOptionsClick: () -> Unit,
   onAppLockToggle: (Boolean, BiometricPromptText) -> Unit,
   onSignOutClick: () -> Unit,
   modifier: Modifier = Modifier
@@ -149,6 +155,17 @@ internal fun AccountContent(
           )
         }
       }
+      if (state.developerOptionsEnabled) {
+        VerticalSpacer(spacingSystem.space24)
+        SettingsSection(title = stringResource(Res.string.section_developer)) {
+          SettingsRow(
+            icon = Res.drawable.ic_info,
+            title = stringResource(Res.string.settings_design_system),
+            subtitle = stringResource(Res.string.settings_design_system_subtitle),
+            onClick = onDeveloperOptionsClick
+          )
+        }
+      }
       VerticalSpacer(spacingSystem.space24)
       SignOutButton(onClick = onSignOutClick, modifier = Modifier.testTag(AccountTestTags.SIGN_OUT))
       VerticalSpacer(spacingSystem.space24)
@@ -173,13 +190,15 @@ private fun AccountContentPreview() {
         userName = "Maya Rivera",
         email = "maya@studiozero.co",
         appLockSupported = true,
-        appLockEnabled = true
+        appLockEnabled = true,
+        developerOptionsEnabled = false
       ),
       onBack = {},
       onEditProfileClick = {},
       onEmailClick = {},
       onPasswordSecurityClick = {},
       onNotificationsClick = {},
+      onDeveloperOptionsClick = {},
       onAppLockToggle = { _, _ -> },
       onSignOutClick = {}
     )

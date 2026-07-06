@@ -11,16 +11,14 @@ kotlin {
       api(projects.shared.uiText)
       api(libs.decompose)
       implementation(projects.shared.repositories.tasks)
-      implementation(projects.shared.repositories.productions)
-      implementation(libs.koin.core)
-      implementation(libs.kotlinx.coroutines.core)
+      implementation(projects.shared.repositories.productions.api)
+      implementation(libs.bundles.koinRuntime)
       implementation(libs.kotlinx.datetime)
       implementation(libs.compose.components.resources)
     }
     commonTest.dependencies {
       implementation(projects.shared.testFixtures)
-      implementation(libs.kotlin.test)
-      implementation(libs.kotlinx.coroutines.test)
+      implementation(libs.bundles.commonTest)
     }
   }
 }

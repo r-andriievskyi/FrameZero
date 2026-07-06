@@ -11,6 +11,7 @@ class AccountComponent(
   val onEmailSettings: () -> Unit,
   val onPasswordSecurity: () -> Unit,
   val onNotifications: () -> Unit,
+  val onDeveloperOptions: () -> Unit,
   viewModelFactory: () -> AccountViewModel
 ) : ComponentContext by componentContext {
   private val viewModel: AccountViewModel = instanceKeeper.getOrCreate { viewModelFactory() }
