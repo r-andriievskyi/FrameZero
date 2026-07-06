@@ -50,8 +50,10 @@ jobs:
       - uses: ./.github/actions/setup-build
         with:
           cache-read-only: ${{ github.ref != 'refs/heads/main' }}
-      - name: Build, ktlint, detekt, unit tests
-        run: ./gradlew check -x lint
+      # ktlint/detekt already passed in the upstream `lint` gate; without a shared
+      # remote build cache re-running them here just repeats the work.
+      - name: Build and unit tests
+        run: ./gradlew check -x lint -PskipStaticAnalysis
       - name: Coverage summary
         if: always()
         run: |
