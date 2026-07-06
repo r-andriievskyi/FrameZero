@@ -19,14 +19,12 @@ kotlin {
       api(libs.androidx.room.runtime)
       implementation(libs.androidx.room.paging)
       implementation(libs.androidx.sqlite.bundled)
-      implementation(libs.koin.core)
-      implementation(libs.kotlinx.coroutines.core)
+      implementation(libs.bundles.koinRuntime)
       implementation(libs.kotlinx.serialization.json)
     }
 
     commonTest.dependencies {
-      implementation(libs.kotlin.test)
-      implementation(libs.kotlinx.coroutines.test)
+      implementation(libs.bundles.commonTest)
     }
   }
 }

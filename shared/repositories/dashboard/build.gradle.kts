@@ -8,8 +8,7 @@ kotlin {
   sourceSets {
     commonMain.dependencies {
       api(projects.shared.domain)
-      implementation(libs.koin.core)
-      implementation(libs.kotlinx.coroutines.core)
+      implementation(libs.bundles.koinRuntime)
     }
     commonTest.dependencies { implementation(libs.kotlin.test) }
   }

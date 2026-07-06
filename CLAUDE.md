@@ -50,7 +50,7 @@ Owner is Android engineer, limited iOS/backend experience. **Maximise Kotlin sha
 - **StateFlow:** always `_state.update { it.copy(...) }`, never `_state.value = …`.
 - **Lifecycle:** shared ViewModels implement Essenty `InstanceKeeper.Instance` (manual scope); UI uses `collectAsStateWithLifecycle()`.
 - **Strings from shared:** ViewModels emit `UiText`; UI resolves via `UiText.asString()`. Never resolve resources to `String` in `shared`.
-- **Dependencies:** add to `gradle/libs.versions.toml`, not module scripts.
+- **Dependencies:** add to `gradle/libs.versions.toml`, not module scripts. Recurring groups via `[bundles]`: `koinRuntime` (koin-core+coroutines), `ktorClient` (core+negotiation+json), `ktorClientTest` (mock+negotiation+json), `commonTest` (kotlin-test+coroutines-test), `screenshotTest` — use bundle, don't re-list members.
 - **Naming:** `<Interface>Impl` side-by-side; no tech/strategy suffixes (platform actuals keep prefix).
 - **Tests:** `kotlin.test` in `commonTest`; reuse `shared/test-fixtures` fakes. No mockk/mockito in shared code.
 - **Idiomatic Kotlin:** prefer idiomatic constructs (`?.let`/`?:`, `takeIf`, `require`/`check`/`error`, collection ops, destructuring, string templates, expression bodies) — only when they improve readability, never to golf.

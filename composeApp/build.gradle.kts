@@ -90,8 +90,7 @@ kotlin {
       implementation(projects.composeApp.shared.designSystem)
     }
     commonTest.dependencies {
-      implementation(libs.kotlin.test)
-      implementation(libs.kotlinx.coroutines.test)
+      implementation(libs.bundles.commonTest)
       implementation(projects.shared.testFixtures)
       implementation(libs.multiplatformSettings)
       implementation(libs.multiplatformSettings.test)

@@ -17,9 +17,8 @@ kotlin {
     }
 
     commonTest.dependencies {
-      implementation(libs.kotlin.test)
+      implementation(libs.bundles.commonTest)
       implementation(libs.ktor.clientMock)
-      implementation(libs.kotlinx.coroutines.test)
     }
   }
 }

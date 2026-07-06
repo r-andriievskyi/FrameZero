@@ -165,6 +165,14 @@ ktor-serverTestHost = { module = "io.ktor:ktor-server-test-host-jvm", version.re
 ktor-serializationKotlinxJson = { module = "io.ktor:ktor-serialization-kotlinx-json-jvm", version.ref = "ktor" }
 
 [bundles]
+# Koin DI wiring + suspend APIs — baseline for every shared logic module.
+koinRuntime = ["koin-core", "kotlinx-coroutines-core"]
+# Ktor client stack for modules talking to the API (engine comes from :shared).
+ktorClient = ["ktor-clientCore", "ktor-clientContentNegotiation", "ktor-clientSerializationJson"]
+# Test doubles for the Ktor client stack.
+ktorClientTest = ["ktor-clientMock", "ktor-clientContentNegotiation", "ktor-clientSerializationJson"]
+# kotlin.test + coroutines test scheduler — baseline commonTest pair.
+commonTest = ["kotlin-test", "kotlinx-coroutines-test"]
 screenshotTest = [
   "compose-uiTestManifest",
   "kotlin-testJunit",

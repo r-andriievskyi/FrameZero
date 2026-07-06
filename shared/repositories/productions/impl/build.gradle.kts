@@ -14,16 +14,13 @@ kotlin {
       api(projects.shared.repositories.productions.api)
       implementation(projects.shared)
       implementation(projects.shared.database)
-      implementation(libs.koin.core)
-      implementation(libs.kotlinx.coroutines.core)
-      implementation(libs.ktor.clientCore)
-      implementation(libs.ktor.clientContentNegotiation)
+      implementation(libs.bundles.koinRuntime)
+      implementation(libs.bundles.ktorClient)
     }
 
     commonTest.dependencies {
       implementation(projects.shared.testFixtures)
-      implementation(libs.kotlin.test)
-      implementation(libs.kotlinx.coroutines.test)
+      implementation(libs.bundles.commonTest)
       implementation(libs.androidx.room.runtime)
       implementation(libs.androidx.sqlite.bundled)
     }
