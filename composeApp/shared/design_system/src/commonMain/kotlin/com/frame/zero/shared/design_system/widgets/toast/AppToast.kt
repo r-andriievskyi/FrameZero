@@ -14,7 +14,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
@@ -31,7 +30,6 @@ import com.frame.zero.shared.design_system.widgets.rememberRoundedCornerShape
 import org.jetbrains.compose.resources.vectorResource
 
 private val ToastIconSize = 20.dp
-private const val BorderAlpha = 0.22f
 
 /**
  * Soft toast — title with optional description and optional trailing action.
@@ -124,36 +122,6 @@ fun AppToast(
           .padding(spacingSystem.space4)
       )
     }
-  }
-}
-
-private data class ToastColorSet(
-  val surface: Color,
-  val text: Color,
-  val borderColor: Color
-)
-
-@Composable
-private fun toastColors(severity: ToastSeverity): ToastColorSet {
-  val colorSystem = AppTheme.colorSystem
-  return when (severity) {
-    ToastSeverity.Success -> ToastColorSet(
-      surface = colorSystem.successSurface,
-      text = colorSystem.successText,
-      borderColor = colorSystem.successText.copy(alpha = BorderAlpha)
-    )
-
-    ToastSeverity.Warning -> ToastColorSet(
-      surface = colorSystem.warningSurface,
-      text = colorSystem.warningText,
-      borderColor = colorSystem.warningText.copy(alpha = BorderAlpha)
-    )
-
-    ToastSeverity.Error -> ToastColorSet(
-      surface = colorSystem.errorSurface,
-      text = colorSystem.errorText,
-      borderColor = colorSystem.errorText.copy(alpha = BorderAlpha)
-    )
   }
 }
 

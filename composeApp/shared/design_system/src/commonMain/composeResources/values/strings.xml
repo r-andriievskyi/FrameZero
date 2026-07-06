@@ -5,4 +5,6 @@
   <string name="error_generic_message">Something went wrong</string>
   <string name="error_network_message">No internet connection. Check your connection and try again.</string>
   <string name="action_retry">Retry</string>
+  <string name="refresh_indicator_refreshing">Refreshing…</string>
+  <string name="refresh_indicator_release">Release to refresh</string>
 </resources>
