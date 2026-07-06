@@ -18,6 +18,7 @@ dependencies {
   compileOnly(libs.gradle.plugin.detekt)
   compileOnly(libs.gradle.plugin.kover)
   compileOnly(libs.gradle.plugin.ktlint)
+  compileOnly(libs.gradle.plugin.roborazzi)
 }
 
 gradlePlugin {
@@ -33,6 +34,10 @@ gradlePlugin {
     register("codeQuality") {
       id = "crossplatform.code.quality"
       implementationClass = "CodeQualityConventionPlugin"
+    }
+    register("screenshotTest") {
+      id = "crossplatform.screenshot"
+      implementationClass = "ScreenshotTestConventionPlugin"
     }
   }
 }

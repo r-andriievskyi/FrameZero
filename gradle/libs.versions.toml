@@ -113,6 +113,7 @@ gradle-plugin-compose-multiplatform = { module = "org.jetbrains.compose:compose-
 gradle-plugin-detekt = { module = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin", version.ref = "detekt" }
 gradle-plugin-kover = { module = "org.jetbrains.kotlinx:kover-gradle-plugin", version.ref = "kover" }
 gradle-plugin-ktlint = { module = "org.jlleitschuh.gradle:ktlint-gradle", version.ref = "ktlint-gradle" }
+gradle-plugin-roborazzi = { module = "io.github.takahirom.roborazzi:roborazzi-gradle-plugin", version.ref = "roborazzi" }
 
 detekt-api = { module = "io.gitlab.arturbosch.detekt:detekt-api", version.ref = "detekt" }
 detekt-test = { module = "io.gitlab.arturbosch.detekt:detekt-test", version.ref = "detekt" }
@@ -162,6 +163,20 @@ ktor-serverStatusPages = { module = "io.ktor:ktor-server-status-pages-jvm", vers
 ktor-serverWebsockets = { module = "io.ktor:ktor-server-websockets-jvm", version.ref = "ktor" }
 ktor-serverTestHost = { module = "io.ktor:ktor-server-test-host-jvm", version.ref = "ktor" }
 ktor-serializationKotlinxJson = { module = "io.ktor:ktor-serialization-kotlinx-json-jvm", version.ref = "ktor" }
+
+[bundles]
+screenshotTest = [
+  "compose-uiTestManifest",
+  "kotlin-testJunit",
+  "junit",
+  "robolectric",
+  "compose-uiTestJUnit4",
+  "roborazzi",
+  "roborazzi-compose",
+  "roborazzi-junitRule",
+  "roborazzi-composePreviewScannerSupport",
+  "composablePreviewScanner-android",
+]
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
