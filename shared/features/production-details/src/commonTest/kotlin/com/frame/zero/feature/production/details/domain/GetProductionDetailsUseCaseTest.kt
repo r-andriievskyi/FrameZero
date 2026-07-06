@@ -1,6 +1,6 @@
 package com.frame.zero.feature.production.details.domain
 
-import com.frame.zero.core.network.connectivity.OfflineException
+import com.frame.zero.domain.OfflineException
 import com.frame.zero.domain.DomainError
 import com.frame.zero.domain.Outcome
 import com.frame.zero.domain.production.ProductionDetail

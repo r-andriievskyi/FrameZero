@@ -56,6 +56,8 @@ kotlin {
 
   sourceSets {
     commonMain.dependencies {
+      api(projects.shared.domain)
+      api(projects.shared.dto)
       implementation(projects.shared.database)
       api(projects.shared.uiText)
       implementation(libs.kotlinx.serialization.json)

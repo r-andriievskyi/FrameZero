@@ -1,6 +1,6 @@
 package com.frame.zero.feature.home.tab.schedule
 
-import com.frame.zero.core.network.connectivity.OfflineException
+import com.frame.zero.domain.OfflineException
 import com.frame.zero.domain.schedule.ScheduleView
 import com.frame.zero.dto.schedule.ScheduleResponse
 import com.frame.zero.feature.home.LoadErrorKind

@@ -10,7 +10,7 @@ kotlin {
       api(projects.shared)
       api(projects.shared.uiText)
       api(libs.decompose)
-      implementation(projects.shared.repositories.productions)
+      implementation(projects.shared.repositories.productions.api)
       implementation(libs.koin.core)
       implementation(libs.kotlinx.coroutines.core)
       implementation(libs.compose.components.resources)

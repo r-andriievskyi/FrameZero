@@ -1,7 +1,7 @@
 package com.frame.zero.core.upload
 
 import com.frame.zero.dto.task.CreateTaskRequest
-import com.frame.zero.dto.task.TaskPriority
+import com.frame.zero.domain.task.TaskPriority
 import kotlin.test.Test
 import kotlin.test.assertTrue
 

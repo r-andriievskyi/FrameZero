@@ -1,7 +1,7 @@
 package com.frame.zero.feature.task.create
 
 import com.frame.zero.core.files.PickedFile
-import com.frame.zero.dto.task.TaskPriority
+import com.frame.zero.domain.task.TaskPriority
 import com.frame.zero.ui.UiText
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf

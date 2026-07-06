@@ -16,7 +16,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.frame.zero.dto.task.TaskPriority
+import com.frame.zero.domain.task.TaskPriority
 import com.frame.zero.feature.task.create.AssignableMemberUi
 import com.frame.zero.feature.task.create.CreateTaskComponent
 import com.frame.zero.feature.task.create.CreateTaskIntent

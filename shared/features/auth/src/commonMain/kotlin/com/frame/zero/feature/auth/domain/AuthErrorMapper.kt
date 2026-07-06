@@ -1,6 +1,6 @@
 package com.frame.zero.feature.auth.domain
 
-import com.frame.zero.core.network.connectivity.OfflineException
+import com.frame.zero.domain.OfflineException
 import com.frame.zero.domain.DomainError
 import com.frame.zero.domain.DomainException
 import io.ktor.client.plugins.ResponseException

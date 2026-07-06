@@ -30,7 +30,7 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
-import com.frame.zero.dto.task.TaskStatus as DtoTaskStatus
+import com.frame.zero.domain.task.TaskStatus as DtoTaskStatus
 
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalTime::class)
 class TaskDetailsViewModelTest {
@@ -42,7 +42,7 @@ class TaskDetailsViewModelTest {
     description = "Check the revised pages.",
     dueDate = null,
     status = DtoTaskStatus.OPEN,
-    priority = com.frame.zero.dto.task.TaskPriority.HIGH,
+    priority = com.frame.zero.domain.task.TaskPriority.HIGH,
     assigneeUserId = "u1",
     assignee = TaskAssigneeDto(userId = "u1", name = "Maya Rivera", avatarColorHex = "#0097A7"),
     createdAt = Instant.fromEpochMilliseconds(0L)
@@ -301,7 +301,7 @@ class TaskDetailsViewModelTest {
       val task = openTask.copy(participants = listOf(taskParticipantDto(userId = "u2", name = "Jake")))
       val repo = FakeTasksRepository(
         task = task,
-        updateParticipantsThrows = com.frame.zero.core.network.connectivity.OfflineException()
+        updateParticipantsThrows = com.frame.zero.domain.OfflineException()
       )
       val viewModel = makeViewModel(this, repo)
       advanceUntilIdle()
@@ -319,7 +319,7 @@ class TaskDetailsViewModelTest {
     runTest {
       val repo = FakeTasksRepository(
         task = openTask,
-        updateParticipantsThrows = com.frame.zero.core.network.connectivity.OfflineException()
+        updateParticipantsThrows = com.frame.zero.domain.OfflineException()
       )
       val viewModel = makeViewModel(this, repo)
       advanceUntilIdle()

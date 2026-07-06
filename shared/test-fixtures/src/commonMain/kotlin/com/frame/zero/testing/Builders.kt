@@ -6,8 +6,8 @@ import com.frame.zero.dto.production.ProductionDetailDto
 import com.frame.zero.dto.production.ProductionMemberDto
 import com.frame.zero.dto.task.TaskDetailDto
 import com.frame.zero.dto.task.TaskParticipantDto
-import com.frame.zero.dto.task.TaskPriority
-import com.frame.zero.dto.task.TaskStatus
+import com.frame.zero.domain.task.TaskPriority
+import com.frame.zero.domain.task.TaskStatus
 import kotlinx.datetime.LocalDate
 import kotlin.time.Instant
 

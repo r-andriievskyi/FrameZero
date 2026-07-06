@@ -39,8 +39,8 @@ import kotlinx.datetime.toLocalDateTime
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
-import com.frame.zero.dto.task.TaskPriority as DtoTaskPriority
-import com.frame.zero.dto.task.TaskStatus as DtoTaskStatus
+import com.frame.zero.domain.task.TaskPriority as DtoTaskPriority
+import com.frame.zero.domain.task.TaskStatus as DtoTaskStatus
 
 class TaskDetailsViewModel(
   private val taskId: String,

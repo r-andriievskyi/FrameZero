@@ -11,7 +11,7 @@ kotlin {
       api(projects.shared.uiText)
       api(libs.decompose)
       api(libs.androidx.paging.common)
-      implementation(projects.shared.repositories.chat)
+      implementation(projects.shared.repositories.chat.api)
       implementation(libs.koin.core)
       implementation(libs.kotlinx.coroutines.core)
       implementation(libs.kotlinx.datetime)

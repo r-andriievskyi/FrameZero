@@ -4,7 +4,7 @@ import com.frame.zero.auth.dto.RefreshRequest
 import com.frame.zero.auth.dto.RefreshResponse
 import com.frame.zero.core.logging.Logger as AppLogger
 import com.frame.zero.core.network.connectivity.ConnectivityObserver
-import com.frame.zero.core.network.connectivity.OfflineException
+import com.frame.zero.domain.OfflineException
 import com.frame.zero.core.session.LogoutSignal
 import com.frame.zero.core.session.TokenStorage
 import io.ktor.client.HttpClient

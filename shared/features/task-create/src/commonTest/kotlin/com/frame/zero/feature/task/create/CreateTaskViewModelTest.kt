@@ -5,7 +5,7 @@ import io.ktor.utils.io.ByteReadChannel
 import com.frame.zero.core.files.FilePicker
 import com.frame.zero.core.files.MAX_ATTACHMENT_BYTES
 import com.frame.zero.core.files.PickedFile
-import com.frame.zero.core.network.connectivity.OfflineException
+import com.frame.zero.domain.OfflineException
 import com.frame.zero.core.upload.PendingTaskUpload
 import com.frame.zero.core.upload.TaskUploadScheduler
 import com.frame.zero.feature.task.create.domain.CreateTaskUseCase

@@ -12,7 +12,7 @@ kotlin {
       api(libs.kotlinx.collections.immutable)
       implementation(projects.shared.repositories.user)
       implementation(projects.shared.repositories.dashboard)
-      implementation(projects.shared.repositories.productions)
+      implementation(projects.shared.repositories.productions.api)
       implementation(projects.shared.repositories.schedule)
       implementation(libs.koin.core)
       implementation(libs.kotlinx.coroutines.core)

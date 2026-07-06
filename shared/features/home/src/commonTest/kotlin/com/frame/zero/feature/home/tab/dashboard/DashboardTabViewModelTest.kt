@@ -4,13 +4,13 @@ import com.frame.zero.auth.dto.UserDto
 import com.frame.zero.dto.dashboard.DashboardResponse
 import com.frame.zero.dto.dashboard.GreetingDto
 import com.frame.zero.dto.dashboard.StatsDto
-import com.frame.zero.dto.task.TaskStatus
+import com.frame.zero.domain.task.TaskStatus
 import com.frame.zero.dto.task.TaskSummaryDto
 import com.frame.zero.feature.home.LoadErrorKind
 import com.frame.zero.testing.FakeConnectivityObserver
 import com.frame.zero.testing.FakeDashboardRepository
 import com.frame.zero.testing.FakeUserRepository
-import com.frame.zero.core.network.connectivity.OfflineException
+import com.frame.zero.domain.OfflineException
 import com.frame.zero.feature.home.usecase.GetDashboardUseCase
 import com.frame.zero.feature.home.usecase.GetMeUseCase
 import com.frame.zero.repository.dashboard.DashboardRepository

@@ -6,8 +6,8 @@ import com.frame.zero.core.network.connectivity.ConnectivityObserver
 import com.frame.zero.domain.DomainError
 import com.frame.zero.domain.Outcome
 import com.frame.zero.dto.task.CreateTaskRequest
-import com.frame.zero.dto.task.TaskPriority
-import com.frame.zero.dto.task.TaskStatus
+import com.frame.zero.domain.task.TaskPriority
+import com.frame.zero.domain.task.TaskStatus
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond

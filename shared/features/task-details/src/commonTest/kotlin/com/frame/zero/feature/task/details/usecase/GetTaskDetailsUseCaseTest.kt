@@ -1,11 +1,11 @@
 package com.frame.zero.feature.task.details.usecase
 
-import com.frame.zero.core.network.connectivity.OfflineException
+import com.frame.zero.domain.OfflineException
 import com.frame.zero.domain.DomainError
 import com.frame.zero.domain.Outcome
 import com.frame.zero.dto.task.TaskDetailDto
-import com.frame.zero.dto.task.TaskPriority
-import com.frame.zero.dto.task.TaskStatus
+import com.frame.zero.domain.task.TaskPriority
+import com.frame.zero.domain.task.TaskStatus
 import com.frame.zero.testing.FakeTasksRepository
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test

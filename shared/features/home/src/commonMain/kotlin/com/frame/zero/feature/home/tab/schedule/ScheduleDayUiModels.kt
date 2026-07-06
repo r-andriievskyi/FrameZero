@@ -1,7 +1,7 @@
 package com.frame.zero.feature.home.tab.schedule
 
 import com.frame.zero.domain.schedule.ScheduleEventKind
-import com.frame.zero.dto.task.TaskPriority
+import com.frame.zero.domain.task.TaskPriority
 import kotlinx.datetime.LocalDate
 
 sealed interface DueLabel {

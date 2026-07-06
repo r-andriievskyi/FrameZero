@@ -9,7 +9,7 @@ import com.frame.zero.domain.toDomainError
 import com.frame.zero.dto.common.CursorPagedResponse
 import com.frame.zero.dto.task.CreateTaskRequest
 import com.frame.zero.dto.task.TaskDetailDto
-import com.frame.zero.dto.task.TaskStatus
+import com.frame.zero.domain.task.TaskStatus
 import com.frame.zero.dto.task.TaskSummaryDto
 import com.frame.zero.dto.task.UpdateTaskParticipantsRequest
 import com.frame.zero.dto.task.UpdateTaskRequest

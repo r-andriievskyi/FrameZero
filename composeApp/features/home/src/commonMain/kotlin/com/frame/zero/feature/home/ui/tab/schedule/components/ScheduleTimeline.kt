@@ -11,7 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.frame.zero.domain.schedule.ScheduleEventKind
-import com.frame.zero.dto.task.TaskPriority
+import com.frame.zero.domain.task.TaskPriority
 import com.frame.zero.feature.home.tab.schedule.DueLabel
 import com.frame.zero.feature.home.tab.schedule.ScheduleEventUiModel
 import com.frame.zero.feature.home.tab.schedule.ScheduleTaskUiModel

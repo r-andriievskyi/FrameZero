@@ -1,6 +1,6 @@
 package com.frame.zero.feature.production.details.domain
 
-import com.frame.zero.dto.task.TaskStatus
+import com.frame.zero.domain.task.TaskStatus
 import com.frame.zero.dto.task.TaskSummaryDto
 import kotlinx.datetime.LocalDate
 

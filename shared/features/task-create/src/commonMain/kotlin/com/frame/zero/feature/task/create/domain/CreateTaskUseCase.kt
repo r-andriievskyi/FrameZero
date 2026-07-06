@@ -3,7 +3,7 @@ package com.frame.zero.feature.task.create.domain
 import com.frame.zero.domain.UseCase
 import com.frame.zero.dto.task.CreateTaskRequest
 import com.frame.zero.dto.task.TaskDetailDto
-import com.frame.zero.dto.task.TaskPriority
+import com.frame.zero.domain.task.TaskPriority
 import com.frame.zero.repository.tasks.TasksRepository
 import kotlinx.datetime.LocalDate
 
