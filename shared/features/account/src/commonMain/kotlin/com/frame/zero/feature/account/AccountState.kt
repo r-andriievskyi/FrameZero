@@ -4,5 +4,6 @@ data class AccountState(
   val userName: String? = null,
   val email: String? = null,
   val appLockSupported: Boolean,
-  val appLockEnabled: Boolean
+  val appLockEnabled: Boolean,
+  val developerOptionsEnabled: Boolean = false
 )
