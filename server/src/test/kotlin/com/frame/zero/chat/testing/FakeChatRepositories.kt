@@ -23,6 +23,9 @@ internal class FakeConversationRepository : ConversationRepository {
   override suspend fun findByTaskId(taskId: UUID): ConversationRecord? =
     conversations.firstOrNull { it.taskId == taskId }
 
+  override suspend fun findIdsByProductionId(productionId: UUID): List<UUID> =
+    conversations.filter { it.productionId == productionId }.map { it.id }
+
   override suspend fun getOrCreateTaskConversation(
     taskId: UUID,
     productionId: UUID

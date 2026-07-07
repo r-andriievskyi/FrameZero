@@ -3,6 +3,7 @@ package com.frame.zero.production
 import com.frame.zero.AppError
 import com.frame.zero.AppException
 import com.frame.zero.auth.UserRepository
+import com.frame.zero.common.ProductionMemberRevocationListener
 import com.frame.zero.common.Transactor
 import com.frame.zero.common.Validators
 import com.frame.zero.common.parseUuidField
@@ -32,6 +33,9 @@ class ProductionService(
   private val userRepository: UserRepository,
   private val productionAccessService: ProductionAccessService,
   private val transactor: Transactor,
+  // Notified after a removal ends a user's membership so chat can drop stale
+  // live subscriptions. Defaults to a no-op for contexts without chat wired in.
+  private val memberRevocation: ProductionMemberRevocationListener = ProductionMemberRevocationListener.NONE,
   private val clock: Clock = Clock.System
 ) {
   suspend fun createProduction(
@@ -243,8 +247,11 @@ class ProductionService(
     userId: UUID,
     productionId: UUID,
     memberId: UUID
-  ): Unit =
-    transactor.transaction {
+  ) {
+    // Captured inside the transaction, emitted after commit: the removed member's
+    // account id when this removal ends their membership entirely (a user linked
+    // to another member row keeps access, so no revocation fires).
+    val revokedUserId = transactor.transaction {
       productionAccessService.requireAccess(userId, productionId, AccessLevel.WRITE)
       val member = productionMemberRepository.findById(memberId)
         ?: throw AppException(AppError.NotFound)
@@ -254,7 +261,10 @@ class ProductionService(
         throw AppException(AppError.Conflict("Cannot remove the production owner"))
       }
       productionMemberRepository.remove(memberId)
+      member.userId?.takeIf { !productionMemberRepository.isMember(it, productionId) }
     }
+    revokedUserId?.let { memberRevocation.onProductionMemberRemoved(productionId, it) }
+  }
 
   // -- Validation ----------------------------------------------------------
 

@@ -33,6 +33,9 @@ interface ConversationRepository {
 
   suspend fun findByTaskId(taskId: UUID): ConversationRecord?
 
+  /** Ids of every conversation belonging to [productionId] — used for member-removal revocation. */
+  suspend fun findIdsByProductionId(productionId: UUID): List<UUID>
+
   /**
    * Returns the task's conversation, creating it on first call. Safe under a
    * concurrent get-or-create race: a caller that loses the insert on the unique
@@ -80,6 +83,14 @@ class ConversationRepositoryImpl : ConversationRepository {
         .where { ConversationsTable.taskId eq taskId }
         .singleOrNull()
         ?.toRecord()
+    }
+
+  override suspend fun findIdsByProductionId(productionId: UUID): List<UUID> =
+    dbQuery {
+      ConversationsTable
+        .select(ConversationsTable.id)
+        .where { ConversationsTable.productionId eq productionId }
+        .map { it[ConversationsTable.id] }
     }
 
   override suspend fun getOrCreateTaskConversation(

@@ -6,6 +6,7 @@ import com.frame.zero.auth.JwtService
 import com.frame.zero.auth.testing.FakeUserRepository
 import com.frame.zero.chat.CHAT_SEND_RATE_LIMIT_NAME
 import com.frame.zero.chat.ChatHub
+import com.frame.zero.chat.ChatProductionMemberRevoker
 import com.frame.zero.chat.ChatService
 import com.frame.zero.chat.ChatTaskCircleRevoker
 import com.frame.zero.chat.TaskCircleAccessService
@@ -85,7 +86,15 @@ internal class TestAppEnv {
   val jwtService = JwtService(testJwtConfig)
   val transactor = NoopTransactor()
   val access = ProductionAccessService(productions, productionMembers)
-  val productionService = ProductionService(productions, productionMembers, users, access, transactor)
+  val productionService =
+    ProductionService(
+      productions,
+      productionMembers,
+      users,
+      access,
+      transactor,
+      ChatProductionMemberRevoker(conversations, chatHub)
+    )
   val dashboardService = DashboardService(users, productions, tasks, transactor)
 
   // Unconfined scope so the fire-and-forget push runs synchronously within the

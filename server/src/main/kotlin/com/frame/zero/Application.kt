@@ -57,6 +57,7 @@ import org.koin.logger.slf4jLogger
 import org.slf4j.event.Level
 import java.util.UUID
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 private const val MAX_CALL_ID_LENGTH = 128
 private const val AUTH_RATE_LIMIT = 10
@@ -118,7 +119,13 @@ fun Application.module(
 
   installRateLimits()
 
-  install(WebSockets)
+  // Ping/timeout so a dead or deliberately-parked socket is reaped instead of
+  // living (and receiving fan-out) indefinitely — defense in depth alongside the
+  // hub's subscription revocation.
+  install(WebSockets) {
+    pingPeriodMillis = 30.seconds.inWholeMilliseconds
+    timeoutMillis = 45.seconds.inWholeMilliseconds
+  }
 
   install(Authentication) {
     jwt("auth-jwt") {

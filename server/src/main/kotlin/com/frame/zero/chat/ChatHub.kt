@@ -89,6 +89,24 @@ class ChatHub {
   }
 
   /**
+   * Drops every subscription in [conversationIds] from all of [userId]'s
+   * connections — the revocation triggered when a user is removed from a
+   * production (REST already 403s; this cuts the live fan-out too).
+   */
+  suspend fun dropSubscriptions(
+    userId: UUID,
+    conversationIds: Collection<UUID>
+  ) {
+    if (conversationIds.isEmpty()) return
+    val ids = conversationIds.toSet()
+    mutex.withLock {
+      connections.forEach { connection ->
+        if (connection.userId == userId) connection.subscriptions.removeAll(ids)
+      }
+    }
+  }
+
+  /**
    * Drops [conversationId] from the subscriptions of any connected user not in
    * [allowedUserIds] — the revocation triggered when a task's circle shrinks.
    */

@@ -7,5 +7,5 @@ fun productionModule() =
     single<ProductionRepository> { ProductionRepositoryImpl() }
     single<ProductionMemberRepository> { ProductionMemberRepositoryImpl() }
     single { ProductionAccessService(get(), get()) }
-    single { ProductionService(get(), get(), get(), get(), get()) }
+    single { ProductionService(get(), get(), get(), get(), get(), get()) }
   }

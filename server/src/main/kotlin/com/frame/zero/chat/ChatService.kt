@@ -2,6 +2,7 @@ package com.frame.zero.chat
 
 import com.frame.zero.AppError
 import com.frame.zero.AppException
+import com.frame.zero.common.ProductionMemberRevocationListener
 import com.frame.zero.common.TaskCircleRevocationListener
 import com.frame.zero.common.Transactor
 import com.frame.zero.dto.chat.ChatMessageDto
@@ -187,5 +188,22 @@ class ChatTaskCircleRevoker(
   ) {
     val conversation = conversations.findByTaskId(taskId) ?: return
     hub.retainSubscribers(conversation.id, circleUserIds)
+  }
+}
+
+/**
+ * Wires production-member removal to the hub so a user removed from a production
+ * stops receiving live chat for its conversations immediately. Their REST access
+ * is already gone at that point; this closes the still-subscribed-socket gap.
+ */
+class ChatProductionMemberRevoker(
+  private val conversations: ConversationRepository,
+  private val hub: ChatHub
+) : ProductionMemberRevocationListener {
+  override suspend fun onProductionMemberRemoved(
+    productionId: UUID,
+    userId: UUID
+  ) {
+    hub.dropSubscriptions(userId, conversations.findIdsByProductionId(productionId))
   }
 }

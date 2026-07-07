@@ -76,6 +76,26 @@ class ConversationRepositoryImplTest {
     }
 
   @Test
+  fun `findIdsByProductionId returns only that production's conversations`() =
+    runBlocking {
+      val ownerId = users.create("owner@x.com", "h", "Own", "Er").id
+      val prod = newProduction(ownerId)
+      val otherProd = newProduction(ownerId)
+      val taskA = tasks.create(prod.id, "A", null, null, null)
+      val taskB = tasks.create(prod.id, "B", null, null, null)
+      val taskOther = tasks.create(otherProd.id, "C", null, null, null)
+      val conversationA = conversations.getOrCreateTaskConversation(taskA.id, prod.id)
+      val conversationB = conversations.getOrCreateTaskConversation(taskB.id, prod.id)
+      conversations.getOrCreateTaskConversation(taskOther.id, otherProd.id)
+
+      assertEquals(
+        setOf(conversationA.id, conversationB.id),
+        conversations.findIdsByProductionId(prod.id).toSet()
+      )
+      assertEquals(emptyList(), conversations.findIdsByProductionId(UUID.randomUUID()))
+    }
+
+  @Test
   fun `ensureParticipant is idempotent for the same conversation and user`() =
     runBlocking {
       val ownerId = users.create("owner@x.com", "h", "Own", "Er").id
