@@ -35,7 +35,7 @@ runs:
     # so no .xcodeproj change is needed — it just has to exist before xcodebuild runs.
     - name: Decode Firebase config (Android)
       shell: bash
-      run: echo "${{ env.GOOGLE_SERVICES_JSON }}" | base64 --decode > composeApp/google-services.json
+      run: echo "${{ env.GOOGLE_SERVICES_JSON }}" | base64 --decode > androidApp/google-services.json
     - name: Decode Firebase config (iOS)
       shell: bash
       run: echo "${{ env.GOOGLE_SERVICE_INFO_PLIST }}" | base64 --decode > iosApp/iosApp/GoogleService-Info.plist

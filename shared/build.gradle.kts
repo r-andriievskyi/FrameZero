@@ -56,7 +56,7 @@ kotlin {
       .get()
       .toInt()
     compilerOptions {
-      jvmTarget.set(JvmTarget.JVM_11)
+      jvmTarget.set(JvmTarget.JVM_17)
     }
     withHostTest { isIncludeAndroidResources = true }
   }
