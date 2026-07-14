@@ -26,7 +26,7 @@ docker compose up -d          # Postgres        (just db-up)
 Run the Android app:
 
 ```bash
-./gradlew :composeApp:installDebug   # just android
+./gradlew :androidApp:installProdDebug   # just android
 ```
 
 For iOS, open `iosApp/iosApp.xcodeproj` in Xcode and hit Run. After changing
