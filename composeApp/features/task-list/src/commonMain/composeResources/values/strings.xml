@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="task_list_title">Tasks</string>
+  <string name="task_list_filter_all">All</string>
+  <string name="task_list_filter_open">Open</string>
+  <string name="task_list_filter_done">Done</string>
+  <string name="task_list_sort_due_date">Due date</string>
+  <string name="task_list_sort_title">Title</string>
+  <string name="task_list_empty">No tasks yet</string>
+  <string name="task_list_status_open">Open</string>
+  <string name="task_list_status_done">Done</string>
+</resources>
