@@ -32,5 +32,4 @@ internal fun TasksListContent(
   onIntent: (TasksListIntent) -> Unit,
   onTaskClick: (taskId: String) -> Unit
 ) {
-
 }

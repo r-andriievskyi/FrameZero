@@ -11,7 +11,6 @@ class PreviewScreenshotTest(
   companion object {
     @JvmStatic
     @ParameterizedRobolectricTestRunner.Parameters(name = "{0}")
-    fun previews() =
-      scanPreviews(packageTree = "com.frame.zero.feature.task.list.ui")
+    fun previews() = scanPreviews(packageTree = "com.frame.zero.feature.task.list.ui")
   }
 }
