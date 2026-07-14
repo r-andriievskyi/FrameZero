@@ -9,12 +9,22 @@ plugins {
   id("crossplatform.code.quality")
 }
 
-val releaseTaskRequested = gradle.startParameter.taskNames.any { taskName ->
-  taskName.substringAfterLast(":").contains("Release")
+val requestedTasks = gradle.startParameter.taskNames.map { it.substringAfterLast(":") }
+val demoTaskRequested = requestedTasks.any { it.contains("Demo") }
+val releaseTaskRequested = requestedTasks.any { it.contains("Release") }
+
+// A single Gradle invocation compiles :shared for one BuildKonfig flavor, so `demo` + `release`
+// requested together (assembleDemoRelease) is its own flavor: minified, but still demo data and
+// no backend base URL. Never invoke demo and prod variant tasks in the same command.
+val inferredFlavor: String? = when {
+  demoTaskRequested && releaseTaskRequested -> "demoRelease"
+  demoTaskRequested -> "demo"
+  releaseTaskRequested -> "release"
+  else -> null
 }
 
-if (!project.hasProperty("buildkonfig.flavor") && releaseTaskRequested) {
-  project.extensions.extraProperties["buildkonfig.flavor"] = "release"
+if (!project.hasProperty("buildkonfig.flavor") && inferredFlavor != null) {
+  project.extensions.extraProperties["buildkonfig.flavor"] = inferredFlavor
 }
 
 val buildKonfigFlavor: String = project.findProperty("buildkonfig.flavor")?.toString().orEmpty()
@@ -100,12 +110,26 @@ buildkonfig {
   packageName = "com.frame.zero.core.network"
 
   // empty BASE_URL → NetworkConfig falls back to the platform localhost dev server.
+  // DEMO is const so it constant-folds and R8 strips the demo wiring from prod builds.
   defaultConfigs {
     buildConfigField(FieldSpec.Type.BOOLEAN, "DEBUG", "true")
     buildConfigField(FieldSpec.Type.STRING, "BASE_URL", "")
+    buildConfigField(FieldSpec.Type.BOOLEAN, "DEMO", "false", const = true)
   }
   defaultConfigs("release") {
     buildConfigField(FieldSpec.Type.BOOLEAN, "DEBUG", "false")
     buildConfigField(FieldSpec.Type.STRING, "BASE_URL", resolveReleaseBaseUrl())
+    buildConfigField(FieldSpec.Type.BOOLEAN, "DEMO", "false", const = true)
+  }
+  // Demo builds run entirely on local fake data — no backend, so BASE_URL stays empty.
+  defaultConfigs("demo") {
+    buildConfigField(FieldSpec.Type.BOOLEAN, "DEBUG", "true")
+    buildConfigField(FieldSpec.Type.STRING, "BASE_URL", "")
+    buildConfigField(FieldSpec.Type.BOOLEAN, "DEMO", "true", const = true)
+  }
+  defaultConfigs("demoRelease") {
+    buildConfigField(FieldSpec.Type.BOOLEAN, "DEBUG", "false")
+    buildConfigField(FieldSpec.Type.STRING, "BASE_URL", "")
+    buildConfigField(FieldSpec.Type.BOOLEAN, "DEMO", "true", const = true)
   }
 }
