@@ -1,0 +1,5 @@
+# Maestro workspace config. Run: `maestro test .maestro/flows`
+# Flows drive the demo flavor (offline fake data, any credentials accepted).
+# See docs/e2e.md for the full runbook.
+flows:
+  - flows/*.yaml

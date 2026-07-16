@@ -1,0 +1,35 @@
+# Create a task on a production (offline demo upload queue) and see it listed.
+appId: com.frame.zero
+---
+- runFlow: ../subflows/login.yaml
+- tapOn: "Productions"
+- assertVisible:
+    id: "productions:list"
+- tapOn: "Midnight Harvest"       # DemoData seed production
+- assertVisible:
+    id: "production-details:content"
+# Tasks card sits below the production info on a scrollable screen; scroll to its header.
+- scrollUntilVisible:
+    element:
+      text: "Add"                 # Add-task button in the tasks-card header
+    direction: DOWN
+    timeout: 10000
+- tapOn: "Add"
+- assertVisible:
+    id: "create-task:title"
+- tapOn:
+    id: "create-task:title"
+- inputText: "Scout the north dock"
+- tapOn:
+    id: "create-task:submit"
+# Back on production-details. DemoTaskUploadScheduler has an artificial delay, and the
+# new row is appended to the (scrollable) tasks card — scroll until it lands.
+- extendedWaitUntil:
+    visible:
+      id: "production-details:content"
+    timeout: 10000
+- scrollUntilVisible:
+    element:
+      text: "Scout the north dock"
+    direction: DOWN
+    timeout: 10000

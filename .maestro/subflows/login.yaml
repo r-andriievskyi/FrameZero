@@ -1,0 +1,16 @@
+# Reusable: launch fresh (clears stored demo tokens) and sign in.
+# Demo auth accepts any credentials, so the values are arbitrary.
+appId: com.frame.zero
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: "sign-in:email"
+- inputText: "demo@framezero.app"
+- tapOn:
+    id: "sign-in:password"
+- inputText: "password"
+- tapOn:
+    id: "sign-in:submit"
+- assertVisible:
+    id: "dashboard:greeting"

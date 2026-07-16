@@ -120,7 +120,8 @@ internal fun CreateTaskContent(
         value = state.title,
         onValueChange = { onIntent(CreateTaskIntent.TitleChanged(it)) },
         placeholder = stringResource(Res.string.title_placeholder),
-        errorMessage = state.titleError?.asString()
+        errorMessage = state.titleError?.asString(),
+        modifier = Modifier.testTag(CreateTaskTestTags.TITLE)
       )
       state.titleError?.let { error ->
         VerticalSpacer(spacing.space4)
