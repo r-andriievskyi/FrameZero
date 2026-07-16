@@ -115,6 +115,8 @@ dependencies {
   implementation(libs.koin.core)
   implementation(libs.kotlinx.coroutines.core)
   implementation(libs.compose.runtime)
+  implementation(libs.compose.ui)
+  implementation(libs.compose.foundation)
   implementation(libs.androidx.activity.compose)
   implementation(libs.androidx.core.ktx)
   implementation(libs.androidx.core.splashscreen)

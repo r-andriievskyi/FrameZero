@@ -1,0 +1,13 @@
+# Home -> Productions tab -> open a production -> back to Home.
+appId: com.frame.zero
+---
+- runFlow: ../subflows/login.yaml
+- tapOn: "Productions"
+- assertVisible:
+    id: "productions:list"
+- tapOn: "Neon Tide"          # DemoData seed production
+- assertVisible:
+    id: "production-details:content"
+- back
+- assertVisible:
+    id: "productions:list"

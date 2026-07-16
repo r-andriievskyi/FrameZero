@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
@@ -16,6 +17,7 @@ import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import com.frame.zero.feature.auth.ui.components.LabeledField
+import com.frame.zero.feature.auth.ui.signin.SignInTestTags
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.modifier.clickableWithRipple
@@ -81,7 +83,7 @@ internal fun SignInPasswordField(
       },
       visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
       enabled = enabled,
-      modifier = Modifier.fillMaxWidth()
+      modifier = Modifier.fillMaxWidth().testTag(SignInTestTags.PASSWORD)
     )
   }
 }

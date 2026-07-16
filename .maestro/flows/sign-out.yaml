@@ -1,0 +1,25 @@
+# Sign out returns to the sign-in screen; re-login shows pristine seed data.
+appId: com.frame.zero
+---
+- runFlow: ../subflows/login.yaml
+- tapOn: "Settings"              # toolbar account entry (contentDescription)
+- assertVisible:
+    id: "account:sign-out"
+- tapOn:
+    id: "account:sign-out"
+- assertVisible:
+    id: "sign-in:submit"
+# Re-login in the SAME process (no relaunch/clearState) so this actually exercises
+# DemoSessionCleaner: if sign-out failed to reset the store, the seed would be wrong.
+- tapOn:
+    id: "sign-in:email"
+- inputText: "demo@framezero.app"
+- tapOn:
+    id: "sign-in:password"
+- inputText: "password"
+- tapOn:
+    id: "sign-in:submit"
+- assertVisible:
+    id: "dashboard:greeting"
+- tapOn: "Productions"
+- assertVisible: "Neon Tide"

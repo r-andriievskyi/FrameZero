@@ -5,7 +5,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.testTag
 import com.frame.zero.feature.auth.ui.components.LabeledField
+import com.frame.zero.feature.auth.ui.signin.SignInTestTags
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.widgets.SingleLineInputField
@@ -40,7 +42,7 @@ internal fun SignInEmailField(
         )
       },
       enabled = enabled,
-      modifier = Modifier.fillMaxWidth()
+      modifier = Modifier.fillMaxWidth().testTag(SignInTestTags.EMAIL)
     )
   }
 }
