@@ -35,6 +35,7 @@ plugins {
 
 include(":detekt-rules")
 include(":androidApp")
+include(":benchmarks")
 include(":composeApp")
 include(":composeApp:features:auth")
 include(":composeApp:features:home")
