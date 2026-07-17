@@ -40,6 +40,7 @@ plugins {
   alias(libs.plugins.googleServices)
   alias(libs.plugins.firebaseCrashlytics)
   alias(libs.plugins.firebasePerf)
+  alias(libs.plugins.baselineprofile)
   id("crossplatform.code.quality")
 }
 
@@ -97,6 +98,29 @@ android {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
   }
+  sourceSets {
+    getByName("prod") {
+      baselineProfiles.srcDir("src/demoRelease/generated/baselineProfiles")
+    }
+  }
+}
+
+androidComponents {
+  onVariants { variant ->
+    if (variant.buildType in setOf("nonMinifiedRelease", "benchmarkRelease")) {
+      variant.manifestPlaceholders.put("firebasePerformanceEnabled", "false")
+    }
+  }
+}
+
+baselineProfile {
+  // Committed at src/demoRelease/generated/baselineProfiles; regenerate with
+  // :androidApp:generateDemoReleaseBaselineProfile (docs/performance.md).
+  // mergeIntoMain would collapse generation into a single task spanning both flavors,
+  // breaking the one-BuildKonfig-flavor-per-invocation rule.
+  mergeIntoMain = false
+  saveInSrc = true
+  automaticGenerationDuringBuild = false
 }
 
 dependencies {
@@ -120,6 +144,9 @@ dependencies {
   implementation(libs.androidx.activity.compose)
   implementation(libs.androidx.core.ktx)
   implementation(libs.androidx.core.splashscreen)
+  implementation(libs.androidx.lifecycle.runtimeCompose)
+  implementation(libs.androidx.profileinstaller)
+  baselineProfile(projects.benchmarks)
   implementation(libs.androidx.fragment)
   implementation(project.dependencies.platform(libs.firebase.bom))
   implementation(libs.firebase.messaging)

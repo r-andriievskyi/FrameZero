@@ -8,10 +8,12 @@ import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.SystemBarStyle
+import androidx.activity.compose.ReportDrawnWhen
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
@@ -19,6 +21,7 @@ import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.arkivanov.decompose.defaultComponentContext
 import com.frame.zero.core.navigation.NavigationSignal
@@ -124,8 +127,8 @@ class MainActivity : FragmentActivity() {
       }
     }
     setContent {
-      // Surface Compose testTags as Android resource-ids so black-box tools (Maestro) can
-      // select nodes by id. Demo-flavor E2E flows live in `.maestro/`.
+      val sessionState by sessionManager.state.collectAsStateWithLifecycle()
+      ReportDrawnWhen { sessionState !is SessionState.Loading }
       Box(Modifier.semantics { testTagsAsResourceId = true }) { App(root) }
     }
     requestNotificationsPermissionIfNeeded()
