@@ -5,6 +5,8 @@ base { archivesName = "repository-tasks-impl" }
 kotlin {
   android { namespace = "com.frame.zero.repository.tasks.impl" }
 
+  applyDefaultHierarchyTemplate()
+
   sourceSets {
     commonMain.dependencies {
       api(projects.shared.repositories.tasks.api)
@@ -18,6 +20,8 @@ kotlin {
       implementation(projects.shared.testFixtures)
       implementation(libs.bundles.commonTest)
       implementation(libs.ktor.clientMock)
+      implementation(libs.androidx.room.runtime)
+      implementation(libs.androidx.sqlite.bundled)
     }
   }
 }
