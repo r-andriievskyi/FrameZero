@@ -1,8 +1,16 @@
-package com.frame.zero.feature.task.details.data
+package com.frame.zero.repository.tasks
 
+import androidx.paging.ExperimentalPagingApi
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.map
 import com.frame.zero.core.files.AttachmentFileManager
 import com.frame.zero.core.network.NetworkConfig
 import com.frame.zero.core.network.connectivity.ConnectivityObserver
+import com.frame.zero.database.FrameZeroDatabase
+import com.frame.zero.database.paging.CursorPage
+import com.frame.zero.database.paging.CursorRemoteMediator
 import com.frame.zero.domain.DomainError
 import com.frame.zero.domain.Outcome
 import com.frame.zero.domain.task.NewTask
@@ -17,7 +25,9 @@ import com.frame.zero.dto.task.TaskDetailDto
 import com.frame.zero.dto.task.TaskSummaryDto
 import com.frame.zero.dto.task.UpdateTaskParticipantsRequest
 import com.frame.zero.dto.task.UpdateTaskRequest
-import com.frame.zero.repository.tasks.TasksRepository
+import com.frame.zero.repository.tasks.local.toDomain
+import com.frame.zero.repository.tasks.local.toEntity
+import com.frame.zero.repository.tasks.network.TasksApi
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
@@ -28,12 +38,16 @@ import io.ktor.client.request.prepareGet
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsChannel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 class TasksRepositoryImpl(
   private val httpClient: HttpClient,
   private val networkConfig: NetworkConfig,
   private val connectivityObserver: ConnectivityObserver,
-  private val attachmentFileManager: AttachmentFileManager
+  private val attachmentFileManager: AttachmentFileManager,
+  private val remoteApi: TasksApi,
+  private val database: FrameZeroDatabase
 ) : TasksRepository {
   override suspend fun getTask(id: String): TaskDetail =
     httpClient.get("${networkConfig.baseUrl}/api/v1/tasks/$id").body<TaskDetailDto>().toDomain()
@@ -90,14 +104,28 @@ class TasksRepositoryImpl(
     httpClient
       .get("${networkConfig.baseUrl}/api/v1/tasks") {
         parameter("productionId", productionId)
-        parameter("limit", PRODUCTION_TASKS_PAGE_SIZE)
+        parameter("limit", TASK_SUMMARIES_PAGE_SIZE)
       }.body<CursorPagedResponse<TaskSummaryDto>>()
       .items
       .map { it.toDomain() }
 
+  @OptIn(ExperimentalPagingApi::class)
+  override fun observeUserTasks(): Flow<PagingData<TaskSummary>> {
+    val dao = database.taskSummariesDao()
+    return Pager(
+      config = PagingConfig(pageSize = TASK_SUMMARIES_PAGE_SIZE, enablePlaceholders = false),
+      remoteMediator = CursorRemoteMediator(dao) { limit, cursor, baseOrder ->
+        val response = remoteApi.getAll(limit = limit, cursor = cursor)
+        CursorPage(
+          entities = response.items.mapIndexed { index, dto -> dto.toEntity(baseOrder + index) },
+          nextCursor = response.nextCursor
+        )
+      },
+      pagingSourceFactory = { dao.pagingSource() }
+    ).flow.map { pagingData -> pagingData.map { entity -> entity.toDomain() } }
+  }
+
   private companion object {
-    // The production-details card shows a single page of recent tasks; it is not
-    // a full paginated list, so we fetch the first page and ignore the cursor.
-    const val PRODUCTION_TASKS_PAGE_SIZE = 50
+    const val TASK_SUMMARIES_PAGE_SIZE = 10
   }
 }

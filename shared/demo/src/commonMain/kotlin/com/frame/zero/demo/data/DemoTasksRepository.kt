@@ -1,5 +1,6 @@
 package com.frame.zero.demo.data
 
+import androidx.paging.PagingData
 import com.frame.zero.demo.DemoDataStore
 import com.frame.zero.domain.DomainError
 import com.frame.zero.domain.Outcome
@@ -9,6 +10,8 @@ import com.frame.zero.domain.task.TaskDetail
 import com.frame.zero.domain.task.TaskStatus
 import com.frame.zero.domain.task.TaskSummary
 import com.frame.zero.repository.tasks.TasksRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlin.time.Clock
 
 internal class DemoTasksRepository(
@@ -56,13 +59,17 @@ internal class DemoTasksRepository(
   ): Outcome<String> = Outcome.Failure(DomainError.NotFound)
 
   override suspend fun listForProduction(productionId: String): List<TaskSummary> =
-    store.tasksForProduction(productionId).map {
-      TaskSummary(
-        id = it.id,
-        title = it.title,
-        productionTitle = it.productionTitle,
-        dueDate = it.dueDate,
-        status = it.status
-      )
-    }
+    store.tasksForProduction(productionId).map { it.toSummary() }
+
+  override fun observeUserTasks(): Flow<PagingData<TaskSummary>> =
+    store.tasks.map { list -> PagingData.from(list.map { it.toSummary() }) }
 }
+
+private fun TaskDetail.toSummary(): TaskSummary =
+  TaskSummary(
+    id = id,
+    title = title,
+    productionTitle = productionTitle,
+    dueDate = dueDate,
+    status = status
+  )

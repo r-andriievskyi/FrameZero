@@ -135,6 +135,7 @@ dependencies {
   implementation(projects.shared.features.taskDetails)
   implementation(projects.shared.features.taskCreate)
   implementation(projects.shared.features.chat)
+  implementation(projects.shared.features.taskList)
   implementation(libs.decompose)
   implementation(libs.koin.core)
   implementation(libs.kotlinx.coroutines.core)

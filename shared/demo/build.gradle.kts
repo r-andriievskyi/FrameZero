@@ -14,7 +14,7 @@ kotlin {
       implementation(projects.shared.repositories.user)
       implementation(projects.shared.repositories.dashboard)
       implementation(projects.shared.repositories.schedule)
-      implementation(projects.shared.repositories.tasks)
+      implementation(projects.shared.repositories.tasks.api)
       implementation(projects.shared.repositories.productions.api)
       implementation(projects.shared.repositories.chat.api)
       implementation(projects.shared.repositories.deviceToken)

@@ -16,6 +16,9 @@ import com.frame.zero.dto.production.ProductionSummaryDto
 import com.frame.zero.database.ProductionEntity
 import com.frame.zero.database.ProductionRemoteKeyEntity
 import com.frame.zero.database.ProductionsDao
+import com.frame.zero.database.paging.CursorPage
+import com.frame.zero.database.paging.CursorRemoteMediator
+import com.frame.zero.repository.productions.local.toEntity
 import com.frame.zero.repository.productions.network.ProductionsApi
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.test.runTest
@@ -33,7 +36,7 @@ class ProductionsRemoteMediatorTest {
     runTest {
       val api = FakeProductionsApi(page = pageOf(productionSummary("p1"), nextCursor = "cursor-2"))
       val dao = FakeProductionsDao()
-      val mediator = ProductionsRemoteMediator(remoteApi = api, dao = dao)
+      val mediator = mediatorOf(api, dao)
 
       val result = mediator.load(LoadType.REFRESH, emptyPagingState())
 
@@ -48,7 +51,7 @@ class ProductionsRemoteMediatorTest {
     runTest {
       val api = FakeProductionsApi(page = pageOf(productionSummary("p1"), nextCursor = null))
       val dao = FakeProductionsDao()
-      val mediator = ProductionsRemoteMediator(remoteApi = api, dao = dao)
+      val mediator = mediatorOf(api, dao)
 
       val result = mediator.load(LoadType.REFRESH, emptyPagingState())
 
@@ -64,7 +67,7 @@ class ProductionsRemoteMediatorTest {
       val dao = FakeProductionsDao().apply {
         addRow(productionEntity(id = "p1"))
       }
-      val mediator = ProductionsRemoteMediator(remoteApi = api, dao = dao)
+      val mediator = mediatorOf(api, dao)
 
       mediator.load(LoadType.REFRESH, emptyPagingState())
 
@@ -76,7 +79,7 @@ class ProductionsRemoteMediatorTest {
     runTest {
       val api = FakeProductionsApi(page = pageOf(nextCursor = null))
       val dao = FakeProductionsDao()
-      val mediator = ProductionsRemoteMediator(remoteApi = api, dao = dao)
+      val mediator = mediatorOf(api, dao)
 
       val result = mediator.load(LoadType.APPEND, emptyPagingState())
 
@@ -93,7 +96,7 @@ class ProductionsRemoteMediatorTest {
         addRow(productionEntity(id = "p1"))
         setKey(ProductionRemoteKeyEntity(nextCursor = "cursor-2"))
       }
-      val mediator = ProductionsRemoteMediator(remoteApi = api, dao = dao)
+      val mediator = mediatorOf(api, dao)
 
       val result = mediator.load(LoadType.APPEND, emptyPagingState())
 
@@ -109,7 +112,7 @@ class ProductionsRemoteMediatorTest {
   fun `PREPEND always short-circuits without calling the API`() =
     runTest {
       val api = FakeProductionsApi(page = pageOf(nextCursor = null))
-      val mediator = ProductionsRemoteMediator(remoteApi = api, dao = FakeProductionsDao())
+      val mediator = mediatorOf(api, FakeProductionsDao())
 
       val result = mediator.load(LoadType.PREPEND, emptyPagingState())
 
@@ -127,7 +130,7 @@ class ProductionsRemoteMediatorTest {
         addRow(productionEntity(id = "p1"))
         setKey(ProductionRemoteKeyEntity(nextCursor = "cursor-2"))
       }
-      val mediator = ProductionsRemoteMediator(remoteApi = api, dao = dao)
+      val mediator = mediatorOf(api, dao)
 
       val result = mediator.load(LoadType.REFRESH, emptyPagingState())
 
@@ -141,11 +144,24 @@ class ProductionsRemoteMediatorTest {
   fun `CancellationException is rethrown instead of converted to Error`() =
     runTest {
       val api = FakeProductionsApi(error = CancellationException("cancelled"))
-      val mediator = ProductionsRemoteMediator(remoteApi = api, dao = FakeProductionsDao())
+      val mediator = mediatorOf(api, FakeProductionsDao())
 
       assertFailsWith<CancellationException> {
         mediator.load(LoadType.REFRESH, emptyPagingState())
       }
+    }
+
+  @OptIn(ExperimentalPagingApi::class)
+  private fun mediatorOf(
+    api: ProductionsApi,
+    dao: ProductionsDao
+  ): CursorRemoteMediator<ProductionEntity> =
+    CursorRemoteMediator(dao) { limit, cursor, baseOrder ->
+      val response = api.getAll(limit = limit, cursor = cursor)
+      CursorPage(
+        entities = response.items.mapIndexed { index, dto -> dto.toEntity(baseOrder + index) },
+        nextCursor = response.nextCursor
+      )
     }
 
   private fun emptyPagingState(): PagingState<Int, ProductionEntity> =
@@ -223,7 +239,7 @@ class ProductionsRemoteMediatorTest {
 
     override suspend fun maxPageOrder(): Long? = rows.maxOfOrNull { it.pageOrder }
 
-    override suspend fun remoteKey(): ProductionRemoteKeyEntity? = key
+    override suspend fun nextCursor(): String? = key?.nextCursor
 
     override suspend fun insertProductions(entities: List<ProductionEntity>) {
       rows += entities

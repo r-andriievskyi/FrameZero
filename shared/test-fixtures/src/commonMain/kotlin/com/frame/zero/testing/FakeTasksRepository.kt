@@ -1,11 +1,14 @@
 package com.frame.zero.testing
 
+import androidx.paging.PagingData
 import com.frame.zero.domain.DomainError
 import com.frame.zero.domain.Outcome
 import com.frame.zero.domain.task.NewTask
 import com.frame.zero.domain.task.TaskDetail
 import com.frame.zero.domain.task.TaskSummary
 import com.frame.zero.repository.tasks.TasksRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 
 /**
  * Single configurable fake for [TasksRepository], shared across all client feature tests.
@@ -73,4 +76,6 @@ class FakeTasksRepository(
     listThrows?.let { throw it }
     return tasks
   }
+
+  override fun observeUserTasks(): Flow<PagingData<TaskSummary>> = flowOf(PagingData.from(tasks))
 }

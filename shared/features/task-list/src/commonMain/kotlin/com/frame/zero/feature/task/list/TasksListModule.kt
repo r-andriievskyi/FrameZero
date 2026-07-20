@@ -5,7 +5,7 @@ import org.koin.dsl.module
 
 val featureTaskListModule: Module =
   module {
-    factory { (productionId: String) ->
+    factory { (productionId: String?) ->
       TasksListViewModel(
         productionId = productionId,
         tasksRepository = get()

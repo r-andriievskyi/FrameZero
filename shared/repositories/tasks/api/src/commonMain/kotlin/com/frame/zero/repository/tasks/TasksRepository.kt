@@ -1,9 +1,11 @@
 package com.frame.zero.repository.tasks
 
+import androidx.paging.PagingData
 import com.frame.zero.domain.Outcome
 import com.frame.zero.domain.task.NewTask
 import com.frame.zero.domain.task.TaskDetail
 import com.frame.zero.domain.task.TaskSummary
+import kotlinx.coroutines.flow.Flow
 
 interface TasksRepository {
   suspend fun getTask(id: String): TaskDetail
@@ -25,4 +27,6 @@ interface TasksRepository {
   ): Outcome<String>
 
   suspend fun listForProduction(productionId: String): List<TaskSummary>
+
+  fun observeUserTasks(): Flow<PagingData<TaskSummary>>
 }

@@ -23,7 +23,7 @@ class ProductionEntityMapperTest {
       pageOrder = 0
     )
 
-    val production = entity.toProduction()
+    val production = entity.toDomain()
 
     assertEquals("p1", production.id)
     assertEquals("Pilot", production.title)
@@ -41,14 +41,14 @@ class ProductionEntityMapperTest {
     // failure beats silently mapping to a wrong default.
     val entity = baseEntity().copy(genre = "TELENOVELA")
 
-    assertFailsWith<IllegalArgumentException> { entity.toProduction() }
+    assertFailsWith<IllegalArgumentException> { entity.toDomain() }
   }
 
   @Test
   fun `toProduction fails fast on a phase the client does not recognise`() {
     val entity = baseEntity().copy(phase = "RESHOOTS")
 
-    assertFailsWith<IllegalArgumentException> { entity.toProduction() }
+    assertFailsWith<IllegalArgumentException> { entity.toDomain() }
   }
 
   private fun baseEntity(): ProductionEntity =

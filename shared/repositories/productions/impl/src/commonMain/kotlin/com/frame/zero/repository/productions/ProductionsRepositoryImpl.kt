@@ -6,6 +6,8 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
 import com.frame.zero.database.FrameZeroDatabase
+import com.frame.zero.database.paging.CursorPage
+import com.frame.zero.database.paging.CursorRemoteMediator
 import com.frame.zero.domain.production.NewProduction
 import com.frame.zero.domain.production.Production
 import com.frame.zero.domain.production.ProductionDetail
@@ -13,7 +15,8 @@ import com.frame.zero.domain.production.ProductionMember
 import com.frame.zero.domain.production.toCreateRequest
 import com.frame.zero.domain.production.toProductionDetail
 import com.frame.zero.domain.production.toProductionMember
-import com.frame.zero.repository.productions.local.toProduction
+import com.frame.zero.repository.productions.local.toDomain
+import com.frame.zero.repository.productions.local.toEntity
 import com.frame.zero.repository.productions.network.ProductionsApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -29,9 +32,15 @@ class ProductionsRepositoryImpl(
     val dao = database.productionsCacheDao()
     return Pager(
       config = PagingConfig(pageSize = PageSize, enablePlaceholders = false),
-      remoteMediator = ProductionsRemoteMediator(remoteApi, dao),
+      remoteMediator = CursorRemoteMediator(dao) { limit, cursor, baseOrder ->
+        val response = remoteApi.getAll(limit = limit, cursor = cursor)
+        CursorPage(
+          entities = response.items.mapIndexed { index, dto -> dto.toEntity(baseOrder + index) },
+          nextCursor = response.nextCursor
+        )
+      },
       pagingSourceFactory = { dao.pagingSource() }
-    ).flow.map { pagingData -> pagingData.map { entity -> entity.toProduction() } }
+    ).flow.map { pagingData -> pagingData.map { entity -> entity.toDomain() } }
   }
 
   override suspend fun getDetails(productionId: String): ProductionDetail =

@@ -33,6 +33,8 @@ import com.frame.zero.feature.task.create.CreateTaskComponent
 import com.frame.zero.feature.task.create.CreateTaskViewModel
 import com.frame.zero.feature.task.details.TaskDetailsComponent
 import com.frame.zero.feature.task.details.TaskDetailsViewModel
+import com.frame.zero.feature.task.list.TasksListComponent
+import com.frame.zero.feature.task.list.TasksListViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -58,7 +60,8 @@ class RootComponent(
     onCreateProductionClick: () -> Unit,
     onProductionClick: (productionId: String) -> Unit,
     onAccountClick: () -> Unit,
-    onTaskClick: (taskId: String) -> Unit
+    onTaskClick: (taskId: String) -> Unit,
+    onTasksClick: () -> Unit
   ) -> HomeComponent,
   private val createProductionViewModelFactory: () -> CreateProductionViewModel,
   private val productionDetailsViewModelFactory: (productionId: String) -> ProductionDetailsViewModel,
@@ -68,6 +71,7 @@ class RootComponent(
     productionTitle: String
   ) -> CreateTaskViewModel,
   private val chatViewModelFactory: (taskId: String) -> ChatViewModel,
+  private val tasksListViewModelFactory: (productionId: String?) -> TasksListViewModel,
   private val accountViewModelFactory: () -> AccountViewModel
 ) : ComponentContext by componentContext {
   private val navigation = StackNavigation<Config>()
@@ -166,6 +170,10 @@ class RootComponent(
           { taskId ->
             @OptIn(DelicateDecomposeApi::class)
             navigation.push(Config.TaskDetails(taskId))
+          },
+          {
+            @OptIn(DelicateDecomposeApi::class)
+            navigation.push(Config.TasksList)
           }
         )
       )
@@ -234,6 +242,18 @@ class RootComponent(
         )
       )
 
+      Config.TasksList -> Child.TasksList(
+        TasksListComponent(
+          componentContext = context,
+          productionId = null,
+          onTaskClick = { taskId ->
+            @OptIn(DelicateDecomposeApi::class)
+            navigation.push(Config.TaskDetails(taskId))
+          },
+          viewModelFactory = tasksListViewModelFactory
+        )
+      )
+
       is Config.Chat -> Child.Chat(
         ChatComponent(
           componentContext = context,
@@ -295,6 +315,9 @@ class RootComponent(
     data class Chat(
       val taskId: String
     ) : Config
+
+    @Serializable
+    data object TasksList : Config
   }
 
   sealed interface Child {
@@ -334,6 +357,10 @@ class RootComponent(
 
     data class Chat(
       val component: ChatComponent
+    ) : Child
+
+    data class TasksList(
+      val component: TasksListComponent
     ) : Child
   }
 }

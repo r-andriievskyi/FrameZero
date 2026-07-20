@@ -38,6 +38,7 @@ import com.frame.zero.feature.production.details.domain.GetProductionDetailsUseC
 import com.frame.zero.feature.production.details.domain.GetProductionTasksUseCase
 import com.frame.zero.feature.production.domain.CreateProductionUseCase
 import com.frame.zero.feature.task.details.TaskDetailsViewModel
+import com.frame.zero.feature.task.list.TasksListViewModel
 import com.frame.zero.feature.task.details.usecase.CompleteTaskUseCase
 import com.frame.zero.feature.task.details.usecase.GetAssignableMembersUseCase
 import com.frame.zero.feature.task.details.usecase.GetTaskDetailsUseCase
@@ -270,11 +271,12 @@ class RootComponentTest {
           registerViewModelFactory = { RegisterViewModel(RegisterUseCase(FakeAuthRepository(), session)) }
         )
       },
-      homeComponentFactory = { ctx, onCreateProduction, onProduction, onAccount, onTask ->
+      homeComponentFactory = { ctx, onCreateProduction, onProduction, onAccount, onTask, onTasks ->
         callbacks.onCreateProductionClick = onCreateProduction
         callbacks.onProductionClick = onProduction
         callbacks.onAccountClick = onAccount
         callbacks.onTaskClick = onTask
+        callbacks.onTasksClick = onTasks
         HomeComponent(
           componentContext = ctx,
           dashboardViewModelFactory = {
@@ -318,6 +320,7 @@ class RootComponentTest {
       createTaskViewModelFactory = { _, _ -> error("create-task navigation is not exercised here") },
       // Not navigated to in these tests; a Chat push would need the chat graph.
       chatViewModelFactory = { error("chat navigation is not exercised here") },
+      tasksListViewModelFactory = { productionId -> TasksListViewModel(productionId, tasks) },
       accountViewModelFactory = { AccountViewModel(session, appLockController) }
     )
     lifecycle.resume()
@@ -329,6 +332,7 @@ class RootComponentTest {
     var onProductionClick: (String) -> Unit = {}
     var onAccountClick: () -> Unit = {}
     var onTaskClick: (String) -> Unit = {}
+    var onTasksClick: () -> Unit = {}
   }
 
   private class RootHandle(

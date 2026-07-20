@@ -34,7 +34,8 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 internal fun StatsRow(
   stats: DashboardStatsUi,
-  modifier: Modifier = Modifier
+  modifier: Modifier = Modifier,
+  onTasksClick: () -> Unit = {}
 ) {
   Row(
     modifier = modifier.fillMaxWidth(),
@@ -54,9 +55,7 @@ internal fun StatsRow(
       icon = Res.drawable.ic_task,
       value = stats.openTasks.toString(),
       label = stringResource(Res.string.stats_open_tasks),
-      onClick = {
-        // todo
-      }
+      onClick = onTasksClick
     )
   }
 }

@@ -6,17 +6,18 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import com.frame.zero.database.paging.PagedDao
 
 @Dao
-abstract class ProductionsDao {
+abstract class ProductionsDao : PagedDao<ProductionEntity> {
   @Query("SELECT * FROM productions ORDER BY pageOrder ASC")
-  abstract fun pagingSource(): PagingSource<Int, ProductionEntity>
+  abstract override fun pagingSource(): PagingSource<Int, ProductionEntity>
 
   @Query("SELECT MAX(pageOrder) FROM productions")
-  abstract suspend fun maxPageOrder(): Long?
+  abstract override suspend fun maxPageOrder(): Long?
 
-  @Query("SELECT * FROM production_remote_keys LIMIT 1")
-  abstract suspend fun remoteKey(): ProductionRemoteKeyEntity?
+  @Query("SELECT nextCursor FROM production_remote_keys LIMIT 1")
+  abstract override suspend fun nextCursor(): String?
 
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   abstract suspend fun insertProductions(entities: List<ProductionEntity>)
@@ -34,7 +35,7 @@ abstract class ProductionsDao {
   abstract suspend fun deleteRemoteKey()
 
   @Transaction
-  open suspend fun refresh(
+  override suspend fun refresh(
     entities: List<ProductionEntity>,
     nextCursor: String?
   ) {
@@ -45,7 +46,7 @@ abstract class ProductionsDao {
   }
 
   @Transaction
-  open suspend fun append(
+  override suspend fun append(
     entities: List<ProductionEntity>,
     nextCursor: String?
   ) {
@@ -54,7 +55,7 @@ abstract class ProductionsDao {
   }
 
   @Transaction
-  open suspend fun clearAll() {
+  override suspend fun clearAll() {
     deleteAll()
     deleteRemoteKey()
   }

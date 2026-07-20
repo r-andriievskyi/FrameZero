@@ -1,13 +1,20 @@
-package com.frame.zero.feature.task.details.data
+package com.frame.zero.repository.tasks.data
 
+import androidx.room.Room
+import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import com.frame.zero.core.files.AttachmentFileManager
 import com.frame.zero.core.network.NetworkConfig
 import com.frame.zero.core.network.connectivity.ConnectivityObserver
+import com.frame.zero.database.FrameZeroDatabase
 import com.frame.zero.domain.DomainError
 import com.frame.zero.domain.Outcome
 import com.frame.zero.domain.task.NewTask
 import com.frame.zero.domain.task.TaskPriority
 import com.frame.zero.domain.task.TaskStatus
+import com.frame.zero.dto.common.CursorPagedResponse
+import com.frame.zero.dto.task.TaskSummaryDto
+import com.frame.zero.repository.tasks.TasksRepositoryImpl
+import com.frame.zero.repository.tasks.network.TasksApi
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
@@ -23,17 +30,33 @@ import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.readRemaining
-import kotlinx.io.readByteArray
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
+import kotlinx.io.readByteArray
+import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
+/**
+ * Lives in `iosTest` (not `commonTest`) because the repository logic is common but the no-arg
+ * in-memory Room builder is only available off-Android — Android requires a `Context`. Mirrors
+ * `ProductionsRepositoryImplTest`.
+ */
 class TasksRepositoryImplTest {
+  private val database: FrameZeroDatabase =
+    Room.inMemoryDatabaseBuilder<FrameZeroDatabase>()
+      .setDriver(BundledSQLiteDriver())
+      .setQueryCoroutineContext(Dispatchers.Default)
+      .build()
+
+  @AfterTest
+  fun tearDown() = database.close()
+
   @Test
   fun `getTask issues a GET to the task endpoint and deserializes the detail`() =
     runTest {
@@ -183,7 +206,9 @@ class TasksRepositoryImplTest {
       client,
       NetworkConfig(baseUrl = "http://test", isDebug = false),
       connectivity,
-      attachments
+      attachments,
+      FakeTasksApi(),
+      database
     )
   }
 
@@ -206,6 +231,13 @@ class TasksRepositoryImplTest {
       "createdAt":"2026-01-01T00:00:00Z"
     }
     """.trimIndent()
+
+  private class FakeTasksApi : TasksApi {
+    override suspend fun getAll(
+      limit: Int,
+      cursor: String?
+    ): CursorPagedResponse<TaskSummaryDto> = error("not used")
+  }
 
   private class FakeConnectivityObserver(
     private val online: Boolean

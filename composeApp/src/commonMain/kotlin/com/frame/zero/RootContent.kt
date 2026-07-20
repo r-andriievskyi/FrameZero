@@ -22,6 +22,7 @@ import com.frame.zero.feature.production.ui.CreateProductionScreen
 import com.frame.zero.feature.splash.PlatformSplash
 import com.frame.zero.feature.task.create.ui.CreateTaskScreen
 import com.frame.zero.feature.task.details.ui.TaskDetailsScreen
+import com.frame.zero.feature.task.list.ui.TasksListScreen
 
 @Composable
 fun RootContent(component: RootComponent) {
@@ -42,6 +43,7 @@ fun RootContent(component: RootComponent) {
         is RootComponent.Child.TaskDetails -> TaskDetailsScreen(instance.component)
         is RootComponent.Child.CreateTask -> CreateTaskScreen(instance.component)
         is RootComponent.Child.Chat -> ChatScreen(instance.component)
+        is RootComponent.Child.TasksList -> TasksListScreen(instance.component)
       }
     }
     if (isLocked) {
