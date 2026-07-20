@@ -22,6 +22,7 @@ import com.frame.zero.integrations.firebase.firebaseModule
 import com.frame.zero.repository.device_token.deviceTokenModule
 import com.frame.zero.repository.chat.chatRepositoryModule
 import com.frame.zero.repository.productions.productionsRepositoryModule
+import com.frame.zero.repository.tasks.tasksRepositoryModule
 import org.koin.core.Koin
 import org.koin.core.context.startKoin
 import org.koin.core.module.Module
@@ -53,7 +54,8 @@ private val featureModules = listOf(
 private val prodDataModules = listOf(
   firebaseModule,
   productionsRepositoryModule,
-  chatRepositoryModule
+  chatRepositoryModule,
+  tasksRepositoryModule
 )
 
 val appModules: List<Module> =

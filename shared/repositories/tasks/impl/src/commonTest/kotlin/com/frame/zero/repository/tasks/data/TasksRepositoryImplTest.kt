@@ -1,4 +1,4 @@
-package com.frame.zero.feature.task.details.data
+package com.frame.zero.repository.tasks.data
 
 import com.frame.zero.core.files.AttachmentFileManager
 import com.frame.zero.core.network.NetworkConfig
@@ -8,6 +8,7 @@ import com.frame.zero.domain.Outcome
 import com.frame.zero.domain.task.NewTask
 import com.frame.zero.domain.task.TaskPriority
 import com.frame.zero.domain.task.TaskStatus
+import com.frame.zero.repository.tasks.TasksRepositoryImpl
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond

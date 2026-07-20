@@ -11,7 +11,7 @@ kotlin {
       api(projects.shared.uiText)
       api(libs.decompose)
       implementation(projects.shared.repositories.productions.api)
-      implementation(projects.shared.repositories.tasks)
+      implementation(projects.shared.repositories.tasks.api)
       implementation(libs.bundles.koinRuntime)
       implementation(libs.compose.components.resources)
     }
