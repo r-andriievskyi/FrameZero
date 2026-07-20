@@ -75,7 +75,14 @@ class MainActivity : FragmentActivity() {
           registerViewModelFactory = { koin.get<RegisterViewModel>() }
         )
       },
-      homeComponentFactory = { ctx, onCreateProductionClick, onProductionClick, onAccountClick, onTaskClick, onTasksClick ->
+      homeComponentFactory = {
+        ctx,
+        onCreateProductionClick,
+        onProductionClick,
+        onAccountClick,
+        onTaskClick,
+        onTasksClick
+        ->
         HomeComponent(
           ctx,
           onAccountClick = onAccountClick,

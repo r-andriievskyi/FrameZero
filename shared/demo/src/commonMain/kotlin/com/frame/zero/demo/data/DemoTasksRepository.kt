@@ -65,10 +65,11 @@ internal class DemoTasksRepository(
     store.tasks.map { list -> PagingData.from(list.map { it.toSummary() }) }
 }
 
-private fun TaskDetail.toSummary(): TaskSummary = TaskSummary(
-  id = id,
-  title = title,
-  productionTitle = productionTitle,
-  dueDate = dueDate,
-  status = status
-)
+private fun TaskDetail.toSummary(): TaskSummary =
+  TaskSummary(
+    id = id,
+    title = title,
+    productionTitle = productionTitle,
+    dueDate = dueDate,
+    status = status
+  )
