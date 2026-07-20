@@ -1,8 +1,10 @@
 package com.frame.zero.feature.task.details
 
+import androidx.paging.PagingData
 import com.frame.zero.domain.task.TaskAssignee
 import com.frame.zero.domain.task.TaskDetail
 import com.frame.zero.domain.chat.Conversation
+import com.frame.zero.domain.task.TaskSummary
 import com.frame.zero.feature.task.details.usecase.CompleteTaskUseCase
 import com.frame.zero.feature.task.details.usecase.GetAssignableMembersUseCase
 import com.frame.zero.feature.task.details.usecase.GetTaskDetailsUseCase
@@ -16,6 +18,7 @@ import com.frame.zero.testing.productionMember
 import com.frame.zero.testing.taskParticipant
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -119,6 +122,10 @@ class TaskDetailsViewModelTest {
         override suspend fun listForProduction(productionId: String): List<com.frame.zero.domain.task.TaskSummary> =
           emptyList()
 
+        override fun observeUserTasks(): Flow<PagingData<TaskSummary>> {
+          TODO("Not yet implemented")
+        }
+
         override suspend fun downloadAttachment(
           taskId: String,
           fileName: String,
@@ -212,6 +219,10 @@ class TaskDetailsViewModelTest {
 
         override suspend fun listForProduction(productionId: String): List<com.frame.zero.domain.task.TaskSummary> =
           emptyList()
+
+        override fun observeUserTasks(): Flow<PagingData<TaskSummary>> {
+          TODO("Not yet implemented")
+        }
 
         override suspend fun downloadAttachment(
           taskId: String,
