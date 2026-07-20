@@ -22,6 +22,7 @@ import com.frame.zero.feature.production.details.ProductionDetailsViewModel
 import com.frame.zero.feature.chat.ChatViewModel
 import com.frame.zero.feature.task.create.CreateTaskViewModel
 import com.frame.zero.feature.task.details.TaskDetailsViewModel
+import com.frame.zero.feature.task.list.TasksListViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -59,13 +60,14 @@ private val iosRoot: RootComponent by lazy {
         registerViewModelFactory = { koin.get<RegisterViewModel>() }
       )
     },
-    homeComponentFactory = { ctx, onCreateProductionClick, onProductionClick, onAccountClick, onTaskClick ->
+    homeComponentFactory = { ctx, onCreateProductionClick, onProductionClick, onAccountClick, onTaskClick, onTasksClick ->
       HomeComponent(
         ctx,
         onAccountClick = onAccountClick,
         onCreateProductionClick = onCreateProductionClick,
         onProductionClick = onProductionClick,
         onTaskClick = onTaskClick,
+        onTasksClick = onTasksClick,
         dashboardViewModelFactory = { koin.get<DashboardTabViewModel>() },
         productionsViewModelFactory = { koin.get<ProductionsTabViewModel>() },
         scheduleViewModelFactory = { koin.get<ScheduleTabViewModel>() }
@@ -85,6 +87,9 @@ private val iosRoot: RootComponent by lazy {
     },
     chatViewModelFactory = { taskId ->
       koin.get<ChatViewModel> { parametersOf(taskId) }
+    },
+    tasksListViewModelFactory = { productionId ->
+      koin.get<TasksListViewModel> { parametersOf(productionId) }
     },
     accountViewModelFactory = { koin.get<AccountViewModel>() }
   )

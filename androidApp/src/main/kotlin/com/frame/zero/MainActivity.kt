@@ -44,6 +44,7 @@ import com.frame.zero.feature.production.details.ProductionDetailsViewModel
 import com.frame.zero.feature.chat.ChatViewModel
 import com.frame.zero.feature.task.create.CreateTaskViewModel
 import com.frame.zero.feature.task.details.TaskDetailsViewModel
+import com.frame.zero.feature.task.list.TasksListViewModel
 import kotlinx.coroutines.launch
 import org.koin.core.parameter.parametersOf
 
@@ -74,13 +75,14 @@ class MainActivity : FragmentActivity() {
           registerViewModelFactory = { koin.get<RegisterViewModel>() }
         )
       },
-      homeComponentFactory = { ctx, onCreateProductionClick, onProductionClick, onAccountClick, onTaskClick ->
+      homeComponentFactory = { ctx, onCreateProductionClick, onProductionClick, onAccountClick, onTaskClick, onTasksClick ->
         HomeComponent(
           ctx,
           onAccountClick = onAccountClick,
           onCreateProductionClick = onCreateProductionClick,
           onProductionClick = onProductionClick,
           onTaskClick = onTaskClick,
+          onTasksClick = onTasksClick,
           dashboardViewModelFactory = { koin.get<DashboardTabViewModel>() },
           productionsViewModelFactory = { koin.get<ProductionsTabViewModel>() },
           scheduleViewModelFactory = { koin.get<ScheduleTabViewModel>() }
@@ -100,6 +102,9 @@ class MainActivity : FragmentActivity() {
       },
       chatViewModelFactory = { taskId ->
         koin.get<ChatViewModel> { parametersOf(taskId) }
+      },
+      tasksListViewModelFactory = { productionId ->
+        koin.get<TasksListViewModel> { parametersOf(productionId) }
       },
       accountViewModelFactory = { koin.get<AccountViewModel>() }
     )

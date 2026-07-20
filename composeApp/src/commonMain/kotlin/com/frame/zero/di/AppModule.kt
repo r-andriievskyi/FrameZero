@@ -18,6 +18,7 @@ import com.frame.zero.feature.chat.featureChatModule
 import com.frame.zero.feature.task.create.featureTaskCreateModule
 import com.frame.zero.feature.task.details.featureTaskDetailsModule
 import com.frame.zero.demo.demoModule
+import com.frame.zero.feature.task.list.featureTaskListModule
 import com.frame.zero.integrations.firebase.firebaseModule
 import com.frame.zero.repository.device_token.deviceTokenModule
 import com.frame.zero.repository.chat.chatRepositoryModule
@@ -48,6 +49,7 @@ private val featureModules = listOf(
   featureTaskDetailsModule,
   featureTaskCreateModule,
   featureChatModule,
+  featureTaskListModule,
   deviceTokenModule
 )
 

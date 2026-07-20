@@ -56,7 +56,11 @@ fun DashboardTab(component: DashboardTabComponent) {
       null -> if (state.isLoading) {
         FullScreenProgress()
       } else {
-        DashboardContent(dashboard = state.dashboard, onTaskClick = component.onTaskClick)
+        DashboardContent(
+          dashboard = state.dashboard,
+          onTaskClick = component.onTaskClick,
+          onTasksClick = component.onTasksClick
+        )
       }
     }
   }
@@ -65,7 +69,8 @@ fun DashboardTab(component: DashboardTabComponent) {
 @Composable
 internal fun DashboardContent(
   dashboard: DashboardUi?,
-  onTaskClick: (taskId: String) -> Unit
+  onTaskClick: (taskId: String) -> Unit,
+  onTasksClick: () -> Unit = {}
 ) {
   Column(
     modifier = Modifier
@@ -87,7 +92,7 @@ internal fun DashboardContent(
         color = AppTheme.colorSystem.textPrimary
       )
       VerticalSpacer(AppTheme.spacingSystem.space16)
-      StatsRow(stats = dashboard.stats)
+      StatsRow(stats = dashboard.stats, onTasksClick = onTasksClick)
       if (dashboard.myTasks.isNotEmpty()) {
         VerticalSpacer(AppTheme.spacingSystem.space24)
         MyTasksSection(tasks = dashboard.myTasks, onTaskClick = onTaskClick)
