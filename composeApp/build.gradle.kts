@@ -62,6 +62,7 @@ kotlin {
       implementation(projects.shared.repositories.productions.impl)
       implementation(projects.shared.repositories.chat.impl)
       implementation(projects.shared.repositories.tasks.impl)
+      implementation(projects.shared.repositories.appUpdate.impl)
       implementation(projects.shared.repositories.deviceToken)
       implementation(projects.shared.integrations.firebase)
       implementation(projects.shared.demo)

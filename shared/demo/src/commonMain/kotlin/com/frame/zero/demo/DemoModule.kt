@@ -6,6 +6,7 @@ import com.frame.zero.core.session.SessionCleaner
 import com.frame.zero.core.upload.TaskUploadScheduler
 import com.frame.zero.demo.auth.DemoAuthRepository
 import com.frame.zero.demo.auth.DemoUserRepository
+import com.frame.zero.demo.data.DemoAppUpdateRepository
 import com.frame.zero.demo.data.DemoChatRepository
 import com.frame.zero.demo.data.DemoDashboardRepository
 import com.frame.zero.demo.data.DemoProductionsRepository
@@ -14,6 +15,7 @@ import com.frame.zero.demo.data.DemoTasksRepository
 import com.frame.zero.demo.push.DemoDeviceTokenRepository
 import com.frame.zero.demo.push.DemoPushTokenProvider
 import com.frame.zero.demo.upload.DemoTaskUploadScheduler
+import com.frame.zero.repository.app_update.AppUpdateRepository
 import com.frame.zero.repository.auth.AuthRepository
 import com.frame.zero.repository.chat.ChatRepository
 import com.frame.zero.repository.dashboard.DashboardRepository
@@ -41,6 +43,7 @@ val demoModule = module {
   single { DemoTasksRepository(get()) } bind TasksRepository::class
   single<ProductionsRepository> { DemoProductionsRepository(get()) }
   single { DemoChatRepository(get()) } bind ChatRepository::class
+  single<AppUpdateRepository> { DemoAppUpdateRepository() }
 
   single<PushTokenProvider> { DemoPushTokenProvider() }
   single<DeviceTokenRepository> { DemoDeviceTokenRepository() }

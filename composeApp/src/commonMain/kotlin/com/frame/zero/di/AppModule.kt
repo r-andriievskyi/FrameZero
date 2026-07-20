@@ -20,6 +20,7 @@ import com.frame.zero.feature.task.details.featureTaskDetailsModule
 import com.frame.zero.demo.demoModule
 import com.frame.zero.feature.task.list.featureTaskListModule
 import com.frame.zero.integrations.firebase.firebaseModule
+import com.frame.zero.repository.app_update.appUpdateModule
 import com.frame.zero.repository.device_token.deviceTokenModule
 import com.frame.zero.repository.chat.chatRepositoryModule
 import com.frame.zero.repository.productions.productionsRepositoryModule
@@ -57,7 +58,8 @@ private val prodDataModules = listOf(
   firebaseModule,
   productionsRepositoryModule,
   chatRepositoryModule,
-  tasksRepositoryModule
+  tasksRepositoryModule,
+  appUpdateModule
 )
 
 val appModules: List<Module> =
