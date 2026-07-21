@@ -10,4 +10,12 @@
   <string name="lock_prompt_title">Unlock FrameZero</string>
   <string name="lock_prompt_subtitle">Confirm your identity to continue.</string>
   <string name="lock_prompt_cancel">Cancel</string>
+
+  <!-- Force update -->
+  <string name="update_hard_title">Update required</string>
+  <string name="update_hard_subtitle">This version of FrameZero is no longer supported. Update to keep going.</string>
+  <string name="update_soft_title">Update available</string>
+  <string name="update_soft_subtitle">A new version of FrameZero is available.</string>
+  <string name="update_action_button">Update</string>
+  <string name="update_later_button">Later</string>
 </resources>

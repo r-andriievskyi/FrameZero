@@ -172,6 +172,10 @@ class HttpClientStackTest {
     override val isOnline = state.asStateFlow()
 
     override fun isCurrentlyOnline(): Boolean = online
+
+    override val isMetered = MutableStateFlow(false).asStateFlow()
+
+    override fun isCurrentlyMetered(): Boolean = false
   }
 
   private object NoopLogger : Logger {

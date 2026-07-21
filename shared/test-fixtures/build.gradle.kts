@@ -15,6 +15,7 @@ kotlin {
       api(projects.shared.repositories.schedule)
       api(projects.shared.repositories.tasks.api)
       api(projects.shared.repositories.chat.api)
+      api(projects.shared.repositories.appUpdate.api)
       api(libs.androidx.paging.common)
       api(libs.ktor.clientMock)
       implementation(libs.ktor.clientCore)

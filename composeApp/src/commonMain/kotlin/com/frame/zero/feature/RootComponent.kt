@@ -11,6 +11,7 @@ import com.arkivanov.decompose.router.stack.replaceAll
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.essenty.backhandler.BackCallback
 import com.arkivanov.essenty.lifecycle.doOnDestroy
+import com.arkivanov.essenty.lifecycle.doOnResume
 import com.frame.zero.core.navigation.DeepLink
 import com.frame.zero.core.navigation.NavigationSignal
 import com.frame.zero.core.security.AppLockController
@@ -18,6 +19,8 @@ import com.frame.zero.core.security.AppLockState
 import com.frame.zero.core.security.BiometricPromptText
 import com.frame.zero.core.session.SessionManager
 import com.frame.zero.core.session.SessionState
+import com.frame.zero.feature.appupdate.AppUpdateController
+import com.frame.zero.feature.appupdate.AppUpdateState
 import com.frame.zero.feature.account.AccountComponent
 import com.frame.zero.feature.account.AccountViewModel
 import com.frame.zero.feature.auth.AuthComponent
@@ -53,6 +56,7 @@ class RootComponent(
   componentContext: ComponentContext,
   private val sessionManager: SessionManager,
   private val appLockController: AppLockController,
+  private val appUpdateController: AppUpdateController,
   navigationSignal: NavigationSignal,
   private val authComponentFactory: (ComponentContext) -> AuthComponent,
   private val homeComponentFactory: (
@@ -103,10 +107,29 @@ class RootComponent(
   // Registered after the child stack, so it takes priority when enabled.
   private val lockBackCallback = BackCallback(isEnabled = false) {}
 
+  val updateState: StateFlow<AppUpdateState> = appUpdateController.state
+
+  // Swallows back while a HARD gate is up, for the same reason as [lockBackCallback]: a blocked
+  // user must not be able to drive the covered stack or exit. A soft prompt leaves back active.
+  private val updateBackCallback = BackCallback(isEnabled = false) {}
+
   init {
     backHandler.register(lockBackCallback)
+    backHandler.register(updateBackCallback)
     lifecycle.doOnDestroy { scope.cancel() }
     scope.launch { isLocked.collect { locked -> lockBackCallback.isEnabled = locked } }
+    scope.launch {
+      updateState.collect { updateBackCallback.isEnabled = it is AppUpdateState.Hard }
+    }
+    scope.launch { appUpdateController.refresh() }
+    var coldStartResumeHandled = false
+    lifecycle.doOnResume {
+      if (coldStartResumeHandled) {
+        scope.launch { appUpdateController.refresh() }
+      } else {
+        coldStartResumeHandled = true
+      }
+    }
     scope.launch {
       sessionManager.state.collect { sessionState ->
         val target = when (sessionState) {
@@ -136,6 +159,10 @@ class RootComponent(
   fun onLockSignOut() {
     scope.launch { sessionManager.logout() }
   }
+
+  fun onUpdateClick() = appUpdateController.openStore()
+
+  fun onSoftUpdateDismiss() = appUpdateController.dismissSoft()
 
   private fun navigate(deepLink: DeepLink) {
     val config = when (deepLink) {

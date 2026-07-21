@@ -9,10 +9,17 @@ import kotlinx.coroutines.flow.MutableStateFlow
  * connectivity changes and assert auto-reload behaviour.
  */
 class FakeConnectivityObserver(
-  initiallyOnline: Boolean = true
+  initiallyOnline: Boolean = true,
+  initiallyMetered: Boolean = false
 ) : ConnectivityObserver {
   val online: MutableStateFlow<Boolean> = MutableStateFlow(initiallyOnline)
   override val isOnline: Flow<Boolean> = online
 
   override fun isCurrentlyOnline(): Boolean = online.value
+
+  /** Flip to simulate moving on/off a metered (cellular) connection. */
+  val metered: MutableStateFlow<Boolean> = MutableStateFlow(initiallyMetered)
+  override val isMetered: Flow<Boolean> = metered
+
+  override fun isCurrentlyMetered(): Boolean = metered.value
 }

@@ -16,6 +16,9 @@ import com.frame.zero.feature.auth.ui.AuthScreen
 import com.frame.zero.feature.chat.ui.ChatScreen
 import com.frame.zero.feature.gallery.ui.DesignSystemGalleryScreen
 import com.frame.zero.feature.home.ui.HomeContent
+import com.frame.zero.feature.appupdate.AppUpdateState
+import com.frame.zero.feature.appupdate.HardUpdateOverlay
+import com.frame.zero.feature.appupdate.SoftUpdateSheet
 import com.frame.zero.feature.lock.BiometricLockOverlay
 import com.frame.zero.feature.production.details.ui.ProductionDetailsScreen
 import com.frame.zero.feature.production.ui.CreateProductionScreen
@@ -27,6 +30,7 @@ import com.frame.zero.feature.task.list.ui.TasksListScreen
 @Composable
 fun RootContent(component: RootComponent) {
   val isLocked by component.isLocked.collectAsStateWithLifecycle()
+  val updateState by component.updateState.collectAsStateWithLifecycle()
   Box(modifier = Modifier.fillMaxSize().background(AppTheme.colorSystem.background)) {
     Children(
       stack = component.stack,
@@ -51,6 +55,18 @@ fun RootContent(component: RootComponent) {
         onUnlock = component::unlock,
         onSignOut = component::onLockSignOut
       )
+    }
+    when (val update = updateState) {
+      is AppUpdateState.Hard -> HardUpdateOverlay(
+        message = update.message,
+        onUpdate = component::onUpdateClick
+      )
+      is AppUpdateState.Soft -> SoftUpdateSheet(
+        message = update.message,
+        onUpdate = component::onUpdateClick,
+        onDismiss = component::onSoftUpdateDismiss
+      )
+      AppUpdateState.None -> Unit
     }
   }
 }

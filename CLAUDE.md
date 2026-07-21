@@ -20,7 +20,7 @@ Owner Android engineer, little iOS/backend experience. **Max Kotlin sharing: `co
 | `shared/domain/` | Domain models, `Outcome`/`UseCase` base, `DomainError` + `toDomainError()`, `OfflineException`. Depend on no app module. |
 | `shared/dto/` | Client wire DTOs (`com.frame.zero.dto.*`, `auth.dto.*`) + DTO→domain mappers. Depend only on `shared/domain`. |
 | `shared/features/<name>/` | Per-feature logic: Decompose `Component`, ViewModel, state/intent, Koin module. |
-| `shared/repositories/<name>/` | Repository contract; most modules interface-only (impls live in owning feature `data/`). `productions` + `chat` split `:api` (interface, features depend on this) / `:impl` (Ktor/Room/mappers/Koin module — only `composeApp` see it). **Contracts speak domain types only** (incl. command types `NewTask`/`NewProduction`) — DTO↔domain mapping inside impl, never in use cases/ViewModels. `productions` = offline-first reference. |
+| `shared/repositories/<name>/` | Repository contract; most modules interface-only (impls live in owning feature `data/`). `productions`, `chat`, `app-update` split `:api` (interface, features depend on this) / `:impl` (Ktor/Room/mappers/Koin module — only `composeApp` see it). **Contracts speak domain types only** (incl. command types `NewTask`/`NewProduction`) — DTO↔domain mapping inside impl, never in use cases/ViewModels. `productions` = offline-first reference. |
 | `shared/database/` | Single shared Room DB (`FrameZeroDatabase`, all entities/DAOs, `databaseModule`). Depend on no app module. |
 | `shared/test-fixtures/` | Cross-feature fakes/builders (`com.frame.zero.testing`). |
 | `shared/demo/` | Demo-flavor fakes + curated offline dataset (`com.frame.zero.demo`): `DemoDataStore` in-memory source of truth, `Demo*Repository`/scheduler impls, `demoModule` Koin overrides. Compiled into all builds; wired only when `BuildFlags.IS_DEMO`. |
@@ -32,7 +32,7 @@ Owner Android engineer, little iOS/backend experience. **Max Kotlin sharing: `co
 | `composeApp/shared/design_system/` | Design tokens + widgets. |
 | `server/` | JVM Ktor (Netty + Exposed/Postgres + JWT). Depend on no client module. |
 
-**Features:** `account`, `auth`, `home`, `production`, `production-details`, `task-create`, `task-details` (each has `shared/features/` + `composeApp/features/` half).
+**Features:** `account`, `auth`, `home`, `production`, `production-details`, `task-create`, `task-details`, `task-list`, `chat` (each has `shared/features/` + `composeApp/features/` half). Odd one: `app-update` = `shared/features/` only (overlay rendered in `RootComponent`, no `composeApp/features/` half) + `shared/repositories/app-update` api/impl split.
 **New feature** = both halves + Koin module, registered in `settings.gradle.kts`, wired into `RootComponent`.
 
 ## Architecture

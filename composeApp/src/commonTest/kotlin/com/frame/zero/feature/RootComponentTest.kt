@@ -13,6 +13,12 @@ import com.frame.zero.core.security.BiometricAuthenticator
 import com.frame.zero.core.security.BiometricAvailability
 import com.frame.zero.core.security.BiometricPromptText
 import com.frame.zero.core.security.BiometricResult
+import com.frame.zero.core.appupdate.StoreLauncher
+import com.frame.zero.core.config.AppVersion
+import com.frame.zero.feature.appupdate.AppUpdateController
+import com.frame.zero.feature.appupdate.CheckAppUpdateUseCase
+import com.frame.zero.testing.FakeAppUpdateRepository
+import com.frame.zero.testing.FakeAppVersionProvider
 import com.frame.zero.core.session.LogoutSignal
 import com.frame.zero.core.session.SessionManager
 import com.frame.zero.core.session.TokenStorage
@@ -247,10 +253,26 @@ class RootComponentTest {
 
   private fun lockedController(): AppLockController = controller(enabled = true)
 
+  // Default: an all-zero policy => AppUpdateState.None, so the update gate stays invisible and the
+  // existing session/lock assertions are unaffected.
+  private fun TestScope.noUpdateController(): AppUpdateController =
+    AppUpdateController(
+      checkAppUpdate = CheckAppUpdateUseCase(
+        repository = FakeAppUpdateRepository(),
+        appVersionProvider = FakeAppVersionProvider(AppVersion(buildNumber = 1, name = "1.0"))
+      ),
+      storeLauncher = object : StoreLauncher {
+        override fun open(url: String) = Unit
+      },
+      connectivity = FakeConnectivityObserver(),
+      scope = backgroundScope
+    )
+
   private fun TestScope.makeRoot(
     session: SessionManager = session(),
     navigationSignal: NavigationSignal = NavigationSignal(),
-    appLockController: AppLockController = controller(enabled = false)
+    appLockController: AppLockController = controller(enabled = false),
+    appUpdateController: AppUpdateController = noUpdateController()
   ): RootHandle {
     val lifecycle = LifecycleRegistry()
     val backDispatcher = BackDispatcher()
@@ -263,6 +285,7 @@ class RootComponentTest {
       componentContext = context,
       sessionManager = session,
       appLockController = appLockController,
+      appUpdateController = appUpdateController,
       navigationSignal = navigationSignal,
       authComponentFactory = { ctx ->
         AuthComponent(

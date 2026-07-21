@@ -5,6 +5,10 @@ import com.frame.zero.core.files.AndroidAttachmentFileManager
 import com.frame.zero.core.files.AndroidFilePicker
 import com.frame.zero.core.files.AttachmentFileManager
 import com.frame.zero.core.files.FilePicker
+import com.frame.zero.core.appupdate.AndroidStoreLauncher
+import com.frame.zero.core.appupdate.StoreLauncher
+import com.frame.zero.core.config.AndroidAppVersionProvider
+import com.frame.zero.core.config.AppVersionProvider
 import com.frame.zero.core.network.connectivity.AndroidConnectivityObserver
 import com.frame.zero.core.network.connectivity.ConnectivityObserver
 import com.frame.zero.core.security.ActivityHolder
@@ -24,6 +28,8 @@ actual fun platformModule(): Module =
   module {
     single<DatabaseBuilderFactory> { AndroidDatabaseBuilderFactory(get()) }
     single<ConnectivityObserver> { AndroidConnectivityObserver(get()) }
+    single<AppVersionProvider> { AndroidAppVersionProvider(get()) }
+    single<StoreLauncher> { AndroidStoreLauncher(get()) }
     single { PushNotificationsRouter(get()) }
     single { ActivityHolder() }
     single { AppLifecycleObserver(get()) }

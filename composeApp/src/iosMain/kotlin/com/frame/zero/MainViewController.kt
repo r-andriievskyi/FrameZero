@@ -6,6 +6,7 @@ import com.arkivanov.essenty.lifecycle.LifecycleRegistry
 import com.arkivanov.essenty.lifecycle.resume
 import com.frame.zero.core.navigation.NavigationSignal
 import com.frame.zero.core.security.AppLockController
+import com.frame.zero.feature.appupdate.AppUpdateController
 import com.frame.zero.core.session.SessionManager
 import com.frame.zero.di.initKoin
 import com.frame.zero.feature.RootComponent
@@ -52,6 +53,7 @@ private val iosRoot: RootComponent by lazy {
     componentContext = DefaultComponentContext(lifecycle = lifecycle),
     sessionManager = sessionManager,
     appLockController = appLockController,
+    appUpdateController = koin.get<AppUpdateController>(),
     navigationSignal = koin.get<NavigationSignal>(),
     authComponentFactory = { ctx ->
       AuthComponent(
