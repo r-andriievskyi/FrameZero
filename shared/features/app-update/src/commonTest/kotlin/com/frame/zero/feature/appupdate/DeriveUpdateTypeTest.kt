@@ -6,9 +6,10 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class DeriveUpdateTypeTest {
-
-  private fun policy(min: Int, latest: Int) =
-    UpdatePolicy(minSupportedBuild = min, latestBuild = latest, storeUrl = "", message = null, critical = false)
+  private fun policy(
+    min: Int,
+    latest: Int
+  ) = UpdatePolicy(minSupportedBuild = min, latestBuild = latest, storeUrl = "", message = null, critical = false)
 
   @Test
   fun below_minimum_is_hard() {

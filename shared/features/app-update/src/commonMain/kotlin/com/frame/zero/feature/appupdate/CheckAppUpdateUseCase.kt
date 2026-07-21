@@ -20,7 +20,7 @@ class CheckAppUpdateUseCase(
     val currentBuild = appVersionProvider.current().buildNumber
     return when (deriveUpdateType(currentBuild, policy)) {
       UpdateType.NONE -> AppUpdateState.None
-      UpdateType.SOFT -> AppUpdateState.Soft(policy.message, policy.storeUrl)
+      UpdateType.SOFT -> AppUpdateState.Soft(policy.message, policy.storeUrl, policy.critical)
       UpdateType.HARD -> AppUpdateState.Hard(policy.message, policy.storeUrl)
     }
   }
@@ -32,8 +32,12 @@ class CheckAppUpdateUseCase(
  * [UpdateType.NONE]. All-zero policy (the fail-open default) yields [UpdateType.NONE] for any real
  * build.
  */
-internal fun deriveUpdateType(currentBuild: Int, policy: UpdatePolicy): UpdateType = when {
-  currentBuild < policy.minSupportedBuild -> UpdateType.HARD
-  currentBuild < policy.latestBuild -> UpdateType.SOFT
-  else -> UpdateType.NONE
-}
+internal fun deriveUpdateType(
+  currentBuild: Int,
+  policy: UpdatePolicy
+): UpdateType =
+  when {
+    currentBuild < policy.minSupportedBuild -> UpdateType.HARD
+    currentBuild < policy.latestBuild -> UpdateType.SOFT
+    else -> UpdateType.NONE
+  }

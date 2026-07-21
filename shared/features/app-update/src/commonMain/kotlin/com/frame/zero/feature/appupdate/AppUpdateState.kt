@@ -9,11 +9,23 @@ package com.frame.zero.feature.appupdate
  */
 sealed interface AppUpdateState {
   data object None : AppUpdateState
-  data class Soft(val message: String?, val storeUrl: String) : AppUpdateState
-  data class Hard(val message: String?, val storeUrl: String) : AppUpdateState
+
+  /**
+   * @param critical when `true`, the prompt surfaces regardless of network; when `false`, the
+   *   controller defers it off a metered connection until the device is unmetered.
+   */
+  data class Soft(
+    val message: String?,
+    val storeUrl: String,
+    val critical: Boolean
+  ) : AppUpdateState
+
+  data class Hard(
+    val message: String?,
+    val storeUrl: String
+  ) : AppUpdateState
 }
 
-/** The store URL for the active prompt, or `null` when there is nothing to update to. */
 val AppUpdateState.activeStoreUrl: String?
   get() = when (this) {
     is AppUpdateState.Soft -> storeUrl

@@ -18,4 +18,13 @@ interface ConnectivityObserver {
   /** Synchronous snapshot of the current reachability. Used to fail requests fast
    *  when the device is offline instead of waiting for a connect timeout. */
   fun isCurrentlyOnline(): Boolean
+
+  /** `true` while the active connection is metered/expensive (cellular, hotspot). Conflated
+   *  and distinct. Fails open to `false` (treat as unmetered) when the transport is unknown,
+   *  so a non-critical soft update is never wrongly deferred. */
+  val isMetered: Flow<Boolean>
+
+  /** Synchronous snapshot of [isMetered]. Used to decide, at check time, whether to defer a
+   *  non-critical soft update off a metered connection. */
+  fun isCurrentlyMetered(): Boolean
 }

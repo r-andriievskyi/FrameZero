@@ -8,6 +8,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.callbackFlow
 
 /**
@@ -22,43 +23,50 @@ class AndroidConnectivityObserver(
     Context.CONNECTIVITY_SERVICE
   ) as? ConnectivityManager
 
-  override fun isCurrentlyOnline(): Boolean = connectivityManager?.hasValidatedInternet() ?: false
+  override fun isCurrentlyOnline(): Boolean = connectivityManager?.activeCapabilities().isOnline()
+
+  override fun isCurrentlyMetered(): Boolean = connectivityManager?.activeCapabilities().isMetered()
 
   override val isOnline: Flow<Boolean>
-    get() {
-      val manager = connectivityManager ?: return flowOf(false)
-      return callbackFlow {
-        val callback = object : ConnectivityManager.NetworkCallback() {
-          override fun onAvailable(network: Network) {
-            trySend(true)
-          }
+    get() = capabilities().map { it.isOnline() }.distinctUntilChanged()
 
-          override fun onLost(network: Network) {
-            trySend(manager.hasValidatedInternet())
-          }
+  override val isMetered: Flow<Boolean>
+    get() = capabilities().map { it.isMetered() }.distinctUntilChanged()
 
-          override fun onCapabilitiesChanged(
-            network: Network,
-            capabilities: NetworkCapabilities
-          ) {
-            trySend(capabilities.hasValidatedInternet())
-          }
+  private fun capabilities(): Flow<NetworkCapabilities?> {
+    val manager = connectivityManager ?: return flowOf(null)
+    return callbackFlow {
+      val callback = object : ConnectivityManager.NetworkCallback() {
+        override fun onAvailable(network: Network) {
+          trySend(manager.getNetworkCapabilities(network))
         }
 
-        // Seed with the current state so collectors get a value immediately.
-        trySend(manager.hasValidatedInternet())
-        manager.registerDefaultNetworkCallback(callback)
-        awaitClose { manager.unregisterNetworkCallback(callback) }
-      }.distinctUntilChanged()
-    }
+        override fun onLost(network: Network) {
+          trySend(null)
+        }
 
-  private fun ConnectivityManager.hasValidatedInternet(): Boolean {
-    val network = activeNetwork ?: return false
-    val capabilities = getNetworkCapabilities(network) ?: return false
-    return capabilities.hasValidatedInternet()
+        override fun onCapabilitiesChanged(
+          network: Network,
+          capabilities: NetworkCapabilities
+        ) {
+          trySend(capabilities)
+        }
+      }
+
+      trySend(manager.activeCapabilities())
+      manager.registerDefaultNetworkCallback(callback)
+      awaitClose { manager.unregisterNetworkCallback(callback) }
+    }
   }
 
-  private fun NetworkCapabilities.hasValidatedInternet(): Boolean =
-    hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
+  private fun ConnectivityManager.activeCapabilities(): NetworkCapabilities? =
+    activeNetwork?.let { getNetworkCapabilities(it) }
+
+  private fun NetworkCapabilities?.isOnline(): Boolean =
+    this != null &&
+      hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
       hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+
+  private fun NetworkCapabilities?.isMetered(): Boolean =
+    this != null && !hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
 }

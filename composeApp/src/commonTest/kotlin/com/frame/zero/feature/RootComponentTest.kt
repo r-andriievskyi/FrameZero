@@ -255,15 +255,18 @@ class RootComponentTest {
 
   // Default: an all-zero policy => AppUpdateState.None, so the update gate stays invisible and the
   // existing session/lock assertions are unaffected.
-  private fun noUpdateController(): AppUpdateController = AppUpdateController(
-    checkAppUpdate = CheckAppUpdateUseCase(
-      repository = FakeAppUpdateRepository(),
-      appVersionProvider = FakeAppVersionProvider(AppVersion(buildNumber = 1, name = "1.0"))
-    ),
-    storeLauncher = object : StoreLauncher {
-      override fun open(url: String) = Unit
-    }
-  )
+  private fun TestScope.noUpdateController(): AppUpdateController =
+    AppUpdateController(
+      checkAppUpdate = CheckAppUpdateUseCase(
+        repository = FakeAppUpdateRepository(),
+        appVersionProvider = FakeAppVersionProvider(AppVersion(buildNumber = 1, name = "1.0"))
+      ),
+      storeLauncher = object : StoreLauncher {
+        override fun open(url: String) = Unit
+      },
+      connectivity = FakeConnectivityObserver(),
+      scope = backgroundScope
+    )
 
   private fun TestScope.makeRoot(
     session: SessionManager = session(),

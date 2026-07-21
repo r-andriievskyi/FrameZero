@@ -22,6 +22,10 @@ class ConnectivityGuardTest {
     override val isOnline: Flow<Boolean> = flowOf(online)
 
     override fun isCurrentlyOnline(): Boolean = online
+
+    override val isMetered: Flow<Boolean> = flowOf(false)
+
+    override fun isCurrentlyMetered(): Boolean = false
   }
 
   private fun clientWithGuard(online: Boolean): HttpClient {

@@ -124,8 +124,11 @@ class RootComponent(
     scope.launch { appUpdateController.refresh() }
     var coldStartResumeHandled = false
     lifecycle.doOnResume {
-      if (coldStartResumeHandled) scope.launch { appUpdateController.refresh() }
-      else coldStartResumeHandled = true
+      if (coldStartResumeHandled) {
+        scope.launch { appUpdateController.refresh() }
+      } else {
+        coldStartResumeHandled = true
+      }
     }
     scope.launch {
       sessionManager.state.collect { sessionState ->

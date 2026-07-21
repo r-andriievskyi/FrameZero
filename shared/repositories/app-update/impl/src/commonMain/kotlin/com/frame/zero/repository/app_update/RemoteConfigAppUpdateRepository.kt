@@ -10,7 +10,6 @@ class RemoteConfigAppUpdateRepository(
   private val remoteConfig: FirebaseRemoteConfig = Firebase.remoteConfig,
   private val platform: DevicePlatform = devicePlatform()
 ) : AppUpdateRepository {
-
   override suspend fun fetchPolicy(): UpdatePolicy {
     // No in-app defaults: Firebase returns its documented static defaults (0 / "" / false) for any
     // unfetched or unset key, which derive to UpdateType.NONE — so an offline or failed fetch never
@@ -34,18 +33,19 @@ internal data class PlatformKeys(
   val storeUrl: String
 )
 
-internal fun keysFor(platform: DevicePlatform): PlatformKeys = when (platform) {
-  DevicePlatform.ANDROID -> PlatformKeys(
-    minSupportedBuild = "min_supported_build_android",
-    latestBuild = "latest_build_android",
-    storeUrl = "store_url_android"
-  )
-  DevicePlatform.IOS -> PlatformKeys(
-    minSupportedBuild = "min_supported_build_ios",
-    latestBuild = "latest_build_ios",
-    storeUrl = "store_url_ios"
-  )
-}
+internal fun keysFor(platform: DevicePlatform): PlatformKeys =
+  when (platform) {
+    DevicePlatform.ANDROID -> PlatformKeys(
+      minSupportedBuild = "min_supported_build_android",
+      latestBuild = "latest_build_android",
+      storeUrl = "store_url_android"
+    )
+    DevicePlatform.IOS -> PlatformKeys(
+      minSupportedBuild = "min_supported_build_ios",
+      latestBuild = "latest_build_ios",
+      storeUrl = "store_url_ios"
+    )
+  }
 
 internal const val KEY_MESSAGE = "update_message"
 internal const val KEY_CRITICAL = "update_critical"

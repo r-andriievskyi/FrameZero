@@ -5,7 +5,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class PlatformKeysTest {
-
   @Test
   fun android_platform_selects_android_keys() {
     val keys = keysFor(DevicePlatform.ANDROID)
