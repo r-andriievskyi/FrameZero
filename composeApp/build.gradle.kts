@@ -59,6 +59,7 @@ kotlin {
       implementation(projects.shared.features.taskCreate)
       implementation(projects.shared.features.chat)
       implementation(projects.shared.features.taskList)
+      implementation(projects.shared.features.appUpdate)
       implementation(projects.shared.repositories.productions.impl)
       implementation(projects.shared.repositories.chat.impl)
       implementation(projects.shared.repositories.tasks.impl)
