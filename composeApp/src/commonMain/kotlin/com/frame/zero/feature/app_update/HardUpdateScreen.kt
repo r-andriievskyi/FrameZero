@@ -18,26 +18,23 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.style.TextAlign
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
-import com.frame.zero.shared.design_system.modifier.clickableWithRipple
 import com.frame.zero.shared.design_system.widgets.CtaButton
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import framezero.composeapp.generated.resources.Res
-import framezero.composeapp.generated.resources.ic_update_available
-import framezero.composeapp.generated.resources.update_action_button
-import framezero.composeapp.generated.resources.update_later_button
-import framezero.composeapp.generated.resources.update_soft_subtitle
-import framezero.composeapp.generated.resources.update_soft_title
+import framezero.composeapp.generated.resources.ic_update_warning
+import framezero.composeapp.generated.resources.update_hard_action_button
+import framezero.composeapp.generated.resources.update_hard_subtitle
+import framezero.composeapp.generated.resources.update_hard_title
+import framezero.composeapp.generated.resources.update_hard_warning
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-internal fun SoftUpdateScreen(
+internal fun HardUpdateScreen(
   message: String?,
   onUpdate: () -> Unit,
-  onDismiss: () -> Unit,
   modifier: Modifier = Modifier
 ) {
   val colorSystem = AppTheme.colorSystem
-  val typographySystem = AppTheme.typographySystem
   val spacingSystem = AppTheme.spacingSystem
 
   Box(
@@ -55,33 +52,25 @@ internal fun SoftUpdateScreen(
         .padding(horizontal = AppTheme.spacingSystem.space32, vertical = spacingSystem.space24),
       horizontalAlignment = Alignment.CenterHorizontally
     ) {
-      SoftUpdateContent(
+      HardUpdateContent(
         message = message,
         modifier = Modifier
           .fillMaxWidth()
           .weight(1f)
       )
+      HardUpdateWarningBanner(modifier = Modifier.fillMaxWidth())
+      VerticalSpacer(spacingSystem.space32)
       CtaButton(
-        text = stringResource(Res.string.update_action_button),
+        text = stringResource(Res.string.update_hard_action_button),
         modifier = Modifier.fillMaxWidth(),
         onClick = onUpdate
-      )
-      VerticalSpacer(spacingSystem.space8)
-      Text(
-        text = stringResource(Res.string.update_later_button),
-        style = typographySystem.labelLarge,
-        color = colorSystem.textMuted,
-        modifier = Modifier
-          .clip(RoundedCornerShape(AppTheme.radiusSystem.radius8))
-          .clickableWithRipple(color = colorSystem.accentDim, onClick = onDismiss)
-          .padding(horizontal = spacingSystem.space16, vertical = spacingSystem.space8)
       )
     }
   }
 }
 
 @Composable
-private fun SoftUpdateContent(
+private fun HardUpdateContent(
   message: String?,
   modifier: Modifier = Modifier
 ) {
@@ -95,20 +84,20 @@ private fun SoftUpdateContent(
     horizontalAlignment = Alignment.CenterHorizontally
   ) {
     UpdateLogoBadge(
-      badgeIcon = Res.drawable.ic_update_available,
-      badgeContainerColor = colorSystem.accentSurface,
-      badgeIconTint = colorSystem.accentText
+      badgeIcon = Res.drawable.ic_update_warning,
+      badgeContainerColor = colorSystem.warningSurface,
+      badgeIconTint = colorSystem.warningText
     )
     VerticalSpacer(spacingSystem.space24)
     Text(
-      text = stringResource(Res.string.update_soft_title),
+      text = stringResource(Res.string.update_hard_title),
       style = typographySystem.displayMedium,
       color = colorSystem.textPrimary,
       textAlign = TextAlign.Center
     )
     VerticalSpacer(spacingSystem.space8)
     Text(
-      text = message ?: stringResource(Res.string.update_soft_subtitle),
+      text = message ?: stringResource(Res.string.update_hard_subtitle),
       style = typographySystem.bodyMedium,
       color = colorSystem.textMuted,
       textAlign = TextAlign.Center
@@ -116,10 +105,27 @@ private fun SoftUpdateContent(
   }
 }
 
+@Composable
+private fun HardUpdateWarningBanner(modifier: Modifier = Modifier) {
+  val colorSystem = AppTheme.colorSystem
+  val typographySystem = AppTheme.typographySystem
+  val spacingSystem = AppTheme.spacingSystem
+
+  Text(
+    text = stringResource(Res.string.update_hard_warning),
+    modifier = modifier
+      .clip(RoundedCornerShape(AppTheme.radiusSystem.radius14))
+      .background(colorSystem.warningSurface)
+      .padding(spacingSystem.space16),
+    style = typographySystem.bodySmall,
+    color = colorSystem.warningText
+  )
+}
+
 @LightDarkPreview
 @Composable
-private fun SoftUpdateScreenPreview() {
+private fun HardUpdateScreenPreview() {
   AppTheme {
-    SoftUpdateScreen(message = null, onUpdate = {}, onDismiss = {})
+    HardUpdateScreen(message = null, onUpdate = {})
   }
 }

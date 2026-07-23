@@ -17,7 +17,7 @@ import com.frame.zero.feature.chat.ui.ChatScreen
 import com.frame.zero.feature.gallery.ui.DesignSystemGalleryScreen
 import com.frame.zero.feature.home.ui.HomeContent
 import com.frame.zero.feature.app_update.AppUpdateState
-import com.frame.zero.feature.app_update.HardUpdateOverlay
+import com.frame.zero.feature.app_update.HardUpdateScreen
 import com.frame.zero.feature.app_update.SoftUpdateScreen
 import com.frame.zero.feature.lock.BiometricLockOverlay
 import com.frame.zero.feature.production.details.ui.ProductionDetailsScreen
@@ -57,7 +57,7 @@ fun RootContent(component: RootComponent) {
       )
     }
     when (val update = updateState) {
-      is AppUpdateState.Hard -> HardUpdateOverlay(
+      is AppUpdateState.Hard -> HardUpdateScreen(
         message = update.message,
         onUpdate = component::onUpdateClick
       )
