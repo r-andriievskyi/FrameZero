@@ -19,8 +19,8 @@ import com.frame.zero.core.security.AppLockState
 import com.frame.zero.core.security.BiometricPromptText
 import com.frame.zero.core.session.SessionManager
 import com.frame.zero.core.session.SessionState
-import com.frame.zero.feature.app_update.AppUpdateController
-import com.frame.zero.feature.app_update.AppUpdateState
+import com.frame.zero.feature.force_update.ForceUpdateController
+import com.frame.zero.feature.force_update.ForceUpdateState
 import com.frame.zero.feature.account.AccountComponent
 import com.frame.zero.feature.account.AccountViewModel
 import com.frame.zero.feature.auth.AuthComponent
@@ -56,7 +56,7 @@ class RootComponent(
   componentContext: ComponentContext,
   private val sessionManager: SessionManager,
   private val appLockController: AppLockController,
-  private val appUpdateController: AppUpdateController,
+  private val forceUpdateController: ForceUpdateController,
   navigationSignal: NavigationSignal,
   private val authComponentFactory: (ComponentContext) -> AuthComponent,
   private val homeComponentFactory: (
@@ -107,7 +107,7 @@ class RootComponent(
   // Registered after the child stack, so it takes priority when enabled.
   private val lockBackCallback = BackCallback(isEnabled = false) {}
 
-  val updateState: StateFlow<AppUpdateState> = appUpdateController.state
+  val updateState: StateFlow<ForceUpdateState> = forceUpdateController.state
 
   // Swallows back while a HARD gate is up, for the same reason as [lockBackCallback]: a blocked
   // user must not be able to drive the covered stack or exit. A soft prompt leaves back active.
@@ -119,13 +119,13 @@ class RootComponent(
     lifecycle.doOnDestroy { scope.cancel() }
     scope.launch { isLocked.collect { locked -> lockBackCallback.isEnabled = locked } }
     scope.launch {
-      updateState.collect { updateBackCallback.isEnabled = it is AppUpdateState.Hard }
+      updateState.collect { updateBackCallback.isEnabled = it is ForceUpdateState.Hard }
     }
-    scope.launch { appUpdateController.refresh() }
+    scope.launch { forceUpdateController.refresh() }
     var coldStartResumeHandled = false
     lifecycle.doOnResume {
       if (coldStartResumeHandled) {
-        scope.launch { appUpdateController.refresh() }
+        scope.launch { forceUpdateController.refresh() }
       } else {
         coldStartResumeHandled = true
       }
@@ -160,9 +160,9 @@ class RootComponent(
     scope.launch { sessionManager.logout() }
   }
 
-  fun onUpdateClick() = appUpdateController.openStore()
+  fun onUpdateClick() = forceUpdateController.openStore()
 
-  fun onSoftUpdateDismiss() = appUpdateController.dismissSoft()
+  fun onSoftUpdateDismiss() = forceUpdateController.dismissSoft()
 
   private fun navigate(deepLink: DeepLink) {
     val config = when (deepLink) {

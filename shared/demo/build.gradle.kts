@@ -17,7 +17,7 @@ kotlin {
       implementation(projects.shared.repositories.tasks.api)
       implementation(projects.shared.repositories.productions.api)
       implementation(projects.shared.repositories.chat.api)
-      implementation(projects.shared.repositories.appUpdate.api)
+      implementation(projects.shared.repositories.forceUpdate.api)
       implementation(projects.shared.repositories.deviceToken)
       implementation(libs.androidx.paging.common)
       implementation(libs.kotlinx.coroutines.core)

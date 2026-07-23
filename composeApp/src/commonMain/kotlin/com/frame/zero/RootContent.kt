@@ -16,9 +16,9 @@ import com.frame.zero.feature.auth.ui.AuthScreen
 import com.frame.zero.feature.chat.ui.ChatScreen
 import com.frame.zero.feature.gallery.ui.DesignSystemGalleryScreen
 import com.frame.zero.feature.home.ui.HomeContent
-import com.frame.zero.feature.app_update.AppUpdateState
-import com.frame.zero.feature.app_update.HardUpdateScreen
-import com.frame.zero.feature.app_update.SoftUpdateScreen
+import com.frame.zero.feature.force_update.ForceUpdateState
+import com.frame.zero.feature.force_update.HardUpdateScreen
+import com.frame.zero.feature.force_update.SoftUpdateScreen
 import com.frame.zero.feature.lock.BiometricLockOverlay
 import com.frame.zero.feature.production.details.ui.ProductionDetailsScreen
 import com.frame.zero.feature.production.ui.CreateProductionScreen
@@ -57,16 +57,16 @@ fun RootContent(component: RootComponent) {
       )
     }
     when (val update = updateState) {
-      is AppUpdateState.Hard -> HardUpdateScreen(
+      is ForceUpdateState.Hard -> HardUpdateScreen(
         message = update.message,
         onUpdate = component::onUpdateClick
       )
-      is AppUpdateState.Soft -> SoftUpdateScreen(
+      is ForceUpdateState.Soft -> SoftUpdateScreen(
         message = update.message,
         onUpdate = component::onUpdateClick,
         onDismiss = component::onSoftUpdateDismiss
       )
-      AppUpdateState.None -> Unit
+      ForceUpdateState.None -> Unit
     }
   }
 }
