@@ -59,11 +59,11 @@ kotlin {
       implementation(projects.shared.features.taskCreate)
       implementation(projects.shared.features.chat)
       implementation(projects.shared.features.taskList)
-      implementation(projects.shared.features.appUpdate)
+      implementation(projects.shared.features.forceUpdate)
       implementation(projects.shared.repositories.productions.impl)
       implementation(projects.shared.repositories.chat.impl)
       implementation(projects.shared.repositories.tasks.impl)
-      implementation(projects.shared.repositories.appUpdate.impl)
+      implementation(projects.shared.repositories.forceUpdate.impl)
       implementation(projects.shared.repositories.deviceToken)
       implementation(projects.shared.integrations.firebase)
       implementation(projects.shared.demo)
@@ -95,6 +95,10 @@ kotlin {
       implementation(libs.kotlinx.coroutines.test)
     }
   }
+}
+
+dependencies {
+  add("androidRuntimeClasspath", libs.compose.uiTooling)
 }
 
 // Same workaround as :shared:integrations:firebase — this module links the GitLive Firebase

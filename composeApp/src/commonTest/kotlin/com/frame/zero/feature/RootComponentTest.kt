@@ -15,9 +15,9 @@ import com.frame.zero.core.security.BiometricPromptText
 import com.frame.zero.core.security.BiometricResult
 import com.frame.zero.core.appupdate.StoreLauncher
 import com.frame.zero.core.config.AppVersion
-import com.frame.zero.feature.appupdate.AppUpdateController
-import com.frame.zero.feature.appupdate.CheckAppUpdateUseCase
-import com.frame.zero.testing.FakeAppUpdateRepository
+import com.frame.zero.feature.force_update.ForceUpdateController
+import com.frame.zero.feature.force_update.CheckForceUpdateUseCase
+import com.frame.zero.testing.FakeForceUpdateRepository
 import com.frame.zero.testing.FakeAppVersionProvider
 import com.frame.zero.core.session.LogoutSignal
 import com.frame.zero.core.session.SessionManager
@@ -253,12 +253,12 @@ class RootComponentTest {
 
   private fun lockedController(): AppLockController = controller(enabled = true)
 
-  // Default: an all-zero policy => AppUpdateState.None, so the update gate stays invisible and the
+  // Default: an all-zero policy => ForceUpdateState.None, so the update gate stays invisible and the
   // existing session/lock assertions are unaffected.
-  private fun TestScope.noUpdateController(): AppUpdateController =
-    AppUpdateController(
-      checkAppUpdate = CheckAppUpdateUseCase(
-        repository = FakeAppUpdateRepository(),
+  private fun TestScope.noUpdateController(): ForceUpdateController =
+    ForceUpdateController(
+      checkForceUpdate = CheckForceUpdateUseCase(
+        repository = FakeForceUpdateRepository(),
         appVersionProvider = FakeAppVersionProvider(AppVersion(buildNumber = 1, name = "1.0"))
       ),
       storeLauncher = object : StoreLauncher {
@@ -272,7 +272,7 @@ class RootComponentTest {
     session: SessionManager = session(),
     navigationSignal: NavigationSignal = NavigationSignal(),
     appLockController: AppLockController = controller(enabled = false),
-    appUpdateController: AppUpdateController = noUpdateController()
+    forceUpdateController: ForceUpdateController = noUpdateController()
   ): RootHandle {
     val lifecycle = LifecycleRegistry()
     val backDispatcher = BackDispatcher()
@@ -285,7 +285,7 @@ class RootComponentTest {
       componentContext = context,
       sessionManager = session,
       appLockController = appLockController,
-      appUpdateController = appUpdateController,
+      forceUpdateController = forceUpdateController,
       navigationSignal = navigationSignal,
       authComponentFactory = { ctx ->
         AuthComponent(

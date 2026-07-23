@@ -10,7 +10,7 @@ import platform.Foundation.NSBundle
  * `"1.2.3"`, but the force-update policy compares a single monotonic build). If it can't be parsed
  * as an integer — missing, dotted, or malformed — [current] fails **open**: [Int.MAX_VALUE] reads
  * as "newest", so a misconfigured build is never mistaken for an outdated one and hard-gated. This
- * matches [com.frame.zero.repository.app_update.AppUpdateRepository]'s "never a false lockout" rule.
+ * matches [com.frame.zero.repository.force_update.ForceUpdateRepository]'s "never a false lockout" rule.
  */
 class IosAppVersionProvider : AppVersionProvider {
   override fun current(): AppVersion {

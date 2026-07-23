@@ -13,9 +13,12 @@
 
   <!-- Force update -->
   <string name="update_hard_title">Update required</string>
-  <string name="update_hard_subtitle">This version of FrameZero is no longer supported. Update to keep going.</string>
+  <string name="update_hard_subtitle">This version of FrameZero is no longer supported. Update to the latest release to keep working.</string>
+  <string name="update_hard_warning">Your version has reached end of support and can no longer sync with the server.</string>
+  <string name="update_hard_action_button">Update now</string>
+  <string name="update_hard_caption">Takes about a minute over Wi-Fi</string>
   <string name="update_soft_title">Update available</string>
   <string name="update_soft_subtitle">A new version of FrameZero is available.</string>
-  <string name="update_action_button">Update</string>
+  <string name="update_action_button">Update now</string>
   <string name="update_later_button">Later</string>
 </resources>

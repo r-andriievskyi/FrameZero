@@ -26,7 +26,7 @@ import androidx.lifecycle.lifecycleScope
 import com.arkivanov.decompose.defaultComponentContext
 import com.frame.zero.core.navigation.NavigationSignal
 import com.frame.zero.core.security.AppLockController
-import com.frame.zero.feature.appupdate.AppUpdateController
+import com.frame.zero.feature.force_update.ForceUpdateController
 import com.frame.zero.core.session.SessionManager
 import com.frame.zero.core.session.SessionState
 import com.frame.zero.feature.RootComponent
@@ -52,7 +52,7 @@ import org.koin.core.parameter.parametersOf
 class MainActivity : FragmentActivity() {
   private val sessionManager: SessionManager by lazy { application.koin.get() }
   private val appLockController: AppLockController by lazy { application.koin.get() }
-  private val appUpdateController: AppUpdateController by lazy { application.koin.get() }
+  private val forceUpdateController: ForceUpdateController by lazy { application.koin.get() }
   private val navigationSignal: NavigationSignal by lazy { application.koin.get() }
   private val pushNotificationsRouter: PushNotificationsRouter by lazy { application.koin.get() }
 
@@ -69,7 +69,7 @@ class MainActivity : FragmentActivity() {
       componentContext = defaultComponentContext(),
       sessionManager = sessionManager,
       appLockController = appLockController,
-      appUpdateController = appUpdateController,
+      forceUpdateController = forceUpdateController,
       navigationSignal = navigationSignal,
       authComponentFactory = { ctx ->
         AuthComponent(
