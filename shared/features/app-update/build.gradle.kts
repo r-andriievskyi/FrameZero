@@ -3,7 +3,7 @@ plugins { id("crossplatform.library.compose") }
 base { archivesName = "feature-app-update" }
 
 kotlin {
-  android { namespace = "com.frame.zero.feature.appupdate" }
+  android { namespace = "com.frame.zero.feature.app_update" }
 
   sourceSets {
     commonMain.dependencies {

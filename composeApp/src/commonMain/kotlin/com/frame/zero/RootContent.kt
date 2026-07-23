@@ -16,9 +16,9 @@ import com.frame.zero.feature.auth.ui.AuthScreen
 import com.frame.zero.feature.chat.ui.ChatScreen
 import com.frame.zero.feature.gallery.ui.DesignSystemGalleryScreen
 import com.frame.zero.feature.home.ui.HomeContent
-import com.frame.zero.feature.appupdate.AppUpdateState
-import com.frame.zero.feature.appupdate.HardUpdateOverlay
-import com.frame.zero.feature.appupdate.SoftUpdateSheet
+import com.frame.zero.feature.app_update.AppUpdateState
+import com.frame.zero.feature.app_update.HardUpdateOverlay
+import com.frame.zero.feature.app_update.SoftUpdateScreen
 import com.frame.zero.feature.lock.BiometricLockOverlay
 import com.frame.zero.feature.production.details.ui.ProductionDetailsScreen
 import com.frame.zero.feature.production.ui.CreateProductionScreen
@@ -61,7 +61,7 @@ fun RootContent(component: RootComponent) {
         message = update.message,
         onUpdate = component::onUpdateClick
       )
-      is AppUpdateState.Soft -> SoftUpdateSheet(
+      is AppUpdateState.Soft -> SoftUpdateScreen(
         message = update.message,
         onUpdate = component::onUpdateClick,
         onDismiss = component::onSoftUpdateDismiss

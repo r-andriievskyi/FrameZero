@@ -1,4 +1,4 @@
-package com.frame.zero.feature.appupdate
+package com.frame.zero.feature.app_update
 
 import com.frame.zero.repository.app_update.UpdatePolicy
 import com.frame.zero.repository.app_update.UpdateType

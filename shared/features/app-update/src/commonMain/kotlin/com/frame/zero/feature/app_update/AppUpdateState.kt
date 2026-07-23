@@ -1,4 +1,4 @@
-package com.frame.zero.feature.appupdate
+package com.frame.zero.feature.app_update
 
 /**
  * What the root gate should show. Derived from the release policy vs the running build.

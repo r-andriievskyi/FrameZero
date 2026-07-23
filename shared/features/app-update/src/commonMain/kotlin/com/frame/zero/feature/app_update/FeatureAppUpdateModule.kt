@@ -1,4 +1,4 @@
-package com.frame.zero.feature.appupdate
+package com.frame.zero.feature.app_update
 
 import org.koin.dsl.module
 

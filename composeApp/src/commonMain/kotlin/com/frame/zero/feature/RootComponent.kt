@@ -19,8 +19,8 @@ import com.frame.zero.core.security.AppLockState
 import com.frame.zero.core.security.BiometricPromptText
 import com.frame.zero.core.session.SessionManager
 import com.frame.zero.core.session.SessionState
-import com.frame.zero.feature.appupdate.AppUpdateController
-import com.frame.zero.feature.appupdate.AppUpdateState
+import com.frame.zero.feature.app_update.AppUpdateController
+import com.frame.zero.feature.app_update.AppUpdateState
 import com.frame.zero.feature.account.AccountComponent
 import com.frame.zero.feature.account.AccountViewModel
 import com.frame.zero.feature.auth.AuthComponent

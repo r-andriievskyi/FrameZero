@@ -6,7 +6,7 @@ import com.arkivanov.essenty.lifecycle.LifecycleRegistry
 import com.arkivanov.essenty.lifecycle.resume
 import com.frame.zero.core.navigation.NavigationSignal
 import com.frame.zero.core.security.AppLockController
-import com.frame.zero.feature.appupdate.AppUpdateController
+import com.frame.zero.feature.app_update.AppUpdateController
 import com.frame.zero.core.session.SessionManager
 import com.frame.zero.di.initKoin
 import com.frame.zero.feature.RootComponent

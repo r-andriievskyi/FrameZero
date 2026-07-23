@@ -97,6 +97,10 @@ kotlin {
   }
 }
 
+dependencies {
+  add("androidRuntimeClasspath", libs.compose.uiTooling)
+}
+
 // Same workaround as :shared:integrations:firebase — this module links the GitLive Firebase
 // klib, whose native frameworks (FirebaseCore, …) are supplied via Xcode/SPM only to the app
 // link, never to Gradle. Kotlin/Native *test* executables therefore fail at `ld` with

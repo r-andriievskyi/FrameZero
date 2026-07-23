@@ -15,8 +15,8 @@ import com.frame.zero.core.security.BiometricPromptText
 import com.frame.zero.core.security.BiometricResult
 import com.frame.zero.core.appupdate.StoreLauncher
 import com.frame.zero.core.config.AppVersion
-import com.frame.zero.feature.appupdate.AppUpdateController
-import com.frame.zero.feature.appupdate.CheckAppUpdateUseCase
+import com.frame.zero.feature.app_update.AppUpdateController
+import com.frame.zero.feature.app_update.CheckAppUpdateUseCase
 import com.frame.zero.testing.FakeAppUpdateRepository
 import com.frame.zero.testing.FakeAppVersionProvider
 import com.frame.zero.core.session.LogoutSignal

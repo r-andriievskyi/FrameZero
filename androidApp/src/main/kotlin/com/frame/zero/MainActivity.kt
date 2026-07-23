@@ -26,7 +26,7 @@ import androidx.lifecycle.lifecycleScope
 import com.arkivanov.decompose.defaultComponentContext
 import com.frame.zero.core.navigation.NavigationSignal
 import com.frame.zero.core.security.AppLockController
-import com.frame.zero.feature.appupdate.AppUpdateController
+import com.frame.zero.feature.app_update.AppUpdateController
 import com.frame.zero.core.session.SessionManager
 import com.frame.zero.core.session.SessionState
 import com.frame.zero.feature.RootComponent
