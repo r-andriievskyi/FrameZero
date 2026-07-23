@@ -2,8 +2,11 @@ package com.frame.zero.repository.chat.local
 
 import com.frame.zero.database.ConversationEntity
 import com.frame.zero.database.MessageEntity
+import com.frame.zero.database.PendingMessageEntity
 import com.frame.zero.domain.chat.ChatMessage
 import com.frame.zero.domain.chat.Conversation
+import com.frame.zero.domain.chat.PendingChatMessage
+import com.frame.zero.domain.chat.PendingMessageStatus
 import com.frame.zero.dto.chat.ChatMessageDto
 import com.frame.zero.dto.chat.ConversationDto
 import kotlin.time.Instant
@@ -27,6 +30,15 @@ internal fun MessageEntity.toDomain(): ChatMessage =
     senderUserId = senderUserId,
     body = body,
     clientMessageId = clientMessageId,
+    createdAt = Instant.fromEpochMilliseconds(createdAtEpochMs)
+  )
+
+internal fun PendingMessageEntity.toDomain(): PendingChatMessage =
+  PendingChatMessage(
+    clientMessageId = clientMessageId,
+    conversationId = conversationId,
+    body = body,
+    status = PendingMessageStatus.valueOf(status),
     createdAt = Instant.fromEpochMilliseconds(createdAtEpochMs)
   )
 

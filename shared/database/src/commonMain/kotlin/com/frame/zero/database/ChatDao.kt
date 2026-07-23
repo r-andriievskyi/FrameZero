@@ -34,6 +34,26 @@ abstract class ChatDao {
     advanceLatestOrdinal(entities.first().conversationId, entities.maxOf { it.ordinal })
   }
 
+  /**
+   * Same as [upsertMessagesAndAdvanceLatest], plus it drops the outbox rows the incoming messages
+   * confirm — matched on `clientMessageId`, which the sender minted and the server echoes back.
+   * Landing the canonical row and retiring the optimistic bubble in one transaction is what keeps
+   * the list from flickering a duplicate.
+   *
+   * The delete lives here rather than on [ChatOutboxDao] because Room can only wrap one DAO's
+   * methods in a single [Transaction].
+   */
+  @Transaction
+  open suspend fun upsertMessagesAndClearPending(entities: List<MessageEntity>) {
+    if (entities.isEmpty()) return
+    upsertMessages(entities)
+    advanceLatestOrdinal(entities.first().conversationId, entities.maxOf { it.ordinal })
+    deletePendingMessages(entities.map { it.clientMessageId })
+  }
+
+  @Query("DELETE FROM chat_pending_messages WHERE clientMessageId IN (:clientMessageIds)")
+  abstract suspend fun deletePendingMessages(clientMessageIds: List<String>)
+
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   abstract suspend fun upsertConversation(conversation: ConversationEntity)
 
@@ -70,8 +90,12 @@ abstract class ChatDao {
   @Query("DELETE FROM chat_conversations")
   abstract suspend fun deleteAllConversations()
 
+  @Query("DELETE FROM chat_pending_messages")
+  abstract suspend fun deleteAllPendingMessages()
+
   suspend fun clearAll() {
     deleteAllMessages()
     deleteAllConversations()
+    deleteAllPendingMessages()
   }
 }
