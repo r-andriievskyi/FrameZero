@@ -90,11 +90,15 @@ internal class ChatOutboxStore(
     clientMessageId: String
   ) = dao.updateStatusAndCountAttempt(conversationId, clientMessageId, PendingMessageStatus.Failed.name)
 
-  /** User-driven retry of a failed message; keeps the id, so the resend stays idempotent. */
+  /**
+   * User-driven retry of a failed message: keeps the id, so the resend stays idempotent, and hands
+   * back a full attempt budget — otherwise a message parked after exhausting it would re-park on
+   * the very first failure and the retry button would be one request deep.
+   */
   suspend fun retry(
     conversationId: String,
     clientMessageId: String
-  ) = resetToQueued(conversationId, clientMessageId)
+  ) = dao.updateStatusAndResetAttempts(conversationId, clientMessageId, PendingMessageStatus.Queued.name)
 
   suspend fun remove(
     conversationId: String,

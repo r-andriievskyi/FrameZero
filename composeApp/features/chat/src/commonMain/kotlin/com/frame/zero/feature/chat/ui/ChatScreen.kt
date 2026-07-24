@@ -9,7 +9,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,13 +23,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import com.frame.zero.feature.chat.ChatComponent
 import com.frame.zero.feature.chat.ChatEvent
 import com.frame.zero.feature.chat.ChatIntent
+import com.frame.zero.feature.chat.ChatMessageUi
+import com.frame.zero.feature.chat.PendingMessageUi
 import com.frame.zero.feature.chat.ui.components.ChatInputBar
 import com.frame.zero.feature.chat.ui.components.MessageRow
+import com.frame.zero.feature.chat.ui.components.PendingMessageRow
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.widgets.FullScreenError
 import com.frame.zero.shared.design_system.widgets.FullScreenProgress
@@ -39,7 +45,9 @@ import framezero.composeapp.features.chat.generated.resources.chat_message_place
 import framezero.composeapp.features.chat.generated.resources.chat_retry
 import framezero.composeapp.features.chat.generated.resources.chat_send
 import framezero.composeapp.features.chat.generated.resources.chat_title
+import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
@@ -89,8 +97,11 @@ fun ChatScreen(
 
       Box(modifier = Modifier.weight(1f)) {
         val isRefreshing = messages.loadState.refresh is LoadState.Loading
+        // A queued message is content: offline, it can be the only thing in the conversation, so it
+        // must not be hidden behind the empty or loading state.
+        val isEmpty = messages.itemCount == 0 && state.pending.isEmpty()
         when {
-          state.conversationError != null && messages.itemCount == 0 ->
+          state.conversationError != null && isEmpty ->
             FullScreenError(
               modifier = Modifier.fillMaxSize().testTag(ChatTestTags.ERROR),
               message = state.conversationError?.asString().orEmpty(),
@@ -98,16 +109,19 @@ fun ChatScreen(
               retryLabel = stringResource(Res.string.chat_retry)
             )
 
-          (state.isLoadingConversation || isRefreshing) && messages.itemCount == 0 ->
+          (state.isLoadingConversation || isRefreshing) && isEmpty ->
             FullScreenProgress(modifier = Modifier.fillMaxSize().testTag(ChatTestTags.LOADING))
 
-          messages.itemCount == 0 -> EmptyChat(modifier = Modifier.fillMaxSize())
+          isEmpty -> EmptyChat(modifier = Modifier.fillMaxSize())
 
           else -> MessageList(
             messages = messages,
+            pending = state.pending,
             listState = listState,
             today = today,
-            newMessagesDividerOrdinal = state.newMessagesDividerOrdinal
+            newMessagesDividerOrdinal = state.newMessagesDividerOrdinal,
+            onRetryPending = { component.onIntent(ChatIntent.RetryPending(it)) },
+            onDiscardPending = { component.onIntent(ChatIntent.DiscardPending(it)) }
           )
         }
       }
@@ -126,10 +140,13 @@ fun ChatScreen(
 
 @Composable
 private fun MessageList(
-  messages: androidx.paging.compose.LazyPagingItems<com.frame.zero.feature.chat.ChatMessageUi>,
-  listState: androidx.compose.foundation.lazy.LazyListState,
-  today: kotlinx.datetime.LocalDate,
+  messages: LazyPagingItems<ChatMessageUi>,
+  pending: ImmutableList<PendingMessageUi>,
+  listState: LazyListState,
+  today: LocalDate,
   newMessagesDividerOrdinal: Long?,
+  onRetryPending: (clientMessageId: String) -> Unit,
+  onDiscardPending: (clientMessageId: String) -> Unit,
   modifier: Modifier = Modifier
 ) {
   LazyColumn(
@@ -142,9 +159,34 @@ private fun MessageList(
     ),
     verticalArrangement = Arrangement.spacedBy(AppTheme.spacingSystem.space4)
   ) {
+    // Read once for the whole list rather than per row: reading itemCount inside an item's content
+    // would tie every pending row's recomposition to any change in the paged count.
+    // peek() throws past the end, and offline there may be no confirmed message at all.
+    val newestConfirmedDay = if (messages.itemCount > 0) messages.peek(0)?.day else null
+
+    // Declared first, so under reverseLayout the queued messages sit at the bottom — after every
+    // confirmed one, which is where they will land once the server assigns their ordinals.
+    itemsIndexed(
+      items = pending,
+      key = { _, message -> message.clientMessageId },
+      contentType = { _, _ -> PENDING_CONTENT_TYPE }
+    ) { index, message ->
+      // pending is newest first, so the next-older row is the following index, and past the end of
+      // the list it is the newest confirmed message.
+      val olderDay = pending.getOrNull(index + 1)?.day ?: newestConfirmedDay
+      PendingMessageRow(
+        message = message,
+        showDaySeparator = message.day != olderDay,
+        today = today,
+        onRetry = { onRetryPending(message.clientMessageId) },
+        onDiscard = { onDiscardPending(message.clientMessageId) }
+      )
+    }
+
     items(
       count = messages.itemCount,
-      key = messages.itemKey { it.id }
+      key = messages.itemKey { it.id },
+      contentType = { CONFIRMED_CONTENT_TYPE }
     ) { index ->
       val message = messages[index] ?: return@items
       // The list is newest-first; a day separator sits above the oldest message of each day,
@@ -176,6 +218,11 @@ private fun EmptyChat(modifier: Modifier = Modifier) {
     )
   }
 }
+
+// Distinct content types so the LazyColumn reuses a slot within each block instead of discarding
+// compositions at the pending/confirmed boundary.
+private const val PENDING_CONTENT_TYPE = "pending"
+private const val CONFIRMED_CONTENT_TYPE = "confirmed"
 
 internal object ChatTestTags {
   const val LIST = "chat_list"

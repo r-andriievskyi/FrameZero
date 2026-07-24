@@ -7,10 +7,13 @@ import com.frame.zero.database.FrameZeroDatabase
 import com.frame.zero.domain.OfflineException
 import com.frame.zero.domain.chat.PendingMessageStatus
 import com.frame.zero.repository.chat.network.FakeChatApi
+import com.frame.zero.testing.FakeConnectivityObserver
 import com.frame.zero.testing.responseException
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlin.test.AfterTest
 import kotlin.test.Test
@@ -31,12 +34,23 @@ class ChatOutboxTest {
   private val database: FrameZeroDatabase =
     Room.inMemoryDatabaseBuilder<FrameZeroDatabase>()
       .setDriver(BundledSQLiteDriver())
-      .setQueryCoroutineContext(Dispatchers.Default)
+      // Unconfined so Room work runs inline on the test scheduler: a drain launched into a
+      // background scope would otherwise still be running when advanceUntilIdle() returns.
+      .setQueryCoroutineContext(Dispatchers.Unconfined)
       .build()
 
   private val store = ChatOutboxStore(database.chatOutboxDao())
   private val api = FakeChatApi()
-  private val outbox = ChatOutbox(store, api, database.chatDao(), LoggerImpl(emptyList()))
+  private val scheduler = RecordingChatOutboxScheduler()
+  private val connectivity = FakeConnectivityObserver()
+  private val outbox = ChatOutbox(
+    store = store,
+    api = api,
+    chatDao = database.chatDao(),
+    scheduler = scheduler,
+    connectivityObserver = connectivity,
+    logger = LoggerImpl(emptyList())
+  )
 
   @AfterTest
   fun tearDown() = database.close()
@@ -165,6 +179,72 @@ class ChatOutboxTest {
 
       assertEquals(listOf("first", "second"), api.sentBodies)
     }
+
+  @Test
+  fun `a user retry hands back the full attempt budget`() =
+    runTest {
+      store.enqueue(CONVERSATION, "a", "first")
+      api.failures["first"] = responseException(HttpStatusCode.InternalServerError)
+      repeat(MAX_ATTEMPTS) { outbox.drain(CONVERSATION) }
+      assertEquals(PendingMessageStatus.Failed, store.get(CONVERSATION, "a")?.status)
+
+      store.retry(CONVERSATION, "a")
+
+      // Without the reset the very next failure would re-park it, making the retry button one
+      // request deep.
+      assertEquals(0, store.get(CONVERSATION, "a")?.attemptCount)
+      assertFalse(outbox.drain(CONVERSATION), "the retry gets the backoff loop, not an instant park")
+      assertEquals(PendingMessageStatus.Queued, store.get(CONVERSATION, "a")?.status)
+    }
+
+  @Test
+  fun `kick runs one delivery loop per conversation`() =
+    runTest {
+      val outbox = testOutbox()
+      store.enqueue(CONVERSATION, "a", "first")
+      store.enqueue(CONVERSATION, "b", "second")
+      api.failures["first"] = responseException(HttpStatusCode.InternalServerError)
+
+      // Three sends in a row would otherwise start three loops sharing one message's budget and
+      // park it almost immediately instead of over the backoff schedule.
+      outbox.kick(CONVERSATION)
+      outbox.kick(CONVERSATION)
+      outbox.kick(CONVERSATION)
+      runCurrent()
+
+      assertEquals(1, store.get(CONVERSATION, "a")?.attemptCount)
+      outbox.shutdown()
+    }
+
+  @Test
+  fun `shutdown stops delivery so a sign-out wipe is not written over`() =
+    runTest {
+      val outbox = testOutbox()
+      store.enqueue(CONVERSATION, "a", "first")
+      api.holdSends()
+      outbox.kick(CONVERSATION)
+      runCurrent()
+
+      outbox.shutdown()
+      api.releaseSends()
+      runCurrent()
+
+      // The send was cancelled in flight, so nothing landed — the row would otherwise have been
+      // written back after the signed-out user's data was wiped.
+      assertNull(database.chatDao().maxOrdinal(CONVERSATION))
+    }
+
+  /** An outbox whose delivery coroutines run on the test scheduler rather than a real dispatcher. */
+  private fun TestScope.testOutbox() =
+    ChatOutbox(
+      store = store,
+      api = api,
+      chatDao = database.chatDao(),
+      scheduler = scheduler,
+      connectivityObserver = connectivity,
+      logger = LoggerImpl(emptyList()),
+      scope = backgroundScope
+    )
 
   /** Client ids still in the outbox for [CONVERSATION], in queue order. */
   private suspend fun ChatOutboxStore.pendingIds(): List<String> =

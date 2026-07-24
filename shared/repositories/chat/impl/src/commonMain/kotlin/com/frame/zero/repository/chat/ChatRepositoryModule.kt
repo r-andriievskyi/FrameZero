@@ -17,10 +17,10 @@ val chatRepositoryModule = module {
   single { ChatOutboxStore(get<FrameZeroDatabase>().chatOutboxDao()) }
   // Single, so the per-conversation mutex is shared by every drain trigger — UI send, socket
   // reconnect, connectivity, and the WorkManager worker alike.
-  single { ChatOutbox(get(), get(), get<FrameZeroDatabase>().chatDao(), get()) }
-  single<ChatRepository> { ChatRepositoryImpl(get(), get(), get(), get(), get(), get(), get()) }
+  single { ChatOutbox(get(), get(), get<FrameZeroDatabase>().chatDao(), get(), get(), get()) }
+  single<ChatRepository> { ChatRepositoryImpl(get(), get(), get(), get(), get(), get()) }
   single(createdAtStart = true) { ChatOutboxStarter(get(), get()) }
   single {
-    ChatSessionCleaner(get<FrameZeroDatabase>().chatDao(), get(), get())
+    ChatSessionCleaner(get<FrameZeroDatabase>().chatDao(), get(), get(), get())
   } bind SessionCleaner::class
 }

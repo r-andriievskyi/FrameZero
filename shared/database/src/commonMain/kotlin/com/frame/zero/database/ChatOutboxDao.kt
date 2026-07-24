@@ -111,6 +111,20 @@ interface ChatOutboxDao {
     status: String
   )
 
+  /**
+   * Queues a message and clears its attempt history — a user asking for a retry is asking for the
+   * full budget again, not the one shot left over from when delivery was given up on.
+   */
+  @Query(
+    "UPDATE chat_pending_messages SET status = :status, attemptCount = 0 " +
+      "WHERE conversationId = :conversationId AND clientMessageId = :clientMessageId"
+  )
+  suspend fun updateStatusAndResetAttempts(
+    conversationId: String,
+    clientMessageId: String,
+    status: String
+  )
+
   @Query(
     "DELETE FROM chat_pending_messages " +
       "WHERE conversationId = :conversationId AND clientMessageId = :clientMessageId"

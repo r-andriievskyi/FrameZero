@@ -94,6 +94,16 @@ internal class FakeChatOutboxDao : ChatOutboxDao {
     }
   }
 
+  override suspend fun updateStatusAndResetAttempts(
+    conversationId: String,
+    clientMessageId: String,
+    status: String
+  ) {
+    rows.value = rows.value.map {
+      if (it.matches(conversationId, clientMessageId)) it.copy(status = status, attemptCount = 0) else it
+    }
+  }
+
   override suspend fun delete(
     conversationId: String,
     clientMessageId: String

@@ -22,10 +22,15 @@ internal class ChatOutboxWorker(
     val conversationId = inputData.getString(KEY_CONVERSATION_ID) ?: return Result.failure()
     // A false drain means a transient failure with messages still queued; WorkManager's backoff is
     // exactly the retry schedule we want, and its network constraint gates the next attempt.
-    return if (outbox.drain(conversationId)) Result.success() else Result.retry()
+    if (outbox.drain(conversationId)) return Result.success()
+    // Capped, like TaskUploadWorker: an "offline" stop never spends a message's attempt budget, so
+    // a device that reports CONNECTED while every request fails (captive portal, flapping VPN)
+    // would otherwise wake the process forever. The rows stay queued for the next real trigger.
+    return if (runAttemptCount + 1 < MAX_ATTEMPTS) Result.retry() else Result.failure()
   }
 
   companion object {
     const val KEY_CONVERSATION_ID = "conversationId"
+    private const val MAX_ATTEMPTS = 4
   }
 }

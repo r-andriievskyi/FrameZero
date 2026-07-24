@@ -16,12 +16,10 @@ import com.frame.zero.repository.chat.local.toDomain
 import com.frame.zero.repository.chat.local.toEntity
 import com.frame.zero.repository.chat.network.ChatApi
 import com.frame.zero.repository.chat.outbox.ChatOutbox
-import com.frame.zero.repository.chat.outbox.ChatOutboxScheduler
 import com.frame.zero.repository.chat.outbox.ChatOutboxStore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
@@ -29,11 +27,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
-import kotlin.time.Duration.Companion.seconds
-
 private const val PageSize = 30
-private val INITIAL_RETRY_DELAY = 2.seconds
-private val MAX_RETRY_DELAY = 30.seconds
 
 internal class ChatRepositoryImpl(
   private val api: ChatApi,
@@ -41,8 +35,7 @@ internal class ChatRepositoryImpl(
   private val socketClient: ChatSocketClient,
   private val outbox: ChatOutbox,
   private val outboxStore: ChatOutboxStore,
-  private val outboxScheduler: ChatOutboxScheduler,
-  private val connectivityObserver: ConnectivityObserver,
+  connectivityObserver: ConnectivityObserver,
   private val scope: CoroutineScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 ) : ChatRepository {
   private val dao get() = database.chatDao()
@@ -107,10 +100,9 @@ internal class ChatRepositoryImpl(
     body: String
   ) {
     outboxStore.enqueue(conversationId, clientMessageId, body)
-    // Drain in the background so composing never blocks on the network, and ask the platform for a
-    // durable retry in case this process dies before the drain finishes.
-    scope.launch { drainWithRetry(conversationId) }
-    outboxScheduler.schedule(conversationId)
+    // Delivery runs in the outbox's own scope so composing never blocks on the network — and so
+    // sign-out can stop it before the tables are wiped.
+    outbox.kick(conversationId)
   }
 
   override fun observePending(conversationId: String): Flow<List<PendingChatMessage>> =
@@ -121,8 +113,7 @@ internal class ChatRepositoryImpl(
     clientMessageId: String
   ) {
     outboxStore.retry(conversationId, clientMessageId)
-    scope.launch { drainWithRetry(conversationId) }
-    outboxScheduler.schedule(conversationId)
+    outbox.kick(conversationId)
   }
 
   override suspend fun discardPending(
@@ -131,24 +122,6 @@ internal class ChatRepositoryImpl(
   ) = outboxStore.remove(conversationId, clientMessageId)
 
   override suspend fun flushOutbox() = outbox.drainAll()
-
-  /**
-   * Drains a conversation and, on a server-side transient failure while still online, retries in
-   * process with backoff. Without this an iOS send (no WorkManager backstop there) would sit on a
-   * 5xx until the next app launch, since neither the connectivity nor the socket-reconnect trigger
-   * fires while the network stays up. An offline stop returns here immediately — the connectivity
-   * trigger owns that re-kick — and the drain itself parks a message once its retry budget is spent,
-   * so this loop always terminates.
-   */
-  private suspend fun drainWithRetry(conversationId: String) {
-    var backoff = INITIAL_RETRY_DELAY
-    while (true) {
-      if (outbox.drain(conversationId)) return
-      if (!connectivityObserver.isCurrentlyOnline()) return
-      delay(backoff)
-      backoff = (backoff * 2).coerceAtMost(MAX_RETRY_DELAY)
-    }
-  }
 
   override suspend fun markRead(
     conversationId: String,

@@ -4,6 +4,7 @@ import com.frame.zero.dto.chat.ChatMessageDto
 import com.frame.zero.dto.chat.ConversationDto
 import com.frame.zero.dto.chat.SendMessageRequest
 import com.frame.zero.dto.common.CursorPagedResponse
+import kotlinx.coroutines.CompletableDeferred
 import kotlin.time.Instant
 
 /**
@@ -17,11 +18,23 @@ internal class FakeChatApi : ChatApi {
   var failures: MutableMap<String, Throwable> = mutableMapOf()
 
   private var nextOrdinal = 1L
+  private var gate: CompletableDeferred<Unit>? = null
+
+  /** Makes every subsequent send suspend, standing in for a request still on the wire. */
+  fun holdSends() {
+    gate = CompletableDeferred()
+  }
+
+  fun releaseSends() {
+    gate?.complete(Unit)
+    gate = null
+  }
 
   override suspend fun send(
     conversationId: String,
     request: SendMessageRequest
   ): ChatMessageDto {
+    gate?.await()
     failures[request.body]?.let { throw it }
     sentBodies += request.body
     return ChatMessageDto(
