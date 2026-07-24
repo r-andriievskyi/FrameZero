@@ -6,13 +6,32 @@ import com.frame.zero.domain.chat.Conversation
 import com.frame.zero.domain.chat.PendingChatMessage
 import com.frame.zero.repository.chat.ChatRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 
-/** Only [observeConversation]/[cachedConversation] carry state; the rest are inert. */
+/**
+ * [observeConversation]/[cachedConversation] answer from the constructor; the outbox calls are
+ * recorded, and [pending] is writable so a test can drive the optimistic-bubble state.
+ */
 class FakeChatRepository(
   private val conversation: Conversation? = null
 ) : ChatRepository {
-  override suspend fun getOrCreateConversation(taskId: String): Conversation = error("unused")
+  /** Queued sends, in order, as `(conversationId, clientMessageId, body)`. */
+  val enqueued = mutableListOf<Triple<String, String, String>>()
+
+  /** Retried pending messages, as `(conversationId, clientMessageId)`. */
+  val retried = mutableListOf<Pair<String, String>>()
+
+  /** Discarded pending messages, as `(conversationId, clientMessageId)`. */
+  val discarded = mutableListOf<Pair<String, String>>()
+
+  val pending = MutableStateFlow<List<PendingChatMessage>>(emptyList())
+
+  /** Set to make queueing fail, standing in for a broken local database. */
+  var enqueueFailure: Throwable? = null
+
+  override suspend fun getOrCreateConversation(taskId: String): Conversation =
+    conversation ?: error("no conversation configured")
 
   override suspend fun cachedConversation(taskId: String): Conversation? = conversation
 
@@ -26,19 +45,26 @@ class FakeChatRepository(
     conversationId: String,
     clientMessageId: String,
     body: String
-  ) = Unit
+  ) {
+    enqueueFailure?.let { throw it }
+    enqueued += Triple(conversationId, clientMessageId, body)
+  }
 
-  override fun observePending(conversationId: String): Flow<List<PendingChatMessage>> = flowOf(emptyList())
+  override fun observePending(conversationId: String): Flow<List<PendingChatMessage>> = pending
 
   override suspend fun retryPending(
     conversationId: String,
     clientMessageId: String
-  ) = Unit
+  ) {
+    retried += conversationId to clientMessageId
+  }
 
   override suspend fun discardPending(
     conversationId: String,
     clientMessageId: String
-  ) = Unit
+  ) {
+    discarded += conversationId to clientMessageId
+  }
 
   override suspend fun flushOutbox() = Unit
 

@@ -9,7 +9,18 @@ sealed interface ChatIntent {
 
   data object Retry : ChatIntent
 
-  data object SendErrorDismissed : ChatIntent
+  /** Re-queue a message whose delivery was given up on. */
+  data class RetryPending(
+    val clientMessageId: String
+  ) : ChatIntent
+
+  /**
+   * Drop a pending message. Best-effort: one already handed to the network still lands, the same
+   * way a sent message can't be recalled.
+   */
+  data class DiscardPending(
+    val clientMessageId: String
+  ) : ChatIntent
 
   /**
    * The list is resumed and scrolled to the newest message [ordinal]; advance the read

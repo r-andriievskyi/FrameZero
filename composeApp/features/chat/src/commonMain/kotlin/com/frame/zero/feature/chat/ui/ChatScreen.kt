@@ -32,7 +32,6 @@ import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.widgets.FullScreenError
 import com.frame.zero.shared.design_system.widgets.FullScreenProgress
 import com.frame.zero.shared.design_system.widgets.TopToolbar
-import com.frame.zero.shared.design_system.widgets.toast.ToastHost
 import com.frame.zero.ui.asString
 import framezero.composeapp.features.chat.generated.resources.Res
 import framezero.composeapp.features.chat.generated.resources.chat_empty
@@ -122,11 +121,6 @@ fun ChatScreen(
         sendContentDescription = stringResource(Res.string.chat_send)
       )
     }
-
-    ToastHost(
-      message = state.sendError?.asString(),
-      onDismiss = { component.onIntent(ChatIntent.SendErrorDismissed) }
-    )
   }
 }
 

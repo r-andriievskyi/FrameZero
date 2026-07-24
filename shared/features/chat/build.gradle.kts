@@ -11,6 +11,7 @@ kotlin {
       api(projects.shared.uiText)
       api(libs.decompose)
       api(libs.androidx.paging.common)
+      api(libs.kotlinx.collections.immutable)
       implementation(projects.shared.repositories.chat.api)
       implementation(libs.bundles.koinRuntime)
       implementation(libs.kotlinx.datetime)
@@ -19,6 +20,8 @@ kotlin {
     commonTest.dependencies {
       implementation(projects.shared.testFixtures)
       implementation(libs.bundles.commonTest)
+      implementation(libs.multiplatformSettings)
+      implementation(libs.multiplatformSettings.test)
     }
   }
 }
