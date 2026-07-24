@@ -5,6 +5,7 @@ import com.frame.zero.demo.DemoData
 import com.frame.zero.demo.DemoDataStore
 import com.frame.zero.domain.chat.ChatMessage
 import com.frame.zero.domain.chat.Conversation
+import com.frame.zero.domain.chat.PendingChatMessage
 import com.frame.zero.repository.chat.ChatRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -12,6 +13,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlin.random.Random
@@ -38,7 +40,23 @@ internal class DemoChatRepository(
 
   override suspend fun subscribe(conversationId: String) = Unit
 
-  override suspend fun send(
+  // The demo is offline by construction, so there is nothing to queue: a send lands immediately
+  // and the pending list is always empty.
+  override fun observePending(conversationId: String): Flow<List<PendingChatMessage>> = flowOf(emptyList())
+
+  override suspend fun retryPending(
+    conversationId: String,
+    clientMessageId: String
+  ) = Unit
+
+  override suspend fun discardPending(
+    conversationId: String,
+    clientMessageId: String
+  ) = Unit
+
+  override suspend fun flushOutbox() = Unit
+
+  override suspend fun enqueue(
     conversationId: String,
     clientMessageId: String,
     body: String

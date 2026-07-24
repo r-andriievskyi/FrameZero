@@ -13,5 +13,5 @@ class SendMessageUseCase(
   )
 
   override suspend fun execute(params: Params) =
-    chatRepository.send(params.conversationId, params.clientMessageId, params.body)
+    chatRepository.enqueue(params.conversationId, params.clientMessageId, params.body)
 }

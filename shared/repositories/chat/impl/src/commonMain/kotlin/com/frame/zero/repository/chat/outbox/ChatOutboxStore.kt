@@ -25,7 +25,7 @@ internal class ChatOutboxStore(
     clientMessageId: String,
     body: String
   ) {
-    dao.upsert(
+    dao.insert(
       PendingMessageEntity(
         clientMessageId = clientMessageId,
         conversationId = conversationId,
@@ -37,26 +37,67 @@ internal class ChatOutboxStore(
     )
   }
 
-  /** Head of the queue for [conversationId], or null when there is nothing left to send. */
+  /** Head of the queue for [conversationId]; null when it is drained or already has a send in flight. */
   suspend fun nextQueued(conversationId: String): PendingChatMessage? =
-    dao.nextQueued(conversationId, PendingMessageStatus.Queued.name)?.toDomain()
+    dao.nextQueued(conversationId, PendingMessageStatus.Queued.name, PendingMessageStatus.Sending.name)?.toDomain()
 
-  suspend fun conversationsWithQueued(): List<String> =
-    dao.conversationsWithQueued(PendingMessageStatus.Queued.name)
+  /**
+   * Takes ownership of a queued message. False means a concurrent drain got there first, and this
+   * caller must not send it — the compare-and-set, not the caller's memory, is what guarantees a
+   * conversation only ever has one message in flight.
+   */
+  suspend fun claim(
+    conversationId: String,
+    clientMessageId: String
+  ): Boolean =
+    dao.claim(
+      conversationId = conversationId,
+      clientMessageId = clientMessageId,
+      queued = PendingMessageStatus.Queued.name,
+      sending = PendingMessageStatus.Sending.name
+    ) > 0
 
-  suspend fun get(clientMessageId: String): PendingChatMessage? = dao.get(clientMessageId)?.toDomain()
+  /**
+   * Returns this conversation's in-flight rows to the queue. The drain calls it under its
+   * per-conversation lock, so a `Sending` row can only be one a killed or cancelled drain stranded,
+   * never a live send.
+   */
+  suspend fun resetInFlight(conversationId: String): Int =
+    dao.resetInFlight(conversationId, PendingMessageStatus.Queued.name, PendingMessageStatus.Sending.name)
 
-  suspend fun markSending(clientMessageId: String) = dao.updateStatus(clientMessageId, PendingMessageStatus.Sending.name)
+  suspend fun conversationsWithPending(): List<String> =
+    dao.conversationsWithPending(PendingMessageStatus.Queued.name, PendingMessageStatus.Sending.name)
 
-  /** Back to the queue after a transient failure; the attempt is counted for backoff/diagnostics. */
-  suspend fun requeue(clientMessageId: String) =
-    dao.updateStatusAndCountAttempt(clientMessageId, PendingMessageStatus.Queued.name)
+  suspend fun get(
+    conversationId: String,
+    clientMessageId: String
+  ): PendingChatMessage? = dao.get(conversationId, clientMessageId)?.toDomain()
 
-  suspend fun markFailed(clientMessageId: String) =
-    dao.updateStatusAndCountAttempt(clientMessageId, PendingMessageStatus.Failed.name)
+  /** Back to the queue without spending an attempt — for "no network", which isn't a delivery failure. */
+  suspend fun resetToQueued(
+    conversationId: String,
+    clientMessageId: String
+  ) = dao.updateStatus(conversationId, clientMessageId, PendingMessageStatus.Queued.name)
 
-  /** User-driven retry of a permanently failed message; keeps the id, so the send stays idempotent. */
-  suspend fun retry(clientMessageId: String) = dao.updateStatus(clientMessageId, PendingMessageStatus.Queued.name)
+  /** Back to the queue after a server-side transient failure; the attempt is counted so the drain can give up. */
+  suspend fun requeue(
+    conversationId: String,
+    clientMessageId: String
+  ) = dao.updateStatusAndCountAttempt(conversationId, clientMessageId, PendingMessageStatus.Queued.name)
 
-  suspend fun remove(clientMessageId: String) = dao.delete(clientMessageId)
+  suspend fun markFailed(
+    conversationId: String,
+    clientMessageId: String
+  ) = dao.updateStatusAndCountAttempt(conversationId, clientMessageId, PendingMessageStatus.Failed.name)
+
+  /** User-driven retry of a failed message; keeps the id, so the resend stays idempotent. */
+  suspend fun retry(
+    conversationId: String,
+    clientMessageId: String
+  ) = resetToQueued(conversationId, clientMessageId)
+
+  suspend fun remove(
+    conversationId: String,
+    clientMessageId: String
+  ) = dao.delete(conversationId, clientMessageId)
 }

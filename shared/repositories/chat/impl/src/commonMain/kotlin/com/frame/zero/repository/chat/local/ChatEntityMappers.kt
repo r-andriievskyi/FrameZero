@@ -38,7 +38,10 @@ internal fun PendingMessageEntity.toDomain(): PendingChatMessage =
     clientMessageId = clientMessageId,
     conversationId = conversationId,
     body = body,
-    status = PendingMessageStatus.valueOf(status),
+    // An unknown name (row written by a newer build) degrades to Failed rather than throwing inside
+    // the pending-messages Flow; the user can still retry or discard it.
+    status = PendingMessageStatus.entries.firstOrNull { it.name == status } ?: PendingMessageStatus.Failed,
+    attemptCount = attemptCount,
     createdAt = Instant.fromEpochMilliseconds(createdAtEpochMs)
   )
 

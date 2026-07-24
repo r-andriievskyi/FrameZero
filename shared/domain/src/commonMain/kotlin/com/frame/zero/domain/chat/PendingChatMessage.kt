@@ -15,6 +15,8 @@ data class PendingChatMessage(
   val conversationId: String,
   val body: String,
   val status: PendingMessageStatus,
+  /** Delivery attempts so far; past a cap the drain gives up rather than blocking the queue. */
+  val attemptCount: Int,
   val createdAt: Instant
 )
 
