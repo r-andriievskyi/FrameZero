@@ -14,3 +14,17 @@ data class ChatMessageUi(
   val timeLabel: String,
   val day: LocalDate
 )
+
+/**
+ * A message the user has composed that the server hasn't confirmed yet. Always the user's own, and
+ * always newer than every confirmed message, so it renders after them with no ordinal of its own —
+ * the server assigns that on arrival.
+ */
+data class PendingMessageUi(
+  val clientMessageId: String,
+  val body: String,
+  val timeLabel: String,
+  val day: LocalDate,
+  /** Delivery gave up; the row now offers retry and discard instead of a progress hint. */
+  val isFailed: Boolean
+)

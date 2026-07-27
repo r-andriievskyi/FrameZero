@@ -7,17 +7,21 @@ import androidx.paging.PagingData
 import androidx.paging.map
 import com.frame.zero.core.network.ChatSocketClient
 import com.frame.zero.core.network.ChatSocketEvent
+import com.frame.zero.core.network.connectivity.ConnectivityObserver
 import com.frame.zero.database.FrameZeroDatabase
 import com.frame.zero.domain.chat.ChatMessage
 import com.frame.zero.domain.chat.Conversation
-import com.frame.zero.dto.chat.SendMessageRequest
+import com.frame.zero.domain.chat.PendingChatMessage
 import com.frame.zero.repository.chat.local.toDomain
 import com.frame.zero.repository.chat.local.toEntity
 import com.frame.zero.repository.chat.network.ChatApi
+import com.frame.zero.repository.chat.outbox.ChatOutbox
+import com.frame.zero.repository.chat.outbox.ChatOutboxStore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -25,10 +29,13 @@ import kotlinx.coroutines.sync.withLock
 
 private const val PageSize = 30
 
-class ChatRepositoryImpl(
+internal class ChatRepositoryImpl(
   private val api: ChatApi,
   private val database: FrameZeroDatabase,
   private val socketClient: ChatSocketClient,
+  private val outbox: ChatOutbox,
+  private val outboxStore: ChatOutboxStore,
+  connectivityObserver: ConnectivityObserver,
   private val scope: CoroutineScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 ) : ChatRepository {
   private val dao get() = database.chatDao()
@@ -40,13 +47,24 @@ class ChatRepositoryImpl(
     scope.launch {
       socketClient.events.collect { event ->
         when (event) {
+          // Clears the matching outbox row in the same transaction, so a message confirmed over the
+          // socket before its own REST response retires its optimistic bubble exactly once.
           is ChatSocketEvent.MessageReceived ->
-            dao.upsertMessagesAndAdvanceLatest(listOf(event.message.toEntity()))
+            dao.upsertMessagesAndClearPending(listOf(event.message.toEntity()))
           is ChatSocketEvent.ReadUpdated ->
             dao.advanceLastReadOrdinal(event.conversationId, event.lastReadOrdinal)
-          ChatSocketEvent.Connected -> scope.launch { syncTracked() }
+          ChatSocketEvent.Connected ->
+            scope.launch {
+              syncTracked()
+              outbox.drainAll()
+            }
         }
       }
+    }
+    scope.launch {
+      // Regaining connectivity is the other flush trigger: the socket may be down for reasons of
+      // its own, and a queued message shouldn't wait on it.
+      connectivityObserver.isOnline.filter { it }.collect { outbox.drainAll() }
     }
   }
 
@@ -76,21 +94,34 @@ class ChatRepositoryImpl(
     socketClient.subscribe(conversationId)
   }
 
-  override suspend fun send(
+  override suspend fun enqueue(
     conversationId: String,
     clientMessageId: String,
     body: String
   ) {
-    // The caller owns [clientMessageId] and reuses it across retries, so a resend after a lost
-    // response is deduped by the server rather than posting a duplicate.
-    val request = SendMessageRequest(clientMessageId = clientMessageId, body = body)
-    val message = api.send(conversationId, request)
-    dao.upsertMessagesAndAdvanceLatest(listOf(message.toEntity()))
-    // The sender has by definition read their own message: advance the local read cursor so
-    // it never shows as unread on the badge. The server cursor is advanced separately by the
-    // screen's mark-read; READ then syncs the user's other devices.
-    dao.advanceLastReadOrdinal(conversationId, message.ordinal)
+    outboxStore.enqueue(conversationId, clientMessageId, body)
+    // Delivery runs in the outbox's own scope so composing never blocks on the network — and so
+    // sign-out can stop it before the tables are wiped.
+    outbox.kick(conversationId)
   }
+
+  override fun observePending(conversationId: String): Flow<List<PendingChatMessage>> =
+    outboxStore.observe(conversationId)
+
+  override suspend fun retryPending(
+    conversationId: String,
+    clientMessageId: String
+  ) {
+    outboxStore.retry(conversationId, clientMessageId)
+    outbox.kick(conversationId)
+  }
+
+  override suspend fun discardPending(
+    conversationId: String,
+    clientMessageId: String
+  ) = outboxStore.remove(conversationId, clientMessageId)
+
+  override suspend fun flushOutbox() = outbox.drainAll()
 
   override suspend fun markRead(
     conversationId: String,

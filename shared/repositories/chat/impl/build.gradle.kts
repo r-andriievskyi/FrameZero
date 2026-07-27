@@ -18,6 +18,10 @@ kotlin {
       implementation(libs.bundles.ktorClient)
     }
 
+    androidMain.dependencies {
+      implementation(libs.androidx.work.runtime)
+    }
+
     commonTest.dependencies {
       implementation(projects.shared.testFixtures)
       implementation(libs.bundles.commonTest)

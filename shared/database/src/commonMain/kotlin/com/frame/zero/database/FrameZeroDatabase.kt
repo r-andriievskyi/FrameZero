@@ -15,10 +15,11 @@ import com.frame.zero.database.entity.TaskSummaryRemoteKeyEntity
     PendingUploadEntity::class,
     ConversationEntity::class,
     MessageEntity::class,
+    PendingMessageEntity::class,
     TaskSummaryEntity::class,
     TaskSummaryRemoteKeyEntity::class
   ],
-  version = 5,
+  version = 6,
   exportSchema = false
 )
 @ConstructedBy(FrameZeroDatabaseConstructor::class)
@@ -30,6 +31,8 @@ abstract class FrameZeroDatabase : RoomDatabase() {
   abstract fun pendingUploadsDao(): PendingUploadDao
 
   abstract fun chatDao(): ChatDao
+
+  abstract fun chatOutboxDao(): ChatOutboxDao
 }
 
 @Suppress("NO_ACTUAL_FOR_EXPECT")

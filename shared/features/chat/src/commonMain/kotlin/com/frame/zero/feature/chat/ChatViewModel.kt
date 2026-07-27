@@ -8,10 +8,15 @@ import com.frame.zero.core.error.DomainErrorMessages
 import com.frame.zero.core.error.toUiText
 import com.frame.zero.domain.Outcome
 import com.frame.zero.domain.chat.ChatMessage
+import com.frame.zero.domain.chat.PendingChatMessage
+import com.frame.zero.domain.chat.PendingMessageStatus
+import com.frame.zero.feature.chat.domain.DiscardPendingMessageUseCase
+import com.frame.zero.feature.chat.domain.EnqueueMessageUseCase
 import com.frame.zero.feature.chat.domain.GetCurrentUserIdUseCase
 import com.frame.zero.feature.chat.domain.MarkReadUseCase
+import com.frame.zero.feature.chat.domain.ObservePendingMessagesUseCase
 import com.frame.zero.feature.chat.domain.OpenConversationUseCase
-import com.frame.zero.feature.chat.domain.SendMessageUseCase
+import com.frame.zero.feature.chat.domain.RetryPendingMessageUseCase
 import com.frame.zero.repository.chat.ChatRepository
 import framezero.shared.features.chat.generated.resources.Res
 import framezero.shared.features.chat.generated.resources.chat_error_auth_failed
@@ -26,6 +31,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -53,7 +59,10 @@ class ChatViewModel(
   private val taskId: String,
   private val chatRepository: ChatRepository,
   private val openConversationUseCase: OpenConversationUseCase,
-  private val sendMessageUseCase: SendMessageUseCase,
+  private val enqueueMessageUseCase: EnqueueMessageUseCase,
+  private val observePendingMessagesUseCase: ObservePendingMessagesUseCase,
+  private val retryPendingMessageUseCase: RetryPendingMessageUseCase,
+  private val discardPendingMessageUseCase: DiscardPendingMessageUseCase,
   private val markReadUseCase: MarkReadUseCase,
   private val getCurrentUserIdUseCase: GetCurrentUserIdUseCase,
   private val timeZone: TimeZone = TimeZone.currentSystemDefault(),
@@ -73,11 +82,6 @@ class ChatViewModel(
   private val conversationId = MutableStateFlow<String?>(null)
   private var currentUserId: String? = null
 
-  // Stable idempotency key for the message currently being composed. Reused across send
-  // retries so a resend after a lost response is deduped server-side; reset when the draft
-  // changes (new content = new message) or a send succeeds.
-  private var pendingClientMessageId: String? = null
-
   // Highest ordinal the server has confirmed as read, so scroll-driven MarkRead intents
   // don't fire a redundant PUT once the cursor is there. Advanced only on success, so a
   // failed mark-read is retried by the next scroll-to-bottom.
@@ -95,23 +99,57 @@ class ChatViewModel(
         chatRepository.messages(id).map { page -> page.map { it.toUi() } }
       }.cachedIn(scope)
 
+  @OptIn(ExperimentalCoroutinesApi::class)
+  private val pending: Flow<List<PendingChatMessage>> =
+    conversationId.filterNotNull().flatMapLatest { observePendingMessagesUseCase(it) }
+
   init {
     // Read the cached user id up front so the first paged frames style own/other bubbles
     // correctly — including offline, where the id comes from local cache, not the network.
     currentUserId = getCurrentUserIdUseCase()
     scope.launch { openConversation() }
+    scope.launch {
+      pending.collect { pendingMessages ->
+        // Newest first, matching the reversed message list: the outbox emits oldest first.
+        val bubbles = pendingMessages.map { it.toUi() }.asReversed().toImmutableList()
+        _state.update { it.copy(pending = bubbles) }
+      }
+    }
   }
 
   fun onIntent(intent: ChatIntent) {
     when (intent) {
-      is ChatIntent.MessageChanged -> {
-        pendingClientMessageId = null
-        _state.update { it.copy(draft = intent.text) }
-      }
+      is ChatIntent.MessageChanged -> _state.update { it.copy(draft = intent.text) }
       ChatIntent.SendClicked -> send()
       ChatIntent.Retry -> scope.launch { openConversation() }
-      ChatIntent.SendErrorDismissed -> _state.update { it.copy(sendError = null) }
+      is ChatIntent.RetryPending -> retryPending(intent.clientMessageId)
+      is ChatIntent.DiscardPending -> discardPending(intent.clientMessageId)
       is ChatIntent.MarkRead -> markRead(intent.ordinal)
+    }
+  }
+
+  /**
+   * Both outbox actions are their own feedback: the pending row is what the user is looking at, so
+   * a failure simply leaves the bubble where it was — still failed, still offering retry and
+   * discard — and a success is visible as the row changing or disappearing. Nothing to report.
+   */
+  private fun retryPending(clientMessageId: String) {
+    val id = conversationId.value ?: return
+    scope.launch {
+      when (retryPendingMessageUseCase(RetryPendingMessageUseCase.Params(id, clientMessageId))) {
+        is Outcome.Success -> Unit
+        is Outcome.Failure -> Unit
+      }
+    }
+  }
+
+  private fun discardPending(clientMessageId: String) {
+    val id = conversationId.value ?: return
+    scope.launch {
+      when (discardPendingMessageUseCase(DiscardPendingMessageUseCase.Params(id, clientMessageId))) {
+        is Outcome.Success -> Unit
+        is Outcome.Failure -> Unit
+      }
     }
   }
 
@@ -155,23 +193,38 @@ class ChatViewModel(
     }
   }
 
+  /**
+   * Queues the draft and clears the composer straight away — the outbox owns delivery from here, so
+   * there is nothing to wait for and nothing to fail. The message appears as a pending bubble until
+   * the server confirms it.
+   */
   private fun send() {
     val id = conversationId.value ?: return
     val body = _state.value.draft.trim()
-    if (body.isEmpty() || _state.value.isSending) return
-    val clientMessageId = pendingClientMessageId ?: Uuid.random().toString().also { pendingClientMessageId = it }
-    _state.update { it.copy(isSending = true, sendError = null) }
+    if (body.isEmpty()) return
+    // A fresh id per send: the outbox row owns retry idempotency now, so nothing is reused.
+    val clientMessageId = Uuid.random().toString()
+    _state.update { it.copy(draft = "") }
     scope.launch {
-      when (val outcome = sendMessageUseCase(SendMessageUseCase.Params(id, clientMessageId, body))) {
-        is Outcome.Success -> {
-          pendingClientMessageId = null
-          _state.update { it.copy(isSending = false, draft = "") }
-          _events.tryEmit(ChatEvent.MessageSent)
-        }
-        is Outcome.Failure ->
-          _state.update { it.copy(isSending = false, sendError = outcome.error.toUiText(errorMessages)) }
+      when (enqueueMessageUseCase(EnqueueMessageUseCase.Params(id, clientMessageId, body))) {
+        is Outcome.Success -> _events.tryEmit(ChatEvent.MessageSent)
+        // Queueing itself failed (a broken local database), so there is no pending bubble to show
+        // and nothing will retry it. Put the text back in the composer rather than dropping it —
+        // tapping send again is the retry.
+        is Outcome.Failure -> _state.update { current -> current.copy(draft = current.draft.ifEmpty { body }) }
       }
     }
+  }
+
+  private fun PendingChatMessage.toUi(): PendingMessageUi {
+    val localDateTime = createdAt.toLocalDateTime(timeZone)
+    return PendingMessageUi(
+      clientMessageId = clientMessageId,
+      body = body,
+      timeLabel = timeFormat.format(localDateTime.time),
+      day = localDateTime.date,
+      isFailed = status == PendingMessageStatus.Failed
+    )
   }
 
   private fun ChatMessage.toUi(): ChatMessageUi {

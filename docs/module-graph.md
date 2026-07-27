@@ -53,7 +53,7 @@ graph LR
     :shared:features:production["production"]
     :shared:features:task-details["task-details"]
     :shared:features:chat["chat"]
-    :shared:features:app-update["app-update"]
+    :shared:features:force-update["force-update"]
   end
   subgraph :shared:integrations
     :shared:integrations:firebase["firebase"]
@@ -65,13 +65,13 @@ graph LR
     :shared:repositories:schedule["schedule"]
     :shared:repositories:device-token["device-token"]
   end
-  subgraph :shared:repositories:app-update
-    :shared:repositories:app-update:api["api"]
-    :shared:repositories:app-update:impl["impl"]
-  end
   subgraph :shared:repositories:chat
     :shared:repositories:chat:api["api"]
     :shared:repositories:chat:impl["impl"]
+  end
+  subgraph :shared:repositories:force-update
+    :shared:repositories:force-update:api["api"]
+    :shared:repositories:force-update:impl["impl"]
   end
   subgraph :shared:repositories:productions
     :shared:repositories:productions:impl["impl"]
@@ -120,7 +120,7 @@ graph LR
   :shared:demo --> :shared:repositories:tasks:api
   :shared:demo --> :shared:repositories:productions:api
   :shared:demo --> :shared:repositories:chat:api
-  :shared:demo --> :shared:repositories:app-update:api
+  :shared:demo --> :shared:repositories:force-update:api
   :shared:demo --> :shared:repositories:device-token
   :shared --> :shared:domain
   :shared --> :shared:dto
@@ -143,7 +143,7 @@ graph LR
   :androidApp --> :shared:features:task-create
   :androidApp --> :shared:features:chat
   :androidApp --> :shared:features:task-list
-  :androidApp --> :shared:features:app-update
+  :androidApp --> :shared:features:force-update
   :shared:features:task-details --> :shared
   :shared:features:task-details --> :shared:ui_text
   :shared:features:task-details --> :shared:repositories:tasks:api
@@ -171,7 +171,7 @@ graph LR
   :shared:test-fixtures --> :shared:repositories:schedule
   :shared:test-fixtures --> :shared:repositories:tasks:api
   :shared:test-fixtures --> :shared:repositories:chat:api
-  :shared:test-fixtures --> :shared:repositories:app-update:api
+  :shared:test-fixtures --> :shared:repositories:force-update:api
   :shared:features:task-list --> :shared
   :shared:features:task-list --> :shared:ui_text
   :shared:features:task-list --> :shared:repositories:tasks:api
@@ -182,9 +182,6 @@ graph LR
   :composeApp:features:task-details --> :composeApp:shared:design_system
   :composeApp:features:task-details --> :composeApp:shared:ui_text
   :composeApp:features:task-details --> :composeApp:shared:screenshot-testing
-  :shared:features:app-update --> :shared
-  :shared:features:app-update --> :shared:repositories:app-update:api
-  :shared:features:app-update --> :shared:test-fixtures
   :composeApp --> :shared
   :composeApp --> :shared:database
   :composeApp --> :shared:features:account
@@ -196,11 +193,11 @@ graph LR
   :composeApp --> :shared:features:task-create
   :composeApp --> :shared:features:chat
   :composeApp --> :shared:features:task-list
-  :composeApp --> :shared:features:app-update
+  :composeApp --> :shared:features:force-update
   :composeApp --> :shared:repositories:productions:impl
   :composeApp --> :shared:repositories:chat:impl
   :composeApp --> :shared:repositories:tasks:impl
-  :composeApp --> :shared:repositories:app-update:impl
+  :composeApp --> :shared:repositories:force-update:impl
   :composeApp --> :shared:repositories:device-token
   :composeApp --> :shared:integrations:firebase
   :composeApp --> :shared:demo
@@ -224,10 +221,13 @@ graph LR
   :composeApp --> :shared:repositories:dashboard
   :composeApp --> :shared:repositories:schedule
   :composeApp --> :shared:repositories:user
-  :composeApp --> :shared:repositories:app-update:api
   :composeApp --> :shared:repositories:chat:api
+  :composeApp --> :shared:repositories:force-update:api
   :composeApp --> :shared:repositories:productions:api
   :composeApp --> :shared:repositories:tasks:api
+  :shared:features:force-update --> :shared
+  :shared:features:force-update --> :shared:repositories:force-update:api
+  :shared:features:force-update --> :shared:test-fixtures
   :shared:repositories:tasks:api --> :shared:domain
   :shared:repositories:chat:api --> :shared:domain
   :composeApp:features:task-create --> :shared:features:task-create
@@ -238,7 +238,9 @@ graph LR
   :composeApp:features:chat --> :composeApp:shared:design_system
   :composeApp:features:chat --> :composeApp:shared:ui_text
   :composeApp:features:chat --> :composeApp:shared:screenshot-testing
-  :shared:repositories:app-update:api --> :shared:domain
+  :shared:repositories:force-update:impl --> :shared:repositories:force-update:api
+  :shared:repositories:force-update:impl --> :shared:dto
+  :shared:repositories:force-update:impl --> :shared:repositories:device-token
   :composeApp:features:auth --> :shared:features:auth
   :composeApp:features:auth --> :composeApp:shared:design_system
   :composeApp:features:auth --> :composeApp:shared:ui_text
@@ -250,10 +252,8 @@ graph LR
   :shared:integrations:firebase --> :shared
   :shared:repositories:user --> :shared:domain
   :composeApp:shared:design_system --> :composeApp:shared:screenshot-testing
-  :shared:repositories:app-update:impl --> :shared:repositories:app-update:api
-  :shared:repositories:app-update:impl --> :shared:dto
-  :shared:repositories:app-update:impl --> :shared:repositories:device-token
   :shared:features:account --> :shared
+  :shared:repositories:force-update:api --> :shared:domain
   :shared:repositories:tasks:impl --> :shared:repositories:tasks:api
   :shared:repositories:tasks:impl --> :shared
   :shared:repositories:tasks:impl --> :shared:database

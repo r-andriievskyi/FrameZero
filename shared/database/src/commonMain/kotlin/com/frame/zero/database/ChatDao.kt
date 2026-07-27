@@ -34,17 +34,55 @@ abstract class ChatDao {
     advanceLatestOrdinal(entities.first().conversationId, entities.maxOf { it.ordinal })
   }
 
+  /**
+   * Same as [upsertMessagesAndAdvanceLatest], plus it drops the outbox rows the incoming messages
+   * confirm — matched on `clientMessageId`, which the sender minted and the server echoes back.
+   * Landing the canonical row and retiring the optimistic bubble in one transaction is what keeps
+   * the list from flickering a duplicate.
+   */
+  @Transaction
+  open suspend fun upsertMessagesAndClearPending(entities: List<MessageEntity>) {
+    if (entities.isEmpty()) return
+    upsertMessagesAndAdvanceLatest(entities)
+    deletePendingMessages(entities.first().conversationId, entities.map { it.clientMessageId })
+  }
+
+  /**
+   * Scoped to one conversation: this runs off the socket stream, which carries other people's
+   * messages, and client ids are only unique within a conversation.
+   */
+  @Query(
+    "DELETE FROM chat_pending_messages " +
+      "WHERE conversationId = :conversationId AND clientMessageId IN (:clientMessageIds)"
+  )
+  abstract suspend fun deletePendingMessages(
+    conversationId: String,
+    clientMessageIds: List<String>
+  )
+
+  /**
+   * Lands the user's own just-sent message: the canonical row replaces its outbox row, the cached
+   * latest ordinal advances, and — because the sender has by definition read what they wrote — the
+   * read cursor advances too, all in one transaction so a crash can never leave your own message
+   * counting as unread.
+   */
+  @Transaction
+  open suspend fun landSentMessage(entity: MessageEntity) {
+    upsertMessages(listOf(entity))
+    advanceLatestOrdinal(entity.conversationId, entity.ordinal)
+    deletePendingMessages(entity.conversationId, listOf(entity.clientMessageId))
+    advanceLastReadOrdinal(entity.conversationId, entity.ordinal)
+  }
+
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   abstract suspend fun upsertConversation(conversation: ConversationEntity)
 
   @Query("SELECT * FROM chat_conversations WHERE taskId = :taskId LIMIT 1")
   abstract suspend fun conversationByTaskId(taskId: String): ConversationEntity?
 
-  /** Live conversation row for the unread badge; emits null until the chat is first opened. */
   @Query("SELECT * FROM chat_conversations WHERE taskId = :taskId LIMIT 1")
   abstract fun observeConversationByTaskId(taskId: String): Flow<ConversationEntity?>
 
-  /** Forward-only: advances latestOrdinal as newer messages land, never rewinds it. */
   @Query(
     "UPDATE chat_conversations SET latestOrdinal = :ordinal " +
       "WHERE id = :conversationId AND :ordinal > latestOrdinal"
@@ -54,7 +92,6 @@ abstract class ChatDao {
     ordinal: Long
   )
 
-  /** Forward-only: advances the read cursor, never rewinds it. */
   @Query(
     "UPDATE chat_conversations SET lastReadOrdinal = :ordinal " +
       "WHERE id = :conversationId AND :ordinal > lastReadOrdinal"
@@ -70,8 +107,12 @@ abstract class ChatDao {
   @Query("DELETE FROM chat_conversations")
   abstract suspend fun deleteAllConversations()
 
+  @Query("DELETE FROM chat_pending_messages")
+  abstract suspend fun deleteAllPendingMessages()
+
   suspend fun clearAll() {
     deleteAllMessages()
     deleteAllConversations()
+    deleteAllPendingMessages()
   }
 }
