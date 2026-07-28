@@ -14,19 +14,24 @@ sealed interface DomainError {
   /** State conflict on a non-auth resource — HTTP 409. */
   data object Conflict : DomainError
 
-  data class Server(
-    val message: String? = null
-  ) : DomainError
+  data object Server : DomainError
 
-  data class Offline(
-    val message: String
-  ) : DomainError
+  data object Offline : DomainError
 
   data object InsufficientStorage : DomainError
 
-  data class Unknown(
-    val message: String? = null
+  /** Attachment (or other payload) exceeds the server's size limit — HTTP 413. */
+  data object PayloadTooLarge : DomainError
+
+  /** Production phase transitions must be forward-only — HTTP 409. */
+  data object InvalidPhaseTransition : DomainError
+
+  /** Per-field validation failures from the server — HTTP 400. */
+  data class Validation(
+    val fields: Map<String, String>
   ) : DomainError
+
+  data object Unknown : DomainError
 }
 
 class DomainException(

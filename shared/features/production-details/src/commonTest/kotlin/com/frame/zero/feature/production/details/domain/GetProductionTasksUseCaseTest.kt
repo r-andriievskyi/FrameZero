@@ -67,6 +67,6 @@ class GetProductionTasksUseCaseTest {
       val outcome = GetProductionTasksUseCase(repo)(GetProductionTasksUseCase.Params("p1"))
 
       val failure = assertIs<Outcome.Failure>(outcome)
-      assertEquals(DomainError.Offline("offline"), failure.error)
+      assertEquals(DomainError.Offline, failure.error)
     }
 }

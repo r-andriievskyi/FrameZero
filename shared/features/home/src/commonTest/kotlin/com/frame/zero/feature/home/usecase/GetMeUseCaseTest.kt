@@ -33,7 +33,7 @@ class GetMeUseCaseTest {
       val outcome = GetMeUseCase(repo)()
 
       val failure = assertIs<Outcome.Failure>(outcome)
-      assertEquals(DomainError.Offline("offline"), failure.error)
+      assertEquals(DomainError.Offline, failure.error)
     }
 
   @Test
@@ -44,6 +44,6 @@ class GetMeUseCaseTest {
       val outcome = GetMeUseCase(repo)()
 
       val failure = assertIs<Outcome.Failure>(outcome)
-      assertEquals(DomainError.Unknown("boom"), failure.error)
+      assertEquals(DomainError.Unknown, failure.error)
     }
 }

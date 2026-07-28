@@ -25,11 +25,14 @@ fun DomainError.toUiText(messages: DomainErrorMessages): UiText =
     is DomainError.Server -> messages.server.asUiText()
     DomainError.NotFound -> messages.notFound.asUiText()
     DomainError.Forbidden -> messages.forbidden.asUiText()
-    DomainError.Conflict -> messages.conflict.asUiText()
+    DomainError.Conflict,
+    DomainError.InvalidPhaseTransition -> messages.conflict.asUiText()
     DomainError.InvalidCredentials -> messages.invalidCredentials.asUiText()
     DomainError.EmailAlreadyExists -> messages.emailExists.asUiText()
     DomainError.InsufficientStorage,
-    is DomainError.Unknown -> messages.fallback.asUiText()
+    DomainError.PayloadTooLarge,
+    is DomainError.Validation,
+    DomainError.Unknown -> messages.fallback.asUiText()
   }
 
 val DomainError.isOfflineOrServerError: Boolean

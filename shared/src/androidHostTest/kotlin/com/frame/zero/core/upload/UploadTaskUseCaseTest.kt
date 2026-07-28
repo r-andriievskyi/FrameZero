@@ -85,6 +85,9 @@ class UploadTaskUseCaseTest {
         responder(request)
       }
     ) {
+      // Mirrors the production client (`clientConfig`): a non-2xx throws at the response
+      // validator, which is what turns an upload failure into an `Outcome.Failure`.
+      expectSuccess = true
       defaultRequest { contentType(ContentType.Application.Json) }
     }
     return UploadTaskUseCase(store, client, NetworkConfig(baseUrl = "http://test", isDebug = false), files)

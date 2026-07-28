@@ -53,6 +53,6 @@ class GetScheduleUseCaseTest {
       val outcome = GetScheduleUseCase(repo)(GetScheduleUseCase.Params(ScheduleView.DAY, date))
 
       val failure = assertIs<Outcome.Failure>(outcome)
-      assertEquals(DomainError.Offline("offline"), failure.error)
+      assertEquals(DomainError.Offline, failure.error)
     }
 }

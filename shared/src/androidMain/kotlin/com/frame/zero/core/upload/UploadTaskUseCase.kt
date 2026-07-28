@@ -12,7 +12,6 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
-import io.ktor.http.isSuccess
 import io.ktor.util.cio.readChannel
 import java.io.File
 
@@ -52,11 +51,12 @@ class UploadTaskUseCase(
         )
       }
     )
-    val response = httpClient.post("${networkConfig.baseUrl}/api/v1/tasks") {
+    // Non-2xx throws here: the client sets `expectSuccess`, so the response validator raises
+    // before this returns and `UseCase` maps it to an `Outcome.Failure`.
+    httpClient.post("${networkConfig.baseUrl}/api/v1/tasks") {
       header("Idempotency-Key", upload.idempotencyKey)
       setBody(body)
     }
-    check(response.status.isSuccess()) { "Task upload failed: ${response.status}" }
     attachmentFileManager.delete(upload.localPath)
     store.remove(params)
   }

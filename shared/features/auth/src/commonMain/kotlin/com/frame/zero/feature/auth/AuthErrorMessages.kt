@@ -16,13 +16,16 @@ internal fun DomainError.toUiText(): UiText =
   when (this) {
     DomainError.InvalidCredentials -> Res.string.error_invalid_credentials.asUiText()
     DomainError.EmailAlreadyExists -> Res.string.error_email_exists.asUiText()
-    is DomainError.Offline -> Res.string.error_network.asUiText(message)
+    DomainError.Offline -> Res.string.error_network.asUiText()
     DomainError.NotFound,
     DomainError.Forbidden,
     DomainError.Conflict,
     DomainError.InsufficientStorage,
-    is DomainError.Server -> Res.string.error_unknown_fallback.asUiText()
-    is DomainError.Unknown -> message?.let(UiText::Dynamic) ?: Res.string.error_unknown_fallback.asUiText()
+    DomainError.PayloadTooLarge,
+    DomainError.InvalidPhaseTransition,
+    is DomainError.Validation,
+    DomainError.Server,
+    DomainError.Unknown -> Res.string.error_unknown_fallback.asUiText()
   }
 
 /**
