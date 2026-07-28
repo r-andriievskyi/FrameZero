@@ -33,7 +33,7 @@ import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import com.frame.zero.feature.production.CreateProductionIntent
 import com.frame.zero.feature.production.CreateProductionState
 import com.frame.zero.feature.production.CrewMemberEntry
-import com.frame.zero.feature.production.ui.widgets.ErrorText
+import com.frame.zero.shared.design_system.widgets.ErrorText
 import com.frame.zero.feature.production.ui.widgets.FieldLabel
 import com.frame.zero.shared.design_system.LightDarkPreview
 import framezero.composeapp.features.production.generated.resources.Res

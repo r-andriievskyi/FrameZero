@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <!-- Canonical DomainError copy (see DomainErrorText.kt). Features override individual
+       categories only where the wording genuinely needs to name the entity involved. -->
+  <string name="error_network">No internet connection. Check your connection and try again.</string>
+  <string name="error_server">The server is unavailable. Please try again later.</string>
+  <string name="error_not_found">This item no longer exists.</string>
+  <string name="error_forbidden">You don\'t have permission to do this.</string>
+  <string name="error_conflict">That couldn\'t be saved. Please try again.</string>
+  <string name="error_invalid_credentials">Authentication failed. Please sign in again.</string>
+  <string name="error_email_exists">An account with this email already exists</string>
+  <string name="error_insufficient_storage">Not enough free space.</string>
+  <string name="error_unknown_fallback">Something went wrong. Please try again.</string>
+</resources>

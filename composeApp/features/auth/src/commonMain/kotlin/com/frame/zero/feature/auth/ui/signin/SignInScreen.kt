@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -25,6 +24,7 @@ import com.frame.zero.feature.auth.ui.signin.components.SignInPasswordField
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.widgets.CtaButton
+import com.frame.zero.shared.design_system.widgets.ErrorText
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import com.frame.zero.shared.design_system.widgets.toast.ToastHost
 import com.frame.zero.ui.asString
@@ -90,10 +90,8 @@ internal fun SignInContent(
     )
     state.error?.let { error ->
       VerticalSpacer(spacingSystem.space8)
-      Text(
+      ErrorText(
         text = error.asString(),
-        color = AppTheme.colorSystem.errorText,
-        style = AppTheme.typographySystem.bodySmall,
         modifier = Modifier.testTag(SignInTestTags.ERROR)
       )
     }

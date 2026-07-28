@@ -4,8 +4,6 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
 import com.arkivanov.essenty.instancekeeper.InstanceKeeper
-import com.frame.zero.core.error.DomainErrorMessages
-import com.frame.zero.core.error.toUiText
 import com.frame.zero.domain.Outcome
 import com.frame.zero.domain.chat.ChatMessage
 import com.frame.zero.domain.chat.PendingChatMessage
@@ -18,6 +16,10 @@ import com.frame.zero.feature.chat.domain.ObservePendingMessagesUseCase
 import com.frame.zero.feature.chat.domain.OpenConversationUseCase
 import com.frame.zero.feature.chat.domain.RetryPendingMessageUseCase
 import com.frame.zero.repository.chat.ChatRepository
+import com.frame.zero.ui.DomainErrorCategory
+import com.frame.zero.ui.UiText
+import com.frame.zero.ui.asUiText
+import com.frame.zero.ui.toUiText
 import framezero.shared.features.chat.generated.resources.Res
 import framezero.shared.features.chat.generated.resources.chat_error_auth_failed
 import framezero.shared.features.chat.generated.resources.chat_error_conflict
@@ -25,7 +27,6 @@ import framezero.shared.features.chat.generated.resources.chat_error_forbidden
 import framezero.shared.features.chat.generated.resources.chat_error_network
 import framezero.shared.features.chat.generated.resources.chat_error_not_found
 import framezero.shared.features.chat.generated.resources.chat_error_server
-import framezero.shared.features.chat.generated.resources.chat_error_unknown
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -253,15 +254,13 @@ class ChatViewModel(
       amPmMarker("AM", "PM")
     }
 
-    val errorMessages = DomainErrorMessages(
-      network = Res.string.chat_error_network,
-      server = Res.string.chat_error_server,
-      notFound = Res.string.chat_error_not_found,
-      forbidden = Res.string.chat_error_forbidden,
-      conflict = Res.string.chat_error_conflict,
-      invalidCredentials = Res.string.chat_error_auth_failed,
-      emailExists = Res.string.chat_error_unknown,
-      fallback = Res.string.chat_error_unknown
+    val errorMessages: Map<DomainErrorCategory, UiText> = mapOf(
+      DomainErrorCategory.NETWORK to Res.string.chat_error_network.asUiText(),
+      DomainErrorCategory.SERVER to Res.string.chat_error_server.asUiText(),
+      DomainErrorCategory.NOT_FOUND to Res.string.chat_error_not_found.asUiText(),
+      DomainErrorCategory.FORBIDDEN to Res.string.chat_error_forbidden.asUiText(),
+      DomainErrorCategory.CONFLICT to Res.string.chat_error_conflict.asUiText(),
+      DomainErrorCategory.INVALID_CREDENTIALS to Res.string.chat_error_auth_failed.asUiText()
     )
   }
 }

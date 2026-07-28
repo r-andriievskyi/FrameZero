@@ -3,7 +3,6 @@ package com.frame.zero.feature.home.tab.schedule
 import com.frame.zero.domain.OfflineException
 import com.frame.zero.domain.schedule.ScheduleView
 import com.frame.zero.domain.schedule.Schedule
-import com.frame.zero.feature.home.LoadErrorKind
 import com.frame.zero.testing.FakeConnectivityObserver
 import com.frame.zero.testing.FakeScheduleRepository
 import com.frame.zero.feature.home.usecase.GetScheduleUseCase
@@ -77,7 +76,8 @@ class ScheduleTabViewModelTest {
       advanceUntilIdle()
 
       assertNull(viewModel.state.value.schedule)
-      assertEquals(LoadErrorKind.Network, viewModel.state.value.error)
+      assertNotNull(viewModel.state.value.error)
+      assertTrue(viewModel.state.value.isOffline)
       assertFalse(viewModel.state.value.isLoading)
     }
 
@@ -90,7 +90,8 @@ class ScheduleTabViewModelTest {
       advanceUntilIdle()
 
       assertNull(viewModel.state.value.schedule)
-      assertEquals(LoadErrorKind.Generic, viewModel.state.value.error)
+      assertNotNull(viewModel.state.value.error)
+      assertFalse(viewModel.state.value.isOffline)
       assertFalse(viewModel.state.value.isLoading)
     }
 
@@ -118,7 +119,8 @@ class ScheduleTabViewModelTest {
       )
 
       advanceUntilIdle()
-      assertEquals(LoadErrorKind.Network, viewModel.state.value.error)
+      assertNotNull(viewModel.state.value.error)
+      assertTrue(viewModel.state.value.isOffline)
 
       shouldFail = false
       connectivity.online.value = true

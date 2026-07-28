@@ -33,6 +33,7 @@ import kotlinx.collections.immutable.persistentListOf
 import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.modifier.clickableWithRipple
 import com.frame.zero.shared.design_system.widgets.CtaButton
+import com.frame.zero.shared.design_system.widgets.ErrorText
 import com.frame.zero.shared.design_system.widgets.SingleLineInputField
 import com.frame.zero.shared.design_system.widgets.TopToolbar
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer
@@ -125,10 +126,8 @@ internal fun CreateTaskContent(
       )
       state.titleError?.let { error ->
         VerticalSpacer(spacing.space4)
-        Text(
+        ErrorText(
           text = error.asString(),
-          style = AppTheme.typographySystem.bodySmall,
-          color = colors.errorText,
           modifier = Modifier.testTag(CreateTaskTestTags.TITLE_ERROR)
         )
       }
@@ -154,11 +153,7 @@ internal fun CreateTaskContent(
       )
       state.attachmentError?.let { error ->
         VerticalSpacer(spacing.space4)
-        Text(
-          text = error.asString(),
-          style = AppTheme.typographySystem.bodySmall,
-          color = colors.errorText
-        )
+        ErrorText(text = error.asString())
       }
 
       VerticalSpacer(spacing.space24)

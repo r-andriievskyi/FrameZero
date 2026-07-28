@@ -10,8 +10,9 @@ import com.frame.zero.domain.schedule.Schedule
 import com.frame.zero.domain.schedule.ScheduleEvent
 import com.frame.zero.domain.schedule.ScheduleTask
 import com.frame.zero.domain.schedule.ScheduleView
-import com.frame.zero.feature.home.LoadErrorKind
+import com.frame.zero.feature.home.homeErrorMessages
 import com.frame.zero.feature.home.usecase.GetScheduleUseCase
+import com.frame.zero.ui.toUiText
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -63,7 +64,7 @@ class ScheduleTabViewModel(
       connectivityObserver.isOnline
         .filter { online -> online }
         .collect {
-          if (_state.value.error == LoadErrorKind.Network) {
+          if (_state.value.isOffline) {
             load(view = _state.value.view, date = _state.value.selectedDate ?: today())
           }
         }
@@ -118,7 +119,7 @@ class ScheduleTabViewModel(
   ) {
     loadJob?.cancel()
     loadJob = scope.launch {
-      _state.update { it.copy(isLoading = true, error = null) }
+      _state.update { it.copy(isLoading = true, error = null, isOffline = false) }
       when (val outcome = getScheduleUseCase(GetScheduleUseCase.Params(view, date))) {
         is Outcome.Success -> {
           val todayDate = today()
@@ -134,7 +135,11 @@ class ScheduleTabViewModel(
         }
 
         is Outcome.Failure -> _state.update {
-          it.copy(isLoading = false, error = outcome.error.toLoadErrorKind())
+          it.copy(
+            isLoading = false,
+            error = outcome.error.toUiText(homeErrorMessages),
+            isOffline = outcome.error is DomainError.Offline
+          )
         }
       }
     }
@@ -143,9 +148,6 @@ class ScheduleTabViewModel(
   override fun onDestroy() {
     scope.cancel()
   }
-
-  private fun DomainError.toLoadErrorKind(): LoadErrorKind =
-    if (this is DomainError.Offline) LoadErrorKind.Network else LoadErrorKind.Generic
 
   @OptIn(ExperimentalTime::class)
   private fun today(): LocalDate =

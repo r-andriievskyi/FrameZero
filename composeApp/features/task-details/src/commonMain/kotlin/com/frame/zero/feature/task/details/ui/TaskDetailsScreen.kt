@@ -34,7 +34,6 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.frame.zero.feature.task.details.AssignableMemberUi
-import com.frame.zero.feature.task.details.AttachmentDownloadError
 import com.frame.zero.feature.task.details.TaskAttachment
 import com.frame.zero.feature.task.details.TaskDetailsComponent
 import com.frame.zero.feature.task.details.TaskDetailsIntent
@@ -57,10 +56,6 @@ import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import com.frame.zero.shared.design_system.widgets.toast.ToastHost
 import com.frame.zero.ui.asString
 import framezero.composeapp.features.task_details.generated.resources.Res
-import framezero.composeapp.features.task_details.generated.resources.task_details_attachment_error_generic
-import framezero.composeapp.features.task_details.generated.resources.task_details_attachment_error_offline
-import framezero.composeapp.features.task_details.generated.resources.task_details_attachment_error_storage
-import framezero.composeapp.features.task_details.generated.resources.task_details_error
 import framezero.composeapp.features.task_details.generated.resources.task_details_mark_complete
 import framezero.composeapp.features.task_details.generated.resources.task_details_open_chat
 import framezero.composeapp.features.task_details.generated.resources.task_details_retry
@@ -115,18 +110,19 @@ internal fun TaskDetailsContent(
         title = stringResource(Res.string.task_details_title),
         onBack = onBack,
         trailingContent = {
-          if (!state.isLoading && !state.isError) {
+          if (!state.isLoading && state.error == null) {
             ChatAction(onClick = onOpenChat, unreadCount = state.unreadChatCount)
           }
         }
       )
 
+      val loadError = state.error
       when {
         state.isLoading ->
           FullScreenProgress(modifier = Modifier.weight(1f).testTag(TaskDetailsTestTags.LOADING))
-        state.isError -> FullScreenError(
+        loadError != null -> FullScreenError(
           modifier = Modifier.weight(1f).testTag(TaskDetailsTestTags.ERROR),
-          message = stringResource(Res.string.task_details_error),
+          message = loadError.asString(),
           onRetry = { onIntent(TaskDetailsIntent.Refresh) },
           retryLabel = stringResource(Res.string.task_details_retry)
         )
@@ -192,7 +188,7 @@ internal fun TaskDetailsContent(
               AttachmentCard(
                 attachment = attachment,
                 isDownloading = state.isDownloadingAttachment,
-                errorMessage = state.attachmentError?.let { stringResource(it.messageRes()) },
+                errorMessage = state.attachmentError?.asString(),
                 onClick = { onIntent(TaskDetailsIntent.DownloadAttachment) }
               )
             }
@@ -289,13 +285,6 @@ private fun UnreadBadge(
     )
   }
 }
-
-private fun AttachmentDownloadError.messageRes() =
-  when (this) {
-    AttachmentDownloadError.OFFLINE -> Res.string.task_details_attachment_error_offline
-    AttachmentDownloadError.INSUFFICIENT_STORAGE -> Res.string.task_details_attachment_error_storage
-    AttachmentDownloadError.GENERIC -> Res.string.task_details_attachment_error_generic
-  }
 
 @LightDarkPreview
 @Composable

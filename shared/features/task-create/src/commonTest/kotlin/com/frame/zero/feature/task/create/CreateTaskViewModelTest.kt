@@ -16,8 +16,9 @@ import com.frame.zero.testing.productionMember
 import com.frame.zero.testing.taskDetail
 import com.frame.zero.ui.asUiText
 import framezero.shared.features.task_create.generated.resources.Res
-import framezero.shared.features.task_create.generated.resources.error_network
 import framezero.shared.features.task_create.generated.resources.error_title_required
+import framezero.shared.ui_text.generated.resources.Res as UiTextRes
+import framezero.shared.ui_text.generated.resources.error_network
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -90,7 +91,7 @@ class CreateTaskViewModelTest {
       viewModel.onIntent(CreateTaskIntent.Submit)
       advanceUntilIdle()
 
-      assertEquals(Res.string.error_network.asUiText(), viewModel.state.value.errorToast)
+      assertEquals(UiTextRes.string.error_network.asUiText(), viewModel.state.value.errorToast)
       assertEquals(false, viewModel.state.value.isLoading)
     }
 

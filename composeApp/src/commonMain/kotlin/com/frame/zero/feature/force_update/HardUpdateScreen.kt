@@ -30,7 +30,6 @@ import org.jetbrains.compose.resources.stringResource
 
 @Composable
 internal fun HardUpdateScreen(
-  message: String?,
   onUpdate: () -> Unit,
   modifier: Modifier = Modifier
 ) {
@@ -53,7 +52,6 @@ internal fun HardUpdateScreen(
       horizontalAlignment = Alignment.CenterHorizontally
     ) {
       HardUpdateContent(
-        message = message,
         modifier = Modifier
           .fillMaxWidth()
           .weight(1f)
@@ -71,7 +69,6 @@ internal fun HardUpdateScreen(
 
 @Composable
 private fun HardUpdateContent(
-  message: String?,
   modifier: Modifier = Modifier
 ) {
   val colorSystem = AppTheme.colorSystem
@@ -97,7 +94,7 @@ private fun HardUpdateContent(
     )
     VerticalSpacer(spacingSystem.space8)
     Text(
-      text = message ?: stringResource(Res.string.update_hard_subtitle),
+      text = stringResource(Res.string.update_hard_subtitle),
       style = typographySystem.bodyMedium,
       color = colorSystem.textMuted,
       textAlign = TextAlign.Center
@@ -126,6 +123,6 @@ private fun HardUpdateWarningBanner(modifier: Modifier = Modifier) {
 @Composable
 private fun HardUpdateScreenPreview() {
   AppTheme {
-    HardUpdateScreen(message = null, onUpdate = {})
+    HardUpdateScreen(onUpdate = {})
   }
 }

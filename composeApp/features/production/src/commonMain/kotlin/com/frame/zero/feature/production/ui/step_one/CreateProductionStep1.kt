@@ -16,13 +16,13 @@ import androidx.compose.ui.Modifier
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.widgets.CtaButton
+import com.frame.zero.shared.design_system.widgets.ErrorText
 import com.frame.zero.ui.asString
 import com.frame.zero.shared.design_system.widgets.SingleLineInputField
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import com.frame.zero.domain.production.Genre
 import com.frame.zero.feature.production.CreateProductionIntent
 import com.frame.zero.feature.production.CreateProductionState
-import com.frame.zero.feature.production.ui.widgets.ErrorText
 import com.frame.zero.feature.production.ui.widgets.FieldLabel
 import com.frame.zero.feature.production.ui.widgets.GenreChip
 import com.frame.zero.feature.production.ui.displayLabel

@@ -1,24 +1,19 @@
 package com.frame.zero.feature.production
 
 import com.arkivanov.essenty.instancekeeper.InstanceKeeper
-import com.frame.zero.core.error.DomainErrorMessages
-import com.frame.zero.core.error.isOfflineOrServerError
-import com.frame.zero.core.error.toUiText
 import com.frame.zero.domain.Outcome
 import com.frame.zero.domain.production.NewCrewMember
 import com.frame.zero.feature.production.domain.CreateProductionUseCase
+import com.frame.zero.ui.DomainErrorCategory
+import com.frame.zero.ui.UiText
 import com.frame.zero.ui.asUiText
+import com.frame.zero.ui.isOfflineOrServerError
+import com.frame.zero.ui.toUiText
 import framezero.shared.features.production.generated.resources.Res
-import framezero.shared.features.production.generated.resources.error_auth_failed
 import framezero.shared.features.production.generated.resources.error_conflict
-import framezero.shared.features.production.generated.resources.error_email_exists
-import framezero.shared.features.production.generated.resources.error_forbidden
 import framezero.shared.features.production.generated.resources.error_invalid_dates
 import framezero.shared.features.production.generated.resources.error_missing_dates
-import framezero.shared.features.production.generated.resources.error_network
-import framezero.shared.features.production.generated.resources.error_server
 import framezero.shared.features.production.generated.resources.error_title_required
-import framezero.shared.features.production.generated.resources.error_unknown_fallback
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
@@ -206,15 +201,8 @@ class CreateProductionViewModel(
   private companion object {
     const val TOTAL_STEPS = 3
 
-    val errorMessages = DomainErrorMessages(
-      network = Res.string.error_network,
-      server = Res.string.error_server,
-      notFound = Res.string.error_unknown_fallback,
-      forbidden = Res.string.error_forbidden,
-      conflict = Res.string.error_conflict,
-      invalidCredentials = Res.string.error_auth_failed,
-      emailExists = Res.string.error_email_exists,
-      fallback = Res.string.error_unknown_fallback
+    val errorMessages: Map<DomainErrorCategory, UiText> = mapOf(
+      DomainErrorCategory.CONFLICT to Res.string.error_conflict.asUiText()
     )
   }
 }

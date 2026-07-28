@@ -61,7 +61,7 @@ class TaskDetailsViewModelTest {
 
       val state = viewModel.state.value
       assertFalse(state.isLoading)
-      assertFalse(state.isError)
+      assertNull(state.error)
       assertEquals("t1", state.taskId)
       assertEquals("Review Scene 12", state.title)
       assertEquals("Echoes of Silence", state.productionName)
@@ -154,14 +154,14 @@ class TaskDetailsViewModelTest {
     }
 
   @Test
-  fun `load failure sets isError true`() =
+  fun `load failure sets error`() =
     runTest {
       val repo = FakeTasksRepository(task = openTask, getThrows = RuntimeException("boom"))
       val viewModel = makeViewModel(this, repo)
 
       advanceUntilIdle()
 
-      assertTrue(viewModel.state.value.isError)
+      assertNotNull(viewModel.state.value.error)
       assertFalse(viewModel.state.value.isLoading)
     }
 
@@ -232,13 +232,13 @@ class TaskDetailsViewModelTest {
       }
       val viewModel = makeViewModel(this, repo)
       advanceUntilIdle()
-      assertTrue(viewModel.state.value.isError)
+      assertNotNull(viewModel.state.value.error)
 
       shouldFail = false
       viewModel.onIntent(TaskDetailsIntent.Refresh)
       advanceUntilIdle()
 
-      assertFalse(viewModel.state.value.isError)
+      assertNull(viewModel.state.value.error)
       assertEquals("Review Scene 12", viewModel.state.value.title)
       assertEquals(2, repo.calls)
     }

@@ -19,7 +19,7 @@ data class TaskDetailsState(
   val description: String = "",
   val attachment: TaskAttachment? = null,
   val isDownloadingAttachment: Boolean = false,
-  val attachmentError: AttachmentDownloadError? = null,
+  val attachmentError: UiText? = null,
   val participants: ImmutableList<AssignableMemberUi> = persistentListOf(),
   val assignableMembers: ImmutableList<AssignableMemberUi> = persistentListOf(),
   val isParticipantPickerVisible: Boolean = false,
@@ -27,7 +27,7 @@ data class TaskDetailsState(
   val isUpdatingParticipants: Boolean = false,
   val participantsError: UiText? = null,
   val isLoading: Boolean = false,
-  val isError: Boolean = false,
+  val error: UiText? = null,
   val showMarkCompleteButton: Boolean = false,
   /** Unread messages in the task chat; 0 hides the badge on the chat entry point. */
   val unreadChatCount: Int = 0
@@ -47,9 +47,6 @@ data class TaskDetailsState(
 enum class TaskPriority { HIGH, MEDIUM, LOW }
 
 enum class TaskStatus { IN_PROGRESS, COMPLETED }
-
-/** Reason an attachment download couldn't proceed; the UI maps it to a message. */
-enum class AttachmentDownloadError { OFFLINE, INSUFFICIENT_STORAGE, GENERIC }
 
 data class TaskAttachment(
   val fileName: String,

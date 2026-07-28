@@ -5,7 +5,6 @@ import com.frame.zero.domain.dashboard.Dashboard
 import com.frame.zero.domain.dashboard.DashboardStats
 import com.frame.zero.domain.dashboard.DashboardTask
 import com.frame.zero.domain.task.TaskStatus
-import com.frame.zero.feature.home.LoadErrorKind
 import com.frame.zero.testing.FakeConnectivityObserver
 import com.frame.zero.testing.FakeDashboardRepository
 import com.frame.zero.testing.FakeUserRepository
@@ -138,7 +137,8 @@ class DashboardTabViewModelTest {
       advanceUntilIdle()
 
       assertNull(viewModel.state.value.dashboard)
-      assertEquals(LoadErrorKind.Generic, viewModel.state.value.error)
+      assertNotNull(viewModel.state.value.error)
+      assertFalse(viewModel.state.value.isOffline)
       assertFalse(viewModel.state.value.isLoading)
     }
 
@@ -152,7 +152,8 @@ class DashboardTabViewModelTest {
       advanceUntilIdle()
 
       assertNull(viewModel.state.value.dashboard)
-      assertEquals(LoadErrorKind.Network, viewModel.state.value.error)
+      assertNotNull(viewModel.state.value.error)
+      assertTrue(viewModel.state.value.isOffline)
     }
 
   @Test
@@ -165,7 +166,8 @@ class DashboardTabViewModelTest {
       advanceUntilIdle()
 
       assertNull(viewModel.state.value.dashboard)
-      assertEquals(LoadErrorKind.Generic, viewModel.state.value.error)
+      assertNotNull(viewModel.state.value.error)
+      assertFalse(viewModel.state.value.isOffline)
     }
 
   @Test
@@ -190,7 +192,8 @@ class DashboardTabViewModelTest {
       )
 
       advanceUntilIdle()
-      assertEquals(LoadErrorKind.Network, viewModel.state.value.error)
+      assertNotNull(viewModel.state.value.error)
+      assertTrue(viewModel.state.value.isOffline)
 
       shouldFail = false
       connectivity.online.value = true
@@ -231,7 +234,8 @@ class DashboardTabViewModelTest {
       val viewModel = makeViewModel(this, userRepo, dashboardRepo)
 
       advanceUntilIdle()
-      assertEquals(LoadErrorKind.Generic, viewModel.state.value.error)
+      assertNotNull(viewModel.state.value.error)
+      assertFalse(viewModel.state.value.isOffline)
 
       shouldFail = false
       viewModel.onIntent(DashboardTabIntent.Retry)

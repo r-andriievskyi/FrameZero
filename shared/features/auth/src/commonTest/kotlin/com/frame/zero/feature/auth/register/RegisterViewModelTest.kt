@@ -14,9 +14,10 @@ import com.frame.zero.repository.auth.AuthRepository
 import com.frame.zero.ui.asUiText
 import com.russhwolf.settings.MapSettings
 import framezero.shared.features.auth.generated.resources.Res
-import framezero.shared.features.auth.generated.resources.error_email_exists
 import framezero.shared.features.auth.generated.resources.error_empty_credentials
-import framezero.shared.features.auth.generated.resources.error_network
+import framezero.shared.ui_text.generated.resources.Res as UiTextRes
+import framezero.shared.ui_text.generated.resources.error_email_exists
+import framezero.shared.ui_text.generated.resources.error_network
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
@@ -107,7 +108,7 @@ class RegisterViewModelTest {
       vm.onIntent(RegisterIntent.Submit)
       advanceUntilIdle()
 
-      assertEquals(Res.string.error_email_exists.asUiText(), vm.state.value.error)
+      assertEquals(UiTextRes.string.error_email_exists.asUiText(), vm.state.value.error)
     }
 
   @Test
@@ -121,7 +122,7 @@ class RegisterViewModelTest {
       vm.onIntent(RegisterIntent.Submit)
       advanceUntilIdle()
 
-      assertEquals(Res.string.error_network.asUiText(), vm.state.value.errorToast)
+      assertEquals(UiTextRes.string.error_network.asUiText(), vm.state.value.errorToast)
       assertNull(vm.state.value.error)
     }
 
@@ -135,7 +136,7 @@ class RegisterViewModelTest {
       vm.onIntent(RegisterIntent.PasswordChanged("p"))
       vm.onIntent(RegisterIntent.Submit)
       advanceUntilIdle()
-      assertEquals(Res.string.error_network.asUiText(), vm.state.value.errorToast)
+      assertEquals(UiTextRes.string.error_network.asUiText(), vm.state.value.errorToast)
 
       vm.onIntent(RegisterIntent.ToastDismissed)
 

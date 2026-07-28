@@ -20,8 +20,8 @@ class CheckForceUpdateUseCase(
     val currentBuild = appVersionProvider.current().buildNumber
     return when (deriveUpdateType(currentBuild, policy)) {
       UpdateType.NONE -> ForceUpdateState.None
-      UpdateType.SOFT -> ForceUpdateState.Soft(policy.message, policy.storeUrl, policy.critical)
-      UpdateType.HARD -> ForceUpdateState.Hard(policy.message, policy.storeUrl)
+      UpdateType.SOFT -> ForceUpdateState.Soft(policy.storeUrl, policy.critical)
+      UpdateType.HARD -> ForceUpdateState.Hard(policy.storeUrl)
     }
   }
 }

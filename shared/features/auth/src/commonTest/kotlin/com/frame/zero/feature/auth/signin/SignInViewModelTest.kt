@@ -16,8 +16,9 @@ import com.russhwolf.settings.MapSettings
 import framezero.shared.features.auth.generated.resources.Res
 import framezero.shared.features.auth.generated.resources.error_empty_credentials
 import framezero.shared.features.auth.generated.resources.error_invalid_credentials
-import framezero.shared.features.auth.generated.resources.error_network
-import framezero.shared.features.auth.generated.resources.error_unknown_fallback
+import framezero.shared.ui_text.generated.resources.Res as UiTextRes
+import framezero.shared.ui_text.generated.resources.error_network
+import framezero.shared.ui_text.generated.resources.error_unknown_fallback
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -129,7 +130,7 @@ class SignInViewModelTest {
       vm.onIntent(SignInIntent.Submit)
       advanceUntilIdle()
 
-      assertEquals(Res.string.error_network.asUiText(), vm.state.value.errorToast)
+      assertEquals(UiTextRes.string.error_network.asUiText(), vm.state.value.errorToast)
       assertNull(vm.state.value.error)
     }
 
@@ -144,7 +145,7 @@ class SignInViewModelTest {
       vm.onIntent(SignInIntent.Submit)
       advanceUntilIdle()
 
-      assertEquals(Res.string.error_unknown_fallback.asUiText(), vm.state.value.errorToast)
+      assertEquals(UiTextRes.string.error_unknown_fallback.asUiText(), vm.state.value.errorToast)
       assertNull(vm.state.value.error)
     }
 
@@ -158,7 +159,7 @@ class SignInViewModelTest {
       vm.onIntent(SignInIntent.PasswordChanged("p"))
       vm.onIntent(SignInIntent.Submit)
       advanceUntilIdle()
-      assertEquals(Res.string.error_network.asUiText(), vm.state.value.errorToast)
+      assertEquals(UiTextRes.string.error_network.asUiText(), vm.state.value.errorToast)
 
       vm.onIntent(SignInIntent.ToastDismissed)
 

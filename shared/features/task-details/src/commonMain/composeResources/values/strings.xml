@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <!-- TaskDetailsViewModel error messages (participants update) -->
-  <string name="error_network">No internet connection. Check your connection and try again.</string>
-  <string name="error_server">The server is unavailable. Please try again later.</string>
+  <!-- TaskDetailsViewModel error messages -->
   <string name="error_forbidden">You don\'t have permission to change this task\'s participants.</string>
   <string name="error_not_found">This task no longer exists.</string>
   <string name="error_conflict">Couldn\'t update participants. Please try again.</string>
-  <string name="error_auth_failed">Authentication failed. Please sign in again.</string>
-  <string name="error_unknown_fallback">Something went wrong. Please try again.</string>
+
+  <!-- Attachment download error messages -->
+  <string name="error_attachment_offline">You\'re offline. Connect and try again.</string>
+  <string name="error_attachment_storage">Not enough free space to download this file.</string>
+  <string name="error_attachment_generic">Couldn\'t download the attachment. Try again.</string>
 </resources>
