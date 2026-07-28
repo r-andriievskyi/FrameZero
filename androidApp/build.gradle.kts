@@ -153,4 +153,9 @@ dependencies {
   implementation(project.dependencies.platform(libs.firebase.bom))
   implementation(libs.firebase.messaging)
   debugImplementation(libs.compose.uiTooling)
+  // Real AGP build-type dependencies, not task-name inference: this is the one place in the
+  // project that actually has a debug/release split, so it's the one place that can gate a
+  // debug-only network inspector without a Gradle invocation being able to miss it.
+  debugImplementation(libs.chucker.library)
+  releaseImplementation(libs.chucker.libraryNoOp)
 }

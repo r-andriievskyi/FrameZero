@@ -1,7 +1,5 @@
 package com.frame.zero.common.testing
 
-import com.frame.zero.AppException
-import com.frame.zero.ErrorResponse
 import com.frame.zero.auth.JwtService
 import com.frame.zero.auth.testing.FakeUserRepository
 import com.frame.zero.chat.CHAT_SEND_RATE_LIMIT_NAME
@@ -36,9 +34,8 @@ import com.frame.zero.storage.FileStorage
 import com.frame.zero.storage.FilesystemFileStorage
 import com.frame.zero.task.TaskService
 import com.frame.zero.task.taskRoutes
+import com.frame.zero.installStatusPages
 import com.frame.zero.task.testing.FakeTaskRepository
-import com.frame.zero.toResponse
-import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
@@ -47,13 +44,10 @@ import io.ktor.server.auth.jwt.JWTPrincipal
 import io.ktor.server.auth.jwt.jwt
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.ratelimit.RateLimit
-import io.ktor.server.plugins.statuspages.StatusPages
-import io.ktor.server.response.respond
 import io.ktor.server.routing.routing
 import io.ktor.server.websocket.WebSockets
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import kotlinx.serialization.SerializationException
 import org.koin.dsl.module
 import org.koin.ktor.plugin.Koin
 import java.util.UUID
@@ -148,17 +142,7 @@ internal class TestAppEnv {
         }
       }
     }
-    app.install(StatusPages) {
-      exception<AppException> { call, cause ->
-        call.respond(cause.error.status, cause.error.toResponse())
-      }
-      exception<SerializationException> { call, _ ->
-        call.respond(
-          HttpStatusCode.BadRequest,
-          ErrorResponse(error = "VALIDATION_ERROR", message = "Malformed request body")
-        )
-      }
-    }
+    app.installStatusPages()
     app.routing {
       dashboardRoutes()
       productionRoutes()

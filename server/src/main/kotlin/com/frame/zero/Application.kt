@@ -34,6 +34,7 @@ import io.ktor.server.auth.jwt.jwt
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.metrics.micrometer.MicrometerMetrics
 import io.ktor.server.netty.Netty
+import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.plugins.callid.CallId
 import io.ktor.server.plugins.callid.callIdMdc
 import io.ktor.server.plugins.calllogging.CallLogging
@@ -192,7 +193,9 @@ private fun Route.healthRoutes() {
   }
 }
 
-private fun Application.installStatusPages() {
+/** internal, not private: `TestAppEnv`/`AuthRoutesTest` install this directly so tests exercise
+ *  the real mapping instead of a hand-rolled reimplementation that can drift out of sync. */
+internal fun Application.installStatusPages() {
   install(StatusPages) {
     exception<AppException> { call, cause ->
       call.application.environment.log
@@ -207,12 +210,26 @@ private fun Application.installStatusPages() {
         ErrorResponse(error = "VALIDATION_ERROR", message = "Malformed request body")
       )
     }
+    // What ContentNegotiation actually throws for an unparsable body: a BadRequestException
+    // wrapping the SerializationException as its cause, not a SerializationException itself,
+    // so the handler above never sees it — this would otherwise fall through to the Throwable
+    // branch below and turn a client's malformed JSON into an opaque 500.
+    exception<BadRequestException> { call, cause ->
+      call.application.environment.log
+        .debug("BadRequestException: {}", cause.message)
+      call.respond(
+        HttpStatusCode.BadRequest,
+        ErrorResponse(error = "VALIDATION_ERROR", message = "Malformed request body")
+      )
+    }
     exception<IllegalArgumentException> { call, cause ->
       call.application.environment.log
         .debug("IllegalArgumentException: {}", cause.message)
+      // Never echo cause.message: it can be a library's raw internals (Exposed, UUID.fromString,
+      // multipart), not vetted user-facing copy — see the Throwable branch below for the same rule.
       call.respond(
         HttpStatusCode.BadRequest,
-        ErrorResponse(error = "VALIDATION_ERROR", message = cause.message ?: "Invalid request")
+        ErrorResponse(error = "VALIDATION_ERROR", message = "Invalid request")
       )
     }
     exception<Throwable> { call, cause ->

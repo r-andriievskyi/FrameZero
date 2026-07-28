@@ -5,10 +5,6 @@ import org.jetbrains.compose.resources.StringResource
 
 @Immutable
 sealed interface UiText {
-  data class Dynamic(
-    val text: String
-  ) : UiText
-
   data class Resource(
     val res: StringResource,
     val args: List<Any> = emptyList()

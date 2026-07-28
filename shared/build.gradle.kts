@@ -89,7 +89,6 @@ kotlin {
       implementation(libs.androidx.biometric)
       implementation(libs.androidx.fragment)
       implementation(libs.androidx.work.runtime)
-      implementation(if (releaseTaskRequested) libs.chucker.libraryNoOp else libs.chucker.library)
     }
     iosMain.dependencies { implementation(libs.ktor.clientDarwin) }
     commonTest.dependencies {

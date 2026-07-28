@@ -1,11 +1,12 @@
 package com.frame.zero.feature.auth.register
 
 import com.arkivanov.essenty.instancekeeper.InstanceKeeper
+import com.frame.zero.core.error.isOfflineOrServerError
+import com.frame.zero.core.error.toUiText
 import com.frame.zero.domain.Outcome
+import com.frame.zero.feature.auth.authErrorMessages
 import com.frame.zero.feature.auth.domain.RegisterUseCase
 import com.frame.zero.feature.auth.emptyCredentialsError
-import com.frame.zero.feature.auth.isOfflineOrServerError
-import com.frame.zero.feature.auth.toUiText
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -63,7 +64,7 @@ class RegisterViewModel(
       ) {
         is Outcome.Success -> _state.update { it.copy(isLoading = false) }
         is Outcome.Failure -> {
-          val message = outcome.error.toUiText()
+          val message = outcome.error.toUiText(authErrorMessages)
           if (outcome.error.isOfflineOrServerError) {
             _state.update { it.copy(isLoading = false, errorToast = message) }
           } else {

@@ -6,6 +6,7 @@ import android.app.NotificationManager
 import com.frame.zero.core.security.ActivityHolder
 import com.frame.zero.core.security.AppLifecycleObserver
 import com.frame.zero.di.androidContextModule
+import com.frame.zero.di.debugToolsModule
 import com.frame.zero.di.initKoin
 import com.frame.zero.push.PushNotifications
 import org.koin.core.Koin
@@ -16,7 +17,7 @@ class FrameZeroApp : Application() {
 
   override fun onCreate() {
     super.onCreate()
-    koin = initKoin(extraModules = listOf(androidContextModule(applicationContext)))
+    koin = initKoin(extraModules = listOf(androidContextModule(applicationContext), debugToolsModule))
     // lets the biometric authenticator find the foreground activity to host its prompt.
     koin.get<ActivityHolder>().attachTo(this)
     // re-locks the session on real backgrounding (ignores config-change recreation).

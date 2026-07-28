@@ -1,6 +1,6 @@
 package com.frame.zero.auth
 
-import com.frame.zero.AppException
+import com.frame.zero.ErrorResponse
 import com.frame.zero.common.testing.NoopTransactor
 import com.frame.zero.auth.dto.AuthResponse
 import com.frame.zero.auth.dto.LoginRequest
@@ -12,6 +12,7 @@ import com.frame.zero.auth.dto.UserDto
 import com.frame.zero.auth.testing.FakeRefreshTokenRepository
 import com.frame.zero.auth.testing.FakeUserRepository
 import com.frame.zero.config.JwtConfig
+import com.frame.zero.installStatusPages
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.post
@@ -29,11 +30,8 @@ import io.ktor.server.auth.jwt.JWTPrincipal
 import io.ktor.server.auth.jwt.jwt
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.ratelimit.RateLimit
-import io.ktor.server.plugins.statuspages.StatusPages
-import io.ktor.server.response.respond
 import io.ktor.server.routing.routing
 import io.ktor.server.testing.testApplication
-import kotlinx.serialization.SerializationException
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.koin.core.context.GlobalContext
@@ -289,6 +287,26 @@ class AuthRoutesTest {
         }
 
       assertEquals(HttpStatusCode.BadRequest, response.status)
+      val body = json.decodeFromString<ErrorResponse>(response.bodyAsText())
+      assertEquals("VALIDATION_ERROR", body.error)
+      assertEquals("Malformed request body", body.message)
+    }
+
+  @Test
+  fun `a duplicate email yields the real ErrorResponse shape, not a bare status`() =
+    testApplication {
+      val env = TestEnv()
+      application { env.configure(this) }
+      env.service.register("u@x.com", "password123", "Test", "User")
+
+      val response =
+        client.post("/auth/register") {
+          contentType(ContentType.Application.Json)
+          setBody(json.encodeToString(RegisterRequest("u@x.com", "password456", "Test", "User")))
+        }
+
+      val body = json.decodeFromString<ErrorResponse>(response.bodyAsText())
+      assertEquals("EMAIL_ALREADY_EXISTS", body.error)
     }
 
   // -- helpers ---------------------------------------------------------------
@@ -329,20 +347,7 @@ class AuthRoutesTest {
           }
         }
       }
-      app.install(StatusPages) {
-        exception<AppException> { call, cause ->
-          call.respond(cause.error.status, mapOf("error" to cause.error.humanMessage))
-        }
-        exception<SerializationException> { call, _ ->
-          call.respond(HttpStatusCode.BadRequest, mapOf("error" to "Malformed request body"))
-        }
-        exception<IllegalArgumentException> { call, cause ->
-          call.respond(
-            HttpStatusCode.BadRequest,
-            mapOf("error" to (cause.message ?: "Invalid request"))
-          )
-        }
-      }
+      app.installStatusPages()
       app.routing { authRoutes() }
     }
   }
