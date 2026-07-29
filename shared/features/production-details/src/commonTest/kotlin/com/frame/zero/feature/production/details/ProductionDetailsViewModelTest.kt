@@ -11,6 +11,7 @@ import com.frame.zero.feature.production.details.domain.DeleteProductionUseCase
 import com.frame.zero.feature.production.details.domain.GetProductionDetailsUseCase
 import com.frame.zero.feature.production.details.domain.GetProductionTasksUseCase
 import com.frame.zero.testing.FakeProductionsRepository
+import com.frame.zero.testing.FakeTaskUploadScheduler
 import com.frame.zero.testing.FakeTasksRepository
 import com.frame.zero.testing.productionDetail
 import com.frame.zero.repository.productions.ProductionsRepository
@@ -178,6 +179,8 @@ class ProductionDetailsViewModelTest {
       getProductionDetailsUseCase = GetProductionDetailsUseCase(repo),
       getProductionTasksUseCase = GetProductionTasksUseCase(tasksRepo),
       deleteProductionUseCase = DeleteProductionUseCase(repo),
+      pendingUploadStore = testPendingUploadStore(),
+      taskUploadScheduler = FakeTaskUploadScheduler(),
       dispatcher = StandardTestDispatcher(testScheduler)
     )
 

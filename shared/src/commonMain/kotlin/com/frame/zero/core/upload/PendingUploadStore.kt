@@ -22,9 +22,37 @@ class PendingUploadStore(
 
   suspend fun add(upload: PendingTaskUpload) = dao.upsert(upload.toEntity())
 
-  suspend fun markFailed(uploadId: String) = dao.updateStatus(uploadId, PendingUploadStatus.Failed.name)
+  /**
+   * Records one failed attempt: increments [PendingTaskUpload.attemptCount] and sets
+   * [PendingTaskUpload.failureReason]. Terminal ([PendingUploadStatus.Failed]) once [reason] is
+   * [UploadFailureReason.Permanent] or the attempt budget ([MAX_UPLOAD_ATTEMPTS]) is spent;
+   * otherwise stays [PendingUploadStatus.Uploading] so the caller knows there's budget to retry.
+   * Returns the updated record (null if [uploadId] no longer exists — e.g. the user cancelled it
+   * mid-request).
+   */
+  suspend fun recordFailure(
+    uploadId: String,
+    reason: UploadFailureReason
+  ): PendingTaskUpload? {
+    val current = get(uploadId) ?: return null
+    val attemptCount = current.attemptCount + 1
+    val terminal = reason == UploadFailureReason.Permanent || attemptCount >= MAX_UPLOAD_ATTEMPTS
+    val updated = current.copy(
+      attemptCount = attemptCount,
+      failureReason = reason,
+      status = if (terminal) PendingUploadStatus.Failed else PendingUploadStatus.Uploading
+    )
+    dao.upsert(updated.toEntity())
+    return updated
+  }
 
-  suspend fun markUploading(uploadId: String) = dao.updateStatus(uploadId, PendingUploadStatus.Uploading.name)
+  /** Explicit user-initiated retry: a fresh attempt budget, not a continuation of the old one. */
+  suspend fun markUploading(uploadId: String) {
+    val current = get(uploadId) ?: return
+    dao.upsert(
+      current.copy(status = PendingUploadStatus.Uploading, attemptCount = 0, failureReason = null).toEntity()
+    )
+  }
 
   suspend fun remove(uploadId: String) = dao.delete(uploadId)
 

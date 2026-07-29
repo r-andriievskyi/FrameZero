@@ -17,6 +17,7 @@ kotlin {
     }
     commonTest.dependencies {
       implementation(projects.shared.testFixtures)
+      implementation(projects.shared.database)
       implementation(libs.bundles.commonTest)
       implementation(libs.ktor.clientMock)
     }

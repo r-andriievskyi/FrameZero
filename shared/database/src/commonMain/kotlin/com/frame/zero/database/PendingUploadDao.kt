@@ -16,12 +16,6 @@ interface PendingUploadDao {
   @Upsert
   suspend fun upsert(entity: PendingUploadEntity)
 
-  @Query("UPDATE pending_uploads SET status = :status WHERE uploadId = :uploadId")
-  suspend fun updateStatus(
-    uploadId: String,
-    status: String
-  )
-
   @Query("DELETE FROM pending_uploads WHERE uploadId = :uploadId")
   suspend fun delete(uploadId: String)
 }

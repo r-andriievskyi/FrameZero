@@ -30,7 +30,9 @@ data class PendingTaskUpload(
   val contentType: String,
   val localPath: String,
   val idempotencyKey: String,
-  val status: PendingUploadStatus = PendingUploadStatus.Uploading
+  val status: PendingUploadStatus = PendingUploadStatus.Uploading,
+  val attemptCount: Int = 0,
+  val failureReason: UploadFailureReason? = null
 ) {
   fun toCreateRequest(): CreateTaskRequest =
     CreateTaskRequest(

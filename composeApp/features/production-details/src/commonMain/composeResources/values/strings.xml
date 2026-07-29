@@ -38,4 +38,10 @@
   <string name="tasks_header">Tasks</string>
   <string name="tasks_add">Add</string>
   <string name="tasks_empty">No tasks yet. Add the first one.</string>
+
+  <!-- Background task-upload status -->
+  <string name="pending_upload_uploading_title">Uploading %1$s…</string>
+  <string name="pending_upload_failed_title">Could not save %1$s</string>
+  <string name="pending_upload_retry">Retry</string>
+  <string name="pending_upload_dismiss">Dismiss</string>
 </resources>

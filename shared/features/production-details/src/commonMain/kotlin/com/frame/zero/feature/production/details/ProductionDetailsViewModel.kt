@@ -3,6 +3,9 @@ package com.frame.zero.feature.production.details
 import com.arkivanov.essenty.instancekeeper.InstanceKeeper
 import com.frame.zero.core.collections.mapImmutable
 import com.frame.zero.core.format.formatMedium
+import com.frame.zero.core.upload.PendingUploadStatus
+import com.frame.zero.core.upload.PendingUploadStore
+import com.frame.zero.core.upload.TaskUploadScheduler
 import com.frame.zero.domain.Outcome
 import com.frame.zero.domain.production.ProductionDetail
 import com.frame.zero.domain.production.ProductionMember
@@ -31,6 +34,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
@@ -40,6 +44,8 @@ class ProductionDetailsViewModel(
   private val getProductionDetailsUseCase: GetProductionDetailsUseCase,
   private val getProductionTasksUseCase: GetProductionTasksUseCase,
   private val deleteProductionUseCase: DeleteProductionUseCase,
+  private val pendingUploadStore: PendingUploadStore,
+  private val taskUploadScheduler: TaskUploadScheduler,
   dispatcher: CoroutineContext = Dispatchers.Main.immediate
 ) : InstanceKeeper.Instance {
   private val scope = CoroutineScope(dispatcher + SupervisorJob())
@@ -57,6 +63,7 @@ class ProductionDetailsViewModel(
   init {
     load()
     loadTasks()
+    observePendingUpload()
   }
 
   fun onIntent(intent: ProductionDetailsIntent) {
@@ -71,7 +78,42 @@ class ProductionDetailsViewModel(
       ProductionDetailsIntent.DeleteConfirmed -> deleteProduction()
       ProductionDetailsIntent.DeleteErrorDismissed ->
         _state.update { it.copy(deleteError = null) }
+      ProductionDetailsIntent.RetryUploadRequested -> retryUpload()
+      ProductionDetailsIntent.DismissUploadRequested -> dismissUpload()
     }
+  }
+
+  /** At most one upload is ever shown — the pending queue is a single background job per
+   *  task-create, not a list a user manages, so the most recent one for this production is
+   *  what "did my task save?" actually asks. */
+  private fun observePendingUpload() {
+    scope.launch {
+      pendingUploadStore.uploads
+        .map { uploads -> uploads.filter { it.productionId == productionId }.maxByOrNull { it.attemptCount } }
+        .collect { upload ->
+          _state.update {
+            it.copy(
+              pendingUpload = upload?.let { pending ->
+                PendingUploadUi(
+                  uploadId = pending.uploadId,
+                  taskTitle = pending.title,
+                  isFailed = pending.status == PendingUploadStatus.Failed
+                )
+              }
+            )
+          }
+        }
+    }
+  }
+
+  private fun retryUpload() {
+    val uploadId = _state.value.pendingUpload?.uploadId ?: return
+    scope.launch { taskUploadScheduler.retry(uploadId) }
+  }
+
+  private fun dismissUpload() {
+    val uploadId = _state.value.pendingUpload?.uploadId ?: return
+    scope.launch { taskUploadScheduler.cancel(uploadId) }
   }
 
   private fun requestAddTask() {

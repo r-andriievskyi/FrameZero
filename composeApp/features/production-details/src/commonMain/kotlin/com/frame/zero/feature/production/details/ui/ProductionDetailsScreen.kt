@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -82,6 +83,17 @@ internal fun ProductionDetailsContent(
           )
         }
       )
+
+      state.pendingUpload?.let { upload ->
+        PendingUploadBanner(
+          upload = upload,
+          onRetry = { onIntent(ProductionDetailsIntent.RetryUploadRequested) },
+          onDismiss = { onIntent(ProductionDetailsIntent.DismissUploadRequested) },
+          modifier = Modifier
+            .testTag(ProductionDetailsTestTags.PENDING_UPLOAD)
+            .padding(horizontal = AppTheme.spacingSystem.space16, vertical = AppTheme.spacingSystem.space8)
+        )
+      }
 
       val loadError = state.error
       when {

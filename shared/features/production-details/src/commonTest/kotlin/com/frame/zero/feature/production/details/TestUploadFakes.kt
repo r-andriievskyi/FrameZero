@@ -1,12 +1,14 @@
-package com.frame.zero.core.upload
+package com.frame.zero.feature.production.details
 
+import com.frame.zero.core.upload.PendingUploadStore
 import com.frame.zero.database.PendingUploadDao
 import com.frame.zero.database.PendingUploadEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 
-/** In-memory [PendingUploadDao] for tests; mirrors the Room DAO semantics. */
-class FakePendingUploadDao : PendingUploadDao {
+/** In-memory [PendingUploadDao]; mirrors the Room DAO semantics for a real [PendingUploadStore]
+ *  without needing Room/SQLite in this module's tests. */
+private class FakePendingUploadDao : PendingUploadDao {
   private val rows = MutableStateFlow<List<PendingUploadEntity>>(emptyList())
 
   override fun observeAll(): Flow<List<PendingUploadEntity>> = rows
@@ -21,3 +23,5 @@ class FakePendingUploadDao : PendingUploadDao {
     rows.value = rows.value.filterNot { it.uploadId == uploadId }
   }
 }
+
+fun testPendingUploadStore(): PendingUploadStore = PendingUploadStore(FakePendingUploadDao())

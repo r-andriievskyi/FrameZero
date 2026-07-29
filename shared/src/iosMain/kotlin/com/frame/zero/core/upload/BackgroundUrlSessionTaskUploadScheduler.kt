@@ -1,6 +1,7 @@
 package com.frame.zero.core.upload
 
 import com.frame.zero.core.files.toNSData
+import com.frame.zero.core.logging.Logger
 import com.frame.zero.core.network.NetworkConfig
 import com.frame.zero.core.session.TokenStorage
 import kotlinx.cinterop.ExperimentalForeignApi
@@ -37,11 +38,12 @@ import platform.darwin.NSObject
 class BackgroundUrlSessionTaskUploadScheduler(
   private val store: PendingUploadStore,
   private val tokenStorage: TokenStorage,
-  private val networkConfig: NetworkConfig
+  private val networkConfig: NetworkConfig,
+  private val logger: Logger
 ) : TaskUploadScheduler {
   private val session: NSURLSession by lazy {
     val configuration = NSURLSessionConfiguration.backgroundSessionConfigurationWithIdentifier(SESSION_ID)
-    NSURLSession.sessionWithConfiguration(configuration, UploadDelegate(store), delegateQueue = null)
+    NSURLSession.sessionWithConfiguration(configuration, UploadDelegate(store, logger, ::start), delegateQueue = null)
   }
 
   override suspend fun enqueue(upload: PendingTaskUpload) {
@@ -128,7 +130,9 @@ class BackgroundUrlSessionTaskUploadScheduler(
 
 @OptIn(ExperimentalForeignApi::class)
 private class UploadDelegate(
-  private val store: PendingUploadStore
+  private val store: PendingUploadStore,
+  private val logger: Logger,
+  private val retry: (PendingTaskUpload) -> Unit
 ) : NSObject(),
   NSURLSessionTaskDelegateProtocol {
   // Delegate callbacks aren't suspend; persist the outcome on a background scope.
@@ -140,10 +144,27 @@ private class UploadDelegate(
     didCompleteWithError: platform.Foundation.NSError?
   ) {
     val uploadId = task.taskDescription ?: return
-    val status = (task.response as? NSHTTPURLResponse)?.statusCode ?: -1L
-    val succeeded = didCompleteWithError == null && status in 200..299
+    val status = (task.response as? NSHTTPURLResponse)?.statusCode?.toInt()
+    val succeeded = didCompleteWithError == null && status != null && status in 200..299
     scope.launch {
-      if (succeeded) store.remove(uploadId) else store.markFailed(uploadId)
+      if (succeeded) {
+        store.remove(uploadId)
+        return@launch
+      }
+      val reason = classifyUploadFailure(status)
+      val updated = store.recordFailure(uploadId, reason)
+      logger.w(
+        tag = "Upload",
+        message = "Upload $uploadId failed [$status] reason=$reason terminal=${updated?.status == PendingUploadStatus.Failed}",
+        throwable = if (status == null) didCompleteWithError?.let { Exception(it.localizedDescription) } else null
+      )
+      // Still has attempt budget and the failure wasn't permanent: retry immediately within
+      // this background execution window. Unlike WorkManager's exponential backoff, there's no
+      // guarantee the OS wakes the app again later to run a delayed retry, so waiting isn't safe
+      // here — bounded by MAX_UPLOAD_ATTEMPTS via the store either way.
+      if (updated != null && updated.status == PendingUploadStatus.Uploading) {
+        retry(updated)
+      }
     }
   }
 

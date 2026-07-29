@@ -28,5 +28,5 @@ actual fun platformModule(): Module =
     single<BiometricAuthenticator> { IosBiometricAuthenticator() }
     single<FilePicker> { IosFilePicker() }
     single<AttachmentFileManager> { IosAttachmentFileManager() }
-    single<TaskUploadScheduler> { BackgroundUrlSessionTaskUploadScheduler(get(), get(), get()) }
+    single<TaskUploadScheduler> { BackgroundUrlSessionTaskUploadScheduler(get(), get(), get(), get()) }
   }

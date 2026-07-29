@@ -14,4 +14,8 @@ sealed interface ProductionDetailsIntent {
   data object DeleteDismissed : ProductionDetailsIntent
 
   data object DeleteErrorDismissed : ProductionDetailsIntent
+
+  data object RetryUploadRequested : ProductionDetailsIntent
+
+  data object DismissUploadRequested : ProductionDetailsIntent
 }

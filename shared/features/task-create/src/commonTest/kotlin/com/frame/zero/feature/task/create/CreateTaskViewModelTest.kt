@@ -6,11 +6,10 @@ import com.frame.zero.core.files.FilePicker
 import com.frame.zero.core.files.MAX_ATTACHMENT_BYTES
 import com.frame.zero.core.files.PickedFile
 import com.frame.zero.domain.OfflineException
-import com.frame.zero.core.upload.PendingTaskUpload
-import com.frame.zero.core.upload.TaskUploadScheduler
 import com.frame.zero.feature.task.create.domain.CreateTaskUseCase
 import com.frame.zero.feature.task.create.domain.GetAssignableMembersUseCase
 import com.frame.zero.testing.FakeProductionsRepository
+import com.frame.zero.testing.FakeTaskUploadScheduler
 import com.frame.zero.testing.FakeTasksRepository
 import com.frame.zero.testing.productionMember
 import com.frame.zero.testing.taskDetail
@@ -313,18 +312,6 @@ class CreateTaskViewModelTest {
     private val result: PickedFile? = null
   ) : FilePicker {
     override suspend fun pickFile(): PickedFile? = result
-  }
-
-  private class FakeTaskUploadScheduler : TaskUploadScheduler {
-    val enqueued: MutableList<PendingTaskUpload> = mutableListOf()
-
-    override suspend fun enqueue(upload: PendingTaskUpload) {
-      enqueued += upload
-    }
-
-    override suspend fun retry(uploadId: String) = Unit
-
-    override suspend fun cancel(uploadId: String) = Unit
   }
 
   private class FakeAttachmentFileManager : AttachmentFileManager {

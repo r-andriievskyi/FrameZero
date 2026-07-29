@@ -14,7 +14,14 @@ data class ProductionDetailsState(
   val areTasksLoading: Boolean = false,
   val isDeleteDialogVisible: Boolean = false,
   val isDeleting: Boolean = false,
-  val deleteError: UiText? = null
+  val deleteError: UiText? = null,
+  val pendingUpload: PendingUploadUi? = null
+)
+
+data class PendingUploadUi(
+  val uploadId: String,
+  val taskTitle: String,
+  val isFailed: Boolean
 )
 
 /** A task row rendered in the tasks card, with display text resolved by the ViewModel. */

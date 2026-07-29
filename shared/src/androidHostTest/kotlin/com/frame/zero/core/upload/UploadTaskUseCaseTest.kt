@@ -1,8 +1,8 @@
 package com.frame.zero.core.upload
 
 import com.frame.zero.core.files.AttachmentFileManager
+import com.frame.zero.core.logging.Logger
 import com.frame.zero.core.network.NetworkConfig
-import com.frame.zero.domain.Outcome
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.MockRequestHandleScope
@@ -37,9 +37,8 @@ class UploadTaskUseCaseTest {
       val files = FakeAttachmentFileManager()
       val useCase = useCase(store, files, requests) { respond("", HttpStatusCode.Created) }
 
-      val outcome = useCase("u1")
+      useCase("u1")
 
-      assertIs<Outcome.Success<Unit>>(outcome)
       val request = requests.single()
       assertEquals("/api/v1/tasks", request.url.encodedPath)
       assertEquals("key-u1", request.headers["Idempotency-Key"])
@@ -50,27 +49,62 @@ class UploadTaskUseCaseTest {
     }
 
   @Test
-  fun `server error keeps the record so it can be retried`() =
+  fun `5xx is classified Transient and keeps the record so it can be retried`() =
     runTest {
       val store = PendingUploadStore(FakePendingUploadDao())
       store.add(upload("u2"))
       val files = FakeAttachmentFileManager()
       val useCase = useCase(store, files) { respond("err", HttpStatusCode.InternalServerError) }
 
-      val outcome = useCase("u2")
+      useCase("u2")
 
-      assertIs<Outcome.Failure>(outcome)
-      assertEquals("u2", store.get("u2")?.uploadId, "record retained for retry")
+      val record = store.get("u2")
+      assertEquals(PendingUploadStatus.Uploading, record?.status, "5xx must not park the upload")
+      assertEquals(UploadFailureReason.Transient, record?.failureReason)
+      assertEquals(1, record?.attemptCount)
       assertTrue(files.deleted.isEmpty())
     }
 
   @Test
-  fun `unknown upload id is a no-op success`() =
+  fun `422 is classified Permanent and parks the upload on the first attempt`() =
     runTest {
       val store = PendingUploadStore(FakePendingUploadDao())
-      val useCase = useCase(store, FakeAttachmentFileManager()) { respond("", HttpStatusCode.Created) }
+      store.add(upload("u3"))
+      val useCase = useCase(store, FakeAttachmentFileManager()) {
+        respond("err", HttpStatusCode.UnprocessableEntity)
+      }
 
-      assertIs<Outcome.Success<Unit>>(useCase("missing"))
+      useCase("u3")
+
+      val record = store.get("u3")
+      assertEquals(PendingUploadStatus.Failed, record?.status, "a client error can't be fixed by retrying")
+      assertEquals(UploadFailureReason.Permanent, record?.failureReason)
+    }
+
+  @Test
+  fun `429 is classified Transient despite being a 4xx`() =
+    runTest {
+      val store = PendingUploadStore(FakePendingUploadDao())
+      store.add(upload("u4"))
+      val useCase = useCase(store, FakeAttachmentFileManager()) {
+        respond("err", HttpStatusCode.TooManyRequests)
+      }
+
+      useCase("u4")
+
+      assertEquals(UploadFailureReason.Transient, store.get("u4")?.failureReason)
+    }
+
+  @Test
+  fun `unknown upload id is a no-op`() =
+    runTest {
+      val store = PendingUploadStore(FakePendingUploadDao())
+      val requests = mutableListOf<HttpRequestData>()
+      val useCase = useCase(store, FakeAttachmentFileManager(), requests) { respond("", HttpStatusCode.Created) }
+
+      useCase("missing")
+
+      assertTrue(requests.isEmpty(), "must not call out for an upload that no longer exists")
     }
 
   private fun useCase(
@@ -86,11 +120,17 @@ class UploadTaskUseCaseTest {
       }
     ) {
       // Mirrors the production client (`clientConfig`): a non-2xx throws at the response
-      // validator, which is what turns an upload failure into an `Outcome.Failure`.
+      // validator, which is what UploadTaskUseCase classifies and records.
       expectSuccess = true
       defaultRequest { contentType(ContentType.Application.Json) }
     }
-    return UploadTaskUseCase(store, client, NetworkConfig(baseUrl = "http://test", isDebug = false), files)
+    return UploadTaskUseCase(
+      store,
+      client,
+      NetworkConfig(baseUrl = "http://test", isDebug = false),
+      files,
+      NoopLogger
+    )
   }
 
   private fun upload(
@@ -130,5 +170,37 @@ class UploadTaskUseCaseTest {
     ) = Unit
 
     override fun availableBytes(): Long = Long.MAX_VALUE
+  }
+
+  private object NoopLogger : Logger {
+    override fun v(
+      tag: String,
+      message: String,
+      throwable: Throwable?
+    ) = Unit
+
+    override fun d(
+      tag: String,
+      message: String,
+      throwable: Throwable?
+    ) = Unit
+
+    override fun i(
+      tag: String,
+      message: String,
+      throwable: Throwable?
+    ) = Unit
+
+    override fun w(
+      tag: String,
+      message: String,
+      throwable: Throwable?
+    ) = Unit
+
+    override fun e(
+      tag: String,
+      message: String,
+      throwable: Throwable?
+    ) = Unit
   }
 }
