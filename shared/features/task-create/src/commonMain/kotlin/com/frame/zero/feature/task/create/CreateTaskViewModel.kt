@@ -193,7 +193,8 @@ class CreateTaskViewModel(
         fileName = attachment.name,
         contentType = attachment.contentType,
         localPath = attachment.localPath,
-        idempotencyKey = Uuid.random().toString()
+        idempotencyKey = Uuid.random().toString(),
+        createdAtMillis = clock.now().toEpochMilliseconds()
       )
       uploadScheduler.enqueue(upload)
       _state.update { it.copy(isLoading = false) }
@@ -245,7 +246,8 @@ class CreateTaskViewModel(
     val errorMessages: Map<DomainErrorCategory, UiText> = mapOf(
       DomainErrorCategory.NOT_FOUND to Res.string.error_not_found.asUiText(),
       DomainErrorCategory.FORBIDDEN to Res.string.error_forbidden.asUiText(),
-      DomainErrorCategory.CONFLICT to Res.string.error_conflict.asUiText()
+      DomainErrorCategory.CONFLICT to Res.string.error_conflict.asUiText(),
+      DomainErrorCategory.PAYLOAD_TOO_LARGE to Res.string.error_file_too_large.asUiText()
     )
   }
 }

@@ -32,7 +32,8 @@ data class PendingTaskUpload(
   val idempotencyKey: String,
   val status: PendingUploadStatus = PendingUploadStatus.Uploading,
   val attemptCount: Int = 0,
-  val failureReason: UploadFailureReason? = null
+  val failureReason: UploadFailureReason? = null,
+  val createdAtMillis: Long = 0
 ) {
   fun toCreateRequest(): CreateTaskRequest =
     CreateTaskRequest(

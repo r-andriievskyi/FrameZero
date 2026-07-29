@@ -90,7 +90,7 @@ class ProductionDetailsViewModel(
   private fun observePendingUpload() {
     scope.launch {
       pendingUploadStore.uploads
-        .map { uploads -> uploads.filter { it.productionId == productionId }.maxByOrNull { it.attemptCount } }
+        .map { uploads -> uploads.filter { it.productionId == productionId }.maxByOrNull { it.createdAtMillis } }
         .collect { upload ->
           _state.update {
             it.copy(

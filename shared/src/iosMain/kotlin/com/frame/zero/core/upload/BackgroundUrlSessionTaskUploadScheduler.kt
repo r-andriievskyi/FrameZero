@@ -8,6 +8,7 @@ import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import platform.Foundation.NSFileHandle
 import platform.Foundation.NSFileManager
@@ -27,6 +28,7 @@ import platform.Foundation.setHTTPMethod
 import platform.Foundation.setValue
 import platform.Foundation.writeData
 import platform.darwin.NSObject
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * [TaskUploadScheduler] backed by a background `NSURLSession`: the OS carries the upload even if
@@ -43,6 +45,7 @@ class BackgroundUrlSessionTaskUploadScheduler(
 ) : TaskUploadScheduler {
   private val session: NSURLSession by lazy {
     val configuration = NSURLSessionConfiguration.backgroundSessionConfigurationWithIdentifier(SESSION_ID)
+    configuration.waitsForConnectivity = true
     NSURLSession.sessionWithConfiguration(configuration, UploadDelegate(store, logger, ::start), delegateQueue = null)
   }
 
@@ -158,19 +161,19 @@ private class UploadDelegate(
         message = "Upload $uploadId failed [$status] reason=$reason terminal=${updated?.status == PendingUploadStatus.Failed}",
         throwable = if (status == null) didCompleteWithError?.let { Exception(it.localizedDescription) } else null
       )
-      // Still has attempt budget and the failure wasn't permanent: retry immediately within
-      // this background execution window. Unlike WorkManager's exponential backoff, there's no
-      // guarantee the OS wakes the app again later to run a delayed retry, so waiting isn't safe
-      // here — bounded by MAX_UPLOAD_ATTEMPTS via the store either way.
       if (updated != null && updated.status == PendingUploadStatus.Uploading) {
+        delay(retryBackoffMillis(updated.attemptCount).milliseconds)
         retry(updated)
       }
     }
   }
 
   override fun URLSessionDidFinishEventsForBackgroundURLSession(session: NSURLSession) {
-    // All queued completions for this background session have been delivered; let the OS
-    // know we're done so it can stop our background time (handler set by the AppDelegate).
     BackgroundUploadCompletion.complete()
   }
+
+  /** 2s / 4s / 8s, matching Android's WorkManager backoff — [attemptCount] is already the
+   *  count *after* this failure, so attempt 1 waits 2s, attempt 2 waits 4s, etc. */
+  private fun retryBackoffMillis(attemptCount: Int): Long =
+    2_000L shl (attemptCount - 1).coerceIn(0, 2)
 }

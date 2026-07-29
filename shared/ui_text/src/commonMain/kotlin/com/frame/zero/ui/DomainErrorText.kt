@@ -30,6 +30,8 @@ enum class DomainErrorCategory {
   INVALID_CREDENTIALS,
   EMAIL_EXISTS,
   INSUFFICIENT_STORAGE,
+  PAYLOAD_TOO_LARGE,
+  VALIDATION,
   FALLBACK
 }
 
@@ -44,8 +46,8 @@ fun DomainError.category(): DomainErrorCategory =
     DomainError.InvalidCredentials -> DomainErrorCategory.INVALID_CREDENTIALS
     DomainError.EmailAlreadyExists -> DomainErrorCategory.EMAIL_EXISTS
     DomainError.InsufficientStorage -> DomainErrorCategory.INSUFFICIENT_STORAGE
-    DomainError.PayloadTooLarge,
-    is DomainError.Validation,
+    DomainError.PayloadTooLarge -> DomainErrorCategory.PAYLOAD_TOO_LARGE
+    is DomainError.Validation -> DomainErrorCategory.VALIDATION
     DomainError.Unknown -> DomainErrorCategory.FALLBACK
   }
 
@@ -59,6 +61,8 @@ private fun DomainErrorCategory.canonicalUiText(): UiText =
     DomainErrorCategory.INVALID_CREDENTIALS -> Res.string.error_invalid_credentials
     DomainErrorCategory.EMAIL_EXISTS -> Res.string.error_email_exists
     DomainErrorCategory.INSUFFICIENT_STORAGE -> Res.string.error_insufficient_storage
+    DomainErrorCategory.PAYLOAD_TOO_LARGE,
+    DomainErrorCategory.VALIDATION,
     DomainErrorCategory.FALLBACK -> Res.string.error_unknown_fallback
   }.asUiText()
 
