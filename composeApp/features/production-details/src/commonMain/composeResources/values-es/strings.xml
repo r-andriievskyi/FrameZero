@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="couldnt_delete">No se ha podido eliminar</string>
+  <string name="ok_action">Aceptar</string>
+  <string name="pending_upload_failed_title">No se ha podido guardar %1$s</string>
+  <string name="pending_upload_retry">Reintentar</string>
+  <string name="pending_upload_dismiss">Descartar</string>
+</resources>

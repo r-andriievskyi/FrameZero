@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="error_generic_message">Ha ocurrido un error</string>
+  <string name="error_network_message">Sin conexión a internet. Comprueba tu conexión e inténtalo de nuevo.</string>
+  <string name="action_retry">Reintentar</string>
+</resources>

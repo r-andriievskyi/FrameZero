@@ -2,6 +2,7 @@ package com.frame.zero.feature.production.details
 
 import com.arkivanov.essenty.instancekeeper.InstanceKeeper
 import com.frame.zero.core.collections.mapImmutable
+import com.frame.zero.core.format.formatCurrencyUsdCents
 import com.frame.zero.core.format.formatMedium
 import com.frame.zero.core.upload.PendingUploadStatus
 import com.frame.zero.core.upload.PendingUploadStore
@@ -196,14 +197,7 @@ class ProductionDetailsViewModel(
       avatarColorHex = avatarColorHex
     )
 
-  private fun formatBudget(cents: Long?): String {
-    if (cents == null) return "—"
-    val dollars = cents / 100
-    return "$${
-      dollars.toString().reversed().chunked(3)
-        .joinToString(",").reversed()
-    }"
-  }
+  private fun formatBudget(cents: Long?): String = if (cents == null) "—" else formatCurrencyUsdCents(cents)
 
   private fun deleteProduction() {
     if (_state.value.isDeleting) return

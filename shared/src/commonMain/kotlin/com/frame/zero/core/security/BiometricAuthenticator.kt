@@ -37,9 +37,7 @@ sealed interface BiometricResult {
   data object Cancelled : BiometricResult
 
   /** The attempt could not run / errored (no hardware, lockout, etc.). */
-  data class Error(
-    val message: String
-  ) : BiometricResult
+  data object Error : BiometricResult
 }
 
 /**

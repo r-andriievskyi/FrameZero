@@ -3,6 +3,8 @@ package com.frame.zero.feature.home.tab.schedule
 import com.arkivanov.essenty.instancekeeper.InstanceKeeper
 import com.frame.zero.core.collections.mapImmutable
 import com.frame.zero.core.collections.orEmpty
+import com.frame.zero.core.format.formatClockTime
+import com.frame.zero.core.format.formatTimeRangeSeparator
 import com.frame.zero.core.network.connectivity.ConnectivityObserver
 import com.frame.zero.domain.DomainError
 import com.frame.zero.domain.Outcome
@@ -171,7 +173,7 @@ class ScheduleTabViewModel(
       productionTitle = productionTitle,
       location = location,
       eventKind = kind,
-      timeRangeLabel = "${startsAt.formatTime()} – ${endsAt.formatTime()}"
+      timeRangeLabel = "${startsAt.formatTime()}${formatTimeRangeSeparator()}${endsAt.formatTime()}"
     )
 
   private fun ScheduleTask.toUiModel(today: LocalDate) =
@@ -189,8 +191,6 @@ class ScheduleTabViewModel(
 
   private fun Instant.formatTime(): String {
     val local = toLocalDateTime(TimeZone.currentSystemDefault())
-    val hour = local.hour.toString().padStart(2, '0')
-    val minute = local.minute.toString().padStart(2, '0')
-    return "$hour:$minute"
+    return formatClockTime(local.hour, local.minute)
   }
 }

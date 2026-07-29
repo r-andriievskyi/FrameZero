@@ -44,7 +44,7 @@ class IosBiometricAuthenticator : BiometricAuthenticator {
           when {
             success -> BiometricResult.Success
             error.isUserCancellation() -> BiometricResult.Cancelled
-            else -> BiometricResult.Error(error?.localizedDescription ?: "Biometric authentication failed")
+            else -> BiometricResult.Error
           }
         )
       }

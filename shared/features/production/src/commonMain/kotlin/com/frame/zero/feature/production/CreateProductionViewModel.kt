@@ -1,6 +1,7 @@
 package com.frame.zero.feature.production
 
 import com.arkivanov.essenty.instancekeeper.InstanceKeeper
+import com.frame.zero.core.format.formatCurrencyUsdCents
 import com.frame.zero.domain.Outcome
 import com.frame.zero.domain.production.NewCrewMember
 import com.frame.zero.feature.production.domain.CreateProductionUseCase
@@ -180,13 +181,7 @@ class CreateProductionViewModel(
     }
   }
 
-  private fun formatBudget(cents: Long): String {
-    val dollars = cents / 100
-    val prefix = if (dollars < 0) "-$" else "$"
-    val absStr = kotlin.math.abs(dollars).toString()
-    val formatted = absStr.reversed().chunked(3).joinToString(",").reversed()
-    return "$prefix$formatted"
-  }
+  private fun formatBudget(cents: Long): String = formatCurrencyUsdCents(cents)
 
   private fun CreateProductionState.computeCanAdvanceStep1(): Boolean =
     title.isNotBlank() &&

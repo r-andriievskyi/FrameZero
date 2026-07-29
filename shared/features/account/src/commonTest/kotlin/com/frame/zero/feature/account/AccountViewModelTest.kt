@@ -100,7 +100,7 @@ class AccountViewModelTest {
   fun `disabling app lock does not require a prompt`() =
     runTest {
       val session = makeSession(this)
-      val lock = makeLock(authResult = BiometricResult.Error("nope"), enabledInitially = true)
+      val lock = makeLock(authResult = BiometricResult.Error, enabledInitially = true)
       val viewModel = AccountViewModel(session, lock, StandardTestDispatcher(testScheduler))
       advanceUntilIdle()
       assertTrue(viewModel.state.value.appLockEnabled)

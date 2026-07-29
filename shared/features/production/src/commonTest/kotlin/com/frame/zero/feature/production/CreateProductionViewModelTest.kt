@@ -130,11 +130,17 @@ class CreateProductionViewModelTest {
     runTest {
       val viewModel = makeViewModel(FakeProductionsRepository())
 
+      // Exact symbol/grouping/sign glyph is locale-dependent by design
+      // (formatCurrencyUsdCents is expect/actual) — strip everything but digits so the
+      // assertion holds regardless of separator character or symbol placement.
       viewModel.onIntent(CreateProductionIntent.BudgetChanged(123_456))
-      assertEquals("$1,234", viewModel.state.value.budgetDisplay)
+      val positiveDisplay = viewModel.state.value.budgetDisplay.orEmpty()
+      assertEquals("1234", positiveDisplay.filter { it.isDigit() })
 
       viewModel.onIntent(CreateProductionIntent.BudgetChanged(-123_456))
-      assertEquals("-$1,234", viewModel.state.value.budgetDisplay)
+      val negativeDisplay = viewModel.state.value.budgetDisplay.orEmpty()
+      assertEquals("1234", negativeDisplay.filter { it.isDigit() })
+      assertTrue(negativeDisplay != positiveDisplay)
     }
 
   @Test

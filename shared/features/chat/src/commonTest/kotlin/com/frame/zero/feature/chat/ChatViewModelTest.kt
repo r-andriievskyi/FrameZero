@@ -152,7 +152,9 @@ class ChatViewModelTest {
       advanceUntilIdle()
 
       val message = viewModel.state.value.pending.single()
-      assertEquals("9:05 AM", message.timeLabel)
+      // Exact rendering (12h/24h, meridiem wording) is locale-dependent by design
+      // (formatClockTime is expect/actual) — just check the hour/minute made it through.
+      assertTrue(message.timeLabel.contains("9:05") || message.timeLabel.contains("09:05"))
       assertEquals(LocalDate(2026, 7, 24), message.day)
     }
 

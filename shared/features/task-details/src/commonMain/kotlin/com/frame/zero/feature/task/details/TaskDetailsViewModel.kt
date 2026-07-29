@@ -2,6 +2,7 @@ package com.frame.zero.feature.task.details
 
 import com.arkivanov.essenty.instancekeeper.InstanceKeeper
 import com.frame.zero.core.files.AttachmentFileManager
+import com.frame.zero.core.format.formatOneDecimalPlace
 import com.frame.zero.domain.Outcome
 import com.frame.zero.domain.task.AssignableMember
 import com.frame.zero.domain.task.TaskDetail
@@ -260,15 +261,10 @@ class TaskDetailsViewModel(
     val kb = 1024.0
     val mb = kb * 1024
     return when {
-      bytes >= mb -> "${formatOneDecimal(bytes / mb)} MB"
-      bytes >= kb -> "${formatOneDecimal(bytes / kb)} KB"
+      bytes >= mb -> "${formatOneDecimalPlace(bytes / mb)} MB"
+      bytes >= kb -> "${formatOneDecimalPlace(bytes / kb)} KB"
       else -> "$bytes B"
     }
-  }
-
-  private fun formatOneDecimal(value: Double): String {
-    val rounded = (value * 10).toLong()
-    return "${rounded / 10}.${rounded % 10}"
   }
 
   private fun DomainTaskStatus.toFeatureStatus(): TaskStatus =
