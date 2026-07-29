@@ -8,8 +8,12 @@ import kotlinx.serialization.json.Json
 
 /**
  * Persists in-flight background uploads in the shared Room database so they survive process
- * death and drive the UI's "uploading / failed" status. Mutations are atomic DAO ops; [status]
- * lives in its own column so it can be flipped without rewriting the payload.
+ * death and drive the UI's "uploading / failed" status. [PendingUploadEntity.status]/
+ * [PendingUploadEntity.attemptCount]/[PendingUploadEntity.failureReason] are their own columns,
+ * mutated only via [PendingUploadDao]'s atomic single-statement UPDATEs — [recordFailure] and
+ * [markUploading] can race (a worker's failure landing the same moment as a user-triggered
+ * retry) without either clobbering the other. [PendingUploadEntity.payload] holds everything
+ * else and is written once at [add] time; it is never rewritten by a later mutation.
  */
 class PendingUploadStore(
   private val dao: PendingUploadDao,
@@ -34,36 +38,38 @@ class PendingUploadStore(
     uploadId: String,
     reason: UploadFailureReason
   ): PendingTaskUpload? {
-    val current = get(uploadId) ?: return null
-    val attemptCount = current.attemptCount + 1
-    val terminal = reason == UploadFailureReason.Permanent || attemptCount >= MAX_UPLOAD_ATTEMPTS
-    val updated = current.copy(
-      attemptCount = attemptCount,
-      failureReason = reason,
-      status = if (terminal) PendingUploadStatus.Failed else PendingUploadStatus.Uploading
+    dao.recordFailure(
+      uploadId = uploadId,
+      reason = reason.name,
+      permanentReason = UploadFailureReason.Permanent.name,
+      maxAttempts = MAX_UPLOAD_ATTEMPTS,
+      failedStatus = PendingUploadStatus.Failed.name,
+      uploadingStatus = PendingUploadStatus.Uploading.name
     )
-    dao.upsert(updated.toEntity())
-    return updated
+    return get(uploadId)
   }
 
   /** Explicit user-initiated retry: a fresh attempt budget, not a continuation of the old one. */
   suspend fun markUploading(uploadId: String) {
-    val current = get(uploadId) ?: return
-    dao.upsert(
-      current.copy(status = PendingUploadStatus.Uploading, attemptCount = 0, failureReason = null).toEntity()
-    )
+    dao.markUploading(uploadId, PendingUploadStatus.Uploading.name)
   }
 
   suspend fun remove(uploadId: String) = dao.delete(uploadId)
 
   private fun PendingUploadEntity.toUpload(): PendingTaskUpload =
     json.decodeFromString<PendingTaskUpload>(payload)
-      .copy(status = PendingUploadStatus.valueOf(status))
+      .copy(
+        status = PendingUploadStatus.valueOf(status),
+        attemptCount = attemptCount,
+        failureReason = failureReason?.let(UploadFailureReason::valueOf)
+      )
 
   private fun PendingTaskUpload.toEntity(): PendingUploadEntity =
     PendingUploadEntity(
       uploadId = uploadId,
       status = status.name,
+      attemptCount = attemptCount,
+      failureReason = failureReason?.name,
       payload = json.encodeToString(this)
     )
 }

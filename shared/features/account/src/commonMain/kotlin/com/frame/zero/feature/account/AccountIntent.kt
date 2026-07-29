@@ -9,4 +9,6 @@ sealed interface AccountIntent {
   ) : AccountIntent
 
   data object SignOutClicked : AccountIntent
+
+  data object AppLockErrorDismissed : AccountIntent
 }

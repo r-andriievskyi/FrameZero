@@ -8,6 +8,7 @@ import com.frame.zero.domain.Outcome
 import com.frame.zero.domain.dashboard.Dashboard
 import com.frame.zero.domain.dashboard.DashboardStats
 import com.frame.zero.domain.dashboard.DashboardTask
+import com.frame.zero.feature.home.LoadError
 import com.frame.zero.feature.home.homeErrorMessages
 import com.frame.zero.feature.home.usecase.GetDashboardUseCase
 import com.frame.zero.feature.home.usecase.GetMeUseCase
@@ -51,7 +52,7 @@ class DashboardTabViewModel(
       connectivityObserver.isOnline
         .filter { online -> online }
         .collect {
-          if (_state.value.isOffline) load()
+          if (_state.value.error?.autoRetries == true) load()
         }
     }
   }
@@ -92,8 +93,10 @@ class DashboardTabViewModel(
           }
           is Outcome.Failure -> DashboardTabState(
             isLoading = false,
-            error = dashResult.error.toUiText(homeErrorMessages),
-            isOffline = dashResult.error is DomainError.Offline
+            error = LoadError(
+              message = dashResult.error.toUiText(homeErrorMessages),
+              autoRetries = dashResult.error is DomainError.Offline
+            )
           )
         }
       }

@@ -13,6 +13,7 @@ kotlin {
       implementation(projects.shared.features.account)
       implementation(libs.compose.components.resources)
       implementation(projects.composeApp.shared.designSystem)
+      implementation(projects.composeApp.shared.uiText)
     }
     commonTest.dependencies { implementation(libs.kotlin.test) }
   }

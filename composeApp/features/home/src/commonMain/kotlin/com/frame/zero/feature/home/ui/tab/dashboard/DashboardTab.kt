@@ -46,9 +46,9 @@ fun DashboardTab(component: DashboardTabComponent) {
   ) {
     val loadError = state.error
     when {
-      loadError != null && state.isOffline -> OfflineBanner(message = loadError.asString())
+      loadError != null && loadError.autoRetries -> OfflineBanner(message = loadError.message.asString())
       loadError != null -> FullScreenError(
-        message = loadError.asString(),
+        message = loadError.message.asString(),
         onRetry = { component.onIntent(DashboardTabIntent.Retry) }
       )
       state.isLoading -> FullScreenProgress()

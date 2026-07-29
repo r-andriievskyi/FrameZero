@@ -6,7 +6,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -34,14 +36,17 @@ import com.frame.zero.feature.chat.PendingMessageUi
 import com.frame.zero.feature.chat.ui.components.ChatInputBar
 import com.frame.zero.feature.chat.ui.components.MessageRow
 import com.frame.zero.feature.chat.ui.components.PendingMessageRow
+import com.frame.zero.domain.toDomainError
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.widgets.FullScreenError
 import com.frame.zero.shared.design_system.widgets.FullScreenProgress
 import com.frame.zero.shared.design_system.widgets.TopToolbar
 import com.frame.zero.ui.asString
+import com.frame.zero.ui.toUiText
 import framezero.composeapp.features.chat.generated.resources.Res
 import framezero.composeapp.features.chat.generated.resources.chat_empty
 import framezero.composeapp.features.chat.generated.resources.chat_message_placeholder
+import framezero.composeapp.features.chat.generated.resources.chat_reconnecting
 import framezero.composeapp.features.chat.generated.resources.chat_retry
 import framezero.composeapp.features.chat.generated.resources.chat_send
 import framezero.composeapp.features.chat.generated.resources.chat_title
@@ -94,9 +99,13 @@ fun ChatScreen(
   ) {
     Column(modifier = Modifier.fillMaxSize()) {
       TopToolbar(title = stringResource(Res.string.chat_title), onBack = component.onBack)
+      if (state.isDisconnected) {
+        ReconnectingBanner(modifier = Modifier.testTag(ChatTestTags.RECONNECTING))
+      }
 
       Box(modifier = Modifier.weight(1f)) {
         val isRefreshing = messages.loadState.refresh is LoadState.Loading
+        val refreshError = (messages.loadState.refresh as? LoadState.Error)?.error
         // A queued message is content: offline, it can be the only thing in the conversation, so it
         // must not be hidden behind the empty or loading state.
         val isEmpty = messages.itemCount == 0 && state.pending.isEmpty()
@@ -111,6 +120,16 @@ fun ChatScreen(
 
           (state.isLoadingConversation || isRefreshing) && isEmpty ->
             FullScreenProgress(modifier = Modifier.fillMaxSize().testTag(ChatTestTags.LOADING))
+
+          // A failed history load with nothing cached previously fell through to EmptyChat,
+          // indistinguishable from a conversation with genuinely no messages.
+          refreshError != null && isEmpty ->
+            FullScreenError(
+              modifier = Modifier.fillMaxSize().testTag(ChatTestTags.ERROR),
+              message = refreshError.toDomainError().toUiText().asString(),
+              onRetry = messages::retry,
+              retryLabel = stringResource(Res.string.chat_retry)
+            )
 
           isEmpty -> EmptyChat(modifier = Modifier.fillMaxSize())
 
@@ -208,6 +227,25 @@ private fun MessageList(
   }
 }
 
+/** Thin persistent bar — not a full-screen state, since cached messages stay usable while the
+ *  socket retries in the background. */
+@Composable
+private fun ReconnectingBanner(modifier: Modifier = Modifier) {
+  Box(
+    modifier = modifier
+      .fillMaxWidth()
+      .background(AppTheme.colorSystem.warningSurface)
+      .padding(vertical = AppTheme.spacingSystem.space8),
+    contentAlignment = Alignment.Center
+  ) {
+    Text(
+      text = stringResource(Res.string.chat_reconnecting),
+      style = AppTheme.typographySystem.bodySmall,
+      color = AppTheme.colorSystem.warningText
+    )
+  }
+}
+
 @Composable
 private fun EmptyChat(modifier: Modifier = Modifier) {
   Box(modifier = modifier, contentAlignment = Alignment.Center) {
@@ -228,4 +266,5 @@ internal object ChatTestTags {
   const val LIST = "chat_list"
   const val LOADING = "chat_loading"
   const val ERROR = "chat_error"
+  const val RECONNECTING = "chat_reconnecting"
 }

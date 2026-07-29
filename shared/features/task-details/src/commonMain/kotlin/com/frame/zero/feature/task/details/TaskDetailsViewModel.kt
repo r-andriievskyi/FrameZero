@@ -94,6 +94,7 @@ class TaskDetailsViewModel(
         _state.update { it.copy(participantQuery = intent.query) }
       is TaskDetailsIntent.ParticipantToggled -> toggleParticipant(intent.userId)
       TaskDetailsIntent.ParticipantsErrorDismissed -> _state.update { it.copy(participantsError = null) }
+      TaskDetailsIntent.MarkCompleteErrorDismissed -> _state.update { it.copy(markCompleteError = null) }
     }
   }
 
@@ -197,11 +198,15 @@ class TaskDetailsViewModel(
 
   private fun markComplete() {
     scope.launch {
-      when (completeTaskUseCase(taskId)) {
+      when (val outcome = completeTaskUseCase(taskId)) {
         is Outcome.Success -> _state.update {
           it.copy(status = TaskStatus.COMPLETED, showMarkCompleteButton = false)
         }
-        is Outcome.Failure -> Unit
+        // Surface the failure — the button staying enabled with status unchanged already tells
+        // the user nothing happened, but silently telling them nothing at all left them
+        // believing the task completed (see the error-handling audit's C7).
+        is Outcome.Failure ->
+          _state.update { it.copy(markCompleteError = outcome.error.toUiText(errorMessages)) }
       }
     }
   }

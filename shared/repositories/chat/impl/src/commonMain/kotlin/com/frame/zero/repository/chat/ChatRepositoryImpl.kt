@@ -21,6 +21,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -43,6 +45,9 @@ internal class ChatRepositoryImpl(
   private val mutex = Mutex()
   private val tracked = mutableSetOf<String>()
 
+  private val _isConnected = MutableStateFlow(false)
+  override val isConnected: Flow<Boolean> = _isConnected.asStateFlow()
+
   init {
     scope.launch {
       socketClient.events.collect { event ->
@@ -53,11 +58,14 @@ internal class ChatRepositoryImpl(
             dao.upsertMessagesAndClearPending(listOf(event.message.toEntity()))
           is ChatSocketEvent.ReadUpdated ->
             dao.advanceLastReadOrdinal(event.conversationId, event.lastReadOrdinal)
-          ChatSocketEvent.Connected ->
+          ChatSocketEvent.Connected -> {
+            _isConnected.value = true
             scope.launch {
               syncTracked()
               outbox.drainAll()
             }
+          }
+          is ChatSocketEvent.Disconnected -> _isConnected.value = false
         }
       }
     }

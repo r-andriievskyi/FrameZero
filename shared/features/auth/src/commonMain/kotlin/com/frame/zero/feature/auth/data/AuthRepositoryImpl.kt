@@ -16,6 +16,7 @@ import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import kotlinx.coroutines.CancellationException
 
 class AuthRepositoryImpl(
   private val httpClient: HttpClient,
@@ -61,8 +62,17 @@ class AuthRepositoryImpl(
   override suspend fun logout() {
     val refresh = tokenStorage.getRefreshToken()
     if (refresh != null) {
-      httpClient.post("${networkConfig.baseUrl}/auth/logout") {
-        setBody(LogoutRequest(refreshToken = refresh))
+      // Best-effort: the server-side session must be revoked if reachable, but a 401/5xx/offline
+      // failure here must never block clearing local tokens — the caller (SessionManager.logout)
+      // is unwinding the local session regardless of whether the remote call succeeds.
+      try {
+        httpClient.post("${networkConfig.baseUrl}/auth/logout") {
+          setBody(LogoutRequest(refreshToken = refresh))
+        }
+      } catch (cancellation: CancellationException) {
+        throw cancellation
+      } catch (_: Exception) {
+        // Swallowed intentionally — see comment above.
       }
     }
     tokenStorage.clearTokens()

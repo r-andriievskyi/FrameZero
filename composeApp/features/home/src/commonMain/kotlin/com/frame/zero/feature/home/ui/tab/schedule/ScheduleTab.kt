@@ -87,13 +87,13 @@ internal fun ScheduleTabContent(
     when {
       // Only take over the whole tab when there's nothing cached to show; once a
       // schedule is loaded, keep rendering it.
-      state.schedule == null && loadError != null && state.isOffline -> OfflineBanner(
+      state.schedule == null && loadError != null && loadError.autoRetries -> OfflineBanner(
         modifier = Modifier.testTag(ScheduleTabTestTags.ERROR),
-        message = loadError.asString()
+        message = loadError.message.asString()
       )
       state.schedule == null && loadError != null -> FullScreenError(
         modifier = Modifier.testTag(ScheduleTabTestTags.ERROR),
-        message = loadError.asString(),
+        message = loadError.message.asString(),
         onRetry = onRetry
       )
       state.schedule == null && state.isLoading ->

@@ -7,6 +7,11 @@ import com.frame.zero.domain.chat.PendingChatMessage
 import kotlinx.coroutines.flow.Flow
 
 interface ChatRepository {
+  /** True once the chat socket has completed its initial connect; flips false while it is
+   *  down and retrying with backoff, so the UI can show a reconnecting indicator instead of
+   *  leaving a dropped connection invisible. */
+  val isConnected: Flow<Boolean>
+
   suspend fun getOrCreateConversation(taskId: String): Conversation
 
   suspend fun cachedConversation(taskId: String): Conversation?

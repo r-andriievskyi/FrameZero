@@ -108,6 +108,11 @@ class ChatViewModel(
     currentUserId = getCurrentUserIdUseCase()
     scope.launch { openConversation() }
     scope.launch {
+      chatRepository.isConnected.collect { connected ->
+        _state.update { it.copy(isDisconnected = !connected) }
+      }
+    }
+    scope.launch {
       pending.collect { pendingMessages ->
         // Newest first, matching the reversed message list: the outbox emits oldest first.
         val bubbles = pendingMessages.map { it.toUi() }.asReversed().toImmutableList()

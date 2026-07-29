@@ -5,6 +5,7 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import com.frame.zero.feature.home.LoadError
 import com.frame.zero.feature.home.tab.schedule.ScheduleTabState
 import com.frame.zero.feature.home.ui.tab.schedule.ScheduleTabTestTags.ERROR
 import com.frame.zero.feature.home.ui.tab.schedule.ScheduleTabTestTags.LOADING
@@ -38,7 +39,10 @@ class ScheduleTabContentTest {
   @Test
   fun showsTheErrorWhenOfflineWithNothingCached() {
     setContent(
-      ScheduleTabState(error = Res.string.error_generic_message.asUiText(), isOffline = true, schedule = null)
+      ScheduleTabState(
+        error = LoadError(message = Res.string.error_generic_message.asUiText(), autoRetries = true),
+        schedule = null
+      )
     )
 
     composeRule.onNodeWithTag(ERROR).assertIsDisplayed()
@@ -49,7 +53,10 @@ class ScheduleTabContentTest {
   fun tappingRetryOnAGenericErrorEmitsRetry() {
     var retried = false
     setContent(
-      ScheduleTabState(error = Res.string.error_generic_message.asUiText(), schedule = null),
+      ScheduleTabState(
+        error = LoadError(message = Res.string.error_generic_message.asUiText(), autoRetries = false),
+        schedule = null
+      ),
       onRetry = { retried = true }
     )
 

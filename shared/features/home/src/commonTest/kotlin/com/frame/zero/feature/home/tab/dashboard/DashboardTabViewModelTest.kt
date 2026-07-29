@@ -138,7 +138,7 @@ class DashboardTabViewModelTest {
 
       assertNull(viewModel.state.value.dashboard)
       assertNotNull(viewModel.state.value.error)
-      assertFalse(viewModel.state.value.isOffline)
+      assertFalse(viewModel.state.value.error?.autoRetries == true)
       assertFalse(viewModel.state.value.isLoading)
     }
 
@@ -153,7 +153,7 @@ class DashboardTabViewModelTest {
 
       assertNull(viewModel.state.value.dashboard)
       assertNotNull(viewModel.state.value.error)
-      assertTrue(viewModel.state.value.isOffline)
+      assertTrue(viewModel.state.value.error?.autoRetries == true)
     }
 
   @Test
@@ -167,7 +167,7 @@ class DashboardTabViewModelTest {
 
       assertNull(viewModel.state.value.dashboard)
       assertNotNull(viewModel.state.value.error)
-      assertFalse(viewModel.state.value.isOffline)
+      assertFalse(viewModel.state.value.error?.autoRetries == true)
     }
 
   @Test
@@ -193,7 +193,7 @@ class DashboardTabViewModelTest {
 
       advanceUntilIdle()
       assertNotNull(viewModel.state.value.error)
-      assertTrue(viewModel.state.value.isOffline)
+      assertTrue(viewModel.state.value.error?.autoRetries == true)
 
       shouldFail = false
       connectivity.online.value = true
@@ -235,7 +235,7 @@ class DashboardTabViewModelTest {
 
       advanceUntilIdle()
       assertNotNull(viewModel.state.value.error)
-      assertFalse(viewModel.state.value.isOffline)
+      assertFalse(viewModel.state.value.error?.autoRetries == true)
 
       shouldFail = false
       viewModel.onIntent(DashboardTabIntent.Retry)

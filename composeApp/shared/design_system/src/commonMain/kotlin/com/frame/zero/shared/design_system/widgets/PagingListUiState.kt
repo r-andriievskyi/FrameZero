@@ -31,6 +31,12 @@ class PagingListUiState internal constructor(
   /** Refresh failed (e.g. offline). */
   val isError: Boolean get() = refreshState is LoadState.Error
 
+  /** The [Throwable] behind a failed refresh, or null when [isError] is false. Exposed raw,
+   *  not mapped to a message — this module has no dependency on the app's domain-error
+   *  hierarchy, so callers map it themselves (e.g. via `toDomainError()`/`toUiText()`) before
+   *  passing text into [FullScreenError] or [PagingLazyColumn]'s `appendErrorMessage`. */
+  val error: Throwable? get() = (refreshState as? LoadState.Error)?.error
+
   /** First load with no items to show. Suppressed during a filter transition so the list
    *  doesn't flicker into the skeleton when Room has cached items for the new key. */
   val isInitialLoad: Boolean get() = isLoading && itemCount == 0 && !isFilterTransition

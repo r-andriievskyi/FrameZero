@@ -83,9 +83,17 @@ fun TaskDetailsScreen(
       onOpenChat = component.onOpenChat,
       onIntent = component::onIntent
     )
+    // At most one of these is set at a time in practice (they come from unrelated user
+    // actions); participantsError takes precedence only to pick a stable dismiss target.
     ToastHost(
-      message = state.participantsError?.asString(),
-      onDismiss = { component.onIntent(TaskDetailsIntent.ParticipantsErrorDismissed) }
+      message = (state.participantsError ?: state.markCompleteError)?.asString(),
+      onDismiss = {
+        if (state.participantsError != null) {
+          component.onIntent(TaskDetailsIntent.ParticipantsErrorDismissed)
+        } else {
+          component.onIntent(TaskDetailsIntent.MarkCompleteErrorDismissed)
+        }
+      }
     )
   }
 }

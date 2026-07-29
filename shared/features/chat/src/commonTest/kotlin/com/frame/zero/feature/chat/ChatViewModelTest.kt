@@ -40,6 +40,23 @@ class ChatViewModelTest {
   )
 
   @Test
+  fun `isDisconnected tracks the repository's connection state`() =
+    runTest {
+      val repo = FakeChatRepository(conversation)
+      val viewModel = makeViewModel(this, repo)
+      advanceUntilIdle()
+      assertFalse(viewModel.state.value.isDisconnected)
+
+      repo.connectionState.value = false
+      advanceUntilIdle()
+      assertTrue(viewModel.state.value.isDisconnected)
+
+      repo.connectionState.value = true
+      advanceUntilIdle()
+      assertFalse(viewModel.state.value.isDisconnected)
+    }
+
+  @Test
   fun `sending clears the composer immediately and queues the trimmed body`() =
     runTest {
       val repo = FakeChatRepository(conversation)

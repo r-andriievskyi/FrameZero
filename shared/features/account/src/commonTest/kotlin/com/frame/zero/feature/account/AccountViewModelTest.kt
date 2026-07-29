@@ -21,6 +21,8 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -82,7 +84,7 @@ class AccountViewModelTest {
     }
 
   @Test
-  fun `a cancelled prompt leaves app lock unchanged`() =
+  fun `a cancelled prompt leaves app lock unchanged and surfaces no error`() =
     runTest {
       val session = makeSession(this)
       val lock = makeLock(authResult = BiometricResult.Cancelled)
@@ -94,6 +96,39 @@ class AccountViewModelTest {
 
       assertFalse(viewModel.state.value.appLockEnabled)
       assertFalse(lock.isEnabled)
+      assertNull(viewModel.state.value.appLockError)
+    }
+
+  @Test
+  fun `a failed prompt leaves app lock unchanged and surfaces an error`() =
+    runTest {
+      val session = makeSession(this)
+      val lock = makeLock(authResult = BiometricResult.Error)
+      val viewModel = AccountViewModel(session, lock, StandardTestDispatcher(testScheduler))
+      advanceUntilIdle()
+
+      viewModel.onIntent(AccountIntent.AppLockToggled(enabled = true, prompt = promptText))
+      advanceUntilIdle()
+
+      assertFalse(viewModel.state.value.appLockEnabled)
+      assertFalse(lock.isEnabled)
+      assertNotNull(viewModel.state.value.appLockError)
+    }
+
+  @Test
+  fun `AppLockErrorDismissed clears the error`() =
+    runTest {
+      val session = makeSession(this)
+      val lock = makeLock(authResult = BiometricResult.Error)
+      val viewModel = AccountViewModel(session, lock, StandardTestDispatcher(testScheduler))
+      advanceUntilIdle()
+      viewModel.onIntent(AccountIntent.AppLockToggled(enabled = true, prompt = promptText))
+      advanceUntilIdle()
+      assertNotNull(viewModel.state.value.appLockError)
+
+      viewModel.onIntent(AccountIntent.AppLockErrorDismissed)
+
+      assertNull(viewModel.state.value.appLockError)
     }
 
   @Test

@@ -96,10 +96,14 @@ class ChatSocketClient(
         resubscribeAll(wsSession)
         _events.emit(ChatSocketEvent.Connected)
         receiveLoop(wsSession)
+        // The incoming channel closed without throwing — a clean server-initiated close.
+        logger.w(tag = TAG, message = "Chat socket closed; reconnecting in ${backoff}s")
+        _events.emit(ChatSocketEvent.Disconnected(null))
       } catch (cancellation: CancellationException) {
         throw cancellation
       } catch (throwable: Throwable) {
-        logger.w(tag = TAG, message = "Chat socket dropped; reconnecting in ${backoff}s")
+        logger.w(tag = TAG, message = "Chat socket dropped; reconnecting in ${backoff}s", throwable = throwable)
+        _events.emit(ChatSocketEvent.Disconnected(throwable))
       } finally {
         mutex.withLock { session = null }
       }
@@ -131,7 +135,11 @@ class ChatSocketClient(
   }
 
   private suspend fun DefaultClientWebSocketSession.sendFrame(frame: ChatSocketFrame) {
+    // A failed send here (e.g. the session died between the caller's read and this write)
+    // leaves the caller believing it subscribed — logged so that's at least visible, since
+    // resubscribeAll runs on the next successful (re)connect regardless.
     runCatching { send(json.encodeToString(ChatSocketFrame.serializer(), frame)) }
+      .onFailure { logger.w(tag = TAG, message = "Failed to send $frame", throwable = it) }
   }
 
   private fun webSocketUrl(): String =

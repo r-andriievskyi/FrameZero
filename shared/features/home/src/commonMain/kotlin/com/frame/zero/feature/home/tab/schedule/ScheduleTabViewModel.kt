@@ -12,6 +12,7 @@ import com.frame.zero.domain.schedule.Schedule
 import com.frame.zero.domain.schedule.ScheduleEvent
 import com.frame.zero.domain.schedule.ScheduleTask
 import com.frame.zero.domain.schedule.ScheduleView
+import com.frame.zero.feature.home.LoadError
 import com.frame.zero.feature.home.homeErrorMessages
 import com.frame.zero.feature.home.usecase.GetScheduleUseCase
 import com.frame.zero.ui.toUiText
@@ -66,7 +67,7 @@ class ScheduleTabViewModel(
       connectivityObserver.isOnline
         .filter { online -> online }
         .collect {
-          if (_state.value.isOffline) {
+          if (_state.value.error?.autoRetries == true) {
             load(view = _state.value.view, date = _state.value.selectedDate ?: today())
           }
         }
@@ -121,7 +122,7 @@ class ScheduleTabViewModel(
   ) {
     loadJob?.cancel()
     loadJob = scope.launch {
-      _state.update { it.copy(isLoading = true, error = null, isOffline = false) }
+      _state.update { it.copy(isLoading = true, error = null) }
       when (val outcome = getScheduleUseCase(GetScheduleUseCase.Params(view, date))) {
         is Outcome.Success -> {
           val todayDate = today()
@@ -139,8 +140,10 @@ class ScheduleTabViewModel(
         is Outcome.Failure -> _state.update {
           it.copy(
             isLoading = false,
-            error = outcome.error.toUiText(homeErrorMessages),
-            isOffline = outcome.error is DomainError.Offline
+            error = LoadError(
+              message = outcome.error.toUiText(homeErrorMessages),
+              autoRetries = outcome.error is DomainError.Offline
+            )
           )
         }
       }

@@ -9,6 +9,9 @@ data class ChatState(
   val isLoadingConversation: Boolean = true,
   val isReady: Boolean = false,
   val conversationError: UiText? = null,
+  /** The chat socket is down and retrying with backoff — sends still queue locally, but live
+   *  delivery/read updates are paused until it reconnects. */
+  val isDisconnected: Boolean = false,
   // Composed but unconfirmed messages, newest first to match the reversed message list. They render
   // after every confirmed message; a send never fails outright any more, it just stays here.
   val pending: ImmutableList<PendingMessageUi> = persistentListOf(),

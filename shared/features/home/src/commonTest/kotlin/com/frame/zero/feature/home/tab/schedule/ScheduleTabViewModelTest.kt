@@ -77,7 +77,7 @@ class ScheduleTabViewModelTest {
 
       assertNull(viewModel.state.value.schedule)
       assertNotNull(viewModel.state.value.error)
-      assertTrue(viewModel.state.value.isOffline)
+      assertTrue(viewModel.state.value.error?.autoRetries == true)
       assertFalse(viewModel.state.value.isLoading)
     }
 
@@ -91,7 +91,7 @@ class ScheduleTabViewModelTest {
 
       assertNull(viewModel.state.value.schedule)
       assertNotNull(viewModel.state.value.error)
-      assertFalse(viewModel.state.value.isOffline)
+      assertFalse(viewModel.state.value.error?.autoRetries == true)
       assertFalse(viewModel.state.value.isLoading)
     }
 
@@ -120,7 +120,7 @@ class ScheduleTabViewModelTest {
 
       advanceUntilIdle()
       assertNotNull(viewModel.state.value.error)
-      assertTrue(viewModel.state.value.isOffline)
+      assertTrue(viewModel.state.value.error?.autoRetries == true)
 
       shouldFail = false
       connectivity.online.value = true

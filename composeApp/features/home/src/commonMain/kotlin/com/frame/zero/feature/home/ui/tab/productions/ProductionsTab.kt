@@ -29,11 +29,13 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.frame.zero.domain.production.Genre
 import com.frame.zero.domain.production.ProductionPhase
+import com.frame.zero.domain.toDomainError
 import com.frame.zero.feature.home.tab.productions.ProductionUi
 import com.frame.zero.feature.home.tab.productions.ProductionsTabComponent
 import com.frame.zero.feature.home.ui.FloatingBottomNavClearance
@@ -49,7 +51,12 @@ import com.frame.zero.shared.design_system.widgets.FullScreenError
 import com.frame.zero.shared.design_system.widgets.PagingLazyColumn
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import com.frame.zero.shared.design_system.widgets.rememberPagingListUiState
+import com.frame.zero.ui.asString
+import com.frame.zero.ui.toUiText
 import framezero.composeapp.features.home.generated.resources.Res
+import com.frame.zero.shared.design_system.generated.resources.Res as DesignSystemRes
+import com.frame.zero.shared.design_system.generated.resources.error_generic_message
+import com.frame.zero.shared.design_system.generated.resources.error_network_message
 import framezero.composeapp.features.home.generated.resources.ic_plus
 import framezero.composeapp.features.home.generated.resources.projects_count
 import framezero.composeapp.features.home.generated.resources.projects_refreshing
@@ -160,10 +167,15 @@ internal fun ProductionsContent(
           }
         ProductionsContentState.Error ->
           Box(modifier = Modifier.testTag(ProductionsTabTestTags.ERROR)) {
-            FullScreenError(onRetry = lazyPagingItems::refresh)
+            FullScreenError(
+              message = pagingState.error?.toDomainError()?.toUiText()?.asString()
+                ?: stringResource(DesignSystemRes.string.error_generic_message),
+              onRetry = lazyPagingItems::refresh
+            )
           }
         ProductionsContentState.List -> {
           val count = lazyPagingItems.itemCount
+          val appendError = (lazyPagingItems.loadState.append as? LoadState.Error)?.error
           PagingLazyColumn(
             lazyPagingItems = lazyPagingItems,
             state = pagingState,
@@ -179,6 +191,8 @@ internal fun ProductionsContent(
                 subtitle = stringResource(Res.string.projects_count, count)
               )
             },
+            appendErrorMessage = appendError?.toDomainError()?.toUiText()?.asString()
+              ?: stringResource(DesignSystemRes.string.error_network_message),
             itemKey = { it.id }
           ) { production ->
             ProductionCard(

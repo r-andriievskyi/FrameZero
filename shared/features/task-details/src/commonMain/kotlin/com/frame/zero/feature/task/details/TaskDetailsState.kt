@@ -28,6 +28,7 @@ data class TaskDetailsState(
   val participantsError: UiText? = null,
   val isLoading: Boolean = false,
   val error: UiText? = null,
+  val markCompleteError: UiText? = null,
   val showMarkCompleteButton: Boolean = false,
   /** Unread messages in the task chat; 0 hides the badge on the chat entry point. */
   val unreadChatCount: Int = 0
