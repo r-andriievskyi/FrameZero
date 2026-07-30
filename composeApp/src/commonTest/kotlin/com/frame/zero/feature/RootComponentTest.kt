@@ -58,7 +58,9 @@ import com.frame.zero.testing.FakeProductionsRepository
 import com.frame.zero.testing.FakeScheduleRepository
 import com.frame.zero.testing.FakeTasksRepository
 import com.frame.zero.testing.FakeUserRepository
+import com.frame.zero.testing.FakeTaskUploadScheduler
 import com.frame.zero.testing.NoopSessionAuthOperations
+import com.frame.zero.testing.testPendingUploadStore
 import com.russhwolf.settings.MapSettings
 import io.ktor.utils.io.ByteReadChannel
 import kotlinx.coroutines.Dispatchers
@@ -324,7 +326,9 @@ class RootComponentTest {
           productionId = productionId,
           getProductionDetailsUseCase = GetProductionDetailsUseCase(productions),
           getProductionTasksUseCase = GetProductionTasksUseCase(tasks),
-          deleteProductionUseCase = DeleteProductionUseCase(productions)
+          deleteProductionUseCase = DeleteProductionUseCase(productions),
+          pendingUploadStore = testPendingUploadStore(),
+          taskUploadScheduler = FakeTaskUploadScheduler()
         )
       },
       taskDetailsViewModelFactory = { taskId ->
