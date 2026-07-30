@@ -69,7 +69,7 @@ class DomainErrorMapperTest {
   }
 
   @Test
-  fun `UNAUTHORIZED maps to Forbidden, not InvalidCredentials`() {
+  fun `UNAUTHORIZED maps to Forbidden not InvalidCredentials`() {
     val error = ServerErrorException(code = "UNAUTHORIZED", status = 401).toDomainError()
 
     assertEquals(DomainError.Forbidden, error)
