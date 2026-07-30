@@ -54,11 +54,10 @@ class ProductionDetailsViewModel(
   private val _state = MutableStateFlow(ProductionDetailsState())
   val state: StateFlow<ProductionDetailsState> = _state.asStateFlow()
 
-  private val _events =
-    MutableSharedFlow<ProductionDetailsEvent>(
-      extraBufferCapacity = 1,
-      onBufferOverflow = BufferOverflow.DROP_OLDEST
-    )
+  private val _events = MutableSharedFlow<ProductionDetailsEvent>(
+    extraBufferCapacity = 1,
+    onBufferOverflow = BufferOverflow.DROP_OLDEST
+  )
   val events: SharedFlow<ProductionDetailsEvent> = _events.asSharedFlow()
 
   init {
@@ -74,11 +73,14 @@ class ProductionDetailsViewModel(
       ProductionDetailsIntent.AddTaskRequested -> requestAddTask()
       ProductionDetailsIntent.DeleteRequested ->
         _state.update { it.copy(isDeleteDialogVisible = true, deleteError = null) }
+
       ProductionDetailsIntent.DeleteDismissed ->
         _state.update { it.copy(isDeleteDialogVisible = false) }
+
       ProductionDetailsIntent.DeleteConfirmed -> deleteProduction()
       ProductionDetailsIntent.DeleteErrorDismissed ->
         _state.update { it.copy(deleteError = null) }
+
       ProductionDetailsIntent.RetryUploadRequested -> retryUpload()
       ProductionDetailsIntent.DismissUploadRequested -> dismissUpload()
     }
@@ -129,6 +131,7 @@ class ProductionDetailsViewModel(
       when (val outcome = getProductionDetailsUseCase(params)) {
         is Outcome.Success ->
           _state.update { it.copy(isLoading = false, detail = outcome.data.toUi()) }
+
         is Outcome.Failure ->
           _state.update { it.copy(isLoading = false, error = outcome.error.toUiText(errorMessages)) }
       }
@@ -144,6 +147,7 @@ class ProductionDetailsViewModel(
         is Outcome.Success -> _state.update {
           it.copy(areTasksLoading = false, tasks = outcome.data.mapImmutable { task -> task.toUi() })
         }
+
         is Outcome.Failure -> _state.update { it.copy(areTasksLoading = false) }
       }
     }
@@ -211,6 +215,7 @@ class ProductionDetailsViewModel(
           _state.update { it.copy(isDeleting = false) }
           _events.tryEmit(ProductionDetailsEvent.Deleted(productionId))
         }
+
         is Outcome.Failure ->
           _state.update {
             it.copy(isDeleting = false, deleteError = outcome.error.toUiText(errorMessages))
