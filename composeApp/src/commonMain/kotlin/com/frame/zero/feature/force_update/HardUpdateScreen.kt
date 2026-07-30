@@ -68,9 +68,7 @@ internal fun HardUpdateScreen(
 }
 
 @Composable
-private fun HardUpdateContent(
-  modifier: Modifier = Modifier
-) {
+private fun HardUpdateContent(modifier: Modifier = Modifier) {
   val colorSystem = AppTheme.colorSystem
   val typographySystem = AppTheme.typographySystem
   val spacingSystem = AppTheme.spacingSystem

@@ -79,9 +79,7 @@ internal fun SoftUpdateScreen(
 }
 
 @Composable
-private fun SoftUpdateContent(
-  modifier: Modifier = Modifier
-) {
+private fun SoftUpdateContent(modifier: Modifier = Modifier) {
   val colorSystem = AppTheme.colorSystem
   val typographySystem = AppTheme.typographySystem
   val spacingSystem = AppTheme.spacingSystem

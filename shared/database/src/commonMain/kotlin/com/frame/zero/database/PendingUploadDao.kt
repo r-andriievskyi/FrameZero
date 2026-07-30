@@ -42,7 +42,9 @@ interface PendingUploadDao {
   )
 
   /** Explicit user-initiated retry: a fresh attempt budget, atomically. */
-  @Query("UPDATE pending_uploads SET status = :status, attemptCount = 0, failureReason = NULL WHERE uploadId = :uploadId")
+  @Query(
+    "UPDATE pending_uploads SET status = :status, attemptCount = 0, failureReason = NULL WHERE uploadId = :uploadId"
+  )
   suspend fun markUploading(
     uploadId: String,
     status: String

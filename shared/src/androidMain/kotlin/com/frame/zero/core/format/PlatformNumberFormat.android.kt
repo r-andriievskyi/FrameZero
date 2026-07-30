@@ -23,7 +23,10 @@ actual fun formatOneDecimalPlace(value: Double): String {
   return formatter.format(value)
 }
 
-actual fun formatClockTime(hour: Int, minute: Int): String {
+actual fun formatClockTime(
+  hour: Int,
+  minute: Int
+): String {
   val time = Calendar.getInstance().apply {
     set(Calendar.HOUR_OF_DAY, hour)
     set(Calendar.MINUTE, minute)

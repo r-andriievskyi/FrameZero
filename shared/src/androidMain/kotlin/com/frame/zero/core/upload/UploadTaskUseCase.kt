@@ -78,7 +78,8 @@ class UploadTaskUseCase(
       // status and the derived reason are enough to act on.
       logger.w(
         tag = TAG,
-        message = "Upload $uploadId failed [$status] reason=$reason terminal=${updated?.status == PendingUploadStatus.Failed}",
+        message = "Upload $uploadId failed [$status] reason=$reason " +
+          "terminal=${updated?.status == PendingUploadStatus.Failed}",
         throwable = if (status == null) failure else null
       )
     }

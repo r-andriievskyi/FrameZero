@@ -35,7 +35,10 @@ actual fun formatOneDecimalPlace(value: Double): String {
   return formatter.stringFromNumber(NSNumber(double = value)) ?: value.toString()
 }
 
-actual fun formatClockTime(hour: Int, minute: Int): String {
+actual fun formatClockTime(
+  hour: Int,
+  minute: Int
+): String {
   val components = NSDateComponents().apply {
     this.hour = hour.toLong()
     this.minute = minute.toLong()

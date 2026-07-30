@@ -158,7 +158,8 @@ private class UploadDelegate(
       val updated = store.recordFailure(uploadId, reason)
       logger.w(
         tag = "Upload",
-        message = "Upload $uploadId failed [$status] reason=$reason terminal=${updated?.status == PendingUploadStatus.Failed}",
+        message = "Upload $uploadId failed [$status] reason=$reason " +
+          "terminal=${updated?.status == PendingUploadStatus.Failed}",
         throwable = if (status == null) didCompleteWithError?.let { Exception(it.localizedDescription) } else null
       )
       if (updated != null && updated.status == PendingUploadStatus.Uploading) {
@@ -174,6 +175,5 @@ private class UploadDelegate(
 
   /** 2s / 4s / 8s, matching Android's WorkManager backoff — [attemptCount] is already the
    *  count *after* this failure, so attempt 1 waits 2s, attempt 2 waits 4s, etc. */
-  private fun retryBackoffMillis(attemptCount: Int): Long =
-    2_000L shl (attemptCount - 1).coerceIn(0, 2)
+  private fun retryBackoffMillis(attemptCount: Int): Long = 2_000L shl (attemptCount - 1).coerceIn(0, 2)
 }
