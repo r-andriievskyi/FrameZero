@@ -69,7 +69,7 @@ class CreateProductionUseCaseTest {
       val outcome = CreateProductionUseCase(repo)(params())
 
       val failure = assertIs<Outcome.Failure>(outcome)
-      assertEquals(DomainError.Offline("offline"), failure.error)
+      assertEquals(DomainError.Offline, failure.error)
     }
 
   @Test
@@ -80,7 +80,6 @@ class CreateProductionUseCaseTest {
       val outcome = CreateProductionUseCase(repo)(params())
 
       val failure = assertIs<Outcome.Failure>(outcome)
-      val server = assertIs<DomainError.Server>(failure.error)
-      assertEquals("connection refused", server.message)
+      assertEquals(DomainError.Server, failure.error)
     }
 }

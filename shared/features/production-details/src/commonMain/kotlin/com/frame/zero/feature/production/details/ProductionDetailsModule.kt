@@ -16,7 +16,9 @@ val featureProductionDetailsModule: Module =
         productionId = productionId,
         getProductionDetailsUseCase = get(),
         getProductionTasksUseCase = get(),
-        deleteProductionUseCase = get()
+        deleteProductionUseCase = get(),
+        pendingUploadStore = get(),
+        taskUploadScheduler = get()
       )
     }
   }

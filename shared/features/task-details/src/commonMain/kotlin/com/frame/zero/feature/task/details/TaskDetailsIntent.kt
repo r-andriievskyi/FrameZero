@@ -22,4 +22,6 @@ sealed interface TaskDetailsIntent {
   ) : TaskDetailsIntent
 
   data object ParticipantsErrorDismissed : TaskDetailsIntent
+
+  data object MarkCompleteErrorDismissed : TaskDetailsIntent
 }

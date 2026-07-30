@@ -3,6 +3,8 @@ package com.frame.zero.feature.home.tab.schedule
 import com.arkivanov.essenty.instancekeeper.InstanceKeeper
 import com.frame.zero.core.collections.mapImmutable
 import com.frame.zero.core.collections.orEmpty
+import com.frame.zero.core.format.formatClockTime
+import com.frame.zero.core.format.formatTimeRangeSeparator
 import com.frame.zero.core.network.connectivity.ConnectivityObserver
 import com.frame.zero.domain.DomainError
 import com.frame.zero.domain.Outcome
@@ -10,8 +12,10 @@ import com.frame.zero.domain.schedule.Schedule
 import com.frame.zero.domain.schedule.ScheduleEvent
 import com.frame.zero.domain.schedule.ScheduleTask
 import com.frame.zero.domain.schedule.ScheduleView
-import com.frame.zero.feature.home.LoadErrorKind
+import com.frame.zero.feature.home.LoadError
+import com.frame.zero.feature.home.homeErrorMessages
 import com.frame.zero.feature.home.usecase.GetScheduleUseCase
+import com.frame.zero.ui.toUiText
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -63,7 +67,7 @@ class ScheduleTabViewModel(
       connectivityObserver.isOnline
         .filter { online -> online }
         .collect {
-          if (_state.value.error == LoadErrorKind.Network) {
+          if (_state.value.error?.autoRetries == true) {
             load(view = _state.value.view, date = _state.value.selectedDate ?: today())
           }
         }
@@ -134,7 +138,13 @@ class ScheduleTabViewModel(
         }
 
         is Outcome.Failure -> _state.update {
-          it.copy(isLoading = false, error = outcome.error.toLoadErrorKind())
+          it.copy(
+            isLoading = false,
+            error = LoadError(
+              message = outcome.error.toUiText(homeErrorMessages),
+              autoRetries = outcome.error is DomainError.Offline
+            )
+          )
         }
       }
     }
@@ -143,9 +153,6 @@ class ScheduleTabViewModel(
   override fun onDestroy() {
     scope.cancel()
   }
-
-  private fun DomainError.toLoadErrorKind(): LoadErrorKind =
-    if (this is DomainError.Offline) LoadErrorKind.Network else LoadErrorKind.Generic
 
   @OptIn(ExperimentalTime::class)
   private fun today(): LocalDate =
@@ -169,7 +176,7 @@ class ScheduleTabViewModel(
       productionTitle = productionTitle,
       location = location,
       eventKind = kind,
-      timeRangeLabel = "${startsAt.formatTime()} – ${endsAt.formatTime()}"
+      timeRangeLabel = "${startsAt.formatTime()}${formatTimeRangeSeparator()}${endsAt.formatTime()}"
     )
 
   private fun ScheduleTask.toUiModel(today: LocalDate) =
@@ -187,8 +194,6 @@ class ScheduleTabViewModel(
 
   private fun Instant.formatTime(): String {
     val local = toLocalDateTime(TimeZone.currentSystemDefault())
-    val hour = local.hour.toString().padStart(2, '0')
-    val minute = local.minute.toString().padStart(2, '0')
-    return "$hour:$minute"
+    return formatClockTime(local.hour, local.minute)
   }
 }

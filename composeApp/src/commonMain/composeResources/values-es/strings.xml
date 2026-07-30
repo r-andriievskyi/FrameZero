@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="update_hard_title">Actualización obligatoria</string>
+  <string name="update_hard_subtitle">Esta versión de FrameZero ya no es compatible. Actualiza a la última versión para seguir funcionando.</string>
+  <string name="update_hard_warning">Tu versión ha llegado al fin de su soporte y ya no puede sincronizarse con el servidor.</string>
+</resources>

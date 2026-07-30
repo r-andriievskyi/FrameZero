@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="error_title_required">El título es obligatorio</string>
+  <string name="error_invalid_dates">Se requieren fechas de inicio y fin válidas</string>
+  <string name="error_missing_dates">Se requieren las fechas de inicio y fin</string>
+  <string name="error_conflict">Ya existe una producción como esta.</string>
+</resources>

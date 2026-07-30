@@ -3,7 +3,6 @@ package com.frame.zero.core.upload
 import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.frame.zero.domain.Outcome
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -17,19 +16,20 @@ class TaskUploadWorker(
 
   override suspend fun doWork(): Result {
     val uploadId = inputData.getString(KEY_UPLOAD_ID) ?: return Result.failure()
-    val succeeded = uploadTask(uploadId) is Outcome.Success
+    uploadTask(uploadId)
+    // UploadTaskUseCase never throws — success removes the record, failure classifies and
+    // records it — so the record's current state is the single source of truth for what
+    // WorkManager should do next, rather than WorkManager's own runAttemptCount (which resets
+    // on every fresh enqueue and can't see an explicit user-triggered retry).
+    val current = store.get(uploadId)
     return when {
-      succeeded -> Result.success()
-      runAttemptCount + 1 < MAX_ATTEMPTS -> Result.retry()
-      else -> {
-        store.markFailed(uploadId)
-        Result.failure()
-      }
+      current == null -> Result.success()
+      current.status == PendingUploadStatus.Failed -> Result.failure()
+      else -> Result.retry()
     }
   }
 
   companion object {
     const val KEY_UPLOAD_ID = "uploadId"
-    private const val MAX_ATTEMPTS = 4
   }
 }

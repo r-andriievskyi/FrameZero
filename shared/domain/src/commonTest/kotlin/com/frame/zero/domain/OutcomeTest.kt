@@ -62,12 +62,12 @@ class OutcomeTest {
 
   @Test
   fun `onFailure invokes action with error on Failure`() {
-    val outcome: Outcome<Int> = Outcome.Failure(DomainError.Offline("offline"))
+    val outcome: Outcome<Int> = Outcome.Failure(DomainError.Offline)
     var captured: DomainError? = null
 
     outcome.onFailure { captured = it }
 
-    assertEquals(DomainError.Offline("offline"), captured)
+    assertEquals(DomainError.Offline, captured)
   }
 
   @Test

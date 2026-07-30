@@ -107,7 +107,7 @@ class HttpClientStackTest {
         env.logoutSignal.events.collect { logoutEvents += Unit }
       }
 
-      env.client.get("$BASE_URL/productions")
+      runCatching { env.client.get("$BASE_URL/productions") }
       advanceUntilIdle()
 
       assertFalse(env.storage.hasTokens())
@@ -128,10 +128,10 @@ class HttpClientStackTest {
     runTest {
       val env = TestEnv { respond("", HttpStatusCode.InternalServerError) }
 
-      env.client.get("$BASE_URL/productions")
+      runCatching { env.client.get("$BASE_URL/productions") }
       val getAttempts = env.requests.size
       env.requests.clear()
-      env.client.post("$BASE_URL/productions")
+      runCatching { env.client.post("$BASE_URL/productions") }
       val postAttempts = env.requests.size
 
       assertEquals(MAX_RETRIES + 1, getAttempts, "GET should retry on 5xx")

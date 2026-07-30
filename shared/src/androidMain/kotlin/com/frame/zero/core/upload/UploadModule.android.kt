@@ -5,5 +5,5 @@ import org.koin.dsl.module
 
 actual fun uploadPlatformModule(): Module =
   module {
-    factory { UploadTaskUseCase(get(), get(), get(), get()) }
+    factory { UploadTaskUseCase(get(), get(), get(), get(), get()) }
   }

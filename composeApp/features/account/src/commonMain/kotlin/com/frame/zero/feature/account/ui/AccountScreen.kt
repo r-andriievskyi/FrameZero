@@ -1,6 +1,7 @@
 package com.frame.zero.feature.account.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -26,6 +27,8 @@ import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.widgets.TopToolbar
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer
+import com.frame.zero.shared.design_system.widgets.toast.ToastHost
+import com.frame.zero.ui.asString
 import framezero.composeapp.features.account.generated.resources.Res
 import framezero.composeapp.features.account.generated.resources.account_toolbar_title
 import framezero.composeapp.features.account.generated.resources.app_lock_prompt_cancel
@@ -68,6 +71,7 @@ fun AccountScreen(
     onDeveloperOptionsClick = component.onDeveloperOptions,
     onAppLockToggle = { enabled, prompt -> component.onIntent(AccountIntent.AppLockToggled(enabled, prompt)) },
     onSignOutClick = { component.onIntent(AccountIntent.SignOutClicked) },
+    onAppLockErrorDismissed = { component.onIntent(AccountIntent.AppLockErrorDismissed) },
     modifier = modifier
   )
 }
@@ -83,93 +87,100 @@ internal fun AccountContent(
   onDeveloperOptionsClick: () -> Unit,
   onAppLockToggle: (Boolean, BiometricPromptText) -> Unit,
   onSignOutClick: () -> Unit,
+  onAppLockErrorDismissed: () -> Unit = {},
   modifier: Modifier = Modifier
 ) {
   val spacingSystem = AppTheme.spacingSystem
-  Column(
-    modifier = modifier
-      .fillMaxSize()
-      .background(AppTheme.colorSystem.background)
-      .systemBarsPadding()
-  ) {
-    TopToolbar(title = stringResource(Res.string.account_toolbar_title), onBack = onBack)
+  Box(modifier = modifier) {
     Column(
       modifier = Modifier
         .fillMaxSize()
-        .verticalScroll(rememberScrollState())
-        .padding(horizontal = spacingSystem.space16)
+        .background(AppTheme.colorSystem.background)
+        .systemBarsPadding()
     ) {
-      VerticalSpacer(spacingSystem.space16)
-      SettingsSection(title = stringResource(Res.string.section_account)) {
-        state.userName?.let { userName ->
+      TopToolbar(title = stringResource(Res.string.account_toolbar_title), onBack = onBack)
+      Column(
+        modifier = Modifier
+          .fillMaxSize()
+          .verticalScroll(rememberScrollState())
+          .padding(horizontal = spacingSystem.space16)
+      ) {
+        VerticalSpacer(spacingSystem.space16)
+        SettingsSection(title = stringResource(Res.string.section_account)) {
+          state.userName?.let { userName ->
+            SettingsRow(
+              icon = Res.drawable.ic_user,
+              title = stringResource(Res.string.settings_edit_profile),
+              subtitle = userName,
+              onClick = onEditProfileClick,
+              modifier = Modifier.testTag(AccountTestTags.EDIT_PROFILE)
+            )
+            SettingsDivider()
+          }
+          state.email?.let { email ->
+            SettingsRow(
+              icon = Res.drawable.ic_mail,
+              title = stringResource(Res.string.settings_email_address),
+              subtitle = email,
+              onClick = onEmailClick
+            )
+            SettingsDivider()
+          }
           SettingsRow(
-            icon = Res.drawable.ic_user,
-            title = stringResource(Res.string.settings_edit_profile),
-            subtitle = userName,
-            onClick = onEditProfileClick,
-            modifier = Modifier.testTag(AccountTestTags.EDIT_PROFILE)
-          )
-          SettingsDivider()
-        }
-        state.email?.let { email ->
-          SettingsRow(
-            icon = Res.drawable.ic_mail,
-            title = stringResource(Res.string.settings_email_address),
-            subtitle = email,
-            onClick = onEmailClick
-          )
-          SettingsDivider()
-        }
-        SettingsRow(
-          icon = Res.drawable.ic_lock,
-          title = stringResource(Res.string.settings_password_security),
-          subtitle = stringResource(Res.string.settings_password_last_changed),
-          onClick = onPasswordSecurityClick
-        )
-      }
-      VerticalSpacer(spacingSystem.space24)
-      SettingsSection(title = stringResource(Res.string.section_workspace)) {
-        SettingsRow(
-          icon = Res.drawable.ic_bell,
-          title = stringResource(Res.string.settings_notifications),
-          subtitle = stringResource(Res.string.settings_notifications_subtitle),
-          onClick = onNotificationsClick
-        )
-      }
-      if (state.appLockSupported) {
-        val promptTitle = stringResource(Res.string.app_lock_prompt_title)
-        val promptSubtitle = stringResource(Res.string.app_lock_prompt_subtitle)
-        val promptCancel = stringResource(Res.string.app_lock_prompt_cancel)
-        val appLockPrompt = remember(promptTitle, promptSubtitle, promptCancel) {
-          BiometricPromptText(title = promptTitle, subtitle = promptSubtitle, negativeButton = promptCancel)
-        }
-        VerticalSpacer(spacingSystem.space24)
-        SettingsSection(title = stringResource(Res.string.section_security)) {
-          SettingsToggleRow(
             icon = Res.drawable.ic_lock,
-            title = stringResource(Res.string.settings_app_lock),
-            subtitle = stringResource(Res.string.settings_app_lock_subtitle),
-            checked = state.appLockEnabled,
-            onCheckedChange = { enabled -> onAppLockToggle(enabled, appLockPrompt) },
-            modifier = Modifier.testTag(AccountTestTags.APP_LOCK_TOGGLE)
+            title = stringResource(Res.string.settings_password_security),
+            subtitle = stringResource(Res.string.settings_password_last_changed),
+            onClick = onPasswordSecurityClick
           )
         }
-      }
-      if (state.developerOptionsEnabled) {
         VerticalSpacer(spacingSystem.space24)
-        SettingsSection(title = stringResource(Res.string.section_developer)) {
+        SettingsSection(title = stringResource(Res.string.section_workspace)) {
           SettingsRow(
-            icon = Res.drawable.ic_info,
-            title = stringResource(Res.string.settings_design_system),
-            subtitle = stringResource(Res.string.settings_design_system_subtitle),
-            onClick = onDeveloperOptionsClick
+            icon = Res.drawable.ic_bell,
+            title = stringResource(Res.string.settings_notifications),
+            subtitle = stringResource(Res.string.settings_notifications_subtitle),
+            onClick = onNotificationsClick
           )
         }
+        if (state.appLockSupported) {
+          val promptTitle = stringResource(Res.string.app_lock_prompt_title)
+          val promptSubtitle = stringResource(Res.string.app_lock_prompt_subtitle)
+          val promptCancel = stringResource(Res.string.app_lock_prompt_cancel)
+          val appLockPrompt = remember(promptTitle, promptSubtitle, promptCancel) {
+            BiometricPromptText(title = promptTitle, subtitle = promptSubtitle, negativeButton = promptCancel)
+          }
+          VerticalSpacer(spacingSystem.space24)
+          SettingsSection(title = stringResource(Res.string.section_security)) {
+            SettingsToggleRow(
+              icon = Res.drawable.ic_lock,
+              title = stringResource(Res.string.settings_app_lock),
+              subtitle = stringResource(Res.string.settings_app_lock_subtitle),
+              checked = state.appLockEnabled,
+              onCheckedChange = { enabled -> onAppLockToggle(enabled, appLockPrompt) },
+              modifier = Modifier.testTag(AccountTestTags.APP_LOCK_TOGGLE)
+            )
+          }
+        }
+        if (state.developerOptionsEnabled) {
+          VerticalSpacer(spacingSystem.space24)
+          SettingsSection(title = stringResource(Res.string.section_developer)) {
+            SettingsRow(
+              icon = Res.drawable.ic_info,
+              title = stringResource(Res.string.settings_design_system),
+              subtitle = stringResource(Res.string.settings_design_system_subtitle),
+              onClick = onDeveloperOptionsClick
+            )
+          }
+        }
+        VerticalSpacer(spacingSystem.space24)
+        SignOutButton(onClick = onSignOutClick, modifier = Modifier.testTag(AccountTestTags.SIGN_OUT))
+        VerticalSpacer(spacingSystem.space24)
       }
-      VerticalSpacer(spacingSystem.space24)
-      SignOutButton(onClick = onSignOutClick, modifier = Modifier.testTag(AccountTestTags.SIGN_OUT))
-      VerticalSpacer(spacingSystem.space24)
     }
+    ToastHost(
+      message = state.appLockError?.asString(),
+      onDismiss = onAppLockErrorDismissed
+    )
   }
 }
 

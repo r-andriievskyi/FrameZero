@@ -31,7 +31,6 @@ import org.jetbrains.compose.resources.stringResource
 
 @Composable
 internal fun SoftUpdateScreen(
-  message: String?,
   onUpdate: () -> Unit,
   onDismiss: () -> Unit,
   modifier: Modifier = Modifier
@@ -56,7 +55,6 @@ internal fun SoftUpdateScreen(
       horizontalAlignment = Alignment.CenterHorizontally
     ) {
       SoftUpdateContent(
-        message = message,
         modifier = Modifier
           .fillMaxWidth()
           .weight(1f)
@@ -81,10 +79,7 @@ internal fun SoftUpdateScreen(
 }
 
 @Composable
-private fun SoftUpdateContent(
-  message: String?,
-  modifier: Modifier = Modifier
-) {
+private fun SoftUpdateContent(modifier: Modifier = Modifier) {
   val colorSystem = AppTheme.colorSystem
   val typographySystem = AppTheme.typographySystem
   val spacingSystem = AppTheme.spacingSystem
@@ -108,7 +103,7 @@ private fun SoftUpdateContent(
     )
     VerticalSpacer(spacingSystem.space8)
     Text(
-      text = message ?: stringResource(Res.string.update_soft_subtitle),
+      text = stringResource(Res.string.update_soft_subtitle),
       style = typographySystem.bodyMedium,
       color = colorSystem.textMuted,
       textAlign = TextAlign.Center
@@ -120,6 +115,6 @@ private fun SoftUpdateContent(
 @Composable
 private fun SoftUpdateScreenPreview() {
   AppTheme {
-    SoftUpdateScreen(message = null, onUpdate = {}, onDismiss = {})
+    SoftUpdateScreen(onUpdate = {}, onDismiss = {})
   }
 }

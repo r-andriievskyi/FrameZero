@@ -28,12 +28,11 @@ class CheckForceUpdateUseCaseTest {
   ) = UpdatePolicy(minSupportedBuild = min, latestBuild = latest, storeUrl = url, message = message, critical = false)
 
   @Test
-  fun hard_state_carries_message_and_url() =
+  fun hard_state_carries_the_store_url() =
     runTest {
       val outcome = useCase(policy(min = 5, latest = 8), currentBuild = 3)()
       val state = assertIs<Outcome.Success<ForceUpdateState>>(outcome).data
       val hard = assertIs<ForceUpdateState.Hard>(state)
-      assertEquals("update", hard.message)
       assertEquals("store://app", hard.storeUrl)
     }
 

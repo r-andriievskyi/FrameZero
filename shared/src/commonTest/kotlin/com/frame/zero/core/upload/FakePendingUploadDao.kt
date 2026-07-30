@@ -17,11 +17,40 @@ class FakePendingUploadDao : PendingUploadDao {
     rows.value = rows.value.filterNot { it.uploadId == entity.uploadId } + entity
   }
 
-  override suspend fun updateStatus(
+  override suspend fun recordFailure(
+    uploadId: String,
+    reason: String,
+    permanentReason: String,
+    maxAttempts: Int,
+    failedStatus: String,
+    uploadingStatus: String
+  ) {
+    rows.value = rows.value.map { entity ->
+      if (entity.uploadId != uploadId) {
+        entity
+      } else {
+        val attemptCount = entity.attemptCount + 1
+        val terminal = reason == permanentReason || attemptCount >= maxAttempts
+        entity.copy(
+          attemptCount = attemptCount,
+          failureReason = reason,
+          status = if (terminal) failedStatus else uploadingStatus
+        )
+      }
+    }
+  }
+
+  override suspend fun markUploading(
     uploadId: String,
     status: String
   ) {
-    rows.value = rows.value.map { if (it.uploadId == uploadId) it.copy(status = status) else it }
+    rows.value = rows.value.map { entity ->
+      if (entity.uploadId != uploadId) {
+        entity
+      } else {
+        entity.copy(status = status, attemptCount = 0, failureReason = null)
+      }
+    }
   }
 
   override suspend fun delete(uploadId: String) {

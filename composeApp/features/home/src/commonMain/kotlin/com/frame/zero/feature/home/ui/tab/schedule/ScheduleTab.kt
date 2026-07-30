@@ -29,7 +29,6 @@ import com.frame.zero.domain.schedule.ScheduleTask
 import com.frame.zero.domain.schedule.ScheduleView
 import com.frame.zero.domain.task.TaskPriority
 import com.frame.zero.domain.task.TaskStatus
-import com.frame.zero.feature.home.LoadErrorKind
 import com.frame.zero.feature.home.tab.schedule.DueLabel
 import com.frame.zero.feature.home.tab.schedule.ScheduleEventUiModel
 import com.frame.zero.feature.home.tab.schedule.ScheduleTabComponent
@@ -47,10 +46,10 @@ import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.widgets.FullScreenError
 import com.frame.zero.shared.design_system.widgets.FullScreenProgress
+import com.frame.zero.shared.design_system.widgets.OfflineBanner
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer
+import com.frame.zero.ui.asString
 import framezero.composeapp.features.home.generated.resources.Res
-import framezero.composeapp.features.home.generated.resources.error_generic_message
-import framezero.composeapp.features.home.generated.resources.error_offline_message
 import framezero.composeapp.features.home.generated.resources.schedule_screen_title
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.datetime.LocalDate
@@ -84,16 +83,17 @@ internal fun ScheduleTabContent(
       .fillMaxSize()
       .background(AppTheme.colorSystem.background)
   ) {
+    val loadError = state.error
     when {
       // Only take over the whole tab when there's nothing cached to show; once a
       // schedule is loaded, keep rendering it.
-      state.schedule == null && state.error == LoadErrorKind.Network -> FullScreenError(
+      state.schedule == null && loadError != null && loadError.autoRetries -> OfflineBanner(
         modifier = Modifier.testTag(ScheduleTabTestTags.ERROR),
-        message = stringResource(Res.string.error_offline_message)
+        message = loadError.message.asString()
       )
-      state.schedule == null && state.error == LoadErrorKind.Generic -> FullScreenError(
+      state.schedule == null && loadError != null -> FullScreenError(
         modifier = Modifier.testTag(ScheduleTabTestTags.ERROR),
-        message = stringResource(Res.string.error_generic_message),
+        message = loadError.message.asString(),
         onRetry = onRetry
       )
       state.schedule == null && state.isLoading ->

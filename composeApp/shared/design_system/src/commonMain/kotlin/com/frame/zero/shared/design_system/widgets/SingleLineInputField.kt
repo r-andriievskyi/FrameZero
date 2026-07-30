@@ -80,12 +80,13 @@ fun SingleLineInputField(
     keyboardOptions = keyboardOptions,
     keyboardActions = keyboardActions,
     decorationBox = { innerTextField ->
+      val borderColor = if (errorMessage != null) colors.errorText else colors.border
       Row(
         modifier =
           Modifier
             .clip(shape)
             .background(colors.inputBackground, shape)
-            .border(width = AppTheme.borderSystem.hairline, color = colors.border, shape = shape)
+            .border(width = AppTheme.borderSystem.hairline, color = borderColor, shape = shape)
             .padding(horizontal = spacing.space16, vertical = spacing.space8),
         verticalAlignment = Alignment.CenterVertically
       ) {
@@ -137,6 +138,20 @@ private fun SingleLineInputFieldPlaceholderPreview() {
             color = AppTheme.colorSystem.accent
           )
         }
+      )
+    }
+  }
+}
+
+@LightDarkPreview
+@Composable
+private fun SingleLineInputFieldErrorPreview() {
+  AppTheme {
+    Column(modifier = Modifier.Companion.padding(AppTheme.spacingSystem.space16)) {
+      SingleLineInputField(
+        value = "not-an-email",
+        onValueChange = {},
+        errorMessage = "Enter a valid email address"
       )
     }
   }

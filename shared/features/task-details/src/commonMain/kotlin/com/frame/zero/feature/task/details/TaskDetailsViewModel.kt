@@ -1,10 +1,8 @@
 package com.frame.zero.feature.task.details
 
 import com.arkivanov.essenty.instancekeeper.InstanceKeeper
-import com.frame.zero.core.error.DomainErrorMessages
-import com.frame.zero.core.error.toUiText
 import com.frame.zero.core.files.AttachmentFileManager
-import com.frame.zero.domain.DomainError
+import com.frame.zero.core.format.formatOneDecimalPlace
 import com.frame.zero.domain.Outcome
 import com.frame.zero.domain.task.AssignableMember
 import com.frame.zero.domain.task.TaskDetail
@@ -15,14 +13,17 @@ import com.frame.zero.feature.task.details.usecase.GetTaskDetailsUseCase
 import com.frame.zero.feature.task.details.usecase.ObserveTaskChatUnreadUseCase
 import com.frame.zero.feature.task.details.usecase.UpdateTaskParticipantsUseCase
 import com.frame.zero.repository.tasks.TasksRepository
+import com.frame.zero.ui.DomainErrorCategory
+import com.frame.zero.ui.UiText
+import com.frame.zero.ui.asUiText
+import com.frame.zero.ui.toUiText
 import framezero.shared.features.task_details.generated.resources.Res
-import framezero.shared.features.task_details.generated.resources.error_auth_failed
+import framezero.shared.features.task_details.generated.resources.error_attachment_generic
+import framezero.shared.features.task_details.generated.resources.error_attachment_offline
+import framezero.shared.features.task_details.generated.resources.error_attachment_storage
 import framezero.shared.features.task_details.generated.resources.error_conflict
 import framezero.shared.features.task_details.generated.resources.error_forbidden
-import framezero.shared.features.task_details.generated.resources.error_network
 import framezero.shared.features.task_details.generated.resources.error_not_found
-import framezero.shared.features.task_details.generated.resources.error_server
-import framezero.shared.features.task_details.generated.resources.error_unknown_fallback
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -93,6 +94,7 @@ class TaskDetailsViewModel(
         _state.update { it.copy(participantQuery = intent.query) }
       is TaskDetailsIntent.ParticipantToggled -> toggleParticipant(intent.userId)
       TaskDetailsIntent.ParticipantsErrorDismissed -> _state.update { it.copy(participantsError = null) }
+      TaskDetailsIntent.MarkCompleteErrorDismissed -> _state.update { it.copy(markCompleteError = null) }
     }
   }
 
@@ -109,18 +111,14 @@ class TaskDetailsViewModel(
         }
         is Outcome.Failure ->
           _state.update {
-            it.copy(isDownloadingAttachment = false, attachmentError = outcome.error.toDownloadError())
+            it.copy(
+              isDownloadingAttachment = false,
+              attachmentError = outcome.error.toUiText(attachmentErrorMessages)
+            )
           }
       }
     }
   }
-
-  private fun DomainError.toDownloadError(): AttachmentDownloadError =
-    when (this) {
-      is DomainError.Offline -> AttachmentDownloadError.OFFLINE
-      DomainError.InsufficientStorage -> AttachmentDownloadError.INSUFFICIENT_STORAGE
-      else -> AttachmentDownloadError.GENERIC
-    }
 
   private fun toggleParticipant(userId: String) {
     val current = _state.value
@@ -183,7 +181,7 @@ class TaskDetailsViewModel(
   @OptIn(ExperimentalTime::class)
   private fun load() {
     scope.launch {
-      _state.update { it.copy(isLoading = true, isError = false) }
+      _state.update { it.copy(isLoading = true, error = null) }
       val today = Clock.System.now()
         .toLocalDateTime(TimeZone.currentSystemDefault())
         .date
@@ -192,18 +190,23 @@ class TaskDetailsViewModel(
           _state.update { result.data.toTaskDetailsState(today).copy(unreadChatCount = lastUnreadChatCount) }
           loadAssignableMembers(result.data.productionId)
         }
-        is Outcome.Failure -> _state.update { it.copy(isLoading = false, isError = true) }
+        is Outcome.Failure ->
+          _state.update { it.copy(isLoading = false, error = result.error.toUiText(errorMessages)) }
       }
     }
   }
 
   private fun markComplete() {
     scope.launch {
-      when (completeTaskUseCase(taskId)) {
+      when (val outcome = completeTaskUseCase(taskId)) {
         is Outcome.Success -> _state.update {
           it.copy(status = TaskStatus.COMPLETED, showMarkCompleteButton = false)
         }
-        is Outcome.Failure -> Unit
+        // Surface the failure — the button staying enabled with status unchanged already tells
+        // the user nothing happened, but silently telling them nothing at all left them
+        // believing the task completed (see the error-handling audit's C7).
+        is Outcome.Failure ->
+          _state.update { it.copy(markCompleteError = outcome.error.toUiText(errorMessages)) }
       }
     }
   }
@@ -238,7 +241,7 @@ class TaskDetailsViewModel(
       },
       participants = participants.map { it.toUi() }.toImmutableList(),
       isLoading = false,
-      isError = false,
+      error = null,
       showMarkCompleteButton = mappedStatus != TaskStatus.COMPLETED
     )
   }
@@ -263,15 +266,10 @@ class TaskDetailsViewModel(
     val kb = 1024.0
     val mb = kb * 1024
     return when {
-      bytes >= mb -> "${formatOneDecimal(bytes / mb)} MB"
-      bytes >= kb -> "${formatOneDecimal(bytes / kb)} KB"
+      bytes >= mb -> "${formatOneDecimalPlace(bytes / mb)} MB"
+      bytes >= kb -> "${formatOneDecimalPlace(bytes / kb)} KB"
       else -> "$bytes B"
     }
-  }
-
-  private fun formatOneDecimal(value: Double): String {
-    val rounded = (value * 10).toLong()
-    return "${rounded / 10}.${rounded % 10}"
   }
 
   private fun DomainTaskStatus.toFeatureStatus(): TaskStatus =
@@ -300,15 +298,16 @@ class TaskDetailsViewModel(
   private companion object {
     const val MAX_EXTENSION_LENGTH = 5
 
-    val errorMessages = DomainErrorMessages(
-      network = Res.string.error_network,
-      server = Res.string.error_server,
-      notFound = Res.string.error_not_found,
-      forbidden = Res.string.error_forbidden,
-      conflict = Res.string.error_conflict,
-      invalidCredentials = Res.string.error_auth_failed,
-      emailExists = Res.string.error_unknown_fallback,
-      fallback = Res.string.error_unknown_fallback
+    val errorMessages: Map<DomainErrorCategory, UiText> = mapOf(
+      DomainErrorCategory.NOT_FOUND to Res.string.error_not_found.asUiText(),
+      DomainErrorCategory.FORBIDDEN to Res.string.error_forbidden.asUiText(),
+      DomainErrorCategory.CONFLICT to Res.string.error_conflict.asUiText()
+    )
+
+    val attachmentErrorMessages: Map<DomainErrorCategory, UiText> = mapOf(
+      DomainErrorCategory.NETWORK to Res.string.error_attachment_offline.asUiText(),
+      DomainErrorCategory.INSUFFICIENT_STORAGE to Res.string.error_attachment_storage.asUiText(),
+      DomainErrorCategory.FALLBACK to Res.string.error_attachment_generic.asUiText()
     )
   }
 }

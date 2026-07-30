@@ -19,7 +19,7 @@ import com.frame.zero.database.entity.TaskSummaryRemoteKeyEntity
     TaskSummaryEntity::class,
     TaskSummaryRemoteKeyEntity::class
   ],
-  version = 6,
+  version = 7,
   exportSchema = false
 )
 @ConstructedBy(FrameZeroDatabaseConstructor::class)

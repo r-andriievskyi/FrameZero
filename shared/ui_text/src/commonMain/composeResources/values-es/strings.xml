@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="error_network">Sin conexión a internet. Comprueba tu conexión e inténtalo de nuevo.</string>
+  <string name="error_server">El servidor no está disponible. Inténtalo de nuevo más tarde.</string>
+  <string name="error_not_found">Este elemento ya no existe.</string>
+  <string name="error_forbidden">No tienes permiso para hacer esto.</string>
+  <string name="error_conflict">No se ha podido guardar. Inténtalo de nuevo.</string>
+  <string name="error_invalid_credentials">Error de autenticación. Vuelve a iniciar sesión.</string>
+  <string name="error_email_exists">Ya existe una cuenta con este correo electrónico</string>
+  <string name="error_insufficient_storage">No hay suficiente espacio libre.</string>
+  <string name="error_unknown_fallback">Ha ocurrido un error. Inténtalo de nuevo.</string>
+</resources>

@@ -50,6 +50,10 @@ private const val RefreshIndicatorItemKey = "inline-refresh-indicator"
  *   isRefreshing. The composable's height should be driven by [PullToRefreshState.pullDistance]
  *   (convert with `LocalDensity.current.run { pullDistance.toDp() }`) so it grows with the
  *   pull gesture. Pass `null` to disable the inline indicator entirely.
+ * @param appendErrorMessage text shown in the append-retry footer when paging the next page
+ *   fails. Defaults to a generic network message; a caller with access to the app's domain-error
+ *   hierarchy should map `lazyPagingItems.loadState.append`'s `Throwable` (e.g. via
+ *   `toDomainError()`/`toUiText()`) and pass the real cause instead.
  */
 @Composable
 fun <T : Any> PagingLazyColumn(
@@ -63,6 +67,7 @@ fun <T : Any> PagingLazyColumn(
   refreshIndicator: (@Composable (PullToRefreshState) -> Unit)? = { pullState ->
     DefaultInlineRefreshIndicator(pullState = pullState)
   },
+  appendErrorMessage: String = stringResource(Res.string.error_network_message),
   itemKey: ((item: T) -> Any)? = null,
   itemContent: @Composable (T) -> Unit
 ) {
@@ -106,7 +111,7 @@ fun <T : Any> PagingLazyColumn(
       }
       if (lazyPagingItems.loadState.append is LoadState.Error) {
         item(key = AppendErrorItemKey) {
-          AppendErrorRetry(onRetry = lazyPagingItems::retry)
+          AppendErrorRetry(message = appendErrorMessage, onRetry = lazyPagingItems::retry)
         }
       }
     }
@@ -129,7 +134,10 @@ private fun AppendLoadingIndicator() {
 /** Footer shown when paging the next page fails (e.g. offline). Lets the user retry
  *  the append without reloading the whole list. */
 @Composable
-private fun AppendErrorRetry(onRetry: () -> Unit) {
+private fun AppendErrorRetry(
+  message: String,
+  onRetry: () -> Unit
+) {
   Column(
     modifier = Modifier
       .fillMaxWidth()
@@ -137,7 +145,7 @@ private fun AppendErrorRetry(onRetry: () -> Unit) {
     horizontalAlignment = Alignment.CenterHorizontally
   ) {
     Text(
-      text = stringResource(Res.string.error_network_message),
+      text = message,
       style = AppTheme.typographySystem.bodySmall,
       color = AppTheme.colorSystem.textSecondary
     )

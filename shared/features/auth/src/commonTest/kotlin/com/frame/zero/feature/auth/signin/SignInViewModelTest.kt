@@ -16,8 +16,9 @@ import com.russhwolf.settings.MapSettings
 import framezero.shared.features.auth.generated.resources.Res
 import framezero.shared.features.auth.generated.resources.error_empty_credentials
 import framezero.shared.features.auth.generated.resources.error_invalid_credentials
-import framezero.shared.features.auth.generated.resources.error_network
-import framezero.shared.features.auth.generated.resources.error_unknown_fallback
+import framezero.shared.ui_text.generated.resources.Res as UiTextRes
+import framezero.shared.ui_text.generated.resources.error_network
+import framezero.shared.ui_text.generated.resources.error_unknown_fallback
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -121,7 +122,7 @@ class SignInViewModelTest {
   @Test
   fun `Network error surfaces as a toast instead of an inline error`() =
     runTest {
-      val repo = FakeAuthRepository(loginThrows = DomainException(DomainError.Offline("offline")))
+      val repo = FakeAuthRepository(loginThrows = DomainException(DomainError.Offline))
       val vm = makeViewModel(this, repo)
 
       vm.onIntent(SignInIntent.EmailChanged("u@x.com"))
@@ -129,14 +130,14 @@ class SignInViewModelTest {
       vm.onIntent(SignInIntent.Submit)
       advanceUntilIdle()
 
-      assertEquals(Res.string.error_network.asUiText("offline"), vm.state.value.errorToast)
+      assertEquals(UiTextRes.string.error_network.asUiText(), vm.state.value.errorToast)
       assertNull(vm.state.value.error)
     }
 
   @Test
   fun `Unknown server error surfaces as a toast with fallback text`() =
     runTest {
-      val repo = FakeAuthRepository(loginThrows = DomainException(DomainError.Unknown(null)))
+      val repo = FakeAuthRepository(loginThrows = DomainException(DomainError.Unknown))
       val vm = makeViewModel(this, repo)
 
       vm.onIntent(SignInIntent.EmailChanged("u@x.com"))
@@ -144,21 +145,21 @@ class SignInViewModelTest {
       vm.onIntent(SignInIntent.Submit)
       advanceUntilIdle()
 
-      assertEquals(Res.string.error_unknown_fallback.asUiText(), vm.state.value.errorToast)
+      assertEquals(UiTextRes.string.error_unknown_fallback.asUiText(), vm.state.value.errorToast)
       assertNull(vm.state.value.error)
     }
 
   @Test
   fun `ToastDismissed clears the toast message`() =
     runTest {
-      val repo = FakeAuthRepository(loginThrows = DomainException(DomainError.Offline("offline")))
+      val repo = FakeAuthRepository(loginThrows = DomainException(DomainError.Offline))
       val vm = makeViewModel(this, repo)
 
       vm.onIntent(SignInIntent.EmailChanged("u@x.com"))
       vm.onIntent(SignInIntent.PasswordChanged("p"))
       vm.onIntent(SignInIntent.Submit)
       advanceUntilIdle()
-      assertEquals(Res.string.error_network.asUiText("offline"), vm.state.value.errorToast)
+      assertEquals(UiTextRes.string.error_network.asUiText(), vm.state.value.errorToast)
 
       vm.onIntent(SignInIntent.ToastDismissed)
 

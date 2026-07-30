@@ -9,6 +9,7 @@ import com.frame.zero.feature.production.details.domain.DeleteProductionUseCase
 import com.frame.zero.feature.production.details.domain.GetProductionDetailsUseCase
 import com.frame.zero.feature.production.details.domain.GetProductionTasksUseCase
 import com.frame.zero.testing.FakeProductionsRepository
+import com.frame.zero.testing.FakeTaskUploadScheduler
 import com.frame.zero.testing.FakeTasksRepository
 import com.frame.zero.testing.productionDetail
 import kotlinx.coroutines.Dispatchers
@@ -132,6 +133,8 @@ class ProductionDetailsComponentTest {
           getProductionDetailsUseCase = GetProductionDetailsUseCase(productionsRepo),
           getProductionTasksUseCase = GetProductionTasksUseCase(tasksRepo),
           deleteProductionUseCase = DeleteProductionUseCase(productionsRepo),
+          pendingUploadStore = testPendingUploadStore(),
+          taskUploadScheduler = FakeTaskUploadScheduler(),
           dispatcher = StandardTestDispatcher(testScheduler)
         )
       }

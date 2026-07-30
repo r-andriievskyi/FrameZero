@@ -7,8 +7,9 @@ import com.frame.zero.ui.asUiText
 import framezero.shared.features.production.generated.resources.Res
 import framezero.shared.features.production.generated.resources.error_invalid_dates
 import framezero.shared.features.production.generated.resources.error_missing_dates
-import framezero.shared.features.production.generated.resources.error_network
 import framezero.shared.features.production.generated.resources.error_title_required
+import framezero.shared.ui_text.generated.resources.Res as UiTextRes
+import framezero.shared.ui_text.generated.resources.error_network
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -129,11 +130,17 @@ class CreateProductionViewModelTest {
     runTest {
       val viewModel = makeViewModel(FakeProductionsRepository())
 
+      // Exact symbol/grouping/sign glyph is locale-dependent by design
+      // (formatCurrencyUsdCents is expect/actual) — strip everything but digits so the
+      // assertion holds regardless of separator character or symbol placement.
       viewModel.onIntent(CreateProductionIntent.BudgetChanged(123_456))
-      assertEquals("$1,234", viewModel.state.value.budgetDisplay)
+      val positiveDisplay = viewModel.state.value.budgetDisplay.orEmpty()
+      assertEquals("1234", positiveDisplay.filter { it.isDigit() })
 
       viewModel.onIntent(CreateProductionIntent.BudgetChanged(-123_456))
-      assertEquals("-$1,234", viewModel.state.value.budgetDisplay)
+      val negativeDisplay = viewModel.state.value.budgetDisplay.orEmpty()
+      assertEquals("1234", negativeDisplay.filter { it.isDigit() })
+      assertTrue(negativeDisplay != positiveDisplay)
     }
 
   @Test
@@ -222,7 +229,7 @@ class CreateProductionViewModelTest {
       viewModel.onIntent(CreateProductionIntent.Submit)
       advanceUntilIdle()
 
-      assertEquals(Res.string.error_network.asUiText(), viewModel.state.value.errorToast)
+      assertEquals(UiTextRes.string.error_network.asUiText(), viewModel.state.value.errorToast)
       assertNull(viewModel.state.value.error)
       assertEquals(false, viewModel.state.value.isLoading)
     }

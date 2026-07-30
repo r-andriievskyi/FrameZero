@@ -14,4 +14,10 @@ sealed interface ChatSocketEvent {
   ) : ChatSocketEvent
 
   data object Connected : ChatSocketEvent
+
+  /** The socket dropped and [ChatSocketClient] is retrying with backoff. [cause] is null for a
+   *  clean server-initiated close. */
+  data class Disconnected(
+    val cause: Throwable?
+  ) : ChatSocketEvent
 }

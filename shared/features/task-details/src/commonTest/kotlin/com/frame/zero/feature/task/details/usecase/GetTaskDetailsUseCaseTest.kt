@@ -48,7 +48,7 @@ class GetTaskDetailsUseCaseTest {
       val outcome = GetTaskDetailsUseCase(repo)("t1")
 
       val failure = assertIs<Outcome.Failure>(outcome)
-      assertEquals(DomainError.Offline("offline"), failure.error)
+      assertEquals(DomainError.Offline, failure.error)
     }
 
   @Test

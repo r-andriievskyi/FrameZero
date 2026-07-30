@@ -4,8 +4,7 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
 import com.arkivanov.essenty.instancekeeper.InstanceKeeper
-import com.frame.zero.core.error.DomainErrorMessages
-import com.frame.zero.core.error.toUiText
+import com.frame.zero.core.format.formatClockTime
 import com.frame.zero.domain.Outcome
 import com.frame.zero.domain.chat.ChatMessage
 import com.frame.zero.domain.chat.PendingChatMessage
@@ -18,6 +17,10 @@ import com.frame.zero.feature.chat.domain.ObservePendingMessagesUseCase
 import com.frame.zero.feature.chat.domain.OpenConversationUseCase
 import com.frame.zero.feature.chat.domain.RetryPendingMessageUseCase
 import com.frame.zero.repository.chat.ChatRepository
+import com.frame.zero.ui.DomainErrorCategory
+import com.frame.zero.ui.UiText
+import com.frame.zero.ui.asUiText
+import com.frame.zero.ui.toUiText
 import framezero.shared.features.chat.generated.resources.Res
 import framezero.shared.features.chat.generated.resources.chat_error_auth_failed
 import framezero.shared.features.chat.generated.resources.chat_error_conflict
@@ -25,7 +28,6 @@ import framezero.shared.features.chat.generated.resources.chat_error_forbidden
 import framezero.shared.features.chat.generated.resources.chat_error_network
 import framezero.shared.features.chat.generated.resources.chat_error_not_found
 import framezero.shared.features.chat.generated.resources.chat_error_server
-import framezero.shared.features.chat.generated.resources.chat_error_unknown
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -45,10 +47,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.format.Padding
-import kotlinx.datetime.format.char
 import kotlinx.datetime.toLocalDateTime
 import kotlin.coroutines.CoroutineContext
 import kotlin.uuid.ExperimentalUuidApi
@@ -108,6 +107,11 @@ class ChatViewModel(
     // correctly — including offline, where the id comes from local cache, not the network.
     currentUserId = getCurrentUserIdUseCase()
     scope.launch { openConversation() }
+    scope.launch {
+      chatRepository.isConnected.collect { connected ->
+        _state.update { it.copy(isDisconnected = !connected) }
+      }
+    }
     scope.launch {
       pending.collect { pendingMessages ->
         // Newest first, matching the reversed message list: the outbox emits oldest first.
@@ -221,7 +225,7 @@ class ChatViewModel(
     return PendingMessageUi(
       clientMessageId = clientMessageId,
       body = body,
-      timeLabel = timeFormat.format(localDateTime.time),
+      timeLabel = formatClockTime(localDateTime.hour, localDateTime.minute),
       day = localDateTime.date,
       isFailed = status == PendingMessageStatus.Failed
     )
@@ -234,7 +238,7 @@ class ChatViewModel(
       ordinal = ordinal,
       body = body,
       isOwn = currentUserId != null && senderUserId == currentUserId,
-      timeLabel = timeFormat.format(localDateTime.time),
+      timeLabel = formatClockTime(localDateTime.hour, localDateTime.minute),
       day = localDateTime.date
     )
   }
@@ -244,24 +248,13 @@ class ChatViewModel(
   }
 
   private companion object {
-    // 12-hour clock with an uppercase meridiem, e.g. "9:12 AM".
-    val timeFormat = LocalTime.Format {
-      amPmHour(Padding.NONE)
-      char(':')
-      minute(Padding.ZERO)
-      char(' ')
-      amPmMarker("AM", "PM")
-    }
-
-    val errorMessages = DomainErrorMessages(
-      network = Res.string.chat_error_network,
-      server = Res.string.chat_error_server,
-      notFound = Res.string.chat_error_not_found,
-      forbidden = Res.string.chat_error_forbidden,
-      conflict = Res.string.chat_error_conflict,
-      invalidCredentials = Res.string.chat_error_auth_failed,
-      emailExists = Res.string.chat_error_unknown,
-      fallback = Res.string.chat_error_unknown
+    val errorMessages: Map<DomainErrorCategory, UiText> = mapOf(
+      DomainErrorCategory.NETWORK to Res.string.chat_error_network.asUiText(),
+      DomainErrorCategory.SERVER to Res.string.chat_error_server.asUiText(),
+      DomainErrorCategory.NOT_FOUND to Res.string.chat_error_not_found.asUiText(),
+      DomainErrorCategory.FORBIDDEN to Res.string.chat_error_forbidden.asUiText(),
+      DomainErrorCategory.CONFLICT to Res.string.chat_error_conflict.asUiText(),
+      DomainErrorCategory.INVALID_CREDENTIALS to Res.string.chat_error_auth_failed.asUiText()
     )
   }
 }

@@ -13,7 +13,9 @@ import com.frame.zero.feature.production.details.ui.ProductionDetailsTestTags.ER
 import com.frame.zero.feature.production.details.ui.ProductionDetailsTestTags.LOADING
 import com.frame.zero.domain.production.ProductionPhase
 import com.frame.zero.shared.design_system.AppTheme
-import com.frame.zero.ui.UiText
+import com.frame.zero.shared.design_system.generated.resources.Res
+import com.frame.zero.shared.design_system.generated.resources.error_generic_message
+import com.frame.zero.ui.asUiText
 import kotlinx.collections.immutable.persistentListOf
 import org.junit.Rule
 import org.junit.Test
@@ -41,10 +43,10 @@ class ProductionDetailsContentTest {
 
   @Test
   fun showsOnlyTheErrorWithItsMessageWhenLoadFailsWithNoDetail() {
-    setContent(ProductionDetailsState(error = UiText.Dynamic("Could not load production"), detail = null))
+    setContent(ProductionDetailsState(error = Res.string.error_generic_message.asUiText(), detail = null))
 
     composeRule.onNodeWithTag(ERROR).assertIsDisplayed()
-    composeRule.onNodeWithText("Could not load production").assertIsDisplayed()
+    composeRule.onNodeWithText("Something went wrong").assertIsDisplayed()
     composeRule.onNodeWithTag(LOADING).assertDoesNotExist()
     composeRule.onNodeWithTag(CONTENT).assertDoesNotExist()
   }
@@ -63,7 +65,7 @@ class ProductionDetailsContentTest {
   fun tappingRetryInTheErrorStateEmitsRefresh() {
     val intents = mutableListOf<ProductionDetailsIntent>()
     setContent(
-      state = ProductionDetailsState(error = UiText.Dynamic("offline"), detail = null),
+      state = ProductionDetailsState(error = Res.string.error_generic_message.asUiText(), detail = null),
       onIntent = { intents += it }
     )
 

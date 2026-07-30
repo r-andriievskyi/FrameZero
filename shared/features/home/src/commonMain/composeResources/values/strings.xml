@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <!-- DashboardTabViewModel / ScheduleTabViewModel: the auto-retry-on-reconnect case gets its
+       own copy explaining the automatic behavior; other failures use the shared canonical text. -->
+  <string name="error_offline_message">No internet connection.\nWe\'ll refresh automatically once you\'re back online.</string>
+</resources>

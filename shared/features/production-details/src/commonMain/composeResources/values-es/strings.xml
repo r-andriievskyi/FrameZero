@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="error_not_found">Esta producción ya no existe.</string>
+  <string name="error_forbidden">No tienes acceso a esta producción.</string>
+  <string name="error_conflict">Esta producción se modificó en otro lugar. Actualiza e inténtalo de nuevo.</string>
+</resources>

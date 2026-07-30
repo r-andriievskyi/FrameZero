@@ -10,7 +10,9 @@ import com.frame.zero.feature.auth.signin.SignInState
 import com.frame.zero.feature.auth.ui.signin.SignInTestTags.ERROR
 import com.frame.zero.feature.auth.ui.signin.SignInTestTags.SUBMIT
 import com.frame.zero.shared.design_system.AppTheme
-import com.frame.zero.ui.UiText
+import com.frame.zero.shared.design_system.generated.resources.Res
+import com.frame.zero.shared.design_system.generated.resources.error_generic_message
+import com.frame.zero.ui.asUiText
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -31,10 +33,10 @@ class SignInContentTest {
 
   @Test
   fun showsTheInlineErrorWhenPresent() {
-    setContent(SignInState(error = UiText.Dynamic("Invalid credentials")))
+    setContent(SignInState(error = Res.string.error_generic_message.asUiText()))
 
     composeRule.onNodeWithTag(ERROR).assertIsDisplayed()
-    composeRule.onNodeWithText("Invalid credentials").assertIsDisplayed()
+    composeRule.onNodeWithText("Something went wrong").assertIsDisplayed()
   }
 
   @Test

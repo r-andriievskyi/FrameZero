@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="error_biometric_failed">No se pudo verificar con datos biométricos. Inténtalo de nuevo o usa el código de acceso del dispositivo.</string>
+</resources>

@@ -27,6 +27,8 @@ internal class DemoChatRepository(
   private val store: DemoDataStore,
   private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 ) : ChatRepository {
+  override val isConnected: Flow<Boolean> = flowOf(true)
+
   override suspend fun getOrCreateConversation(taskId: String): Conversation = store.getOrCreateConversation(taskId)
 
   override suspend fun cachedConversation(taskId: String): Conversation? = store.conversationFor(taskId)

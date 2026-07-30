@@ -1,12 +1,14 @@
 package com.frame.zero.core.upload
 
 import com.frame.zero.core.files.toNSData
+import com.frame.zero.core.logging.Logger
 import com.frame.zero.core.network.NetworkConfig
 import com.frame.zero.core.session.TokenStorage
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import platform.Foundation.NSFileHandle
 import platform.Foundation.NSFileManager
@@ -26,6 +28,7 @@ import platform.Foundation.setHTTPMethod
 import platform.Foundation.setValue
 import platform.Foundation.writeData
 import platform.darwin.NSObject
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * [TaskUploadScheduler] backed by a background `NSURLSession`: the OS carries the upload even if
@@ -37,11 +40,13 @@ import platform.darwin.NSObject
 class BackgroundUrlSessionTaskUploadScheduler(
   private val store: PendingUploadStore,
   private val tokenStorage: TokenStorage,
-  private val networkConfig: NetworkConfig
+  private val networkConfig: NetworkConfig,
+  private val logger: Logger
 ) : TaskUploadScheduler {
   private val session: NSURLSession by lazy {
     val configuration = NSURLSessionConfiguration.backgroundSessionConfigurationWithIdentifier(SESSION_ID)
-    NSURLSession.sessionWithConfiguration(configuration, UploadDelegate(store), delegateQueue = null)
+    configuration.waitsForConnectivity = true
+    NSURLSession.sessionWithConfiguration(configuration, UploadDelegate(store, logger, ::start), delegateQueue = null)
   }
 
   override suspend fun enqueue(upload: PendingTaskUpload) {
@@ -128,7 +133,9 @@ class BackgroundUrlSessionTaskUploadScheduler(
 
 @OptIn(ExperimentalForeignApi::class)
 private class UploadDelegate(
-  private val store: PendingUploadStore
+  private val store: PendingUploadStore,
+  private val logger: Logger,
+  private val retry: (PendingTaskUpload) -> Unit
 ) : NSObject(),
   NSURLSessionTaskDelegateProtocol {
   // Delegate callbacks aren't suspend; persist the outcome on a background scope.
@@ -140,16 +147,33 @@ private class UploadDelegate(
     didCompleteWithError: platform.Foundation.NSError?
   ) {
     val uploadId = task.taskDescription ?: return
-    val status = (task.response as? NSHTTPURLResponse)?.statusCode ?: -1L
-    val succeeded = didCompleteWithError == null && status in 200..299
+    val status = (task.response as? NSHTTPURLResponse)?.statusCode?.toInt()
+    val succeeded = didCompleteWithError == null && status != null && status in 200..299
     scope.launch {
-      if (succeeded) store.remove(uploadId) else store.markFailed(uploadId)
+      if (succeeded) {
+        store.remove(uploadId)
+        return@launch
+      }
+      val reason = classifyUploadFailure(status)
+      val updated = store.recordFailure(uploadId, reason)
+      logger.w(
+        tag = "Upload",
+        message = "Upload $uploadId failed [$status] reason=$reason " +
+          "terminal=${updated?.status == PendingUploadStatus.Failed}",
+        throwable = if (status == null) didCompleteWithError?.let { Exception(it.localizedDescription) } else null
+      )
+      if (updated != null && updated.status == PendingUploadStatus.Uploading) {
+        delay(retryBackoffMillis(updated.attemptCount).milliseconds)
+        retry(updated)
+      }
     }
   }
 
   override fun URLSessionDidFinishEventsForBackgroundURLSession(session: NSURLSession) {
-    // All queued completions for this background session have been delivered; let the OS
-    // know we're done so it can stop our background time (handler set by the AppDelegate).
     BackgroundUploadCompletion.complete()
   }
+
+  /** 2s / 4s / 8s, matching Android's WorkManager backoff — [attemptCount] is already the
+   *  count *after* this failure, so attempt 1 waits 2s, attempt 2 waits 4s, etc. */
+  private fun retryBackoffMillis(attemptCount: Int): Long = 2_000L shl (attemptCount - 1).coerceIn(0, 2)
 }

@@ -8,9 +8,11 @@ import com.frame.zero.domain.Outcome
 import com.frame.zero.domain.dashboard.Dashboard
 import com.frame.zero.domain.dashboard.DashboardStats
 import com.frame.zero.domain.dashboard.DashboardTask
-import com.frame.zero.feature.home.LoadErrorKind
+import com.frame.zero.feature.home.LoadError
+import com.frame.zero.feature.home.homeErrorMessages
 import com.frame.zero.feature.home.usecase.GetDashboardUseCase
 import com.frame.zero.feature.home.usecase.GetMeUseCase
+import com.frame.zero.ui.toUiText
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -50,7 +52,7 @@ class DashboardTabViewModel(
       connectivityObserver.isOnline
         .filter { online -> online }
         .collect {
-          if (_state.value.error == LoadErrorKind.Network) load()
+          if (_state.value.error?.autoRetries == true) load()
         }
     }
   }
@@ -91,15 +93,15 @@ class DashboardTabViewModel(
           }
           is Outcome.Failure -> DashboardTabState(
             isLoading = false,
-            error = dashResult.error.toLoadErrorKind()
+            error = LoadError(
+              message = dashResult.error.toUiText(homeErrorMessages),
+              autoRetries = dashResult.error is DomainError.Offline
+            )
           )
         }
       }
     }
   }
-
-  private fun DomainError.toLoadErrorKind(): LoadErrorKind =
-    if (this is DomainError.Offline) LoadErrorKind.Network else LoadErrorKind.Generic
 
   private fun resolveUrgency(
     task: DashboardTask,

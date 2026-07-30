@@ -56,13 +56,9 @@ fun RootContent(component: RootComponent) {
         onSignOut = component::onLockSignOut
       )
     }
-    when (val update = updateState) {
-      is ForceUpdateState.Hard -> HardUpdateScreen(
-        message = update.message,
-        onUpdate = component::onUpdateClick
-      )
+    when (updateState) {
+      is ForceUpdateState.Hard -> HardUpdateScreen(onUpdate = component::onUpdateClick)
       is ForceUpdateState.Soft -> SoftUpdateScreen(
-        message = update.message,
         onUpdate = component::onUpdateClick,
         onDismiss = component::onSoftUpdateDismiss
       )

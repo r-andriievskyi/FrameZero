@@ -1,4 +1,4 @@
-package com.frame.zero.feature.production.ui.widgets
+package com.frame.zero.shared.design_system.widgets
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -7,12 +7,12 @@ import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
 
 @Composable
-internal fun ErrorText(
-  error: String,
+fun ErrorText(
+  text: String,
   modifier: Modifier = Modifier
 ) {
   Text(
-    text = error,
+    text = text,
     style = AppTheme.typographySystem.bodySmall,
     color = AppTheme.colorSystem.errorText,
     modifier = modifier
@@ -23,6 +23,6 @@ internal fun ErrorText(
 @Composable
 private fun ErrorTextPreview() {
   AppTheme {
-    ErrorText(error = "Title cannot be empty")
+    ErrorText(text = "Title cannot be empty")
   }
 }

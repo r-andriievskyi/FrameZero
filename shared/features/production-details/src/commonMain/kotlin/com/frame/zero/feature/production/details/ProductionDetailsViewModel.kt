@@ -2,9 +2,11 @@ package com.frame.zero.feature.production.details
 
 import com.arkivanov.essenty.instancekeeper.InstanceKeeper
 import com.frame.zero.core.collections.mapImmutable
-import com.frame.zero.core.error.DomainErrorMessages
-import com.frame.zero.core.error.toUiText
+import com.frame.zero.core.format.formatCurrencyUsdCents
 import com.frame.zero.core.format.formatMedium
+import com.frame.zero.core.upload.PendingUploadStatus
+import com.frame.zero.core.upload.PendingUploadStore
+import com.frame.zero.core.upload.TaskUploadScheduler
 import com.frame.zero.domain.Outcome
 import com.frame.zero.domain.production.ProductionDetail
 import com.frame.zero.domain.production.ProductionMember
@@ -14,14 +16,14 @@ import com.frame.zero.feature.production.details.domain.DeleteProductionUseCase
 import com.frame.zero.feature.production.details.domain.GetProductionDetailsUseCase
 import com.frame.zero.feature.production.details.domain.GetProductionTasksUseCase
 import com.frame.zero.feature.production.details.domain.ProductionTask
+import com.frame.zero.ui.DomainErrorCategory
+import com.frame.zero.ui.UiText
+import com.frame.zero.ui.asUiText
+import com.frame.zero.ui.toUiText
 import framezero.shared.features.production_details.generated.resources.Res
-import framezero.shared.features.production_details.generated.resources.error_auth_failed
 import framezero.shared.features.production_details.generated.resources.error_conflict
 import framezero.shared.features.production_details.generated.resources.error_forbidden
-import framezero.shared.features.production_details.generated.resources.error_network
 import framezero.shared.features.production_details.generated.resources.error_not_found
-import framezero.shared.features.production_details.generated.resources.error_server
-import framezero.shared.features.production_details.generated.resources.error_unknown_fallback
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -33,6 +35,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
@@ -42,6 +45,8 @@ class ProductionDetailsViewModel(
   private val getProductionDetailsUseCase: GetProductionDetailsUseCase,
   private val getProductionTasksUseCase: GetProductionTasksUseCase,
   private val deleteProductionUseCase: DeleteProductionUseCase,
+  private val pendingUploadStore: PendingUploadStore,
+  private val taskUploadScheduler: TaskUploadScheduler,
   dispatcher: CoroutineContext = Dispatchers.Main.immediate
 ) : InstanceKeeper.Instance {
   private val scope = CoroutineScope(dispatcher + SupervisorJob())
@@ -59,6 +64,7 @@ class ProductionDetailsViewModel(
   init {
     load()
     loadTasks()
+    observePendingUpload()
   }
 
   fun onIntent(intent: ProductionDetailsIntent) {
@@ -73,7 +79,42 @@ class ProductionDetailsViewModel(
       ProductionDetailsIntent.DeleteConfirmed -> deleteProduction()
       ProductionDetailsIntent.DeleteErrorDismissed ->
         _state.update { it.copy(deleteError = null) }
+      ProductionDetailsIntent.RetryUploadRequested -> retryUpload()
+      ProductionDetailsIntent.DismissUploadRequested -> dismissUpload()
     }
+  }
+
+  /** At most one upload is ever shown — the pending queue is a single background job per
+   *  task-create, not a list a user manages, so the most recent one for this production is
+   *  what "did my task save?" actually asks. */
+  private fun observePendingUpload() {
+    scope.launch {
+      pendingUploadStore.uploads
+        .map { uploads -> uploads.filter { it.productionId == productionId }.maxByOrNull { it.createdAtMillis } }
+        .collect { upload ->
+          _state.update {
+            it.copy(
+              pendingUpload = upload?.let { pending ->
+                PendingUploadUi(
+                  uploadId = pending.uploadId,
+                  taskTitle = pending.title,
+                  isFailed = pending.status == PendingUploadStatus.Failed
+                )
+              }
+            )
+          }
+        }
+    }
+  }
+
+  private fun retryUpload() {
+    val uploadId = _state.value.pendingUpload?.uploadId ?: return
+    scope.launch { taskUploadScheduler.retry(uploadId) }
+  }
+
+  private fun dismissUpload() {
+    val uploadId = _state.value.pendingUpload?.uploadId ?: return
+    scope.launch { taskUploadScheduler.cancel(uploadId) }
   }
 
   private fun requestAddTask() {
@@ -156,14 +197,7 @@ class ProductionDetailsViewModel(
       avatarColorHex = avatarColorHex
     )
 
-  private fun formatBudget(cents: Long?): String {
-    if (cents == null) return "—"
-    val dollars = cents / 100
-    return "$${
-      dollars.toString().reversed().chunked(3)
-        .joinToString(",").reversed()
-    }"
-  }
+  private fun formatBudget(cents: Long?): String = if (cents == null) "—" else formatCurrencyUsdCents(cents)
 
   private fun deleteProduction() {
     if (_state.value.isDeleting) return
@@ -190,15 +224,10 @@ class ProductionDetailsViewModel(
   }
 
   private companion object {
-    val errorMessages = DomainErrorMessages(
-      network = Res.string.error_network,
-      server = Res.string.error_server,
-      notFound = Res.string.error_not_found,
-      forbidden = Res.string.error_forbidden,
-      conflict = Res.string.error_conflict,
-      invalidCredentials = Res.string.error_auth_failed,
-      emailExists = Res.string.error_unknown_fallback,
-      fallback = Res.string.error_unknown_fallback
+    val errorMessages: Map<DomainErrorCategory, UiText> = mapOf(
+      DomainErrorCategory.NOT_FOUND to Res.string.error_not_found.asUiText(),
+      DomainErrorCategory.FORBIDDEN to Res.string.error_forbidden.asUiText(),
+      DomainErrorCategory.CONFLICT to Res.string.error_conflict.asUiText()
     )
   }
 }

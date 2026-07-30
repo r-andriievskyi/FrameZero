@@ -5,8 +5,10 @@ import com.frame.zero.auth.dto.RefreshResponse
 import com.frame.zero.core.logging.Logger as AppLogger
 import com.frame.zero.core.network.connectivity.ConnectivityObserver
 import com.frame.zero.domain.OfflineException
+import com.frame.zero.domain.ServerErrorException
 import com.frame.zero.core.session.LogoutSignal
 import com.frame.zero.core.session.TokenStorage
+import com.frame.zero.dto.common.ErrorResponseDto
 import io.ktor.client.HttpClient
 import io.ktor.client.HttpClientConfig
 import io.ktor.client.call.body
@@ -27,12 +29,12 @@ import io.ktor.client.plugins.websocket.WebSockets
 import io.ktor.client.request.accept
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
-import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpMethod
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.json.json
+import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.serialization.json.Json
 import org.koin.core.module.Module
 import org.koin.dsl.module
@@ -80,6 +82,8 @@ internal fun clientConfig(
   isDebug: Boolean
 ): HttpClientConfig<*>.() -> Unit =
   {
+    expectSuccess = true
+
     install(connectivityGuard(connectivityObserver))
     install(WebSockets)
 
@@ -89,14 +93,28 @@ internal fun clientConfig(
     }
 
     HttpResponseValidator {
-      handleResponseExceptionWithRequest { exception, _ ->
+      handleResponseExceptionWithRequest { exception, request ->
         val responseException = exception as? ResponseException ?: return@handleResponseExceptionWithRequest
-        val errorBody = runCatching { responseException.response.bodyAsText() }.getOrNull()
+        val status = responseException.response.status
         appLogger.e(
           tag = "Network",
-          message = "Server error [${responseException.response.status}]: $errorBody",
-          throwable = responseException
+          message = "Server error [$status] ${request.method.value} ${request.url.encodedPath}",
+          // Only 5xx are app-actionable non-fatals; routine 4xx aren't bugs.
+          throwable = if (status.value >= 500) responseException else null
         )
+        // Never log the raw body — it may carry PII/credentials (see the leak this replaces).
+        val errorBody =
+          try {
+            responseException.response.body<ErrorResponseDto>()
+          } catch (cancellation: CancellationException) {
+            throw cancellation
+          } catch (_: Exception) {
+            // Not an ErrorResponse (proxy HTML, empty body, …) — fall back to status mapping.
+            null
+          }
+        if (errorBody != null) {
+          throw ServerErrorException(code = errorBody.error, status = status.value, fields = errorBody.fields)
+        }
       }
     }
 
@@ -114,10 +132,9 @@ internal fun clientConfig(
     }
     install(HttpRequestRetry) {
       maxRetries = 3
-      retryOnException(
-        maxRetries = 3,
-        retryOnTimeout = true // also retry on connect/read timeouts
-      )
+      retryOnExceptionIf(maxRetries = 3) { _, cause ->
+        cause !is ResponseException && cause !is ServerErrorException
+      }
       retryIf { request, response ->
         // Only retry GET, HEAD, PUT, DELETE - not POST or PATCH
         val safeMethod = request.method in listOf(HttpMethod.Get, HttpMethod.Head, HttpMethod.Put, HttpMethod.Delete)

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="chat_not_sent">No enviado</string>
+  <string name="chat_retry">Reintentar</string>
+  <string name="chat_discard">Descartar</string>
+  <string name="chat_reconnecting">Reconectando…</string>
+</resources>

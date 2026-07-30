@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="chat_error_network">Estás sin conexión. Conéctate e inténtalo de nuevo.</string>
+  <string name="chat_error_server">Ha ocurrido un error en nuestro servidor. Inténtalo de nuevo.</string>
+  <string name="chat_error_not_found">Esta conversación ya no está disponible.</string>
+  <string name="chat_error_forbidden">No tienes acceso a esta conversación.</string>
+  <string name="chat_error_conflict">No se ha podido enviar el mensaje. Inténtalo de nuevo.</string>
+  <string name="chat_error_auth_failed">Tu sesión ha caducado. Vuelve a iniciar sesión.</string>
+</resources>

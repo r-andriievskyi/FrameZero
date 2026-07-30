@@ -39,7 +39,7 @@ class GetDashboardUseCaseTest {
       val outcome = GetDashboardUseCase(repo)()
 
       val failure = assertIs<Outcome.Failure>(outcome)
-      assertEquals(DomainError.Offline("offline"), failure.error)
+      assertEquals(DomainError.Offline, failure.error)
     }
 
   @Test
@@ -50,6 +50,6 @@ class GetDashboardUseCaseTest {
       val outcome = GetDashboardUseCase(repo)()
 
       val failure = assertIs<Outcome.Failure>(outcome)
-      assertEquals(DomainError.Unknown("boom"), failure.error)
+      assertEquals(DomainError.Unknown, failure.error)
     }
 }

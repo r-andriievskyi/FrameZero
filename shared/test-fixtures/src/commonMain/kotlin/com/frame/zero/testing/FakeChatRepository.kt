@@ -30,6 +30,9 @@ class FakeChatRepository(
   /** Set to make queueing fail, standing in for a broken local database. */
   var enqueueFailure: Throwable? = null
 
+  val connectionState = MutableStateFlow(true)
+  override val isConnected: Flow<Boolean> = connectionState
+
   override suspend fun getOrCreateConversation(taskId: String): Conversation =
     conversation ?: error("no conversation configured")
 

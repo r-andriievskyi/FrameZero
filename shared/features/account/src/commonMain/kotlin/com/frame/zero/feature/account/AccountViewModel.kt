@@ -6,6 +6,9 @@ import com.frame.zero.core.security.BiometricPromptText
 import com.frame.zero.core.security.BiometricResult
 import com.frame.zero.core.session.SessionManager
 import com.frame.zero.core.session.SessionState
+import com.frame.zero.ui.asUiText
+import framezero.shared.features.account.generated.resources.Res
+import framezero.shared.features.account.generated.resources.error_biometric_failed
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -52,6 +55,7 @@ class AccountViewModel(
     when (intent) {
       is AccountIntent.AppLockToggled -> setAppLockEnabled(intent.enabled, intent.prompt)
       AccountIntent.SignOutClicked -> signOut()
+      AccountIntent.AppLockErrorDismissed -> _state.update { it.copy(appLockError = null) }
     }
   }
 
@@ -61,14 +65,22 @@ class AccountViewModel(
   ) {
     if (!enabled) {
       appLockController.setEnabled(false)
-      _state.update { it.copy(appLockEnabled = false) }
+      _state.update { it.copy(appLockEnabled = false, appLockError = null) }
       return
     }
     scope.launch {
-      if (appLockController.authenticate(prompt) is BiometricResult.Success) {
+      // Cancelled (user dismissed the prompt) is expected and silent; Error (no hardware,
+      // lockout, …) is surfaced — otherwise the toggle just snaps back with no explanation.
+      val result = appLockController.authenticate(prompt)
+      if (result is BiometricResult.Success) {
         appLockController.setEnabled(true)
       }
-      _state.update { it.copy(appLockEnabled = appLockController.isEnabled) }
+      _state.update {
+        it.copy(
+          appLockEnabled = appLockController.isEnabled,
+          appLockError = if (result is BiometricResult.Error) Res.string.error_biometric_failed.asUiText() else null
+        )
+      }
     }
   }
 

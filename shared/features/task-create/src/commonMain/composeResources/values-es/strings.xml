@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="error_title_required">Ponle un título a la tarea.</string>
+  <string name="error_file_too_large">Ese archivo supera el límite de 50 MB. Elige uno más pequeño.</string>
+  <string name="error_forbidden">No tienes permiso para añadir tareas aquí.</string>
+  <string name="error_not_found">Esta producción ya no existe.</string>
+  <string name="error_conflict">No se ha podido guardar la tarea. Inténtalo de nuevo.</string>
+</resources>

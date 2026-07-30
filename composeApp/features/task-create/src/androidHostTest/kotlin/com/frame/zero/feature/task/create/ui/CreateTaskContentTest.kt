@@ -10,7 +10,9 @@ import com.frame.zero.feature.task.create.CreateTaskState
 import com.frame.zero.feature.task.create.ui.CreateTaskTestTags.SUBMIT
 import com.frame.zero.feature.task.create.ui.CreateTaskTestTags.TITLE_ERROR
 import com.frame.zero.shared.design_system.AppTheme
-import com.frame.zero.ui.UiText
+import com.frame.zero.shared.design_system.generated.resources.Res
+import com.frame.zero.shared.design_system.generated.resources.error_generic_message
+import com.frame.zero.ui.asUiText
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -31,10 +33,10 @@ class CreateTaskContentTest {
 
   @Test
   fun showsTitleErrorWhenPresent() {
-    setContent(CreateTaskState(titleError = UiText.Dynamic("Title is required")))
+    setContent(CreateTaskState(titleError = Res.string.error_generic_message.asUiText()))
 
     composeRule.onNodeWithTag(TITLE_ERROR).assertIsDisplayed()
-    composeRule.onNodeWithText("Title is required").assertIsDisplayed()
+    composeRule.onNodeWithText("Something went wrong").assertIsDisplayed()
   }
 
   @Test

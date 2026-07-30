@@ -19,18 +19,50 @@ class PendingUploadStoreTest {
     )
 
   @Test
-  fun `add then markFailed then remove are reflected`() =
+  fun `add then recordFailure then remove are reflected`() =
     runTest {
       val store = PendingUploadStore(FakePendingUploadDao())
 
       store.add(upload("a"))
       assertEquals(PendingUploadStatus.Uploading, store.get("a")?.status)
 
-      store.markFailed("a")
+      // Permanent goes terminal on the first attempt, matching a 4xx that will never succeed.
+      store.recordFailure("a", UploadFailureReason.Permanent)
       assertEquals(PendingUploadStatus.Failed, store.uploads.first().single().status)
 
       store.remove("a")
       assertNull(store.get("a"))
+    }
+
+  @Test
+  fun `recordFailure with Transient stays Uploading until the attempt budget is spent`() =
+    runTest {
+      val store = PendingUploadStore(FakePendingUploadDao())
+      store.add(upload("a"))
+
+      repeat(MAX_UPLOAD_ATTEMPTS - 1) {
+        val updated = store.recordFailure("a", UploadFailureReason.Transient)
+        assertEquals(PendingUploadStatus.Uploading, updated?.status)
+      }
+      val last = store.recordFailure("a", UploadFailureReason.Transient)
+
+      assertEquals(PendingUploadStatus.Failed, last?.status)
+      assertEquals(MAX_UPLOAD_ATTEMPTS, last?.attemptCount)
+    }
+
+  @Test
+  fun `markUploading resets the attempt budget for an explicit retry`() =
+    runTest {
+      val store = PendingUploadStore(FakePendingUploadDao())
+      store.add(upload("a"))
+      store.recordFailure("a", UploadFailureReason.Permanent)
+
+      store.markUploading("a")
+
+      val restarted = store.get("a")
+      assertEquals(PendingUploadStatus.Uploading, restarted?.status)
+      assertEquals(0, restarted?.attemptCount)
+      assertNull(restarted?.failureReason)
     }
 
   @Test

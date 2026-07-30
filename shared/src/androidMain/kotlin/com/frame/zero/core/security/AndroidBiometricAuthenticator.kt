@@ -24,8 +24,7 @@ class AndroidBiometricAuthenticator(
   }
 
   override suspend fun authenticate(prompt: BiometricPromptText): BiometricResult {
-    val activity = activityHolder.activity
-      ?: return BiometricResult.Error("No foreground activity to host the biometric prompt")
+    val activity = activityHolder.activity ?: return BiometricResult.Error
 
     return withContext(Dispatchers.Main) {
       suspendCancellableCoroutine { continuation ->
@@ -47,7 +46,7 @@ class AndroidBiometricAuthenticator(
                 if (errorCode.isUserCancellation()) {
                   BiometricResult.Cancelled
                 } else {
-                  BiometricResult.Error(errString.toString())
+                  BiometricResult.Error
                 }
               )
             }

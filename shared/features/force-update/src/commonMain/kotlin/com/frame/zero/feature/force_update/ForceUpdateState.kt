@@ -15,13 +15,11 @@ sealed interface ForceUpdateState {
    *   controller defers it off a metered connection until the device is unmetered.
    */
   data class Soft(
-    val message: String?,
     val storeUrl: String,
     val critical: Boolean
   ) : ForceUpdateState
 
   data class Hard(
-    val message: String?,
     val storeUrl: String
   ) : ForceUpdateState
 }

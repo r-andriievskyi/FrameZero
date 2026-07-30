@@ -83,7 +83,7 @@ class TasksRepositoryImpl(
   ): Outcome<String> {
     attachmentFileManager.cachedAttachment(taskId, fileName)?.let { return Outcome.Success(it) }
     if (!connectivityObserver.isCurrentlyOnline()) {
-      return Outcome.Failure(DomainError.Offline("No internet connection"))
+      return Outcome.Failure(DomainError.Offline)
     }
     if (attachmentFileManager.availableBytes() < expectedBytes) {
       return Outcome.Failure(DomainError.InsufficientStorage)

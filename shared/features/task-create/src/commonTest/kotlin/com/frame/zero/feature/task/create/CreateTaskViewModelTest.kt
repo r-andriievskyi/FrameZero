@@ -6,18 +6,18 @@ import com.frame.zero.core.files.FilePicker
 import com.frame.zero.core.files.MAX_ATTACHMENT_BYTES
 import com.frame.zero.core.files.PickedFile
 import com.frame.zero.domain.OfflineException
-import com.frame.zero.core.upload.PendingTaskUpload
-import com.frame.zero.core.upload.TaskUploadScheduler
 import com.frame.zero.feature.task.create.domain.CreateTaskUseCase
 import com.frame.zero.feature.task.create.domain.GetAssignableMembersUseCase
 import com.frame.zero.testing.FakeProductionsRepository
+import com.frame.zero.testing.FakeTaskUploadScheduler
 import com.frame.zero.testing.FakeTasksRepository
 import com.frame.zero.testing.productionMember
 import com.frame.zero.testing.taskDetail
 import com.frame.zero.ui.asUiText
 import framezero.shared.features.task_create.generated.resources.Res
-import framezero.shared.features.task_create.generated.resources.error_network
 import framezero.shared.features.task_create.generated.resources.error_title_required
+import framezero.shared.ui_text.generated.resources.Res as UiTextRes
+import framezero.shared.ui_text.generated.resources.error_network
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -90,7 +90,7 @@ class CreateTaskViewModelTest {
       viewModel.onIntent(CreateTaskIntent.Submit)
       advanceUntilIdle()
 
-      assertEquals(Res.string.error_network.asUiText(), viewModel.state.value.errorToast)
+      assertEquals(UiTextRes.string.error_network.asUiText(), viewModel.state.value.errorToast)
       assertEquals(false, viewModel.state.value.isLoading)
     }
 
@@ -312,18 +312,6 @@ class CreateTaskViewModelTest {
     private val result: PickedFile? = null
   ) : FilePicker {
     override suspend fun pickFile(): PickedFile? = result
-  }
-
-  private class FakeTaskUploadScheduler : TaskUploadScheduler {
-    val enqueued: MutableList<PendingTaskUpload> = mutableListOf()
-
-    override suspend fun enqueue(upload: PendingTaskUpload) {
-      enqueued += upload
-    }
-
-    override suspend fun retry(uploadId: String) = Unit
-
-    override suspend fun cancel(uploadId: String) = Unit
   }
 
   private class FakeAttachmentFileManager : AttachmentFileManager {

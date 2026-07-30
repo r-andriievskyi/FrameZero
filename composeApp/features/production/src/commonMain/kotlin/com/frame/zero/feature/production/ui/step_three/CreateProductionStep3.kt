@@ -22,7 +22,7 @@ import com.frame.zero.feature.production.CrewMemberEntry
 import com.frame.zero.feature.production.ui.displayLabel
 import com.frame.zero.feature.production.ui.formatDisplay
 import com.frame.zero.feature.production.ui.widgets.CrewAvatar
-import com.frame.zero.feature.production.ui.widgets.ErrorText
+import com.frame.zero.shared.design_system.widgets.ErrorText
 import com.frame.zero.feature.production.ui.widgets.FieldLabel
 import com.frame.zero.feature.production.ui.widgets.GenreChip
 import com.frame.zero.shared.design_system.AppTheme

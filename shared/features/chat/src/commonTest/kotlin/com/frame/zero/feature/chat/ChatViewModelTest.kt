@@ -40,6 +40,23 @@ class ChatViewModelTest {
   )
 
   @Test
+  fun `isDisconnected tracks the repository's connection state`() =
+    runTest {
+      val repo = FakeChatRepository(conversation)
+      val viewModel = makeViewModel(this, repo)
+      advanceUntilIdle()
+      assertFalse(viewModel.state.value.isDisconnected)
+
+      repo.connectionState.value = false
+      advanceUntilIdle()
+      assertTrue(viewModel.state.value.isDisconnected)
+
+      repo.connectionState.value = true
+      advanceUntilIdle()
+      assertFalse(viewModel.state.value.isDisconnected)
+    }
+
+  @Test
   fun `sending clears the composer immediately and queues the trimmed body`() =
     runTest {
       val repo = FakeChatRepository(conversation)
@@ -152,7 +169,9 @@ class ChatViewModelTest {
       advanceUntilIdle()
 
       val message = viewModel.state.value.pending.single()
-      assertEquals("9:05 AM", message.timeLabel)
+      // Exact rendering (12h/24h, meridiem wording) is locale-dependent by design
+      // (formatClockTime is expect/actual) — just check the hour/minute made it through.
+      assertTrue(message.timeLabel.contains("9:05") || message.timeLabel.contains("09:05"))
       assertEquals(LocalDate(2026, 7, 24), message.day)
     }
 

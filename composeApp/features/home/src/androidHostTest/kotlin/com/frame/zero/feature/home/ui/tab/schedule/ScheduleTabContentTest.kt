@@ -5,11 +5,14 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import com.frame.zero.feature.home.LoadErrorKind
+import com.frame.zero.feature.home.LoadError
 import com.frame.zero.feature.home.tab.schedule.ScheduleTabState
 import com.frame.zero.feature.home.ui.tab.schedule.ScheduleTabTestTags.ERROR
 import com.frame.zero.feature.home.ui.tab.schedule.ScheduleTabTestTags.LOADING
 import com.frame.zero.shared.design_system.AppTheme
+import com.frame.zero.shared.design_system.generated.resources.Res
+import com.frame.zero.shared.design_system.generated.resources.error_generic_message
+import com.frame.zero.ui.asUiText
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -35,7 +38,12 @@ class ScheduleTabContentTest {
 
   @Test
   fun showsTheErrorWhenOfflineWithNothingCached() {
-    setContent(ScheduleTabState(error = LoadErrorKind.Network, schedule = null))
+    setContent(
+      ScheduleTabState(
+        error = LoadError(message = Res.string.error_generic_message.asUiText(), autoRetries = true),
+        schedule = null
+      )
+    )
 
     composeRule.onNodeWithTag(ERROR).assertIsDisplayed()
     composeRule.onNodeWithTag(LOADING).assertDoesNotExist()
@@ -44,7 +52,13 @@ class ScheduleTabContentTest {
   @Test
   fun tappingRetryOnAGenericErrorEmitsRetry() {
     var retried = false
-    setContent(ScheduleTabState(error = LoadErrorKind.Generic, schedule = null), onRetry = { retried = true })
+    setContent(
+      ScheduleTabState(
+        error = LoadError(message = Res.string.error_generic_message.asUiText(), autoRetries = false),
+        schedule = null
+      ),
+      onRetry = { retried = true }
+    )
 
     composeRule.onNodeWithText("Retry").performClick()
 

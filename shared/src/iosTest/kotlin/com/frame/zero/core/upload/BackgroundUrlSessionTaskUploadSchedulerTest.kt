@@ -2,6 +2,7 @@ package com.frame.zero.core.upload
 
 import com.frame.zero.core.files.toByteArray
 import com.frame.zero.core.files.toNSData
+import com.frame.zero.core.logging.Logger
 import com.frame.zero.core.network.NetworkConfig
 import com.frame.zero.core.session.TokenStorage
 import com.russhwolf.settings.MapSettings
@@ -93,7 +94,8 @@ class BackgroundUrlSessionTaskUploadSchedulerTest {
     BackgroundUrlSessionTaskUploadScheduler(
       store = PendingUploadStore(FakePendingUploadDao()),
       tokenStorage = TokenStorage(MapSettings()),
-      networkConfig = NetworkConfig(baseUrl = "https://test.local", isDebug = false)
+      networkConfig = NetworkConfig(baseUrl = "https://test.local", isDebug = false),
+      logger = NoopLogger
     )
 
   private fun upload(localPath: String) =
@@ -119,4 +121,36 @@ class BackgroundUrlSessionTaskUploadSchedulerTest {
 
   private fun readFile(path: String): ByteArray =
     requireNotNull(NSData.dataWithContentsOfFile(path)) { "no file at $path" }.toByteArray()
+
+  private object NoopLogger : Logger {
+    override fun v(
+      tag: String,
+      message: String,
+      throwable: Throwable?
+    ) = Unit
+
+    override fun d(
+      tag: String,
+      message: String,
+      throwable: Throwable?
+    ) = Unit
+
+    override fun i(
+      tag: String,
+      message: String,
+      throwable: Throwable?
+    ) = Unit
+
+    override fun w(
+      tag: String,
+      message: String,
+      throwable: Throwable?
+    ) = Unit
+
+    override fun e(
+      tag: String,
+      message: String,
+      throwable: Throwable?
+    ) = Unit
+  }
 }

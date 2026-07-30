@@ -2,8 +2,6 @@ package com.frame.zero.feature.task.create
 
 import com.arkivanov.essenty.instancekeeper.InstanceKeeper
 import com.frame.zero.core.collections.mapImmutable
-import com.frame.zero.core.error.DomainErrorMessages
-import com.frame.zero.core.error.toUiText
 import com.frame.zero.domain.task.AssignableMember
 import com.frame.zero.core.files.AttachmentFileManager
 import com.frame.zero.core.files.FilePicker
@@ -14,17 +12,16 @@ import com.frame.zero.core.upload.TaskUploadScheduler
 import com.frame.zero.domain.Outcome
 import com.frame.zero.feature.task.create.domain.CreateTaskUseCase
 import com.frame.zero.feature.task.create.domain.GetAssignableMembersUseCase
+import com.frame.zero.ui.DomainErrorCategory
+import com.frame.zero.ui.UiText
 import com.frame.zero.ui.asUiText
+import com.frame.zero.ui.toUiText
 import framezero.shared.features.task_create.generated.resources.Res
-import framezero.shared.features.task_create.generated.resources.error_auth_failed
 import framezero.shared.features.task_create.generated.resources.error_conflict
 import framezero.shared.features.task_create.generated.resources.error_file_too_large
 import framezero.shared.features.task_create.generated.resources.error_forbidden
-import framezero.shared.features.task_create.generated.resources.error_network
 import framezero.shared.features.task_create.generated.resources.error_not_found
-import framezero.shared.features.task_create.generated.resources.error_server
 import framezero.shared.features.task_create.generated.resources.error_title_required
-import framezero.shared.features.task_create.generated.resources.error_unknown_fallback
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.collections.immutable.toImmutableList
@@ -196,7 +193,8 @@ class CreateTaskViewModel(
         fileName = attachment.name,
         contentType = attachment.contentType,
         localPath = attachment.localPath,
-        idempotencyKey = Uuid.random().toString()
+        idempotencyKey = Uuid.random().toString(),
+        createdAtMillis = clock.now().toEpochMilliseconds()
       )
       uploadScheduler.enqueue(upload)
       _state.update { it.copy(isLoading = false) }
@@ -245,15 +243,11 @@ class CreateTaskViewModel(
   private companion object {
     const val DAYS_IN_WEEK = 7
 
-    val errorMessages = DomainErrorMessages(
-      network = Res.string.error_network,
-      server = Res.string.error_server,
-      notFound = Res.string.error_not_found,
-      forbidden = Res.string.error_forbidden,
-      conflict = Res.string.error_conflict,
-      invalidCredentials = Res.string.error_auth_failed,
-      emailExists = Res.string.error_unknown_fallback,
-      fallback = Res.string.error_unknown_fallback
+    val errorMessages: Map<DomainErrorCategory, UiText> = mapOf(
+      DomainErrorCategory.NOT_FOUND to Res.string.error_not_found.asUiText(),
+      DomainErrorCategory.FORBIDDEN to Res.string.error_forbidden.asUiText(),
+      DomainErrorCategory.CONFLICT to Res.string.error_conflict.asUiText(),
+      DomainErrorCategory.PAYLOAD_TOO_LARGE to Res.string.error_file_too_large.asUiText()
     )
   }
 }

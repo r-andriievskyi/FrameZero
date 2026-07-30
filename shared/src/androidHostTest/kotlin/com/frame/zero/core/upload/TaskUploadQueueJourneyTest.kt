@@ -1,8 +1,8 @@
 package com.frame.zero.core.upload
 
 import com.frame.zero.core.files.AttachmentFileManager
+import com.frame.zero.core.logging.Logger
 import com.frame.zero.core.network.NetworkConfig
-import com.frame.zero.domain.Outcome
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.MockRequestHandleScope
@@ -18,7 +18,6 @@ import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
-import kotlin.test.assertIs
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -43,21 +42,27 @@ class TaskUploadQueueJourneyTest {
       assertTrue(file.exists())
 
       // 2. A fresh process picks the record up (nothing in memory carried it) and the first
-      //    attempt hits a server error — the record and file must remain for a retry.
+      //    attempt hits a server error — the record and file must remain for a retry, classified
+      //    Transient so it still has budget rather than being parked immediately.
       val failing = uploadUseCase(store, files) { respond("boom", HttpStatusCode.InternalServerError) }
-      assertIs<Outcome.Failure>(failing("u1"))
+      failing("u1")
       assertEquals("u1", store.get("u1")?.uploadId, "record retained after a failed attempt")
+      assertEquals(PendingUploadStatus.Uploading, store.get("u1")?.status)
+      assertEquals(UploadFailureReason.Transient, store.get("u1")?.failureReason)
       assertTrue(file.exists(), "local file retained after a failed attempt")
       assertTrue(files.deleted.isEmpty())
 
-      // 3. The worker's terminal-failure bookkeeping marks it Failed; it is still queued.
-      store.markFailed("u1")
+      // 3. The same transient failure keeps happening until the attempt budget is spent — that's
+      //    when the queue actually parks it as terminal, not after a single attempt.
+      repeat(MAX_UPLOAD_ATTEMPTS - 1) { failing("u1") }
       assertEquals(PendingUploadStatus.Failed, store.get("u1")?.status)
+      assertEquals(MAX_UPLOAD_ATTEMPTS, store.get("u1")?.attemptCount)
 
-      // 4. A later attempt (retry / reconnect) succeeds: the record is cleared and the file removed.
+      // 4. A later attempt (explicit user retry) succeeds: the record is cleared and the file removed.
+      store.markUploading("u1")
       val requests = mutableListOf<String>()
       val succeeding = uploadUseCase(store, files, requests) { respond("", HttpStatusCode.Created) }
-      assertIs<Outcome.Success<Unit>>(succeeding("u1"))
+      succeeding("u1")
 
       assertNull(store.get("u1"), "record drained on success")
       assertFalse(file.exists(), "local file cleaned up on success")
@@ -83,9 +88,12 @@ class TaskUploadQueueJourneyTest {
         responder(request)
       }
     ) {
+      // Mirrors the production client (`clientConfig`): a non-2xx throws at the response
+      // validator, which is what turns an upload failure into an `Outcome.Failure`.
+      expectSuccess = true
       defaultRequest { contentType(ContentType.Application.Json) }
     }
-    return UploadTaskUseCase(store, client, NetworkConfig(baseUrl = "http://test", isDebug = false), files)
+    return UploadTaskUseCase(store, client, NetworkConfig(baseUrl = "http://test", isDebug = false), files, NoopLogger)
   }
 
   private fun upload(
@@ -126,5 +134,37 @@ class TaskUploadQueueJourneyTest {
     ) = Unit
 
     override fun availableBytes(): Long = Long.MAX_VALUE
+  }
+
+  private object NoopLogger : Logger {
+    override fun v(
+      tag: String,
+      message: String,
+      throwable: Throwable?
+    ) = Unit
+
+    override fun d(
+      tag: String,
+      message: String,
+      throwable: Throwable?
+    ) = Unit
+
+    override fun i(
+      tag: String,
+      message: String,
+      throwable: Throwable?
+    ) = Unit
+
+    override fun w(
+      tag: String,
+      message: String,
+      throwable: Throwable?
+    ) = Unit
+
+    override fun e(
+      tag: String,
+      message: String,
+      throwable: Throwable?
+    ) = Unit
   }
 }

@@ -66,7 +66,7 @@ class WorkManagerTaskUploadSchedulerTest {
       val store = store()
       val scheduler = WorkManagerTaskUploadScheduler(context, store)
       store.add(upload("u3"))
-      store.markFailed("u3")
+      store.recordFailure("u3", UploadFailureReason.Permanent)
 
       scheduler.retry("u3")
 

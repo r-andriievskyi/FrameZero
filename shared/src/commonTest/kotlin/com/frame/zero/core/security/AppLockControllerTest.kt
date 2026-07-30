@@ -2,6 +2,7 @@ package com.frame.zero.core.security
 
 import com.russhwolf.settings.MapSettings
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
@@ -78,6 +79,7 @@ class AppLockControllerTest {
     assertTrue(manager.isEnabled)
   }
 
+  @OptIn(ExperimentalCoroutinesApi::class)
   @Test
   fun `rejects a second prompt while one is in flight`() =
     runTest {

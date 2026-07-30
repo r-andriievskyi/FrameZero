@@ -16,6 +16,7 @@ kotlin {
       implementation(projects.shared.repositories.schedule)
       implementation(libs.bundles.koinRuntime)
       implementation(libs.bundles.ktorClient)
+      implementation(libs.compose.components.resources)
     }
     commonTest.dependencies {
       implementation(projects.shared.testFixtures)
