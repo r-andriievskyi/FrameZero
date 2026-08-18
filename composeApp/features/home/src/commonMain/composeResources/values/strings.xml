@@ -16,7 +16,6 @@
 
   <!-- My Tasks section -->
   <string name="my_tasks_title">My Tasks</string>
-  <string name="my_tasks_see_all">See all</string>
 
   <!-- Stats section -->
   <string name="stats_active_projects">Active Productions</string>

@@ -1,18 +1,16 @@
 # FrameZero
 
-Production management for film & TV crews — schedules, tasks, and the people behind them.
+![Screenshots](docs/images/screenshots.png)
 
-Android, iOS, and the backend all run on one Kotlin codebase.
+Production management for film & TV crews — schedules, tasks, and the people behind them. Android, iOS, and the backend all run on one Kotlin codebase.
 
 ## Stack
 
-- **Apps** — Compose Multiplatform UI on Android and iOS, navigation with Decompose
-- **Shared** — Kotlin Multiplatform business logic; offline-first via Room + Paging 3
-- **Server** — Ktor and Postgres, JWT auth
+Compose Multiplatform for the UI on Android and iOS, navigated with Decompose. Business logic lives in a Kotlin Multiplatform `shared` module and is partially offline-first, backed by Room and Paging 3. The server is Ktor on Postgres with JWT auth.
 
 ## Getting started
 
-Common commands are wrapped in a [`justfile`](justfile) — install [`just`](https://github.com/casey/just)
+Common commands are wrapped in a [`justfile`](justfile). Install [`just`](https://github.com/casey/just)
 (`brew install just`) and run `just` to list them. The raw Gradle commands below work too.
 
 Start the backend:
@@ -30,7 +28,7 @@ Run the Android app:
 ```
 
 For iOS, open `iosApp/iosApp.xcodeproj` in Xcode and hit Run. After changing
-`shared`/`composeApp`, relink first: `./gradlew :composeApp:linkDebugFrameworkIosSimulatorArm64`
+`shared` or `composeApp`, relink first: `./gradlew :composeApp:linkDebugFrameworkIosSimulatorArm64`
 (`just ios-link`).
 
 ## Project layout

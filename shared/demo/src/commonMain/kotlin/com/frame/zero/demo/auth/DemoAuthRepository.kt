@@ -8,9 +8,9 @@ import com.frame.zero.domain.User
 import com.frame.zero.repository.auth.AuthRepository
 
 /**
- * Fake auth for demo builds: any credentials are accepted, nothing hits the network. Fake tokens
- * are stored so a relaunch stays signed in, and [SessionAuthOperations.fetchCurrentUser] serves
- * the cached identity the user typed at login.
+ * Fake auth for demo builds: any credentials are accepted, nothing hits the network. Identity is
+ * always the seeded [DemoData.defaultUser] — typed email/name is ignored — so it stays consistent
+ * with the curated crew/task data. Fake tokens are stored so a relaunch stays signed in.
  */
 internal class DemoAuthRepository(
   private val tokenStorage: TokenStorage,
@@ -22,17 +22,12 @@ internal class DemoAuthRepository(
     password: String,
     firstName: String,
     lastName: String
-  ): User = signIn(User(id = DemoData.USER_ID, email = email, firstName = firstName, lastName = lastName))
+  ): User = signIn(DemoData.defaultUser)
 
   override suspend fun login(
     email: String,
     password: String
-  ): User {
-    val cached = userCache.load()?.takeIf { it.email.equals(email, ignoreCase = true) }
-    return signIn(
-      cached ?: User(id = DemoData.USER_ID, email = email, firstName = displayNameFrom(email), lastName = "")
-    )
-  }
+  ): User = signIn(DemoData.defaultUser)
 
   override suspend fun logout() {
     // Session cleanup (tokens, cache, cleaners) is driven by SessionManager.forceLogout().
@@ -48,11 +43,4 @@ internal class DemoAuthRepository(
     tokenStorage.saveTokens(accessToken = "demo-access-token", refreshToken = "demo-refresh-token")
     return user
   }
-
-  private fun displayNameFrom(email: String): String =
-    email.substringBefore('@')
-      .substringBefore('.')
-      .substringBefore('+')
-      .replaceFirstChar { it.uppercase() }
-      .ifBlank { DemoData.defaultUser.firstName }
 }
