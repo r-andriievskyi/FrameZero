@@ -2,6 +2,7 @@ package com.frame.zero.demo.auth
 
 import com.frame.zero.core.session.TokenStorage
 import com.frame.zero.core.session.UserCache
+import com.frame.zero.demo.DemoData
 import com.russhwolf.settings.MapSettings
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -17,12 +18,12 @@ class DemoAuthRepositoryTest {
   }
 
   @Test
-  fun login_accepts_any_credentials_and_saves_tokens() =
+  fun login_accepts_any_credentials_and_always_returns_the_seeded_user() =
     runTest {
       val (repo, tokenStorage, _) = repo()
       val user = repo.login("director@studio.com", "whatever")
       assertTrue(tokenStorage.hasTokens())
-      assertEquals("director@studio.com", user.email)
+      assertEquals(DemoData.defaultUser, user)
     }
 
   @Test
@@ -33,7 +34,6 @@ class DemoAuthRepositoryTest {
       // SessionManager.onAuthenticated persists to the cache; simulate that here.
       userCache.save(user)
       val fetched = repo.fetchCurrentUser()
-      assertEquals("alex@studio.com", fetched.email)
-      assertEquals("Alex", fetched.firstName)
+      assertEquals(DemoData.defaultUser, fetched)
     }
 }

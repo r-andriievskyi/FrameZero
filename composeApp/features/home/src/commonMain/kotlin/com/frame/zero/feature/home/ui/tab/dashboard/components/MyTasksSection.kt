@@ -3,7 +3,6 @@ package com.frame.zero.feature.home.ui.tab.dashboard.components
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -30,7 +29,6 @@ import com.frame.zero.shared.design_system.widgets.VerticalSpacer
 import com.frame.zero.shared.design_system.widgets.rememberRoundedCornerShape
 import framezero.composeapp.features.home.generated.resources.Res
 import framezero.composeapp.features.home.generated.resources.ic_chevron_right
-import framezero.composeapp.features.home.generated.resources.my_tasks_see_all
 import framezero.composeapp.features.home.generated.resources.my_tasks_title
 import framezero.composeapp.features.home.generated.resources.today
 import framezero.composeapp.features.home.generated.resources.tomorrow
@@ -46,23 +44,12 @@ internal fun MyTasksSection(
   onTaskClick: (taskId: String) -> Unit,
   modifier: Modifier = Modifier
 ) {
-  Row(
-    modifier = modifier.fillMaxWidth().testTag(DashboardTestTags.MY_TASKS_SECTION),
-    horizontalArrangement = Arrangement.SpaceBetween,
-    verticalAlignment = Alignment.CenterVertically
-  ) {
-    Text(
-      modifier = Modifier.semantics { heading() },
-      text = stringResource(Res.string.my_tasks_title),
-      style = AppTheme.typographySystem.titleMedium,
-      color = AppTheme.colorSystem.textPrimary
-    )
-    Text(
-      text = stringResource(Res.string.my_tasks_see_all),
-      style = AppTheme.typographySystem.labelMedium,
-      color = AppTheme.colorSystem.accentText
-    )
-  }
+  Text(
+    modifier = modifier.fillMaxWidth().testTag(DashboardTestTags.MY_TASKS_SECTION).semantics { heading() },
+    text = stringResource(Res.string.my_tasks_title),
+    style = AppTheme.typographySystem.titleMedium,
+    color = AppTheme.colorSystem.textPrimary
+  )
   VerticalSpacer(AppTheme.spacingSystem.space8)
   tasks.forEach { task ->
     TaskCard(

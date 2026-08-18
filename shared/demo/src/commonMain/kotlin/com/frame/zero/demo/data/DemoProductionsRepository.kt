@@ -1,6 +1,10 @@
 package com.frame.zero.demo.data
 
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import androidx.paging.PagingSource
+import androidx.paging.PagingState
 import com.frame.zero.demo.DemoData
 import com.frame.zero.demo.DemoDataStore
 import com.frame.zero.domain.production.NewProduction
@@ -11,18 +15,29 @@ import com.frame.zero.domain.production.ProductionPhase
 import com.frame.zero.domain.production.toProduction
 import com.frame.zero.repository.productions.ProductionsRepository
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.daysUntil
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Clock
 
+private const val PageSize = 5
+
 internal class DemoProductionsRepository(
   private val store: DemoDataStore
 ) : ProductionsRepository {
+  @OptIn(ExperimentalCoroutinesApi::class)
   override fun observeProductions(): Flow<PagingData<Production>> =
-    store.productions.map { list -> PagingData.from(list.map { it.toProduction() }) }
+    store.productions
+      .flatMapLatest { list ->
+        val productions = list.map { it.toProduction() }
+        Pager(
+          config = PagingConfig(pageSize = PageSize, enablePlaceholders = false),
+          pagingSourceFactory = { DemoListPagingSource(productions) }
+        ).flow
+      }
 
   override suspend fun getDetails(productionId: String): ProductionDetail =
     store.getProduction(productionId) ?: error("Unknown demo production $productionId")
@@ -69,4 +84,13 @@ internal class DemoProductionsRepository(
   }
 
   override suspend fun delete(productionId: String) = store.deleteProduction(productionId)
+}
+
+private class DemoListPagingSource(
+  private val items: List<Production>
+) : PagingSource<Int, Production>() {
+  override fun getRefreshKey(state: PagingState<Int, Production>): Int? = null
+
+  override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Production> =
+    LoadResult.Page(data = items, prevKey = null, nextKey = null)
 }
