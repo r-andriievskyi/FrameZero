@@ -1,5 +1,6 @@
 package com.frame.zero.core.session
 
+import app.cash.turbine.test
 import com.frame.zero.domain.User
 import com.russhwolf.settings.MapSettings
 import kotlinx.coroutines.CompletableDeferred
@@ -7,6 +8,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -24,9 +26,11 @@ class SessionManagerTest {
     runTest {
       val manager = makeManager()
 
-      manager.initialize()
-
-      assertEquals(SessionState.LoggedOut, manager.state.value)
+      manager.state.test {
+        manager.initialize()
+        advanceUntilIdle()
+        assertEquals(SessionState.LoggedOut, expectMostRecentItem())
+      }
     }
 
   @Test
@@ -36,9 +40,11 @@ class SessionManagerTest {
       val ops = FakeAuthOps(currentUser = user)
       val manager = SessionManager(storage, ops, UserCache(MapSettings()), LogoutSignal(), scope = backgroundScope)
 
-      manager.initialize()
-
-      assertEquals(SessionState.LoggedIn(user), manager.state.value)
+      manager.state.test {
+        manager.initialize()
+        advanceUntilIdle()
+        assertEquals(SessionState.LoggedIn(user), expectMostRecentItem())
+      }
       assertEquals(1, ops.fetchCalls)
     }
 
@@ -73,14 +79,18 @@ class SessionManagerTest {
       }
       val manager = SessionManager(storage, ops, cache, LogoutSignal(), scope = backgroundScope)
 
-      val job = launch { manager.initialize() }
-      runCurrent()
+      manager.state.test {
+        val job = launch { manager.initialize() }
+        runCurrent()
 
-      assertEquals(SessionState.LoggedIn(user), manager.state.value)
-      assertTrue(job.isActive)
+        assertEquals(SessionState.LoggedIn(user), expectMostRecentItem())
+        assertTrue(job.isActive)
 
-      gate.complete(user)
-      job.join()
+        gate.complete(user)
+        job.join()
+        // The fetched user matches the cached one, so no further transition occurs.
+        expectNoEvents()
+      }
       assertEquals(SessionState.LoggedIn(user), manager.state.value)
     }
 
@@ -97,9 +107,11 @@ class SessionManagerTest {
         scope = backgroundScope
       )
 
-      manager.initialize()
-
-      assertEquals(SessionState.LoggedIn(user), manager.state.value)
+      manager.state.test {
+        manager.initialize()
+        advanceUntilIdle()
+        assertEquals(SessionState.LoggedIn(user), expectMostRecentItem())
+      }
       assertTrue(storage.hasTokens())
     }
 
@@ -120,9 +132,11 @@ class SessionManagerTest {
       }
       val manager = SessionManager(storage, ops, cache, LogoutSignal(), scope = backgroundScope)
 
-      manager.initialize()
-
-      assertEquals(SessionState.LoggedOut, manager.state.value)
+      manager.state.test {
+        manager.initialize()
+        advanceUntilIdle()
+        assertEquals(SessionState.LoggedOut, expectMostRecentItem())
+      }
       assertNull(cache.load())
     }
 
@@ -133,9 +147,11 @@ class SessionManagerTest {
       val ops = FakeAuthOps(fetchThrows = true)
       val manager = SessionManager(storage, ops, UserCache(MapSettings()), LogoutSignal(), scope = backgroundScope)
 
-      manager.initialize()
-
-      assertEquals(SessionState.LoggedOut, manager.state.value)
+      manager.state.test {
+        manager.initialize()
+        advanceUntilIdle()
+        assertEquals(SessionState.LoggedOut, expectMostRecentItem())
+      }
       assertFalse(storage.hasTokens())
     }
 
@@ -151,9 +167,11 @@ class SessionManagerTest {
         scope = backgroundScope
       )
 
-      manager.onAuthenticated(user)
-
-      assertEquals(SessionState.LoggedIn(user), manager.state.value)
+      manager.state.test {
+        manager.onAuthenticated(user)
+        advanceUntilIdle()
+        assertEquals(SessionState.LoggedIn(user), expectMostRecentItem())
+      }
       assertEquals(user, cache.load())
     }
 
@@ -165,9 +183,11 @@ class SessionManagerTest {
       val manager = SessionManager(storage, ops, UserCache(MapSettings()), LogoutSignal(), scope = backgroundScope)
       manager.onAuthenticated(user)
 
-      manager.logout()
-
-      assertEquals(SessionState.LoggedOut, manager.state.value)
+      manager.state.test {
+        manager.logout()
+        advanceUntilIdle()
+        assertEquals(SessionState.LoggedOut, expectMostRecentItem())
+      }
       assertEquals(1, ops.signOutCalls)
       assertFalse(storage.hasTokens())
     }
@@ -193,9 +213,11 @@ class SessionManagerTest {
       val manager = SessionManager(storage, ops, UserCache(MapSettings()), LogoutSignal(), scope = backgroundScope)
       manager.onAuthenticated(user)
 
-      manager.logout()
-
-      assertEquals(SessionState.LoggedOut, manager.state.value)
+      manager.state.test {
+        manager.logout()
+        advanceUntilIdle()
+        assertEquals(SessionState.LoggedOut, expectMostRecentItem())
+      }
       assertFalse(storage.hasTokens())
     }
 
@@ -208,9 +230,11 @@ class SessionManagerTest {
       val manager = SessionManager(storage, ops, UserCache(MapSettings()), signal, scope = backgroundScope)
       manager.onAuthenticated(user)
 
-      signal.emit()
-
-      assertEquals(SessionState.LoggedOut, manager.state.value)
+      manager.state.test {
+        signal.emit()
+        advanceUntilIdle()
+        assertEquals(SessionState.LoggedOut, expectMostRecentItem())
+      }
       assertFalse(storage.hasTokens())
     }
 
@@ -231,11 +255,13 @@ class SessionManagerTest {
       )
       manager.onAuthenticated(user)
 
-      manager.logout()
-
+      manager.state.test {
+        manager.logout()
+        advanceUntilIdle()
+        assertEquals(SessionState.LoggedOut, expectMostRecentItem())
+      }
       assertEquals(1, cleanerA.clearCalls)
       assertEquals(1, cleanerB.clearCalls)
-      assertEquals(SessionState.LoggedOut, manager.state.value)
     }
 
   @Test
@@ -254,10 +280,12 @@ class SessionManagerTest {
       )
       manager.onAuthenticated(user)
 
-      signal.emit()
-
+      manager.state.test {
+        signal.emit()
+        advanceUntilIdle()
+        assertEquals(SessionState.LoggedOut, expectMostRecentItem())
+      }
       assertEquals(1, cleaner.clearCalls)
-      assertEquals(SessionState.LoggedOut, manager.state.value)
     }
 
   @Test
@@ -275,10 +303,12 @@ class SessionManagerTest {
       )
       manager.onAuthenticated(user)
 
-      manager.logout()
-
+      manager.state.test {
+        manager.logout()
+        advanceUntilIdle()
+        assertEquals(SessionState.LoggedOut, expectMostRecentItem())
+      }
       assertEquals(1, cleaner.clearCalls)
-      assertEquals(SessionState.LoggedOut, manager.state.value)
       assertFalse(storage.hasTokens())
     }
 
@@ -299,11 +329,13 @@ class SessionManagerTest {
       )
       manager.onAuthenticated(user)
 
-      manager.logout()
-
+      manager.state.test {
+        manager.logout()
+        advanceUntilIdle()
+        assertEquals(SessionState.LoggedOut, expectMostRecentItem())
+      }
       assertEquals(1, before.clearCalls)
       assertEquals(1, after.clearCalls)
-      assertEquals(SessionState.LoggedOut, manager.state.value)
       assertFalse(storage.hasTokens())
     }
 
@@ -330,10 +362,12 @@ class SessionManagerTest {
       )
       manager.onAuthenticated(user)
 
-      signal.emit()
-
+      manager.state.test {
+        signal.emit()
+        advanceUntilIdle()
+        assertEquals(SessionState.LoggedOut, expectMostRecentItem())
+      }
       assertEquals(1, cleaner.clearCalls)
-      assertEquals(SessionState.LoggedOut, manager.state.value)
       assertFalse(storage.hasTokens())
     }
 

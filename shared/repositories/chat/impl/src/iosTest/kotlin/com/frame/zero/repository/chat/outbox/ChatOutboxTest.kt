@@ -2,6 +2,7 @@ package com.frame.zero.repository.chat.outbox
 
 import androidx.room.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import app.cash.turbine.test
 import com.frame.zero.core.logging.LoggerImpl
 import com.frame.zero.database.FrameZeroDatabase
 import com.frame.zero.domain.OfflineException
@@ -11,7 +12,6 @@ import com.frame.zero.testing.FakeConnectivityObserver
 import com.frame.zero.testing.responseException
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
@@ -247,8 +247,13 @@ class ChatOutboxTest {
     )
 
   /** Client ids still in the outbox for [CONVERSATION], in queue order. */
-  private suspend fun ChatOutboxStore.pendingIds(): List<String> =
-    observe(CONVERSATION).first().map { it.clientMessageId }
+  private suspend fun ChatOutboxStore.pendingIds(): List<String> {
+    var ids: List<String> = emptyList()
+    observe(CONVERSATION).test {
+      ids = awaitItem().map { it.clientMessageId }
+    }
+    return ids
+  }
 
   private companion object {
     const val CONVERSATION = "conversation-1"

@@ -1,5 +1,6 @@
 package com.frame.zero.feature.auth.signin
 
+import app.cash.turbine.test
 import com.frame.zero.core.session.LogoutSignal
 import com.frame.zero.core.session.SessionManager
 import com.frame.zero.core.session.TokenStorage
@@ -40,10 +41,13 @@ class SignInViewModelTest {
     runTest {
       val vm = makeViewModel(this)
 
-      assertEquals("", vm.state.value.email)
-      assertEquals("", vm.state.value.password)
-      assertFalse(vm.state.value.isLoading)
-      assertNull(vm.state.value.error)
+      vm.state.test {
+        val state = awaitItem()
+        assertEquals("", state.email)
+        assertEquals("", state.password)
+        assertFalse(state.isLoading)
+        assertNull(state.error)
+      }
     }
 
   @Test
@@ -51,15 +55,20 @@ class SignInViewModelTest {
     runTest {
       val repo = FakeAuthRepository(loginThrows = DomainException(DomainError.InvalidCredentials))
       val vm = makeViewModel(this, repo)
-      vm.onIntent(SignInIntent.EmailChanged("u@x.com"))
-      vm.onIntent(SignInIntent.PasswordChanged("wrong"))
-      vm.onIntent(SignInIntent.Submit)
-      advanceUntilIdle()
 
-      vm.onIntent(SignInIntent.EmailChanged("v@x.com"))
+      vm.state.test {
+        vm.onIntent(SignInIntent.EmailChanged("u@x.com"))
+        vm.onIntent(SignInIntent.PasswordChanged("wrong"))
+        vm.onIntent(SignInIntent.Submit)
+        advanceUntilIdle()
 
-      assertEquals("v@x.com", vm.state.value.email)
-      assertNull(vm.state.value.error)
+        vm.onIntent(SignInIntent.EmailChanged("v@x.com"))
+        advanceUntilIdle()
+
+        val state = expectMostRecentItem()
+        assertEquals("v@x.com", state.email)
+        assertNull(state.error)
+      }
     }
 
   @Test
@@ -68,11 +77,13 @@ class SignInViewModelTest {
       val repo = FakeAuthRepository(loginUser = user)
       val vm = makeViewModel(this, repo)
 
-      vm.onIntent(SignInIntent.PasswordChanged("p"))
-      vm.onIntent(SignInIntent.Submit)
-      advanceUntilIdle()
+      vm.state.test {
+        vm.onIntent(SignInIntent.PasswordChanged("p"))
+        vm.onIntent(SignInIntent.Submit)
+        advanceUntilIdle()
 
-      assertEquals(Res.string.error_empty_credentials.asUiText(), vm.state.value.error)
+        assertEquals(Res.string.error_empty_credentials.asUiText(), expectMostRecentItem().error)
+      }
       assertEquals(0, repo.loginCalls.size)
     }
 
@@ -82,11 +93,13 @@ class SignInViewModelTest {
       val repo = FakeAuthRepository(loginUser = user)
       val vm = makeViewModel(this, repo)
 
-      vm.onIntent(SignInIntent.EmailChanged("u@x.com"))
-      vm.onIntent(SignInIntent.Submit)
-      advanceUntilIdle()
+      vm.state.test {
+        vm.onIntent(SignInIntent.EmailChanged("u@x.com"))
+        vm.onIntent(SignInIntent.Submit)
+        advanceUntilIdle()
 
-      assertEquals(Res.string.error_empty_credentials.asUiText(), vm.state.value.error)
+        assertEquals(Res.string.error_empty_credentials.asUiText(), expectMostRecentItem().error)
+      }
     }
 
   @Test
@@ -95,13 +108,16 @@ class SignInViewModelTest {
       val repo = FakeAuthRepository(loginUser = user)
       val vm = makeViewModel(this, repo)
 
-      vm.onIntent(SignInIntent.EmailChanged("u@x.com"))
-      vm.onIntent(SignInIntent.PasswordChanged("p"))
-      vm.onIntent(SignInIntent.Submit)
-      advanceUntilIdle()
+      vm.state.test {
+        vm.onIntent(SignInIntent.EmailChanged("u@x.com"))
+        vm.onIntent(SignInIntent.PasswordChanged("p"))
+        vm.onIntent(SignInIntent.Submit)
+        advanceUntilIdle()
 
-      assertFalse(vm.state.value.isLoading)
-      assertNull(vm.state.value.error)
+        val state = expectMostRecentItem()
+        assertFalse(state.isLoading)
+        assertNull(state.error)
+      }
     }
 
   @Test
@@ -110,13 +126,16 @@ class SignInViewModelTest {
       val repo = FakeAuthRepository(loginThrows = DomainException(DomainError.InvalidCredentials))
       val vm = makeViewModel(this, repo)
 
-      vm.onIntent(SignInIntent.EmailChanged("u@x.com"))
-      vm.onIntent(SignInIntent.PasswordChanged("wrong"))
-      vm.onIntent(SignInIntent.Submit)
-      advanceUntilIdle()
+      vm.state.test {
+        vm.onIntent(SignInIntent.EmailChanged("u@x.com"))
+        vm.onIntent(SignInIntent.PasswordChanged("wrong"))
+        vm.onIntent(SignInIntent.Submit)
+        advanceUntilIdle()
 
-      assertEquals(Res.string.error_invalid_credentials.asUiText(), vm.state.value.error)
-      assertFalse(vm.state.value.isLoading)
+        val state = expectMostRecentItem()
+        assertEquals(Res.string.error_invalid_credentials.asUiText(), state.error)
+        assertFalse(state.isLoading)
+      }
     }
 
   @Test
@@ -125,13 +144,16 @@ class SignInViewModelTest {
       val repo = FakeAuthRepository(loginThrows = DomainException(DomainError.Offline))
       val vm = makeViewModel(this, repo)
 
-      vm.onIntent(SignInIntent.EmailChanged("u@x.com"))
-      vm.onIntent(SignInIntent.PasswordChanged("p"))
-      vm.onIntent(SignInIntent.Submit)
-      advanceUntilIdle()
+      vm.state.test {
+        vm.onIntent(SignInIntent.EmailChanged("u@x.com"))
+        vm.onIntent(SignInIntent.PasswordChanged("p"))
+        vm.onIntent(SignInIntent.Submit)
+        advanceUntilIdle()
 
-      assertEquals(UiTextRes.string.error_network.asUiText(), vm.state.value.errorToast)
-      assertNull(vm.state.value.error)
+        val state = expectMostRecentItem()
+        assertEquals(UiTextRes.string.error_network.asUiText(), state.errorToast)
+        assertNull(state.error)
+      }
     }
 
   @Test
@@ -140,13 +162,16 @@ class SignInViewModelTest {
       val repo = FakeAuthRepository(loginThrows = DomainException(DomainError.Unknown))
       val vm = makeViewModel(this, repo)
 
-      vm.onIntent(SignInIntent.EmailChanged("u@x.com"))
-      vm.onIntent(SignInIntent.PasswordChanged("p"))
-      vm.onIntent(SignInIntent.Submit)
-      advanceUntilIdle()
+      vm.state.test {
+        vm.onIntent(SignInIntent.EmailChanged("u@x.com"))
+        vm.onIntent(SignInIntent.PasswordChanged("p"))
+        vm.onIntent(SignInIntent.Submit)
+        advanceUntilIdle()
 
-      assertEquals(UiTextRes.string.error_unknown_fallback.asUiText(), vm.state.value.errorToast)
-      assertNull(vm.state.value.error)
+        val state = expectMostRecentItem()
+        assertEquals(UiTextRes.string.error_unknown_fallback.asUiText(), state.errorToast)
+        assertNull(state.error)
+      }
     }
 
   @Test
@@ -155,15 +180,17 @@ class SignInViewModelTest {
       val repo = FakeAuthRepository(loginThrows = DomainException(DomainError.Offline))
       val vm = makeViewModel(this, repo)
 
-      vm.onIntent(SignInIntent.EmailChanged("u@x.com"))
-      vm.onIntent(SignInIntent.PasswordChanged("p"))
-      vm.onIntent(SignInIntent.Submit)
-      advanceUntilIdle()
-      assertEquals(UiTextRes.string.error_network.asUiText(), vm.state.value.errorToast)
+      vm.state.test {
+        vm.onIntent(SignInIntent.EmailChanged("u@x.com"))
+        vm.onIntent(SignInIntent.PasswordChanged("p"))
+        vm.onIntent(SignInIntent.Submit)
+        advanceUntilIdle()
+        assertEquals(UiTextRes.string.error_network.asUiText(), expectMostRecentItem().errorToast)
 
-      vm.onIntent(SignInIntent.ToastDismissed)
-
-      assertNull(vm.state.value.errorToast)
+        vm.onIntent(SignInIntent.ToastDismissed)
+        advanceUntilIdle()
+        assertNull(expectMostRecentItem().errorToast)
+      }
     }
 
   @Test
@@ -173,20 +200,23 @@ class SignInViewModelTest {
       val repo = GatedAuthRepository(loginGate = gate)
       val vm = makeViewModel(this, repo)
 
-      vm.onIntent(SignInIntent.EmailChanged("u@x.com"))
-      vm.onIntent(SignInIntent.PasswordChanged("p"))
-      vm.onIntent(SignInIntent.Submit)
-      advanceUntilIdle()
-      assertTrue(vm.state.value.isLoading)
-      assertEquals(1, repo.loginInvocations)
+      vm.state.test {
+        vm.onIntent(SignInIntent.EmailChanged("u@x.com"))
+        vm.onIntent(SignInIntent.PasswordChanged("p"))
+        vm.onIntent(SignInIntent.Submit)
+        advanceUntilIdle()
+        assertTrue(expectMostRecentItem().isLoading)
+        assertEquals(1, repo.loginInvocations)
 
-      vm.onIntent(SignInIntent.Submit)
-      advanceUntilIdle()
+        vm.onIntent(SignInIntent.Submit)
+        advanceUntilIdle()
 
-      assertEquals(1, repo.loginInvocations)
+        assertEquals(1, repo.loginInvocations)
 
-      gate.complete(user)
-      advanceUntilIdle()
+        gate.complete(user)
+        advanceUntilIdle()
+        cancelAndIgnoreRemainingEvents()
+      }
     }
 
   // -- helpers ---------------------------------------------------------------

@@ -13,12 +13,16 @@ import com.frame.zero.feature.auth.domain.RegisterUseCase
 import com.frame.zero.testing.FakeAuthRepository
 import com.frame.zero.testing.NoopSessionAuthOperations
 import com.russhwolf.settings.MapSettings
+import app.cash.turbine.test
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class RegisterUseCaseTest {
   private val user = User(id = "u1", email = "new@x.com")
 
@@ -28,19 +32,22 @@ class RegisterUseCaseTest {
       val repo = FakeAuthRepository(registerUser = user)
       val session = makeSessionManager()
 
-      val outcome =
-        RegisterUseCase(repo, session)(
-          RegisterUseCase.Params(
-            email = "new@x.com",
-            password = "p",
-            firstName = "Jane",
-            lastName = "Doe"
+      session.state.test {
+        val outcome =
+          RegisterUseCase(repo, session)(
+            RegisterUseCase.Params(
+              email = "new@x.com",
+              password = "p",
+              firstName = "Jane",
+              lastName = "Doe"
+            )
           )
-        )
+        advanceUntilIdle()
 
-      val success = assertIs<Outcome.Success<User>>(outcome)
-      assertEquals(user, success.data)
-      assertEquals(SessionState.LoggedIn(user), session.state.value)
+        val success = assertIs<Outcome.Success<User>>(outcome)
+        assertEquals(user, success.data)
+        assertEquals(SessionState.LoggedIn(user), expectMostRecentItem())
+      }
     }
 
   @Test
@@ -51,13 +58,16 @@ class RegisterUseCaseTest {
       val session = makeSessionManager()
       val before = session.state.value
 
-      val outcome =
-        RegisterUseCase(repo, session)(
-          RegisterUseCase.Params(email = "dup@x.com", password = "p", firstName = "", lastName = "")
-        )
+      session.state.test {
+        val outcome =
+          RegisterUseCase(repo, session)(
+            RegisterUseCase.Params(email = "dup@x.com", password = "p", firstName = "", lastName = "")
+          )
+        advanceUntilIdle()
 
-      assertIs<Outcome.Failure>(outcome)
-      assertEquals(before, session.state.value)
+        assertIs<Outcome.Failure>(outcome)
+        assertEquals(before, expectMostRecentItem())
+      }
     }
 
   @Test

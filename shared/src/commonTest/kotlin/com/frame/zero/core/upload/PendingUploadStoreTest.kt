@@ -1,11 +1,14 @@
 package com.frame.zero.core.upload
 
-import kotlinx.coroutines.flow.first
+import app.cash.turbine.test
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class PendingUploadStoreTest {
   private fun upload(id: String) =
     PendingTaskUpload(
@@ -23,14 +26,21 @@ class PendingUploadStoreTest {
     runTest {
       val store = PendingUploadStore(FakePendingUploadDao())
 
-      store.add(upload("a"))
-      assertEquals(PendingUploadStatus.Uploading, store.get("a")?.status)
+      store.uploads.test {
+        store.add(upload("a"))
+        advanceUntilIdle()
+        assertEquals(PendingUploadStatus.Uploading, store.get("a")?.status)
+        assertEquals(PendingUploadStatus.Uploading, expectMostRecentItem().single().status)
 
-      // Permanent goes terminal on the first attempt, matching a 4xx that will never succeed.
-      store.recordFailure("a", UploadFailureReason.Permanent)
-      assertEquals(PendingUploadStatus.Failed, store.uploads.first().single().status)
+        // Permanent goes terminal on the first attempt, matching a 4xx that will never succeed.
+        store.recordFailure("a", UploadFailureReason.Permanent)
+        advanceUntilIdle()
+        assertEquals(PendingUploadStatus.Failed, expectMostRecentItem().single().status)
 
-      store.remove("a")
+        store.remove("a")
+        advanceUntilIdle()
+        assertEquals(emptyList(), expectMostRecentItem())
+      }
       assertNull(store.get("a"))
     }
 

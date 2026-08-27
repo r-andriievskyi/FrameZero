@@ -1,5 +1,7 @@
 package com.frame.zero.feature.production
 
+import app.cash.turbine.test
+import app.cash.turbine.turbineScope
 import com.frame.zero.domain.OfflineException
 import com.frame.zero.feature.production.domain.CreateProductionUseCase
 import com.frame.zero.testing.FakeProductionsRepository
@@ -11,11 +13,10 @@ import framezero.shared.features.production.generated.resources.error_title_requ
 import framezero.shared.ui_text.generated.resources.Res as UiTextRes
 import framezero.shared.ui_text.generated.resources.error_network
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.LocalDate
 import kotlin.test.Test
@@ -33,11 +34,14 @@ class CreateProductionViewModelTest {
     runTest {
       val viewModel = makeViewModel(FakeProductionsRepository())
 
-      viewModel.onIntent(CreateProductionIntent.TitleChanged("Pilot"))
-      viewModel.onIntent(CreateProductionIntent.StartDateChanged(start))
-      viewModel.onIntent(CreateProductionIntent.WrapDateChanged(wrap))
+      viewModel.state.test {
+        viewModel.onIntent(CreateProductionIntent.TitleChanged("Pilot"))
+        viewModel.onIntent(CreateProductionIntent.StartDateChanged(start))
+        viewModel.onIntent(CreateProductionIntent.WrapDateChanged(wrap))
+        runCurrent()
 
-      assertTrue(viewModel.state.value.canAdvanceStep1)
+        assertTrue(expectMostRecentItem().canAdvanceStep1)
+      }
     }
 
   @Test
@@ -45,11 +49,14 @@ class CreateProductionViewModelTest {
     runTest {
       val viewModel = makeViewModel(FakeProductionsRepository())
 
-      viewModel.onIntent(CreateProductionIntent.TitleChanged("Pilot"))
-      viewModel.onIntent(CreateProductionIntent.StartDateChanged(start))
-      viewModel.onIntent(CreateProductionIntent.WrapDateChanged(start))
+      viewModel.state.test {
+        viewModel.onIntent(CreateProductionIntent.TitleChanged("Pilot"))
+        viewModel.onIntent(CreateProductionIntent.StartDateChanged(start))
+        viewModel.onIntent(CreateProductionIntent.WrapDateChanged(start))
+        runCurrent()
 
-      assertEquals(false, viewModel.state.value.canAdvanceStep1)
+        assertEquals(false, expectMostRecentItem().canAdvanceStep1)
+      }
     }
 
   @Test
@@ -57,10 +64,14 @@ class CreateProductionViewModelTest {
     runTest {
       val viewModel = makeViewModel(FakeProductionsRepository())
 
-      viewModel.onIntent(CreateProductionIntent.NextStep)
+      viewModel.state.test {
+        viewModel.onIntent(CreateProductionIntent.NextStep)
+        runCurrent()
 
-      assertEquals(Res.string.error_title_required.asUiText(), viewModel.state.value.error)
-      assertEquals(1, viewModel.state.value.currentStep)
+        val state = expectMostRecentItem()
+        assertEquals(Res.string.error_title_required.asUiText(), state.error)
+        assertEquals(1, state.currentStep)
+      }
     }
 
   @Test
@@ -68,10 +79,13 @@ class CreateProductionViewModelTest {
     runTest {
       val viewModel = makeViewModel(FakeProductionsRepository())
 
-      viewModel.onIntent(CreateProductionIntent.TitleChanged("Pilot"))
-      viewModel.onIntent(CreateProductionIntent.NextStep)
+      viewModel.state.test {
+        viewModel.onIntent(CreateProductionIntent.TitleChanged("Pilot"))
+        viewModel.onIntent(CreateProductionIntent.NextStep)
+        runCurrent()
 
-      assertEquals(Res.string.error_invalid_dates.asUiText(), viewModel.state.value.error)
+        assertEquals(Res.string.error_invalid_dates.asUiText(), expectMostRecentItem().error)
+      }
     }
 
   @Test
@@ -82,11 +96,15 @@ class CreateProductionViewModelTest {
       viewModel.onIntent(CreateProductionIntent.StartDateChanged(start))
       viewModel.onIntent(CreateProductionIntent.WrapDateChanged(wrap))
 
-      viewModel.onIntent(CreateProductionIntent.NextStep)
-      assertEquals(2, viewModel.state.value.currentStep)
+      viewModel.state.test {
+        viewModel.onIntent(CreateProductionIntent.NextStep)
+        runCurrent()
+        assertEquals(2, expectMostRecentItem().currentStep)
 
-      viewModel.onIntent(CreateProductionIntent.PreviousStep)
-      assertEquals(1, viewModel.state.value.currentStep)
+        viewModel.onIntent(CreateProductionIntent.PreviousStep)
+        runCurrent()
+        assertEquals(1, expectMostRecentItem().currentStep)
+      }
     }
 
   @Test
@@ -97,32 +115,40 @@ class CreateProductionViewModelTest {
       viewModel.onIntent(CreateProductionIntent.StartDateChanged(start))
       viewModel.onIntent(CreateProductionIntent.WrapDateChanged(wrap))
       viewModel.onIntent(CreateProductionIntent.NextStep)
-      val events = mutableListOf<CreateProductionEvent>()
-      backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
-        viewModel.events.collect { events += it }
+
+      turbineScope {
+        val state = viewModel.state.testIn(backgroundScope)
+        val events = viewModel.events.testIn(backgroundScope)
+
+        viewModel.onIntent(CreateProductionIntent.BackPressed)
+        advanceUntilIdle()
+
+        assertEquals(1, state.expectMostRecentItem().currentStep)
+        events.expectNoEvents()
+
+        state.cancelAndIgnoreRemainingEvents()
+        events.cancelAndIgnoreRemainingEvents()
       }
-
-      viewModel.onIntent(CreateProductionIntent.BackPressed)
-      advanceUntilIdle()
-
-      assertEquals(1, viewModel.state.value.currentStep)
-      assertEquals(emptyList(), events)
     }
 
   @Test
   fun `back press on step 1 emits Dismissed`() =
     runTest {
       val viewModel = makeViewModel(FakeProductionsRepository())
-      val events = mutableListOf<CreateProductionEvent>()
-      backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
-        viewModel.events.collect { events += it }
+
+      turbineScope {
+        val state = viewModel.state.testIn(backgroundScope)
+        val events = viewModel.events.testIn(backgroundScope)
+
+        viewModel.onIntent(CreateProductionIntent.BackPressed)
+        advanceUntilIdle()
+
+        assertEquals(1, state.expectMostRecentItem().currentStep)
+        assertEquals(CreateProductionEvent.Dismissed, events.awaitItem())
+
+        state.cancelAndIgnoreRemainingEvents()
+        events.cancelAndIgnoreRemainingEvents()
       }
-
-      viewModel.onIntent(CreateProductionIntent.BackPressed)
-      advanceUntilIdle()
-
-      assertEquals(1, viewModel.state.value.currentStep)
-      assertEquals(listOf<CreateProductionEvent>(CreateProductionEvent.Dismissed), events)
     }
 
   @Test
@@ -130,17 +156,21 @@ class CreateProductionViewModelTest {
     runTest {
       val viewModel = makeViewModel(FakeProductionsRepository())
 
-      // Exact symbol/grouping/sign glyph is locale-dependent by design
-      // (formatCurrencyUsdCents is expect/actual) — strip everything but digits so the
-      // assertion holds regardless of separator character or symbol placement.
-      viewModel.onIntent(CreateProductionIntent.BudgetChanged(123_456))
-      val positiveDisplay = viewModel.state.value.budgetDisplay.orEmpty()
-      assertEquals("1234", positiveDisplay.filter { it.isDigit() })
+      viewModel.state.test {
+        // Exact symbol/grouping/sign glyph is locale-dependent by design
+        // (formatCurrencyUsdCents is expect/actual) — strip everything but digits so the
+        // assertion holds regardless of separator character or symbol placement.
+        viewModel.onIntent(CreateProductionIntent.BudgetChanged(123_456))
+        runCurrent()
+        val positiveDisplay = expectMostRecentItem().budgetDisplay.orEmpty()
+        assertEquals("1234", positiveDisplay.filter { it.isDigit() })
 
-      viewModel.onIntent(CreateProductionIntent.BudgetChanged(-123_456))
-      val negativeDisplay = viewModel.state.value.budgetDisplay.orEmpty()
-      assertEquals("1234", negativeDisplay.filter { it.isDigit() })
-      assertTrue(negativeDisplay != positiveDisplay)
+        viewModel.onIntent(CreateProductionIntent.BudgetChanged(-123_456))
+        runCurrent()
+        val negativeDisplay = expectMostRecentItem().budgetDisplay.orEmpty()
+        assertEquals("1234", negativeDisplay.filter { it.isDigit() })
+        assertTrue(negativeDisplay != positiveDisplay)
+      }
     }
 
   @Test
@@ -150,14 +180,18 @@ class CreateProductionViewModelTest {
       viewModel.onIntent(CreateProductionIntent.CrewNameChanged("  Ada  "))
       viewModel.onIntent(CreateProductionIntent.CrewRoleChanged("Producer"))
 
-      viewModel.onIntent(CreateProductionIntent.AddCrewMember)
+      viewModel.state.test {
+        viewModel.onIntent(CreateProductionIntent.AddCrewMember)
+        runCurrent()
 
-      val crew = viewModel.state.value.crewMembers
-      assertEquals(1, crew.size)
-      assertEquals("Ada", crew.single().name)
-      assertEquals("Producer", crew.single().role)
-      assertEquals("", viewModel.state.value.crewNameInput)
-      assertEquals(DEFAULT_CREW_ROLE, viewModel.state.value.crewRoleInput)
+        val state = expectMostRecentItem()
+        val crew = state.crewMembers
+        assertEquals(1, crew.size)
+        assertEquals("Ada", crew.single().name)
+        assertEquals("Producer", crew.single().role)
+        assertEquals("", state.crewNameInput)
+        assertEquals(DEFAULT_CREW_ROLE, state.crewRoleInput)
+      }
     }
 
   @Test
@@ -166,9 +200,12 @@ class CreateProductionViewModelTest {
       val viewModel = makeViewModel(FakeProductionsRepository())
       viewModel.onIntent(CreateProductionIntent.CrewNameChanged("   "))
 
-      viewModel.onIntent(CreateProductionIntent.AddCrewMember)
+      viewModel.state.test {
+        viewModel.onIntent(CreateProductionIntent.AddCrewMember)
+        runCurrent()
 
-      assertTrue(viewModel.state.value.crewMembers.isEmpty())
+        assertTrue(expectMostRecentItem().crewMembers.isEmpty())
+      }
     }
 
   @Test
@@ -180,9 +217,12 @@ class CreateProductionViewModelTest {
       viewModel.onIntent(CreateProductionIntent.CrewNameChanged("Bo"))
       viewModel.onIntent(CreateProductionIntent.AddCrewMember)
 
-      viewModel.onIntent(CreateProductionIntent.RemoveCrewMember(0))
+      viewModel.state.test {
+        viewModel.onIntent(CreateProductionIntent.RemoveCrewMember(0))
+        runCurrent()
 
-      assertEquals(listOf("Bo"), viewModel.state.value.crewMembers.map { it.name })
+        assertEquals(listOf("Bo"), expectMostRecentItem().crewMembers.map { it.name })
+      }
     }
 
   @Test
@@ -191,11 +231,14 @@ class CreateProductionViewModelTest {
       val viewModel = makeViewModel(FakeProductionsRepository())
       viewModel.onIntent(CreateProductionIntent.TitleChanged("Pilot"))
 
-      viewModel.onIntent(CreateProductionIntent.Submit)
-      advanceUntilIdle()
+      viewModel.state.test {
+        viewModel.onIntent(CreateProductionIntent.Submit)
+        advanceUntilIdle()
 
-      assertEquals(Res.string.error_missing_dates.asUiText(), viewModel.state.value.error)
-      assertEquals(false, viewModel.state.value.isLoading)
+        val state = expectMostRecentItem()
+        assertEquals(Res.string.error_missing_dates.asUiText(), state.error)
+        assertEquals(false, state.isLoading)
+      }
     }
 
   @Test
@@ -205,17 +248,22 @@ class CreateProductionViewModelTest {
       viewModel.onIntent(CreateProductionIntent.TitleChanged("Pilot"))
       viewModel.onIntent(CreateProductionIntent.StartDateChanged(start))
       viewModel.onIntent(CreateProductionIntent.WrapDateChanged(wrap))
-      val events = mutableListOf<CreateProductionEvent>()
-      backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
-        viewModel.events.collect { events += it }
+
+      turbineScope {
+        val state = viewModel.state.testIn(backgroundScope)
+        val events = viewModel.events.testIn(backgroundScope)
+
+        viewModel.onIntent(CreateProductionIntent.Submit)
+        advanceUntilIdle()
+
+        assertEquals(CreateProductionEvent.Created, events.awaitItem())
+        val settled = state.expectMostRecentItem()
+        assertNull(settled.error)
+        assertEquals(false, settled.isLoading)
+
+        state.cancelAndIgnoreRemainingEvents()
+        events.cancelAndIgnoreRemainingEvents()
       }
-
-      viewModel.onIntent(CreateProductionIntent.Submit)
-      advanceUntilIdle()
-
-      assertEquals(listOf<CreateProductionEvent>(CreateProductionEvent.Created), events)
-      assertNull(viewModel.state.value.error)
-      assertEquals(false, viewModel.state.value.isLoading)
     }
 
   @Test
@@ -226,12 +274,15 @@ class CreateProductionViewModelTest {
       viewModel.onIntent(CreateProductionIntent.StartDateChanged(start))
       viewModel.onIntent(CreateProductionIntent.WrapDateChanged(wrap))
 
-      viewModel.onIntent(CreateProductionIntent.Submit)
-      advanceUntilIdle()
+      viewModel.state.test {
+        viewModel.onIntent(CreateProductionIntent.Submit)
+        advanceUntilIdle()
 
-      assertEquals(UiTextRes.string.error_network.asUiText(), viewModel.state.value.errorToast)
-      assertNull(viewModel.state.value.error)
-      assertEquals(false, viewModel.state.value.isLoading)
+        val state = expectMostRecentItem()
+        assertEquals(UiTextRes.string.error_network.asUiText(), state.errorToast)
+        assertNull(state.error)
+        assertEquals(false, state.isLoading)
+      }
     }
 
   @Test
@@ -244,9 +295,12 @@ class CreateProductionViewModelTest {
       viewModel.onIntent(CreateProductionIntent.Submit)
       advanceUntilIdle()
 
-      viewModel.onIntent(CreateProductionIntent.ToastDismissed)
+      viewModel.state.test {
+        viewModel.onIntent(CreateProductionIntent.ToastDismissed)
+        runCurrent()
 
-      assertNull(viewModel.state.value.errorToast)
+        assertNull(expectMostRecentItem().errorToast)
+      }
     }
 
   private fun TestScope.makeViewModel(repo: FakeProductionsRepository): CreateProductionViewModel =

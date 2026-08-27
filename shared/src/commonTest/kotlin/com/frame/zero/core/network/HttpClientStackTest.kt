@@ -18,20 +18,20 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
+import app.cash.turbine.test
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
 import kotlinx.io.IOException
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
-import kotlin.test.assertTrue
 
 /**
  * Integration test for the real production HTTP client stack ([clientConfig]) —
@@ -99,19 +99,19 @@ class HttpClientStackTest {
           }
         }
       env.storage.saveTokens(accessToken = "old-acc", refreshToken = "old-ref")
-      val logoutEvents = mutableListOf<Unit>()
+
       // Unconfined so the emission is delivered inline with emit() — which completes
       // before get() returns — instead of racing the virtual test clock across the
       // engine's background dispatcher.
-      backgroundScope.launch(Dispatchers.Unconfined) {
-        env.logoutSignal.events.collect { logoutEvents += Unit }
+      withContext(Dispatchers.Unconfined) {
+        env.logoutSignal.events.test {
+          runCatching { env.client.get("$BASE_URL/productions") }
+          advanceUntilIdle()
+
+          assertFalse(env.storage.hasTokens())
+          assertEquals(Unit, awaitItem())
+        }
       }
-
-      runCatching { env.client.get("$BASE_URL/productions") }
-      advanceUntilIdle()
-
-      assertFalse(env.storage.hasTokens())
-      assertTrue(logoutEvents.isNotEmpty(), "expected a logout signal after refresh failure")
     }
 
   @Test

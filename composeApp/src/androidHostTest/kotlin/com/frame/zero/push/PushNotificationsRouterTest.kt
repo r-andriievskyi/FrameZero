@@ -2,14 +2,13 @@ package com.frame.zero.push
 
 import android.app.Application
 import android.content.Intent
+import app.cash.turbine.test
 import com.frame.zero.core.navigation.DeepLink
 import com.frame.zero.core.navigation.NavigationSignal
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
-import kotlin.test.assertTrue
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
@@ -25,7 +24,9 @@ class PushNotificationsRouterTest {
     runTest {
       router.route(intentWithTaskId("task-42"))
 
-      assertEquals(DeepLink.TaskDetails("task-42"), signal.events.first())
+      signal.events.test {
+        assertEquals(DeepLink.TaskDetails("task-42"), awaitItem())
+      }
     }
 
   @Test
@@ -39,24 +40,25 @@ class PushNotificationsRouterTest {
   }
 
   @Test
-  fun `ignores a null intent`() {
-    router.route(null)
+  fun `ignores a null intent`() =
+    runTest {
+      router.route(null)
 
-    assertNoDeepLink()
-  }
+      assertNoDeepLink()
+    }
 
   @Test
-  fun `ignores an intent without the task id extra`() {
-    router.route(Intent())
+  fun `ignores an intent without the task id extra`() =
+    runTest {
+      router.route(Intent())
 
-    assertNoDeepLink()
-  }
+      assertNoDeepLink()
+    }
 
   private fun intentWithTaskId(taskId: String): Intent = Intent().putExtra(PushNotifications.EXTRA_TASK_ID, taskId)
 
-  private fun assertNoDeepLink() =
-    assertTrue(
-      signal.events.replayCache.isEmpty(),
-      "Expected no deep link to be emitted"
-    )
+  private suspend fun assertNoDeepLink() =
+    signal.events.test {
+      expectNoEvents()
+    }
 }

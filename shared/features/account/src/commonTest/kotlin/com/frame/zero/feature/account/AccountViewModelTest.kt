@@ -1,5 +1,6 @@
 package com.frame.zero.feature.account
 
+import app.cash.turbine.test
 import com.frame.zero.core.security.AppLockController
 import com.frame.zero.core.security.BiometricAuthenticator
 import com.frame.zero.core.security.BiometricAvailability
@@ -36,10 +37,13 @@ class AccountViewModelTest {
       session.onAuthenticated(user)
       val viewModel = AccountViewModel(session, makeLock(), StandardTestDispatcher(testScheduler))
 
-      advanceUntilIdle()
+      viewModel.state.test {
+        advanceUntilIdle()
 
-      assertEquals("Ada Lovelace", viewModel.state.value.userName)
-      assertEquals("u@x.com", viewModel.state.value.email)
+        val state = expectMostRecentItem()
+        assertEquals("Ada Lovelace", state.userName)
+        assertEquals("u@x.com", state.email)
+      }
     }
 
   @Test
@@ -49,9 +53,11 @@ class AccountViewModelTest {
       session.onAuthenticated(user.copy(lastName = ""))
       val viewModel = AccountViewModel(session, makeLock(), StandardTestDispatcher(testScheduler))
 
-      advanceUntilIdle()
+      viewModel.state.test {
+        advanceUntilIdle()
 
-      assertEquals("Ada", viewModel.state.value.userName)
+        assertEquals("Ada", expectMostRecentItem().userName)
+      }
     }
 
   @Test
@@ -60,12 +66,13 @@ class AccountViewModelTest {
       val session = makeSession(this)
       session.onAuthenticated(user)
       val viewModel = AccountViewModel(session, makeLock(), StandardTestDispatcher(testScheduler))
-      advanceUntilIdle()
 
-      viewModel.onIntent(AccountIntent.SignOutClicked)
-      advanceUntilIdle()
+      session.state.test {
+        viewModel.onIntent(AccountIntent.SignOutClicked)
+        advanceUntilIdle()
 
-      assertEquals(SessionState.LoggedOut, session.state.value)
+        assertEquals(SessionState.LoggedOut, expectMostRecentItem())
+      }
     }
 
   @Test
@@ -74,12 +81,12 @@ class AccountViewModelTest {
       val session = makeSession(this)
       val lock = makeLock(authResult = BiometricResult.Success)
       val viewModel = AccountViewModel(session, lock, StandardTestDispatcher(testScheduler))
-      advanceUntilIdle()
+      viewModel.state.test {
+        viewModel.onIntent(AccountIntent.AppLockToggled(enabled = true, prompt = promptText))
+        advanceUntilIdle()
 
-      viewModel.onIntent(AccountIntent.AppLockToggled(enabled = true, prompt = promptText))
-      advanceUntilIdle()
-
-      assertTrue(viewModel.state.value.appLockEnabled)
+        assertTrue(expectMostRecentItem().appLockEnabled)
+      }
       assertTrue(lock.isEnabled)
     }
 
@@ -89,14 +96,15 @@ class AccountViewModelTest {
       val session = makeSession(this)
       val lock = makeLock(authResult = BiometricResult.Cancelled)
       val viewModel = AccountViewModel(session, lock, StandardTestDispatcher(testScheduler))
-      advanceUntilIdle()
+      viewModel.state.test {
+        viewModel.onIntent(AccountIntent.AppLockToggled(enabled = true, prompt = promptText))
+        advanceUntilIdle()
 
-      viewModel.onIntent(AccountIntent.AppLockToggled(enabled = true, prompt = promptText))
-      advanceUntilIdle()
-
-      assertFalse(viewModel.state.value.appLockEnabled)
+        val state = expectMostRecentItem()
+        assertFalse(state.appLockEnabled)
+        assertNull(state.appLockError)
+      }
       assertFalse(lock.isEnabled)
-      assertNull(viewModel.state.value.appLockError)
     }
 
   @Test
@@ -105,14 +113,15 @@ class AccountViewModelTest {
       val session = makeSession(this)
       val lock = makeLock(authResult = BiometricResult.Error)
       val viewModel = AccountViewModel(session, lock, StandardTestDispatcher(testScheduler))
-      advanceUntilIdle()
+      viewModel.state.test {
+        viewModel.onIntent(AccountIntent.AppLockToggled(enabled = true, prompt = promptText))
+        advanceUntilIdle()
 
-      viewModel.onIntent(AccountIntent.AppLockToggled(enabled = true, prompt = promptText))
-      advanceUntilIdle()
-
-      assertFalse(viewModel.state.value.appLockEnabled)
+        val state = expectMostRecentItem()
+        assertFalse(state.appLockEnabled)
+        assertNotNull(state.appLockError)
+      }
       assertFalse(lock.isEnabled)
-      assertNotNull(viewModel.state.value.appLockError)
     }
 
   @Test
@@ -121,14 +130,16 @@ class AccountViewModelTest {
       val session = makeSession(this)
       val lock = makeLock(authResult = BiometricResult.Error)
       val viewModel = AccountViewModel(session, lock, StandardTestDispatcher(testScheduler))
-      advanceUntilIdle()
-      viewModel.onIntent(AccountIntent.AppLockToggled(enabled = true, prompt = promptText))
-      advanceUntilIdle()
-      assertNotNull(viewModel.state.value.appLockError)
+      viewModel.state.test {
+        viewModel.onIntent(AccountIntent.AppLockToggled(enabled = true, prompt = promptText))
+        advanceUntilIdle()
+        assertNotNull(expectMostRecentItem().appLockError)
 
-      viewModel.onIntent(AccountIntent.AppLockErrorDismissed)
+        viewModel.onIntent(AccountIntent.AppLockErrorDismissed)
+        advanceUntilIdle()
 
-      assertNull(viewModel.state.value.appLockError)
+        assertNull(expectMostRecentItem().appLockError)
+      }
     }
 
   @Test
@@ -137,13 +148,16 @@ class AccountViewModelTest {
       val session = makeSession(this)
       val lock = makeLock(authResult = BiometricResult.Error, enabledInitially = true)
       val viewModel = AccountViewModel(session, lock, StandardTestDispatcher(testScheduler))
-      advanceUntilIdle()
-      assertTrue(viewModel.state.value.appLockEnabled)
 
-      viewModel.onIntent(AccountIntent.AppLockToggled(enabled = false, prompt = promptText))
-      advanceUntilIdle()
+      viewModel.state.test {
+        advanceUntilIdle()
+        assertTrue(expectMostRecentItem().appLockEnabled)
 
-      assertFalse(viewModel.state.value.appLockEnabled)
+        viewModel.onIntent(AccountIntent.AppLockToggled(enabled = false, prompt = promptText))
+        advanceUntilIdle()
+
+        assertFalse(expectMostRecentItem().appLockEnabled)
+      }
       assertFalse(lock.isEnabled)
     }
 

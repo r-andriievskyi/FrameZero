@@ -1,5 +1,7 @@
 package com.frame.zero.feature.task.create
 
+import app.cash.turbine.test
+import app.cash.turbine.turbineScope
 import com.frame.zero.core.files.AttachmentFileManager
 import io.ktor.utils.io.ByteReadChannel
 import com.frame.zero.core.files.FilePicker
@@ -19,11 +21,10 @@ import framezero.shared.features.task_create.generated.resources.error_title_req
 import framezero.shared.ui_text.generated.resources.Res as UiTextRes
 import framezero.shared.ui_text.generated.resources.error_network
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
@@ -49,14 +50,15 @@ class CreateTaskViewModelTest {
     runTest {
       val tasks = FakeTasksRepository()
       val viewModel = makeViewModel(tasks = tasks)
-      advanceUntilIdle()
+      viewModel.state.test {
+        viewModel.onIntent(CreateTaskIntent.Submit)
+        advanceUntilIdle()
 
-      viewModel.onIntent(CreateTaskIntent.Submit)
-      advanceUntilIdle()
-
-      assertEquals(Res.string.error_title_required.asUiText(), viewModel.state.value.titleError)
+        val state = expectMostRecentItem()
+        assertEquals(Res.string.error_title_required.asUiText(), state.titleError)
+        assertEquals(false, state.isLoading)
+      }
       assertTrue(tasks.createRequests.isEmpty())
-      assertEquals(false, viewModel.state.value.isLoading)
     }
 
   @Test
@@ -65,18 +67,23 @@ class CreateTaskViewModelTest {
       val tasks = FakeTasksRepository(created = taskDetail(id = "t42"))
       val viewModel = makeViewModel(tasks = tasks)
       advanceUntilIdle()
-      val events = mutableListOf<CreateTaskEvent>()
-      backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
-        viewModel.events.collect { events += it }
+
+      turbineScope {
+        val state = viewModel.state.testIn(backgroundScope)
+        val events = viewModel.events.testIn(backgroundScope)
+
+        viewModel.onIntent(CreateTaskIntent.TitleChanged("Storyboard"))
+        viewModel.onIntent(CreateTaskIntent.Submit)
+        advanceUntilIdle()
+
+        assertEquals(CreateTaskEvent.Created("t42"), events.awaitItem())
+        val settled = state.expectMostRecentItem()
+        assertEquals(false, settled.isLoading)
+        assertNull(settled.errorToast)
+
+        state.cancelAndIgnoreRemainingEvents()
+        events.cancelAndIgnoreRemainingEvents()
       }
-
-      viewModel.onIntent(CreateTaskIntent.TitleChanged("Storyboard"))
-      viewModel.onIntent(CreateTaskIntent.Submit)
-      advanceUntilIdle()
-
-      assertEquals(listOf<CreateTaskEvent>(CreateTaskEvent.Created("t42")), events)
-      assertEquals(false, viewModel.state.value.isLoading)
-      assertNull(viewModel.state.value.errorToast)
     }
 
   @Test
@@ -84,14 +91,15 @@ class CreateTaskViewModelTest {
     runTest {
       val tasks = FakeTasksRepository(createThrows = OfflineException())
       val viewModel = makeViewModel(tasks = tasks)
-      advanceUntilIdle()
+      viewModel.state.test {
+        viewModel.onIntent(CreateTaskIntent.TitleChanged("Storyboard"))
+        viewModel.onIntent(CreateTaskIntent.Submit)
+        advanceUntilIdle()
 
-      viewModel.onIntent(CreateTaskIntent.TitleChanged("Storyboard"))
-      viewModel.onIntent(CreateTaskIntent.Submit)
-      advanceUntilIdle()
-
-      assertEquals(UiTextRes.string.error_network.asUiText(), viewModel.state.value.errorToast)
-      assertEquals(false, viewModel.state.value.isLoading)
+        val state = expectMostRecentItem()
+        assertEquals(UiTextRes.string.error_network.asUiText(), state.errorToast)
+        assertEquals(false, state.isLoading)
+      }
     }
 
   @Test
@@ -103,9 +111,12 @@ class CreateTaskViewModelTest {
       viewModel.onIntent(CreateTaskIntent.Submit)
       advanceUntilIdle()
 
-      viewModel.onIntent(CreateTaskIntent.ToastDismissed)
+      viewModel.state.test {
+        viewModel.onIntent(CreateTaskIntent.ToastDismissed)
+        runCurrent()
 
-      assertNull(viewModel.state.value.errorToast)
+        assertNull(expectMostRecentItem().errorToast)
+      }
     }
 
   @Test
@@ -116,9 +127,11 @@ class CreateTaskViewModelTest {
       )
       val viewModel = makeViewModel(productions = productions)
 
-      advanceUntilIdle()
+      viewModel.state.test {
+        advanceUntilIdle()
 
-      assertEquals(listOf("Ada"), viewModel.state.value.assignableMembers.map { it.name })
+        assertEquals(listOf("Ada"), expectMostRecentItem().assignableMembers.map { it.name })
+      }
     }
 
   @Test
@@ -127,9 +140,11 @@ class CreateTaskViewModelTest {
       val productions = FakeProductionsRepository(listMembersThrows = OfflineException())
       val viewModel = makeViewModel(productions = productions)
 
-      advanceUntilIdle()
+      viewModel.state.test {
+        advanceUntilIdle()
 
-      assertTrue(viewModel.state.value.assignableMembers.isEmpty())
+        assertTrue(expectMostRecentItem().assignableMembers.isEmpty())
+      }
     }
 
   @Test
@@ -138,15 +153,21 @@ class CreateTaskViewModelTest {
       val viewModel = makeViewModel()
       advanceUntilIdle()
 
-      viewModel.onIntent(CreateTaskIntent.ParticipantPickerOpened)
-      assertTrue(viewModel.state.value.isParticipantPickerVisible)
+      viewModel.state.test {
+        viewModel.onIntent(CreateTaskIntent.ParticipantPickerOpened)
+        runCurrent()
+        assertTrue(expectMostRecentItem().isParticipantPickerVisible)
 
-      viewModel.onIntent(CreateTaskIntent.ParticipantSearchChanged("ja"))
-      assertEquals("ja", viewModel.state.value.participantQuery)
+        viewModel.onIntent(CreateTaskIntent.ParticipantSearchChanged("ja"))
+        runCurrent()
+        assertEquals("ja", expectMostRecentItem().participantQuery)
 
-      viewModel.onIntent(CreateTaskIntent.ParticipantPickerDismissed)
-      assertFalse(viewModel.state.value.isParticipantPickerVisible)
-      assertEquals("", viewModel.state.value.participantQuery)
+        viewModel.onIntent(CreateTaskIntent.ParticipantPickerDismissed)
+        runCurrent()
+        val state = expectMostRecentItem()
+        assertFalse(state.isParticipantPickerVisible)
+        assertEquals("", state.participantQuery)
+      }
     }
 
   @Test
@@ -155,14 +176,19 @@ class CreateTaskViewModelTest {
       val viewModel = makeViewModel()
       advanceUntilIdle()
 
-      viewModel.onIntent(CreateTaskIntent.ParticipantToggled("u1"))
-      assertEquals(listOf("u1"), viewModel.state.value.participantUserIds)
+      viewModel.state.test {
+        viewModel.onIntent(CreateTaskIntent.ParticipantToggled("u1"))
+        runCurrent()
+        assertEquals(listOf("u1"), expectMostRecentItem().participantUserIds)
 
-      viewModel.onIntent(CreateTaskIntent.ParticipantToggled("u2"))
-      assertEquals(listOf("u1", "u2"), viewModel.state.value.participantUserIds)
+        viewModel.onIntent(CreateTaskIntent.ParticipantToggled("u2"))
+        runCurrent()
+        assertEquals(listOf("u1", "u2"), expectMostRecentItem().participantUserIds)
 
-      viewModel.onIntent(CreateTaskIntent.ParticipantToggled("u1"))
-      assertEquals(listOf("u2"), viewModel.state.value.participantUserIds)
+        viewModel.onIntent(CreateTaskIntent.ParticipantToggled("u1"))
+        runCurrent()
+        assertEquals(listOf("u2"), expectMostRecentItem().participantUserIds)
+      }
     }
 
   @Test
@@ -177,9 +203,12 @@ class CreateTaskViewModelTest {
       val viewModel = makeViewModel(productions = productions)
       advanceUntilIdle()
 
-      viewModel.onIntent(CreateTaskIntent.ParticipantToggled("u2"))
+      viewModel.state.test {
+        viewModel.onIntent(CreateTaskIntent.ParticipantToggled("u2"))
+        runCurrent()
 
-      assertEquals(listOf("Jake"), viewModel.state.value.selectedParticipants.map { it.name })
+        assertEquals(listOf("Jake"), expectMostRecentItem().selectedParticipants.map { it.name })
+      }
     }
 
   @Test
@@ -223,17 +252,23 @@ class CreateTaskViewModelTest {
       val viewModel = makeViewModel(clock = clockAt(LocalDate(2026, 6, 22)))
       advanceUntilIdle()
 
-      viewModel.onIntent(CreateTaskIntent.QuickDueDateSelected(DueDateQuickOption.TODAY))
-      assertEquals(LocalDate(2026, 6, 22), viewModel.state.value.dueDate)
+      viewModel.state.test {
+        viewModel.onIntent(CreateTaskIntent.QuickDueDateSelected(DueDateQuickOption.TODAY))
+        runCurrent()
+        assertEquals(LocalDate(2026, 6, 22), expectMostRecentItem().dueDate)
 
-      viewModel.onIntent(CreateTaskIntent.QuickDueDateSelected(DueDateQuickOption.TOMORROW))
-      assertEquals(LocalDate(2026, 6, 23), viewModel.state.value.dueDate)
+        viewModel.onIntent(CreateTaskIntent.QuickDueDateSelected(DueDateQuickOption.TOMORROW))
+        runCurrent()
+        assertEquals(LocalDate(2026, 6, 23), expectMostRecentItem().dueDate)
 
-      viewModel.onIntent(CreateTaskIntent.QuickDueDateSelected(DueDateQuickOption.THIS_WEEK))
-      assertEquals(LocalDate(2026, 6, 28), viewModel.state.value.dueDate)
+        viewModel.onIntent(CreateTaskIntent.QuickDueDateSelected(DueDateQuickOption.THIS_WEEK))
+        runCurrent()
+        assertEquals(LocalDate(2026, 6, 28), expectMostRecentItem().dueDate)
 
-      viewModel.onIntent(CreateTaskIntent.QuickDueDateSelected(DueDateQuickOption.NEXT_WEEK))
-      assertEquals(LocalDate(2026, 7, 5), viewModel.state.value.dueDate)
+        viewModel.onIntent(CreateTaskIntent.QuickDueDateSelected(DueDateQuickOption.NEXT_WEEK))
+        runCurrent()
+        assertEquals(LocalDate(2026, 7, 5), expectMostRecentItem().dueDate)
+      }
     }
 
   @Test
@@ -243,11 +278,15 @@ class CreateTaskViewModelTest {
       val viewModel = makeViewModel(clock = clockAt(LocalDate(2026, 6, 28)))
       advanceUntilIdle()
 
-      viewModel.onIntent(CreateTaskIntent.QuickDueDateSelected(DueDateQuickOption.THIS_WEEK))
-      assertEquals(LocalDate(2026, 6, 28), viewModel.state.value.dueDate)
+      viewModel.state.test {
+        viewModel.onIntent(CreateTaskIntent.QuickDueDateSelected(DueDateQuickOption.THIS_WEEK))
+        runCurrent()
+        assertEquals(LocalDate(2026, 6, 28), expectMostRecentItem().dueDate)
 
-      viewModel.onIntent(CreateTaskIntent.QuickDueDateSelected(DueDateQuickOption.NEXT_WEEK))
-      assertEquals(LocalDate(2026, 7, 5), viewModel.state.value.dueDate)
+        viewModel.onIntent(CreateTaskIntent.QuickDueDateSelected(DueDateQuickOption.NEXT_WEEK))
+        runCurrent()
+        assertEquals(LocalDate(2026, 7, 5), expectMostRecentItem().dueDate)
+      }
     }
 
   @Test
@@ -256,13 +295,14 @@ class CreateTaskViewModelTest {
       val big = PickedFile("big.bin", MAX_ATTACHMENT_BYTES + 1, "application/octet-stream", "/tmp/big.bin")
       val files = FakeAttachmentFileManager()
       val viewModel = makeViewModel(filePicker = FakeFilePicker(big), attachmentFileManager = files)
-      advanceUntilIdle()
+      viewModel.state.test {
+        viewModel.onIntent(CreateTaskIntent.AttachFileClicked)
+        advanceUntilIdle()
 
-      viewModel.onIntent(CreateTaskIntent.AttachFileClicked)
-      advanceUntilIdle()
-
-      assertNull(viewModel.state.value.attachment)
-      assertNotNull(viewModel.state.value.attachmentError)
+        val state = expectMostRecentItem()
+        assertNull(state.attachment)
+        assertNotNull(state.attachmentError)
+      }
       assertEquals(listOf("/tmp/big.bin"), files.deleted)
     }
 
