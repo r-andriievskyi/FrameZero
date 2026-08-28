@@ -1,7 +1,9 @@
 package com.frame.zero.repository.chat.outbox
 
+import app.cash.turbine.test
 import com.frame.zero.domain.chat.PendingMessageStatus
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -9,6 +11,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class ChatOutboxStoreTest {
   private val dao = FakeChatOutboxDao()
   private val store = ChatOutboxStore(dao)
@@ -139,13 +142,17 @@ class ChatOutboxStoreTest {
   @Test
   fun `observe emits a conversation's messages oldest first`() =
     runTest {
-      store.enqueue(CONVERSATION, "a", "first")
-      store.enqueue(OTHER_CONVERSATION, "x", "elsewhere")
-      store.enqueue(CONVERSATION, "b", "second")
+      store.observe(CONVERSATION).test {
+        assertEquals(emptyList(), awaitItem())
 
-      val pending = store.observe(CONVERSATION).first()
+        store.enqueue(CONVERSATION, "a", "first")
+        store.enqueue(OTHER_CONVERSATION, "x", "elsewhere")
+        store.enqueue(CONVERSATION, "b", "second")
+        advanceUntilIdle()
 
-      assertEquals(listOf("a", "b"), pending.map { it.clientMessageId })
+        val pending = expectMostRecentItem()
+        assertEquals(listOf("a", "b"), pending.map { it.clientMessageId })
+      }
     }
 
   private companion object {

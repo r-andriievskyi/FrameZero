@@ -13,12 +13,16 @@ import com.frame.zero.feature.auth.domain.LoginUseCase
 import com.frame.zero.testing.FakeAuthRepository
 import com.frame.zero.testing.NoopSessionAuthOperations
 import com.russhwolf.settings.MapSettings
+import app.cash.turbine.test
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class LoginUseCaseTest {
   private val user = User(id = "u1", email = "u@x.com")
 
@@ -28,12 +32,15 @@ class LoginUseCaseTest {
       val repo = FakeAuthRepository(loginUser = user)
       val session = makeSessionManager()
 
-      val loginUseCase = LoginUseCase(repo, session)
-      val outcome = loginUseCase(LoginUseCase.Params(email = "u@x.com", password = "p"))
+      session.state.test {
+        val loginUseCase = LoginUseCase(repo, session)
+        val outcome = loginUseCase(LoginUseCase.Params(email = "u@x.com", password = "p"))
+        advanceUntilIdle()
 
-      val success = assertIs<Outcome.Success<User>>(outcome)
-      assertEquals(user, success.data)
-      assertEquals(SessionState.LoggedIn(user), session.state.value)
+        val success = assertIs<Outcome.Success<User>>(outcome)
+        assertEquals(user, success.data)
+        assertEquals(SessionState.LoggedIn(user), expectMostRecentItem())
+      }
     }
 
   @Test
@@ -43,11 +50,14 @@ class LoginUseCaseTest {
       val session = makeSessionManager()
       val before = session.state.value
 
-      val outcome =
-        LoginUseCase(repo, session)(LoginUseCase.Params(email = "u@x.com", password = "wrong"))
+      session.state.test {
+        val outcome =
+          LoginUseCase(repo, session)(LoginUseCase.Params(email = "u@x.com", password = "wrong"))
+        advanceUntilIdle()
 
-      assertIs<Outcome.Failure>(outcome)
-      assertEquals(before, session.state.value)
+        assertIs<Outcome.Failure>(outcome)
+        assertEquals(before, expectMostRecentItem())
+      }
     }
 
   @Test

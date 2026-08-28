@@ -1,5 +1,6 @@
 package com.frame.zero.feature.home.tab.dashboard
 
+import app.cash.turbine.test
 import com.frame.zero.domain.User
 import com.frame.zero.domain.dashboard.Dashboard
 import com.frame.zero.domain.dashboard.DashboardStats
@@ -53,16 +54,19 @@ class DashboardTabViewModelTest {
       val dashboardRepo = FakeDashboardRepository(dashboard = dashboardResponse)
       val viewModel = makeViewModel(this, userRepo, dashboardRepo)
 
-      advanceUntilIdle()
+      viewModel.state.test {
+        advanceUntilIdle()
 
-      assertFalse(viewModel.state.value.isLoading)
-      assertNull(viewModel.state.value.error)
-      val dashboard = assertNotNull(viewModel.state.value.dashboard)
-      assertEquals("Ada", dashboard.displayName)
-      assertEquals(2, dashboard.stats.activeProjects)
-      assertEquals(5, dashboard.stats.openTasks)
-      assertEquals(1, dashboard.myTasks.size)
-      assertEquals("Storyboard", dashboard.myTasks.single().title)
+        val state = expectMostRecentItem()
+        assertFalse(state.isLoading)
+        assertNull(state.error)
+        val dashboard = assertNotNull(state.dashboard)
+        assertEquals("Ada", dashboard.displayName)
+        assertEquals(2, dashboard.stats.activeProjects)
+        assertEquals(5, dashboard.stats.openTasks)
+        assertEquals(1, dashboard.myTasks.size)
+        assertEquals("Storyboard", dashboard.myTasks.single().title)
+      }
       assertEquals(1, userRepo.getMeCalls)
       assertEquals(1, dashboardRepo.getDashboardCalls)
     }
@@ -85,11 +89,13 @@ class DashboardTabViewModelTest {
       val dashboardRepo = FakeDashboardRepository(dashboard = pastDue)
       val viewModel = makeViewModel(this, userRepo, dashboardRepo)
 
-      advanceUntilIdle()
+      viewModel.state.test {
+        advanceUntilIdle()
 
-      val task = assertNotNull(viewModel.state.value.dashboard).myTasks.single()
-      assertEquals(LocalDate(2020, 1, 15), task.dueDate)
-      assertEquals(DueUrgency.Overdue, task.dueUrgency)
+        val task = assertNotNull(expectMostRecentItem().dashboard).myTasks.single()
+        assertEquals(LocalDate(2020, 1, 15), task.dueDate)
+        assertEquals(DueUrgency.Overdue, task.dueUrgency)
+      }
     }
 
   @Test
@@ -100,14 +106,16 @@ class DashboardTabViewModelTest {
       val userRepo = FakeUserRepository(user = user)
       val viewModel = makeViewModel(this, userRepo, dashboardRepo)
 
-      runCurrent()
+      viewModel.state.test {
+        runCurrent()
 
-      assertTrue(viewModel.state.value.isLoading)
+        assertTrue(expectMostRecentItem().isLoading)
 
-      dashGate.complete(dashboardResponse)
-      advanceUntilIdle()
+        dashGate.complete(dashboardResponse)
+        advanceUntilIdle()
 
-      assertFalse(viewModel.state.value.isLoading)
+        assertFalse(expectMostRecentItem().isLoading)
+      }
     }
 
   @Test
@@ -118,12 +126,15 @@ class DashboardTabViewModelTest {
       val dashboardRepo = FakeDashboardRepository(dashboard = fullNameResponse)
       val viewModel = makeViewModel(this, userRepo, dashboardRepo)
 
-      advanceUntilIdle()
+      viewModel.state.test {
+        advanceUntilIdle()
 
-      val dashboard = assertNotNull(viewModel.state.value.dashboard)
-      assertEquals("Ada", dashboard.displayName)
-      assertFalse(viewModel.state.value.isLoading)
-      assertNull(viewModel.state.value.error)
+        val state = expectMostRecentItem()
+        val dashboard = assertNotNull(state.dashboard)
+        assertEquals("Ada", dashboard.displayName)
+        assertFalse(state.isLoading)
+        assertNull(state.error)
+      }
       assertEquals(1, dashboardRepo.getDashboardCalls)
     }
 
@@ -134,12 +145,15 @@ class DashboardTabViewModelTest {
       val dashboardRepo = FakeDashboardRepository(throws = RuntimeException("boom"))
       val viewModel = makeViewModel(this, userRepo, dashboardRepo)
 
-      advanceUntilIdle()
+      viewModel.state.test {
+        advanceUntilIdle()
 
-      assertNull(viewModel.state.value.dashboard)
-      assertNotNull(viewModel.state.value.error)
-      assertFalse(viewModel.state.value.error?.autoRetries == true)
-      assertFalse(viewModel.state.value.isLoading)
+        val state = expectMostRecentItem()
+        assertNull(state.dashboard)
+        assertNotNull(state.error)
+        assertFalse(state.error.autoRetries)
+        assertFalse(state.isLoading)
+      }
     }
 
   @Test
@@ -149,11 +163,14 @@ class DashboardTabViewModelTest {
       val dashboardRepo = FakeDashboardRepository(throws = OfflineException())
       val viewModel = makeViewModel(this, userRepo, dashboardRepo)
 
-      advanceUntilIdle()
+      viewModel.state.test {
+        advanceUntilIdle()
 
-      assertNull(viewModel.state.value.dashboard)
-      assertNotNull(viewModel.state.value.error)
-      assertTrue(viewModel.state.value.error?.autoRetries == true)
+        val state = expectMostRecentItem()
+        assertNull(state.dashboard)
+        assertNotNull(state.error)
+        assertTrue(state.error.autoRetries)
+      }
     }
 
   @Test
@@ -163,11 +180,14 @@ class DashboardTabViewModelTest {
       val dashboardRepo = FakeDashboardRepository(throws = IOException("connection refused"))
       val viewModel = makeViewModel(this, userRepo, dashboardRepo)
 
-      advanceUntilIdle()
+      viewModel.state.test {
+        advanceUntilIdle()
 
-      assertNull(viewModel.state.value.dashboard)
-      assertNotNull(viewModel.state.value.error)
-      assertFalse(viewModel.state.value.error?.autoRetries == true)
+        val state = expectMostRecentItem()
+        assertNull(state.dashboard)
+        assertNotNull(state.error)
+        assertFalse(state.error.autoRetries)
+      }
     }
 
   @Test
@@ -191,16 +211,20 @@ class DashboardTabViewModelTest {
         connectivity
       )
 
-      advanceUntilIdle()
-      assertNotNull(viewModel.state.value.error)
-      assertTrue(viewModel.state.value.error?.autoRetries == true)
+      viewModel.state.test {
+        advanceUntilIdle()
+        val failed = expectMostRecentItem()
+        assertNotNull(failed.error)
+        assertTrue(failed.error.autoRetries)
 
-      shouldFail = false
-      connectivity.online.value = true
-      advanceUntilIdle()
+        shouldFail = false
+        connectivity.online.value = true
+        advanceUntilIdle()
 
-      assertNull(viewModel.state.value.error)
-      assertNotNull(viewModel.state.value.dashboard)
+        val recovered = expectMostRecentItem()
+        assertNull(recovered.error)
+        assertNotNull(recovered.dashboard)
+      }
       assertEquals(2, dashboardRepo.calls)
     }
 
@@ -211,10 +235,12 @@ class DashboardTabViewModelTest {
       val dashboardRepo = FakeDashboardRepository(dashboard = dashboardResponse)
       val viewModel = makeViewModel(this, userRepo, dashboardRepo)
 
-      advanceUntilIdle()
+      viewModel.state.test {
+        advanceUntilIdle()
 
-      val dashboard = assertNotNull(viewModel.state.value.dashboard)
-      assertEquals("Ada", dashboard.displayName)
+        val dashboard = assertNotNull(expectMostRecentItem().dashboard)
+        assertEquals("Ada", dashboard.displayName)
+      }
     }
 
   @Test
@@ -233,16 +259,20 @@ class DashboardTabViewModelTest {
       val userRepo = FakeUserRepository(user = user)
       val viewModel = makeViewModel(this, userRepo, dashboardRepo)
 
-      advanceUntilIdle()
-      assertNotNull(viewModel.state.value.error)
-      assertFalse(viewModel.state.value.error?.autoRetries == true)
+      viewModel.state.test {
+        advanceUntilIdle()
+        val failed = expectMostRecentItem()
+        assertNotNull(failed.error)
+        assertFalse(failed.error.autoRetries)
 
-      shouldFail = false
-      viewModel.onIntent(DashboardTabIntent.Retry)
-      advanceUntilIdle()
+        shouldFail = false
+        viewModel.onIntent(DashboardTabIntent.Retry)
+        advanceUntilIdle()
 
-      assertNull(viewModel.state.value.error)
-      assertNotNull(viewModel.state.value.dashboard)
+        val recovered = expectMostRecentItem()
+        assertNull(recovered.error)
+        assertNotNull(recovered.dashboard)
+      }
       assertEquals(2, dashboardRepo.calls)
     }
 

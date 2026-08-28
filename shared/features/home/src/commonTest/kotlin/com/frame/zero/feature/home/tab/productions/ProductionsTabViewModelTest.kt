@@ -1,8 +1,8 @@
 package com.frame.zero.feature.home.tab.productions
 
+import app.cash.turbine.test
 import com.frame.zero.testing.FakeProductionsRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runCurrent
@@ -18,11 +18,12 @@ class ProductionsTabViewModelTest {
       val repo = FakeProductionsRepository()
       val viewModel = makeViewModel(this, repo)
 
-      val job = launch { viewModel.productions.collect {} }
-      runCurrent()
-
-      assertEquals(1, repo.observeCalls)
-      job.cancel()
+      // PagingData isn't comparable — this subscribes without asserting on items.
+      viewModel.productions.test {
+        runCurrent()
+        assertEquals(1, repo.observeCalls)
+        cancelAndIgnoreRemainingEvents()
+      }
       viewModel.onDestroy()
     }
 
@@ -32,13 +33,14 @@ class ProductionsTabViewModelTest {
       val repo = FakeProductionsRepository()
       val viewModel = makeViewModel(this, repo)
 
-      val job = launch { viewModel.productions.collect {} }
-      runCurrent()
-      viewModel.onDestroy()
-      runCurrent()
+      viewModel.productions.test {
+        runCurrent()
+        viewModel.onDestroy()
+        runCurrent()
 
-      assertEquals(1, repo.observeCalls)
-      job.cancel()
+        assertEquals(1, repo.observeCalls)
+        cancelAndIgnoreRemainingEvents()
+      }
     }
 
   private fun makeViewModel(

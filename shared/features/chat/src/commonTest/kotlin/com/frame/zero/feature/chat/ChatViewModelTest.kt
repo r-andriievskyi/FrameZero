@@ -1,5 +1,6 @@
 package com.frame.zero.feature.chat
 
+import app.cash.turbine.test
 import com.frame.zero.core.session.UserCache
 import com.frame.zero.domain.User
 import com.frame.zero.domain.chat.Conversation
@@ -44,16 +45,19 @@ class ChatViewModelTest {
     runTest {
       val repo = FakeChatRepository(conversation)
       val viewModel = makeViewModel(this, repo)
-      advanceUntilIdle()
-      assertFalse(viewModel.state.value.isDisconnected)
 
-      repo.connectionState.value = false
-      advanceUntilIdle()
-      assertTrue(viewModel.state.value.isDisconnected)
+      viewModel.state.test {
+        advanceUntilIdle()
+        assertFalse(expectMostRecentItem().isDisconnected)
 
-      repo.connectionState.value = true
-      advanceUntilIdle()
-      assertFalse(viewModel.state.value.isDisconnected)
+        repo.connectionState.value = false
+        advanceUntilIdle()
+        assertTrue(expectMostRecentItem().isDisconnected)
+
+        repo.connectionState.value = true
+        advanceUntilIdle()
+        assertFalse(expectMostRecentItem().isDisconnected)
+      }
     }
 
   @Test
@@ -67,6 +71,8 @@ class ChatViewModelTest {
       viewModel.onIntent(ChatIntent.SendClicked)
 
       // Cleared before the enqueue coroutine runs: composing never waits on storage or network.
+      // A direct .value read is deliberate here — Turbine's collector would need the scheduler
+      // pumped to observe this, which would also let the queued enqueue coroutine run.
       assertEquals("", viewModel.state.value.draft)
 
       advanceUntilIdle()
@@ -97,14 +103,14 @@ class ChatViewModelTest {
     runTest {
       val repo = FakeChatRepository(conversation).apply { enqueueFailure = IllegalStateException("disk") }
       val viewModel = makeViewModel(this, repo)
-      advanceUntilIdle()
+      viewModel.state.test {
+        viewModel.onIntent(ChatIntent.MessageChanged("hello crew"))
+        viewModel.onIntent(ChatIntent.SendClicked)
+        advanceUntilIdle()
 
-      viewModel.onIntent(ChatIntent.MessageChanged("hello crew"))
-      viewModel.onIntent(ChatIntent.SendClicked)
-      advanceUntilIdle()
-
-      // Nothing queued means no pending bubble and nothing to retry, so the text must not vanish.
-      assertEquals("hello crew", viewModel.state.value.draft)
+        // Nothing queued means no pending bubble and nothing to retry, so the text must not vanish.
+        assertEquals("hello crew", expectMostRecentItem().draft)
+      }
     }
 
   @Test
@@ -112,14 +118,14 @@ class ChatViewModelTest {
     runTest {
       val repo = FakeChatRepository(conversation).apply { enqueueFailure = IllegalStateException("disk") }
       val viewModel = makeViewModel(this, repo)
-      advanceUntilIdle()
+      viewModel.state.test {
+        viewModel.onIntent(ChatIntent.MessageChanged("hello crew"))
+        viewModel.onIntent(ChatIntent.SendClicked)
+        viewModel.onIntent(ChatIntent.MessageChanged("something else"))
+        advanceUntilIdle()
 
-      viewModel.onIntent(ChatIntent.MessageChanged("hello crew"))
-      viewModel.onIntent(ChatIntent.SendClicked)
-      viewModel.onIntent(ChatIntent.MessageChanged("something else"))
-      advanceUntilIdle()
-
-      assertEquals("something else", viewModel.state.value.draft)
+        assertEquals("something else", expectMostRecentItem().draft)
+      }
     }
 
   @Test
@@ -127,14 +133,14 @@ class ChatViewModelTest {
     runTest {
       val repo = FakeChatRepository(conversation)
       val viewModel = makeViewModel(this, repo)
-      advanceUntilIdle()
+      viewModel.state.test {
+        viewModel.onIntent(ChatIntent.MessageChanged("   "))
+        viewModel.onIntent(ChatIntent.SendClicked)
+        advanceUntilIdle()
 
-      viewModel.onIntent(ChatIntent.MessageChanged("   "))
-      viewModel.onIntent(ChatIntent.SendClicked)
-      advanceUntilIdle()
-
+        assertFalse(expectMostRecentItem().canSend)
+      }
       assertTrue(repo.enqueued.isEmpty())
-      assertFalse(viewModel.state.value.canSend)
     }
 
   @Test
@@ -142,17 +148,17 @@ class ChatViewModelTest {
     runTest {
       val repo = FakeChatRepository(conversation)
       val viewModel = makeViewModel(this, repo)
-      advanceUntilIdle()
+      viewModel.state.test {
+        repo.pending.value = listOf(
+          pendingMessage("a", "first", PendingMessageStatus.Queued),
+          pendingMessage("b", "second", PendingMessageStatus.Failed)
+        )
+        advanceUntilIdle()
 
-      repo.pending.value = listOf(
-        pendingMessage("a", "first", PendingMessageStatus.Queued),
-        pendingMessage("b", "second", PendingMessageStatus.Failed)
-      )
-      advanceUntilIdle()
-
-      val pending = viewModel.state.value.pending
-      assertEquals(listOf("b", "a"), pending.map { it.clientMessageId })
-      assertEquals(listOf(true, false), pending.map { it.isFailed })
+        val pending = expectMostRecentItem().pending
+        assertEquals(listOf("b", "a"), pending.map { it.clientMessageId })
+        assertEquals(listOf(true, false), pending.map { it.isFailed })
+      }
     }
 
   @Test
@@ -160,19 +166,19 @@ class ChatViewModelTest {
     runTest {
       val repo = FakeChatRepository(conversation)
       val viewModel = makeViewModel(this, repo)
-      advanceUntilIdle()
+      viewModel.state.test {
+        // 2026-07-24T09:05:00Z
+        repo.pending.value = listOf(
+          pendingMessage("a", "first", PendingMessageStatus.Queued, epochMs = 1_784_883_900_000)
+        )
+        advanceUntilIdle()
 
-      // 2026-07-24T09:05:00Z
-      repo.pending.value = listOf(
-        pendingMessage("a", "first", PendingMessageStatus.Queued, epochMs = 1_784_883_900_000)
-      )
-      advanceUntilIdle()
-
-      val message = viewModel.state.value.pending.single()
-      // Exact rendering (12h/24h, meridiem wording) is locale-dependent by design
-      // (formatClockTime is expect/actual) — just check the hour/minute made it through.
-      assertTrue(message.timeLabel.contains("9:05") || message.timeLabel.contains("09:05"))
-      assertEquals(LocalDate(2026, 7, 24), message.day)
+        val message = expectMostRecentItem().pending.single()
+        // Exact rendering (12h/24h, meridiem wording) is locale-dependent by design
+        // (formatClockTime is expect/actual) — just check the hour/minute made it through.
+        assertTrue(message.timeLabel.contains("9:05") || message.timeLabel.contains("09:05"))
+        assertEquals(LocalDate(2026, 7, 24), message.day)
+      }
     }
 
   @Test

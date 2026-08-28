@@ -1,5 +1,6 @@
 package com.frame.zero.feature.home.tab.schedule
 
+import app.cash.turbine.test
 import com.frame.zero.domain.OfflineException
 import com.frame.zero.domain.schedule.ScheduleView
 import com.frame.zero.domain.schedule.Schedule
@@ -38,16 +39,19 @@ class ScheduleTabViewModelTest {
       val repo = FakeScheduleRepository(schedule = scheduleResponse)
       val viewModel = makeViewModel(repo)
 
-      advanceUntilIdle()
+      viewModel.state.test {
+        advanceUntilIdle()
 
-      assertFalse(viewModel.state.value.isLoading)
-      assertNull(viewModel.state.value.error)
-      assertNotNull(viewModel.state.value.schedule)
-      assertEquals(ScheduleView.DAY, viewModel.state.value.view)
-      val today = assertNotNull(viewModel.state.value.selectedDate)
-      val call = repo.calls.single()
-      assertEquals(ScheduleView.DAY, call.view)
-      assertEquals(today, call.date)
+        val state = expectMostRecentItem()
+        assertFalse(state.isLoading)
+        assertNull(state.error)
+        assertNotNull(state.schedule)
+        assertEquals(ScheduleView.DAY, state.view)
+        val today = assertNotNull(state.selectedDate)
+        val call = repo.calls.single()
+        assertEquals(ScheduleView.DAY, call.view)
+        assertEquals(today, call.date)
+      }
     }
 
   @Test
@@ -57,14 +61,16 @@ class ScheduleTabViewModelTest {
       val repo = GatedScheduleRepository(gate)
       val viewModel = makeViewModel(repo)
 
-      runCurrent()
+      viewModel.state.test {
+        runCurrent()
 
-      assertTrue(viewModel.state.value.isLoading)
+        assertTrue(expectMostRecentItem().isLoading)
 
-      gate.complete(scheduleResponse)
-      advanceUntilIdle()
+        gate.complete(scheduleResponse)
+        advanceUntilIdle()
 
-      assertFalse(viewModel.state.value.isLoading)
+        assertFalse(expectMostRecentItem().isLoading)
+      }
     }
 
   @Test
@@ -73,12 +79,15 @@ class ScheduleTabViewModelTest {
       val repo = FakeScheduleRepository(throws = OfflineException())
       val viewModel = makeViewModel(repo)
 
-      advanceUntilIdle()
+      viewModel.state.test {
+        advanceUntilIdle()
 
-      assertNull(viewModel.state.value.schedule)
-      assertNotNull(viewModel.state.value.error)
-      assertTrue(viewModel.state.value.error?.autoRetries == true)
-      assertFalse(viewModel.state.value.isLoading)
+        val state = expectMostRecentItem()
+        assertNull(state.schedule)
+        assertNotNull(state.error)
+        assertTrue(state.error.autoRetries)
+        assertFalse(state.isLoading)
+      }
     }
 
   @Test
@@ -87,12 +96,15 @@ class ScheduleTabViewModelTest {
       val repo = FakeScheduleRepository(throws = IOException("connection refused"))
       val viewModel = makeViewModel(repo)
 
-      advanceUntilIdle()
+      viewModel.state.test {
+        advanceUntilIdle()
 
-      assertNull(viewModel.state.value.schedule)
-      assertNotNull(viewModel.state.value.error)
-      assertFalse(viewModel.state.value.error?.autoRetries == true)
-      assertFalse(viewModel.state.value.isLoading)
+        val state = expectMostRecentItem()
+        assertNull(state.schedule)
+        assertNotNull(state.error)
+        assertFalse(state.error.autoRetries)
+        assertFalse(state.isLoading)
+      }
     }
 
   @Test
@@ -118,16 +130,20 @@ class ScheduleTabViewModelTest {
         dispatcher = testDispatcher
       )
 
-      advanceUntilIdle()
-      assertNotNull(viewModel.state.value.error)
-      assertTrue(viewModel.state.value.error?.autoRetries == true)
+      viewModel.state.test {
+        advanceUntilIdle()
+        val failed = expectMostRecentItem()
+        assertNotNull(failed.error)
+        assertTrue(failed.error.autoRetries)
 
-      shouldFail = false
-      connectivity.online.value = true
-      advanceUntilIdle()
+        shouldFail = false
+        connectivity.online.value = true
+        advanceUntilIdle()
 
-      assertNull(viewModel.state.value.error)
-      assertNotNull(viewModel.state.value.schedule)
+        val recovered = expectMostRecentItem()
+        assertNull(recovered.error)
+        assertNotNull(recovered.schedule)
+      }
       assertEquals(2, repo.calls)
     }
 
@@ -139,11 +155,13 @@ class ScheduleTabViewModelTest {
       advanceUntilIdle()
       val callsBefore = repo.calls.size
 
-      viewModel.onIntent(ScheduleTabIntent.ViewChanged(ScheduleView.DAY))
-      advanceUntilIdle()
+      viewModel.state.test {
+        viewModel.onIntent(ScheduleTabIntent.ViewChanged(ScheduleView.DAY))
+        advanceUntilIdle()
 
+        assertEquals(ScheduleView.DAY, expectMostRecentItem().view)
+      }
       assertEquals(callsBefore, repo.calls.size)
-      assertEquals(ScheduleView.DAY, viewModel.state.value.view)
     }
 
   @Test
@@ -153,13 +171,16 @@ class ScheduleTabViewModelTest {
       val viewModel = makeViewModel(repo)
       advanceUntilIdle()
 
-      viewModel.onIntent(ScheduleTabIntent.ViewChanged(ScheduleView.WEEK))
-      advanceUntilIdle()
+      viewModel.state.test {
+        viewModel.onIntent(ScheduleTabIntent.ViewChanged(ScheduleView.WEEK))
+        advanceUntilIdle()
 
-      assertEquals(ScheduleView.WEEK, viewModel.state.value.view)
-      assertEquals(2, repo.calls.size)
-      assertEquals(ScheduleView.WEEK, repo.calls.last().view)
-      assertEquals(viewModel.state.value.selectedDate, repo.calls.last().date)
+        val state = expectMostRecentItem()
+        assertEquals(ScheduleView.WEEK, state.view)
+        assertEquals(2, repo.calls.size)
+        assertEquals(ScheduleView.WEEK, repo.calls.last().view)
+        assertEquals(state.selectedDate, repo.calls.last().date)
+      }
     }
 
   @Test
@@ -167,14 +188,14 @@ class ScheduleTabViewModelTest {
     runTest(testDispatcher) {
       val repo = FakeScheduleRepository(schedule = scheduleResponse)
       val viewModel = makeViewModel(repo)
-      advanceUntilIdle()
+      viewModel.state.test {
+        viewModel.onIntent(ScheduleTabIntent.ViewChanged(ScheduleView.MONTH))
+        advanceUntilIdle()
 
-      viewModel.onIntent(ScheduleTabIntent.ViewChanged(ScheduleView.MONTH))
-      advanceUntilIdle()
-
-      val date = assertNotNull(viewModel.state.value.selectedDate)
-      assertEquals(ScheduleView.MONTH, repo.calls.last().view)
-      assertEquals(date, repo.calls.last().date)
+        val date = assertNotNull(expectMostRecentItem().selectedDate)
+        assertEquals(ScheduleView.MONTH, repo.calls.last().view)
+        assertEquals(date, repo.calls.last().date)
+      }
     }
 
   @Test
@@ -185,13 +206,15 @@ class ScheduleTabViewModelTest {
       advanceUntilIdle()
       val newDate = LocalDate(2026, 4, 1)
 
-      viewModel.onIntent(ScheduleTabIntent.DateSelected(newDate))
-      advanceUntilIdle()
+      viewModel.state.test {
+        viewModel.onIntent(ScheduleTabIntent.DateSelected(newDate))
+        advanceUntilIdle()
 
-      assertEquals(newDate, viewModel.state.value.selectedDate)
-      assertEquals(2, repo.calls.size)
-      assertEquals(ScheduleView.DAY, repo.calls.last().view)
-      assertEquals(newDate, repo.calls.last().date)
+        assertEquals(newDate, expectMostRecentItem().selectedDate)
+        assertEquals(2, repo.calls.size)
+        assertEquals(ScheduleView.DAY, repo.calls.last().view)
+        assertEquals(newDate, repo.calls.last().date)
+      }
     }
 
   @Test

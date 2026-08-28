@@ -1,6 +1,8 @@
 package com.frame.zero.feature.production.details
 
 import androidx.paging.PagingData
+import app.cash.turbine.test
+import app.cash.turbine.turbineScope
 import com.frame.zero.domain.production.NewProduction
 import com.frame.zero.domain.production.Production
 import com.frame.zero.domain.production.ProductionDetail
@@ -20,11 +22,9 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.LocalDate
@@ -44,11 +44,14 @@ class ProductionDetailsViewModelTest {
       val repo = FakeProductionsRepository(detail = productionDetail(id = "p1", title = "Pilot"))
       val viewModel = makeViewModel(repo)
 
-      advanceUntilIdle()
+      viewModel.state.test {
+        advanceUntilIdle()
 
-      assertFalse(viewModel.state.value.isLoading)
-      assertEquals("Pilot", assertNotNull(viewModel.state.value.detail).title)
-      assertNull(viewModel.state.value.error)
+        val state = expectMostRecentItem()
+        assertFalse(state.isLoading)
+        assertEquals("Pilot", assertNotNull(state.detail).title)
+        assertNull(state.error)
+      }
     }
 
   @Test
@@ -74,15 +77,18 @@ class ProductionDetailsViewModelTest {
       )
       val viewModel = makeViewModel(FakeProductionsRepository(), tasksRepo)
 
-      advanceUntilIdle()
+      viewModel.state.test {
+        advanceUntilIdle()
 
+        val state = expectMostRecentItem()
+        assertEquals(2, state.tasks.size)
+        assertFalse(state.tasks[0].isDone)
+        assertNotNull(state.tasks[0].dueDateLabel)
+        assertTrue(state.tasks[1].isDone)
+        assertNull(state.tasks[1].dueDateLabel)
+        assertFalse(state.areTasksLoading)
+      }
       assertEquals(listOf("p1"), tasksRepo.listedProductionIds)
-      assertEquals(2, viewModel.state.value.tasks.size)
-      assertFalse(viewModel.state.value.tasks[0].isDone)
-      assertNotNull(viewModel.state.value.tasks[0].dueDateLabel)
-      assertTrue(viewModel.state.value.tasks[1].isDone)
-      assertNull(viewModel.state.value.tasks[1].dueDateLabel)
-      assertFalse(viewModel.state.value.areTasksLoading)
     }
 
   @Test
@@ -91,24 +97,29 @@ class ProductionDetailsViewModelTest {
       val repo = FakeProductionsRepository(getThrows = IOException("offline"))
       val viewModel = makeViewModel(repo)
 
-      advanceUntilIdle()
+      viewModel.state.test {
+        advanceUntilIdle()
 
-      assertNull(viewModel.state.value.detail)
-      assertNotNull(viewModel.state.value.error)
-      assertFalse(viewModel.state.value.isLoading)
+        val state = expectMostRecentItem()
+        assertNull(state.detail)
+        assertNotNull(state.error)
+        assertFalse(state.isLoading)
+      }
     }
 
   @Test
   fun `delete requested and dismissed toggle the dialog`() =
     runTest {
       val viewModel = makeViewModel(FakeProductionsRepository())
-      advanceUntilIdle()
+      viewModel.state.test {
+        viewModel.onIntent(ProductionDetailsIntent.DeleteRequested)
+        advanceUntilIdle()
+        assertTrue(expectMostRecentItem().isDeleteDialogVisible)
 
-      viewModel.onIntent(ProductionDetailsIntent.DeleteRequested)
-      assertTrue(viewModel.state.value.isDeleteDialogVisible)
-
-      viewModel.onIntent(ProductionDetailsIntent.DeleteDismissed)
-      assertFalse(viewModel.state.value.isDeleteDialogVisible)
+        viewModel.onIntent(ProductionDetailsIntent.DeleteDismissed)
+        advanceUntilIdle()
+        assertFalse(expectMostRecentItem().isDeleteDialogVisible)
+      }
     }
 
   @Test
@@ -117,17 +128,22 @@ class ProductionDetailsViewModelTest {
       val repo = FakeProductionsRepository()
       val viewModel = makeViewModel(repo)
       advanceUntilIdle()
-      val events = mutableListOf<ProductionDetailsEvent>()
-      backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
-        viewModel.events.collect { events += it }
+
+      turbineScope {
+        val state = viewModel.state.testIn(backgroundScope)
+        val events = viewModel.events.testIn(backgroundScope)
+
+        viewModel.onIntent(ProductionDetailsIntent.DeleteConfirmed)
+        advanceUntilIdle()
+
+        val settled = state.expectMostRecentItem()
+        assertFalse(settled.isDeleting)
+        assertFalse(settled.isDeleteDialogVisible)
+        assertEquals(ProductionDetailsEvent.Deleted("p1"), events.awaitItem())
+
+        state.cancelAndIgnoreRemainingEvents()
+        events.cancelAndIgnoreRemainingEvents()
       }
-
-      viewModel.onIntent(ProductionDetailsIntent.DeleteConfirmed)
-      advanceUntilIdle()
-
-      assertFalse(viewModel.state.value.isDeleting)
-      assertFalse(viewModel.state.value.isDeleteDialogVisible)
-      assertEquals(listOf<ProductionDetailsEvent>(ProductionDetailsEvent.Deleted("p1")), events.toList())
       assertEquals(listOf("p1"), repo.deletedIds)
     }
 
@@ -136,16 +152,18 @@ class ProductionDetailsViewModelTest {
     runTest {
       val repo = FakeProductionsRepository(deleteThrows = IOException("offline"))
       val viewModel = makeViewModel(repo)
-      advanceUntilIdle()
+      viewModel.state.test {
+        viewModel.onIntent(ProductionDetailsIntent.DeleteConfirmed)
+        advanceUntilIdle()
 
-      viewModel.onIntent(ProductionDetailsIntent.DeleteConfirmed)
-      advanceUntilIdle()
+        val failed = expectMostRecentItem()
+        assertNotNull(failed.deleteError)
+        assertFalse(failed.isDeleting)
 
-      assertNotNull(viewModel.state.value.deleteError)
-      assertFalse(viewModel.state.value.isDeleting)
-
-      viewModel.onIntent(ProductionDetailsIntent.DeleteErrorDismissed)
-      assertNull(viewModel.state.value.deleteError)
+        viewModel.onIntent(ProductionDetailsIntent.DeleteErrorDismissed)
+        advanceUntilIdle()
+        assertNull(expectMostRecentItem().deleteError)
+      }
     }
 
   @Test
@@ -156,17 +174,19 @@ class ProductionDetailsViewModelTest {
       val viewModel = makeViewModel(repo)
       advanceUntilIdle()
 
-      viewModel.onIntent(ProductionDetailsIntent.DeleteConfirmed)
-      runCurrent()
-      assertTrue(viewModel.state.value.isDeleting)
+      viewModel.state.test {
+        viewModel.onIntent(ProductionDetailsIntent.DeleteConfirmed)
+        runCurrent()
+        assertTrue(expectMostRecentItem().isDeleting)
 
-      // second confirm while the first delete is suspended must be a no-op
-      viewModel.onIntent(ProductionDetailsIntent.DeleteConfirmed)
-      runCurrent()
+        // second confirm while the first delete is suspended must be a no-op
+        viewModel.onIntent(ProductionDetailsIntent.DeleteConfirmed)
+        runCurrent()
 
-      gate.complete(Unit)
-      advanceUntilIdle()
-
+        gate.complete(Unit)
+        advanceUntilIdle()
+        cancelAndIgnoreRemainingEvents()
+      }
       assertEquals(1, repo.deleteCalls)
     }
 

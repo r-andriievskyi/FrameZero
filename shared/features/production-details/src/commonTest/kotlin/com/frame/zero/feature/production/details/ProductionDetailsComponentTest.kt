@@ -1,5 +1,6 @@
 package com.frame.zero.feature.production.details
 
+import app.cash.turbine.test
 import com.arkivanov.decompose.DefaultComponentContext
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
 import com.arkivanov.essenty.lifecycle.destroy
@@ -105,13 +106,13 @@ class ProductionDetailsComponentTest {
         productionsRepo = FakeProductionsRepository(getThrows = IllegalStateException("offline")),
         onAddTask = { id, title -> addTaskCalls += id to title }
       )
-      advanceUntilIdle()
+      component.state.test {
+        component.onIntent(ProductionDetailsIntent.AddTaskRequested)
+        advanceUntilIdle()
 
-      component.onIntent(ProductionDetailsIntent.AddTaskRequested)
-      advanceUntilIdle()
-
+        assertNull(expectMostRecentItem().detail)
+      }
       assertEquals(emptyList(), addTaskCalls)
-      assertNull(component.state.value.detail)
     }
 
   private fun TestScope.makeComponent(

@@ -1,5 +1,6 @@
 package com.frame.zero.feature.auth.register
 
+import app.cash.turbine.test
 import com.frame.zero.core.session.LogoutSignal
 import com.frame.zero.core.session.SessionManager
 import com.frame.zero.core.session.TokenStorage
@@ -37,12 +38,15 @@ class RegisterViewModelTest {
     runTest {
       val vm = makeViewModel(this)
 
-      assertEquals("", vm.state.value.firstName)
-      assertEquals("", vm.state.value.lastName)
-      assertEquals("", vm.state.value.email)
-      assertEquals("", vm.state.value.password)
-      assertFalse(vm.state.value.isLoading)
-      assertNull(vm.state.value.error)
+      vm.state.test {
+        val state = awaitItem()
+        assertEquals("", state.firstName)
+        assertEquals("", state.lastName)
+        assertEquals("", state.email)
+        assertEquals("", state.password)
+        assertFalse(state.isLoading)
+        assertNull(state.error)
+      }
     }
 
   @Test
@@ -50,10 +54,14 @@ class RegisterViewModelTest {
     runTest {
       val vm = makeViewModel(this)
 
-      vm.onIntent(RegisterIntent.FirstNameChanged("Jane"))
+      vm.state.test {
+        vm.onIntent(RegisterIntent.FirstNameChanged("Jane"))
+        advanceUntilIdle()
 
-      assertEquals("Jane", vm.state.value.firstName)
-      assertEquals("", vm.state.value.email)
+        val state = expectMostRecentItem()
+        assertEquals("Jane", state.firstName)
+        assertEquals("", state.email)
+      }
     }
 
   @Test
@@ -61,10 +69,14 @@ class RegisterViewModelTest {
     runTest {
       val vm = makeViewModel(this)
 
-      vm.onIntent(RegisterIntent.LastNameChanged("Doe"))
+      vm.state.test {
+        vm.onIntent(RegisterIntent.LastNameChanged("Doe"))
+        advanceUntilIdle()
 
-      assertEquals("Doe", vm.state.value.lastName)
-      assertEquals("", vm.state.value.email)
+        val state = expectMostRecentItem()
+        assertEquals("Doe", state.lastName)
+        assertEquals("", state.email)
+      }
     }
 
   @Test
@@ -73,10 +85,12 @@ class RegisterViewModelTest {
       val repo = FakeAuthRepository(registerUser = user)
       val vm = makeViewModel(this, repo)
 
-      vm.onIntent(RegisterIntent.Submit)
-      advanceUntilIdle()
+      vm.state.test {
+        vm.onIntent(RegisterIntent.Submit)
+        advanceUntilIdle()
 
-      assertEquals(Res.string.error_empty_credentials.asUiText(), vm.state.value.error)
+        assertEquals(Res.string.error_empty_credentials.asUiText(), expectMostRecentItem().error)
+      }
       assertEquals(0, repo.registerCalls.size)
     }
 
@@ -86,13 +100,16 @@ class RegisterViewModelTest {
       val repo = FakeAuthRepository(registerUser = user)
       val vm = makeViewModel(this, repo)
 
-      vm.onIntent(RegisterIntent.EmailChanged("u@x.com"))
-      vm.onIntent(RegisterIntent.PasswordChanged("p"))
-      vm.onIntent(RegisterIntent.Submit)
-      advanceUntilIdle()
+      vm.state.test {
+        vm.onIntent(RegisterIntent.EmailChanged("u@x.com"))
+        vm.onIntent(RegisterIntent.PasswordChanged("p"))
+        vm.onIntent(RegisterIntent.Submit)
+        advanceUntilIdle()
 
-      assertFalse(vm.state.value.isLoading)
-      assertNull(vm.state.value.error)
+        val state = expectMostRecentItem()
+        assertFalse(state.isLoading)
+        assertNull(state.error)
+      }
       assertEquals(1, repo.registerCalls.size)
     }
 
@@ -103,12 +120,14 @@ class RegisterViewModelTest {
         FakeAuthRepository(registerThrows = DomainException(DomainError.EmailAlreadyExists))
       val vm = makeViewModel(this, repo)
 
-      vm.onIntent(RegisterIntent.EmailChanged("dup@x.com"))
-      vm.onIntent(RegisterIntent.PasswordChanged("p"))
-      vm.onIntent(RegisterIntent.Submit)
-      advanceUntilIdle()
+      vm.state.test {
+        vm.onIntent(RegisterIntent.EmailChanged("dup@x.com"))
+        vm.onIntent(RegisterIntent.PasswordChanged("p"))
+        vm.onIntent(RegisterIntent.Submit)
+        advanceUntilIdle()
 
-      assertEquals(UiTextRes.string.error_email_exists.asUiText(), vm.state.value.error)
+        assertEquals(UiTextRes.string.error_email_exists.asUiText(), expectMostRecentItem().error)
+      }
     }
 
   @Test
@@ -117,13 +136,16 @@ class RegisterViewModelTest {
       val repo = FakeAuthRepository(registerThrows = DomainException(DomainError.Offline))
       val vm = makeViewModel(this, repo)
 
-      vm.onIntent(RegisterIntent.EmailChanged("u@x.com"))
-      vm.onIntent(RegisterIntent.PasswordChanged("p"))
-      vm.onIntent(RegisterIntent.Submit)
-      advanceUntilIdle()
+      vm.state.test {
+        vm.onIntent(RegisterIntent.EmailChanged("u@x.com"))
+        vm.onIntent(RegisterIntent.PasswordChanged("p"))
+        vm.onIntent(RegisterIntent.Submit)
+        advanceUntilIdle()
 
-      assertEquals(UiTextRes.string.error_network.asUiText(), vm.state.value.errorToast)
-      assertNull(vm.state.value.error)
+        val state = expectMostRecentItem()
+        assertEquals(UiTextRes.string.error_network.asUiText(), state.errorToast)
+        assertNull(state.error)
+      }
     }
 
   @Test
@@ -132,15 +154,17 @@ class RegisterViewModelTest {
       val repo = FakeAuthRepository(registerThrows = DomainException(DomainError.Offline))
       val vm = makeViewModel(this, repo)
 
-      vm.onIntent(RegisterIntent.EmailChanged("u@x.com"))
-      vm.onIntent(RegisterIntent.PasswordChanged("p"))
-      vm.onIntent(RegisterIntent.Submit)
-      advanceUntilIdle()
-      assertEquals(UiTextRes.string.error_network.asUiText(), vm.state.value.errorToast)
+      vm.state.test {
+        vm.onIntent(RegisterIntent.EmailChanged("u@x.com"))
+        vm.onIntent(RegisterIntent.PasswordChanged("p"))
+        vm.onIntent(RegisterIntent.Submit)
+        advanceUntilIdle()
+        assertEquals(UiTextRes.string.error_network.asUiText(), expectMostRecentItem().errorToast)
 
-      vm.onIntent(RegisterIntent.ToastDismissed)
-
-      assertNull(vm.state.value.errorToast)
+        vm.onIntent(RegisterIntent.ToastDismissed)
+        advanceUntilIdle()
+        assertNull(expectMostRecentItem().errorToast)
+      }
     }
 
   @Test

@@ -1,6 +1,7 @@
 package com.frame.zero.feature.task.details
 
 import androidx.paging.PagingData
+import app.cash.turbine.test
 import com.frame.zero.domain.task.TaskAssignee
 import com.frame.zero.domain.task.TaskDetail
 import com.frame.zero.domain.chat.Conversation
@@ -57,20 +58,22 @@ class TaskDetailsViewModelTest {
       val repo = FakeTasksRepository(task = openTask)
       val viewModel = makeViewModel(this, repo)
 
-      advanceUntilIdle()
+      viewModel.state.test {
+        advanceUntilIdle()
 
-      val state = viewModel.state.value
-      assertFalse(state.isLoading)
-      assertNull(state.error)
-      assertEquals("t1", state.taskId)
-      assertEquals("Review Scene 12", state.title)
-      assertEquals("Echoes of Silence", state.productionName)
-      assertEquals("p1", state.productionId)
-      assertEquals(TaskPriority.HIGH, state.priority)
-      assertEquals(TaskStatus.IN_PROGRESS, state.status)
-      assertEquals("MR", state.assignee?.initials)
-      assertEquals("Maya Rivera", state.assignee?.name)
-      assertTrue(state.showMarkCompleteButton)
+        val state = expectMostRecentItem()
+        assertFalse(state.isLoading)
+        assertNull(state.error)
+        assertEquals("t1", state.taskId)
+        assertEquals("Review Scene 12", state.title)
+        assertEquals("Echoes of Silence", state.productionName)
+        assertEquals("p1", state.productionId)
+        assertEquals(TaskPriority.HIGH, state.priority)
+        assertEquals(TaskStatus.IN_PROGRESS, state.status)
+        assertEquals("MR", state.assignee?.initials)
+        assertEquals("Maya Rivera", state.assignee?.name)
+        assertTrue(state.showMarkCompleteButton)
+      }
       assertEquals(listOf("t1"), repo.getCalls)
     }
 
@@ -80,11 +83,13 @@ class TaskDetailsViewModelTest {
       val repo = FakeTasksRepository(task = openTask.copy(dueDate = LocalDate(2026, 4, 6)))
       val viewModel = makeViewModel(this, repo)
 
-      advanceUntilIdle()
+      viewModel.state.test {
+        advanceUntilIdle()
 
-      val state = viewModel.state.value
-      assertEquals(LocalDate(2026, 4, 6), state.dueDate)
-      assertFalse(state.isDueToday)
+        val state = expectMostRecentItem()
+        assertEquals(LocalDate(2026, 4, 6), state.dueDate)
+        assertFalse(state.isDueToday)
+      }
     }
 
   @Test
@@ -95,12 +100,14 @@ class TaskDetailsViewModelTest {
       )
       val viewModel = makeViewModel(this, repo)
 
-      advanceUntilIdle()
+      viewModel.state.test {
+        advanceUntilIdle()
 
-      val state = viewModel.state.value
-      assertNull(state.dueDate)
-      assertNull(state.assignee)
-      assertEquals("", state.description)
+        val state = expectMostRecentItem()
+        assertNull(state.dueDate)
+        assertNull(state.assignee)
+        assertEquals("", state.description)
+      }
     }
 
   @Test
@@ -145,12 +152,14 @@ class TaskDetailsViewModelTest {
           dispatcher = StandardTestDispatcher(testScheduler)
         )
 
-      runCurrent()
-      assertTrue(viewModel.state.value.isLoading)
+      viewModel.state.test {
+        runCurrent()
+        assertTrue(expectMostRecentItem().isLoading)
 
-      gate.complete(openTask)
-      advanceUntilIdle()
-      assertFalse(viewModel.state.value.isLoading)
+        gate.complete(openTask)
+        advanceUntilIdle()
+        assertFalse(expectMostRecentItem().isLoading)
+      }
     }
 
   @Test
@@ -159,10 +168,13 @@ class TaskDetailsViewModelTest {
       val repo = FakeTasksRepository(task = openTask, getThrows = RuntimeException("boom"))
       val viewModel = makeViewModel(this, repo)
 
-      advanceUntilIdle()
+      viewModel.state.test {
+        advanceUntilIdle()
 
-      assertNotNull(viewModel.state.value.error)
-      assertFalse(viewModel.state.value.isLoading)
+        val state = expectMostRecentItem()
+        assertNotNull(state.error)
+        assertFalse(state.isLoading)
+      }
     }
 
   @Test
@@ -171,10 +183,13 @@ class TaskDetailsViewModelTest {
       val repo = FakeTasksRepository(task = openTask.copy(status = DomainTaskStatus.DONE))
       val viewModel = makeViewModel(this, repo)
 
-      advanceUntilIdle()
+      viewModel.state.test {
+        advanceUntilIdle()
 
-      assertEquals(TaskStatus.COMPLETED, viewModel.state.value.status)
-      assertFalse(viewModel.state.value.showMarkCompleteButton)
+        val state = expectMostRecentItem()
+        assertEquals(TaskStatus.COMPLETED, state.status)
+        assertFalse(state.showMarkCompleteButton)
+      }
     }
 
   @Test
@@ -185,13 +200,14 @@ class TaskDetailsViewModelTest {
         completedTask = openTask.copy(status = DomainTaskStatus.DONE)
       )
       val viewModel = makeViewModel(this, repo)
-      advanceUntilIdle()
+      viewModel.state.test {
+        viewModel.onIntent(TaskDetailsIntent.MarkComplete)
+        advanceUntilIdle()
 
-      viewModel.onIntent(TaskDetailsIntent.MarkComplete)
-      advanceUntilIdle()
-
-      assertEquals(TaskStatus.COMPLETED, viewModel.state.value.status)
-      assertFalse(viewModel.state.value.showMarkCompleteButton)
+        val state = expectMostRecentItem()
+        assertEquals(TaskStatus.COMPLETED, state.status)
+        assertFalse(state.showMarkCompleteButton)
+      }
       assertEquals(listOf("t1"), repo.completeCalls)
     }
 
@@ -231,15 +247,19 @@ class TaskDetailsViewModelTest {
         ): com.frame.zero.domain.Outcome<String> = com.frame.zero.domain.Outcome.Success("/local")
       }
       val viewModel = makeViewModel(this, repo)
-      advanceUntilIdle()
-      assertNotNull(viewModel.state.value.error)
 
-      shouldFail = false
-      viewModel.onIntent(TaskDetailsIntent.Refresh)
-      advanceUntilIdle()
+      viewModel.state.test {
+        advanceUntilIdle()
+        assertNotNull(expectMostRecentItem().error)
 
-      assertNull(viewModel.state.value.error)
-      assertEquals("Review Scene 12", viewModel.state.value.title)
+        shouldFail = false
+        viewModel.onIntent(TaskDetailsIntent.Refresh)
+        advanceUntilIdle()
+
+        val state = expectMostRecentItem()
+        assertNull(state.error)
+        assertEquals("Review Scene 12", state.title)
+      }
       assertEquals(2, repo.calls)
     }
 
@@ -251,10 +271,12 @@ class TaskDetailsViewModelTest {
       )
       val viewModel = makeViewModel(this, FakeTasksRepository(task = openTask), productions = productions)
 
-      advanceUntilIdle()
+      viewModel.state.test {
+        advanceUntilIdle()
 
+        assertEquals(listOf("Jake"), expectMostRecentItem().assignableMembers.map { it.name })
+      }
       assertEquals(listOf("p1"), productions.listMembersCalls)
-      assertEquals(listOf("Jake"), viewModel.state.value.assignableMembers.map { it.name })
     }
 
   @Test
@@ -263,9 +285,11 @@ class TaskDetailsViewModelTest {
       val task = openTask.copy(participants = listOf(taskParticipant(userId = "u2", name = "Jake")))
       val viewModel = makeViewModel(this, FakeTasksRepository(task = task))
 
-      advanceUntilIdle()
+      viewModel.state.test {
+        advanceUntilIdle()
 
-      assertEquals(listOf("Jake"), viewModel.state.value.participants.map { it.name })
+        assertEquals(listOf("Jake"), expectMostRecentItem().participants.map { it.name })
+      }
     }
 
   @Test
@@ -282,12 +306,15 @@ class TaskDetailsViewModelTest {
       val viewModel = makeViewModel(this, repo)
       advanceUntilIdle()
 
-      viewModel.onIntent(TaskDetailsIntent.ParticipantToggled("u3"))
-      advanceUntilIdle()
+      viewModel.state.test {
+        viewModel.onIntent(TaskDetailsIntent.ParticipantToggled("u3"))
+        advanceUntilIdle()
 
+        val state = expectMostRecentItem()
+        assertEquals(listOf("Jake", "Mia"), state.participants.map { it.name })
+        assertFalse(state.isUpdatingParticipants)
+      }
       assertEquals(listOf("t1" to listOf("u2", "u3")), repo.updateParticipantsCalls)
-      assertEquals(listOf("Jake", "Mia"), viewModel.state.value.participants.map { it.name })
-      assertFalse(viewModel.state.value.isUpdatingParticipants)
     }
 
   @Test
@@ -299,11 +326,13 @@ class TaskDetailsViewModelTest {
       val viewModel = makeViewModel(this, repo)
       advanceUntilIdle()
 
-      viewModel.onIntent(TaskDetailsIntent.ParticipantToggled("u2"))
-      advanceUntilIdle()
+      viewModel.state.test {
+        viewModel.onIntent(TaskDetailsIntent.ParticipantToggled("u2"))
+        advanceUntilIdle()
 
+        assertTrue(expectMostRecentItem().participants.isEmpty())
+      }
       assertEquals(listOf("t1" to emptyList<String>()), repo.updateParticipantsCalls)
-      assertTrue(viewModel.state.value.participants.isEmpty())
     }
 
   @Test
@@ -315,14 +344,15 @@ class TaskDetailsViewModelTest {
         updateParticipantsThrows = com.frame.zero.domain.OfflineException()
       )
       val viewModel = makeViewModel(this, repo)
-      advanceUntilIdle()
+      viewModel.state.test {
+        viewModel.onIntent(TaskDetailsIntent.ParticipantToggled("u3"))
+        advanceUntilIdle()
 
-      viewModel.onIntent(TaskDetailsIntent.ParticipantToggled("u3"))
-      advanceUntilIdle()
-
-      assertNotNull(viewModel.state.value.participantsError)
-      assertEquals(listOf("Jake"), viewModel.state.value.participants.map { it.name })
-      assertFalse(viewModel.state.value.isUpdatingParticipants)
+        val state = expectMostRecentItem()
+        assertNotNull(state.participantsError)
+        assertEquals(listOf("Jake"), state.participants.map { it.name })
+        assertFalse(state.isUpdatingParticipants)
+      }
     }
 
   @Test
@@ -333,14 +363,16 @@ class TaskDetailsViewModelTest {
         updateParticipantsThrows = com.frame.zero.domain.OfflineException()
       )
       val viewModel = makeViewModel(this, repo)
-      advanceUntilIdle()
-      viewModel.onIntent(TaskDetailsIntent.ParticipantToggled("u3"))
-      advanceUntilIdle()
-      assertNotNull(viewModel.state.value.participantsError)
+      viewModel.state.test {
+        viewModel.onIntent(TaskDetailsIntent.ParticipantToggled("u3"))
+        advanceUntilIdle()
+        assertNotNull(expectMostRecentItem().participantsError)
 
-      viewModel.onIntent(TaskDetailsIntent.ParticipantsErrorDismissed)
+        viewModel.onIntent(TaskDetailsIntent.ParticipantsErrorDismissed)
+        advanceUntilIdle()
 
-      assertNull(viewModel.state.value.participantsError)
+        assertNull(expectMostRecentItem().participantsError)
+      }
     }
 
   @Test
@@ -349,15 +381,21 @@ class TaskDetailsViewModelTest {
       val viewModel = makeViewModel(this, FakeTasksRepository(task = openTask))
       advanceUntilIdle()
 
-      viewModel.onIntent(TaskDetailsIntent.ParticipantPickerOpened)
-      assertTrue(viewModel.state.value.isParticipantPickerVisible)
+      viewModel.state.test {
+        viewModel.onIntent(TaskDetailsIntent.ParticipantPickerOpened)
+        runCurrent()
+        assertTrue(expectMostRecentItem().isParticipantPickerVisible)
 
-      viewModel.onIntent(TaskDetailsIntent.ParticipantSearchChanged("ja"))
-      assertEquals("ja", viewModel.state.value.participantQuery)
+        viewModel.onIntent(TaskDetailsIntent.ParticipantSearchChanged("ja"))
+        runCurrent()
+        assertEquals("ja", expectMostRecentItem().participantQuery)
 
-      viewModel.onIntent(TaskDetailsIntent.ParticipantPickerDismissed)
-      assertFalse(viewModel.state.value.isParticipantPickerVisible)
-      assertEquals("", viewModel.state.value.participantQuery)
+        viewModel.onIntent(TaskDetailsIntent.ParticipantPickerDismissed)
+        runCurrent()
+        val state = expectMostRecentItem()
+        assertFalse(state.isParticipantPickerVisible)
+        assertEquals("", state.participantQuery)
+      }
     }
 
   @Test
@@ -375,9 +413,11 @@ class TaskDetailsViewModelTest {
       )
       val viewModel = makeViewModel(this, FakeTasksRepository(task = openTask), chatRepository = chat)
 
-      advanceUntilIdle()
+      viewModel.state.test {
+        advanceUntilIdle()
 
-      assertEquals(3, viewModel.state.value.unreadChatCount)
+        assertEquals(3, expectMostRecentItem().unreadChatCount)
+      }
     }
 
   private fun makeViewModel(

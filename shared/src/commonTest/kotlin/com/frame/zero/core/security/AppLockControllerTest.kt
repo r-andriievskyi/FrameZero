@@ -1,9 +1,11 @@
 package com.frame.zero.core.security
 
+import app.cash.turbine.test
 import com.russhwolf.settings.MapSettings
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -11,51 +13,70 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class AppLockControllerTest {
   private val prompt = BiometricPromptText(title = "t", subtitle = "s", negativeButton = "c")
 
   @Test
-  fun `starts unlocked when the feature is disabled`() {
-    val manager = AppLockController(FakeAuthenticator(), MapSettings())
+  fun `starts unlocked when the feature is disabled`() =
+    runTest {
+      val manager = AppLockController(FakeAuthenticator(), MapSettings())
 
-    assertEquals(AppLockState.Unlocked, manager.lockState.value)
-    assertFalse(manager.isEnabled)
-  }
-
-  @Test
-  fun `starts locked when the feature was previously enabled`() {
-    val settings = MapSettings().apply { putBoolean("security.app_lock_enabled", true) }
-    val manager = AppLockController(FakeAuthenticator(), settings)
-
-    assertEquals(AppLockState.Locked, manager.lockState.value)
-    assertTrue(manager.isEnabled)
-  }
+      manager.lockState.test {
+        assertEquals(AppLockState.Unlocked, awaitItem())
+      }
+      assertFalse(manager.isEnabled)
+    }
 
   @Test
-  fun `backgrounding re-locks only when enabled`() {
-    val disabled = AppLockController(FakeAuthenticator(), MapSettings())
-    disabled.onBackgrounded()
-    assertEquals(AppLockState.Unlocked, disabled.lockState.value)
+  fun `starts locked when the feature was previously enabled`() =
+    runTest {
+      val settings = MapSettings().apply { putBoolean("security.app_lock_enabled", true) }
+      val manager = AppLockController(FakeAuthenticator(), settings)
 
-    val settings = MapSettings().apply { putBoolean("security.app_lock_enabled", true) }
-    val enabled = AppLockController(FakeAuthenticator(), settings)
-    enabled.setEnabled(true) // unlocks within the session
-    assertEquals(AppLockState.Unlocked, enabled.lockState.value)
-    enabled.onBackgrounded()
-    assertEquals(AppLockState.Locked, enabled.lockState.value)
-  }
+      manager.lockState.test {
+        assertEquals(AppLockState.Locked, awaitItem())
+      }
+      assertTrue(manager.isEnabled)
+    }
+
+  @Test
+  fun `backgrounding re-locks only when enabled`() =
+    runTest {
+      val disabled = AppLockController(FakeAuthenticator(), MapSettings())
+      disabled.lockState.test {
+        disabled.onBackgrounded()
+        advanceUntilIdle()
+        assertEquals(AppLockState.Unlocked, expectMostRecentItem())
+      }
+
+      val settings = MapSettings().apply { putBoolean("security.app_lock_enabled", true) }
+      val enabled = AppLockController(FakeAuthenticator(), settings)
+      enabled.lockState.test {
+        enabled.setEnabled(true) // unlocks within the session
+        advanceUntilIdle()
+        assertEquals(AppLockState.Unlocked, expectMostRecentItem())
+        enabled.onBackgrounded()
+        advanceUntilIdle()
+        assertEquals(AppLockState.Locked, expectMostRecentItem())
+      }
+    }
 
   @Test
   fun `a successful prompt unlocks`() =
     runTest {
       val settings = MapSettings().apply { putBoolean("security.app_lock_enabled", true) }
       val manager = AppLockController(FakeAuthenticator(BiometricResult.Success), settings)
-      assertEquals(AppLockState.Locked, manager.lockState.value)
 
-      val result = manager.authenticate(prompt)
+      manager.lockState.test {
+        assertEquals(AppLockState.Locked, awaitItem())
 
-      assertEquals(BiometricResult.Success, result)
-      assertEquals(AppLockState.Unlocked, manager.lockState.value)
+        val result = manager.authenticate(prompt)
+        assertEquals(BiometricResult.Success, result)
+
+        advanceUntilIdle()
+        assertEquals(AppLockState.Unlocked, expectMostRecentItem())
+      }
     }
 
   @Test
@@ -64,22 +85,28 @@ class AppLockControllerTest {
       val settings = MapSettings().apply { putBoolean("security.app_lock_enabled", true) }
       val manager = AppLockController(FakeAuthenticator(BiometricResult.Cancelled), settings)
 
-      manager.authenticate(prompt)
-
-      assertEquals(AppLockState.Locked, manager.lockState.value)
+      manager.lockState.test {
+        manager.authenticate(prompt)
+        advanceUntilIdle()
+        assertEquals(AppLockState.Locked, expectMostRecentItem())
+      }
     }
 
   @Test
-  fun `setEnabled drives the enabled flow`() {
-    val manager = AppLockController(FakeAuthenticator(), MapSettings())
-    assertFalse(manager.enabled.value)
+  fun `setEnabled drives the enabled flow`() =
+    runTest {
+      val manager = AppLockController(FakeAuthenticator(), MapSettings())
 
-    manager.setEnabled(true)
-    assertTrue(manager.enabled.value)
-    assertTrue(manager.isEnabled)
-  }
+      manager.enabled.test {
+        assertFalse(awaitItem())
 
-  @OptIn(ExperimentalCoroutinesApi::class)
+        manager.setEnabled(true)
+        advanceUntilIdle()
+        assertTrue(expectMostRecentItem())
+      }
+      assertTrue(manager.isEnabled)
+    }
+
   @Test
   fun `rejects a second prompt while one is in flight`() =
     runTest {
@@ -87,15 +114,18 @@ class AppLockControllerTest {
       val settings = MapSettings().apply { putBoolean("security.app_lock_enabled", true) }
       val manager = AppLockController(BlockingAuthenticator(gate), settings)
 
-      val first = launch { manager.authenticate(prompt) }
-      runCurrent() // first call acquires the gate, then suspends inside the authenticator
+      manager.lockState.test {
+        val first = launch { manager.authenticate(prompt) }
+        runCurrent() // first call acquires the gate, then suspends inside the authenticator
 
-      val second = manager.authenticate(prompt)
-      assertEquals(BiometricResult.Cancelled, second)
+        val second = manager.authenticate(prompt)
+        assertEquals(BiometricResult.Cancelled, second)
 
-      gate.complete(Unit)
-      first.join()
-      assertEquals(AppLockState.Unlocked, manager.lockState.value)
+        gate.complete(Unit)
+        first.join()
+        advanceUntilIdle()
+        assertEquals(AppLockState.Unlocked, expectMostRecentItem())
+      }
     }
 
   private class FakeAuthenticator(
