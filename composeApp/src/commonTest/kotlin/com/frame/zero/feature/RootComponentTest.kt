@@ -48,10 +48,8 @@ import com.frame.zero.feature.task.list.TasksListViewModel
 import com.frame.zero.feature.task.details.usecase.CompleteTaskUseCase
 import com.frame.zero.feature.task.details.usecase.GetAssignableMembersUseCase
 import com.frame.zero.feature.task.details.usecase.GetTaskDetailsUseCase
-import com.frame.zero.feature.task.details.usecase.ObserveTaskChatUnreadUseCase
 import com.frame.zero.feature.task.details.usecase.UpdateTaskParticipantsUseCase
 import com.frame.zero.testing.FakeAuthRepository
-import com.frame.zero.testing.FakeChatRepository
 import com.frame.zero.testing.FakeConnectivityObserver
 import com.frame.zero.testing.FakeDashboardRepository
 import com.frame.zero.testing.FakeProductionsRepository
@@ -339,14 +337,11 @@ class RootComponentTest {
           getAssignableMembersUseCase = GetAssignableMembersUseCase(productions),
           updateTaskParticipantsUseCase = UpdateTaskParticipantsUseCase(tasks),
           tasksRepository = tasks,
-          observeTaskChatUnreadUseCase = ObserveTaskChatUnreadUseCase(FakeChatRepository()),
           attachmentFileManager = NoopAttachmentFileManager
         )
       },
       // Not navigated to in these tests; a CreateTask push would need the upload graph.
       createTaskViewModelFactory = { _, _ -> error("create-task navigation is not exercised here") },
-      // Not navigated to in these tests; a Chat push would need the chat graph.
-      chatViewModelFactory = { error("chat navigation is not exercised here") },
       tasksListViewModelFactory = { productionId -> TasksListViewModel(productionId, tasks) },
       accountViewModelFactory = { AccountViewModel(session, appLockController) }
     )

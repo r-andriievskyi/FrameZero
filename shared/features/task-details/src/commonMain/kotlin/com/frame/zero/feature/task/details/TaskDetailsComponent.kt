@@ -8,7 +8,6 @@ class TaskDetailsComponent(
   componentContext: ComponentContext,
   val taskId: String,
   val onBack: () -> Unit,
-  val onOpenChat: () -> Unit,
   viewModelFactory: (taskId: String) -> TaskDetailsViewModel
 ) : ComponentContext by componentContext {
   private val viewModel: TaskDetailsViewModel =

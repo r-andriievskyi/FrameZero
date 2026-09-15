@@ -22,6 +22,4 @@ val databaseModule: Module =
     }
     single { get<FrameZeroDatabase>().productionsCacheDao() }
     single { get<FrameZeroDatabase>().pendingUploadsDao() }
-    single { get<FrameZeroDatabase>().chatDao() }
-    single { get<FrameZeroDatabase>().chatOutboxDao() }
   }

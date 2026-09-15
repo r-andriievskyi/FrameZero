@@ -13,7 +13,6 @@ import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.feature.RootComponent
 import com.frame.zero.feature.account.ui.AccountScreen
 import com.frame.zero.feature.auth.ui.AuthScreen
-import com.frame.zero.feature.chat.ui.ChatScreen
 import com.frame.zero.feature.gallery.ui.DesignSystemGalleryScreen
 import com.frame.zero.feature.home.ui.HomeContent
 import com.frame.zero.feature.force_update.ForceUpdateState
@@ -46,7 +45,6 @@ fun RootContent(component: RootComponent) {
         is RootComponent.Child.ProductionDetails -> ProductionDetailsScreen(instance.component)
         is RootComponent.Child.TaskDetails -> TaskDetailsScreen(instance.component)
         is RootComponent.Child.CreateTask -> CreateTaskScreen(instance.component)
-        is RootComponent.Child.Chat -> ChatScreen(instance.component)
         is RootComponent.Child.TasksList -> TasksListScreen(instance.component)
       }
     }

@@ -14,7 +14,6 @@ import com.frame.zero.feature.auth.authModule
 import com.frame.zero.feature.home.featureHomeModule
 import com.frame.zero.feature.production.details.featureProductionDetailsModule
 import com.frame.zero.feature.production.featureProductionModule
-import com.frame.zero.feature.chat.featureChatModule
 import com.frame.zero.feature.task.create.featureTaskCreateModule
 import com.frame.zero.feature.task.details.featureTaskDetailsModule
 import com.frame.zero.feature.force_update.featureForceUpdateModule
@@ -23,7 +22,6 @@ import com.frame.zero.feature.task.list.featureTaskListModule
 import com.frame.zero.integrations.firebase.firebaseModule
 import com.frame.zero.repository.force_update.forceUpdateModule
 import com.frame.zero.repository.device_token.deviceTokenModule
-import com.frame.zero.repository.chat.chatRepositoryModule
 import com.frame.zero.repository.productions.productionsRepositoryModule
 import com.frame.zero.repository.tasks.tasksRepositoryModule
 import org.koin.core.Koin
@@ -50,7 +48,6 @@ private val featureModules = listOf(
   featureProductionDetailsModule,
   featureTaskDetailsModule,
   featureTaskCreateModule,
-  featureChatModule,
   featureTaskListModule,
   featureForceUpdateModule,
   deviceTokenModule
@@ -59,7 +56,6 @@ private val featureModules = listOf(
 private val prodDataModules = listOf(
   firebaseModule,
   productionsRepositoryModule,
-  chatRepositoryModule,
   tasksRepositoryModule,
   forceUpdateModule
 )

@@ -24,8 +24,6 @@ import com.frame.zero.feature.force_update.ForceUpdateState
 import com.frame.zero.feature.account.AccountComponent
 import com.frame.zero.feature.account.AccountViewModel
 import com.frame.zero.feature.auth.AuthComponent
-import com.frame.zero.feature.chat.ChatComponent
-import com.frame.zero.feature.chat.ChatViewModel
 import com.frame.zero.feature.gallery.DesignSystemGalleryComponent
 import com.frame.zero.feature.home.HomeComponent
 import com.frame.zero.feature.production.CreateProductionComponent
@@ -74,7 +72,6 @@ class RootComponent(
     productionId: String,
     productionTitle: String
   ) -> CreateTaskViewModel,
-  private val chatViewModelFactory: (taskId: String) -> ChatViewModel,
   private val tasksListViewModelFactory: (productionId: String?) -> TasksListViewModel,
   private val accountViewModelFactory: () -> AccountViewModel
 ) : ComponentContext by componentContext {
@@ -261,10 +258,6 @@ class RootComponent(
           componentContext = context,
           taskId = config.taskId,
           onBack = { navigation.pop() },
-          onOpenChat = {
-            @OptIn(DelicateDecomposeApi::class)
-            navigation.push(Config.Chat(config.taskId))
-          },
           viewModelFactory = taskDetailsViewModelFactory
         )
       )
@@ -278,15 +271,6 @@ class RootComponent(
             navigation.push(Config.TaskDetails(taskId))
           },
           viewModelFactory = tasksListViewModelFactory
-        )
-      )
-
-      is Config.Chat -> Child.Chat(
-        ChatComponent(
-          componentContext = context,
-          taskId = config.taskId,
-          onBack = { navigation.pop() },
-          viewModelFactory = chatViewModelFactory
         )
       )
 
@@ -339,11 +323,6 @@ class RootComponent(
     ) : Config
 
     @Serializable
-    data class Chat(
-      val taskId: String
-    ) : Config
-
-    @Serializable
     data object TasksList : Config
   }
 
@@ -380,10 +359,6 @@ class RootComponent(
 
     data class CreateTask(
       val component: CreateTaskComponent
-    ) : Child
-
-    data class Chat(
-      val component: ChatComponent
     ) : Child
 
     data class TasksList(

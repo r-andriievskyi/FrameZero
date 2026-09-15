@@ -29,9 +29,7 @@ data class TaskDetailsState(
   val isLoading: Boolean = false,
   val error: UiText? = null,
   val markCompleteError: UiText? = null,
-  val showMarkCompleteButton: Boolean = false,
-  /** Unread messages in the task chat; 0 hides the badge on the chat entry point. */
-  val unreadChatCount: Int = 0
+  val showMarkCompleteButton: Boolean = false
 ) {
   /** Members matching the current search query — drives the participants bottom sheet list. */
   val filteredAssignableMembers: ImmutableList<AssignableMemberUi>
