@@ -3,7 +3,6 @@ package com.frame.zero
 import com.frame.zero.auth.JwtService
 import com.frame.zero.auth.authModule
 import com.frame.zero.auth.authRoutes
-import com.frame.zero.common.userId
 import com.frame.zero.config.AppConfig
 import com.frame.zero.config.DatabaseFactory
 import com.frame.zero.config.pingDatabase
