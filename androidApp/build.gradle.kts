@@ -134,7 +134,6 @@ dependencies {
   implementation(projects.shared.features.productionDetails)
   implementation(projects.shared.features.taskDetails)
   implementation(projects.shared.features.taskCreate)
-  implementation(projects.shared.features.chat)
   implementation(projects.shared.features.taskList)
   implementation(projects.shared.features.forceUpdate)
   implementation(libs.decompose)

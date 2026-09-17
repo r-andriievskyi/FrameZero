@@ -12,7 +12,6 @@ kotlin {
       api(libs.decompose)
       implementation(projects.shared.repositories.tasks.api)
       implementation(projects.shared.repositories.productions.api)
-      implementation(projects.shared.repositories.chat.api)
       implementation(libs.bundles.koinRuntime)
       implementation(libs.bundles.ktorClient)
       implementation(libs.compose.components.resources)

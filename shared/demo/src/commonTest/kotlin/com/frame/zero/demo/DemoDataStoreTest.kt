@@ -3,7 +3,6 @@ package com.frame.zero.demo
 import com.frame.zero.domain.task.TaskStatus
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class DemoDataStoreTest {
@@ -33,33 +32,6 @@ class DemoDataStoreTest {
     val updated = store.completeTask(open.id)
     assertEquals(TaskStatus.DONE, updated?.status)
     assertEquals(TaskStatus.DONE, store.getTask(open.id)?.status)
-  }
-
-  @Test
-  fun conversation_is_seeded_with_monotonic_ordinals() {
-    val store = DemoDataStore()
-    val taskId = store.tasks.value.first().id
-    val conversation = store.getOrCreateConversation(taskId)
-    val messages = store.messages.value.getValue(conversation.id)
-    assertTrue(messages.isNotEmpty())
-    assertEquals(messages.map { it.ordinal }.sorted(), messages.map { it.ordinal })
-    assertEquals(messages.maxOf { it.ordinal }, conversation.latestOrdinal)
-    // getOrCreate is idempotent.
-    assertEquals(conversation.id, store.getOrCreateConversation(taskId).id)
-  }
-
-  @Test
-  fun append_message_bumps_latest_ordinal() {
-    val store = DemoDataStore()
-    val taskId = store.tasks.value.first().id
-    val conversation = store.getOrCreateConversation(taskId)
-    val before = conversation.latestOrdinal
-    store.appendMessage(conversation.id, DemoData.USER_ID, "hello", "client-1")
-    val after = store.conversationFor(taskId)
-    assertNotNull(after)
-    assertEquals(before + 1, after.latestOrdinal)
-    // Sender's own message keeps the read cursor current.
-    assertEquals(after.latestOrdinal, after.lastReadOrdinal)
   }
 
   @Test

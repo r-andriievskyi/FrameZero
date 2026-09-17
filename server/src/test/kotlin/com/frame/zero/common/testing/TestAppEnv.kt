@@ -2,15 +2,6 @@ package com.frame.zero.common.testing
 
 import com.frame.zero.auth.JwtService
 import com.frame.zero.auth.testing.FakeUserRepository
-import com.frame.zero.chat.CHAT_SEND_RATE_LIMIT_NAME
-import com.frame.zero.chat.ChatHub
-import com.frame.zero.chat.ChatService
-import com.frame.zero.chat.ChatTaskCircleRevoker
-import com.frame.zero.chat.TaskCircleAccessService
-import com.frame.zero.chat.chatRoutes
-import com.frame.zero.chat.chatWebSocket
-import com.frame.zero.chat.testing.FakeConversationRepository
-import com.frame.zero.chat.testing.FakeMessageRepository
 import com.frame.zero.config.JwtConfig
 import com.frame.zero.dashboard.DashboardService
 import com.frame.zero.dashboard.dashboardRoutes
@@ -43,7 +34,6 @@ import io.ktor.server.auth.Authentication
 import io.ktor.server.auth.jwt.JWTPrincipal
 import io.ktor.server.auth.jwt.jwt
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.server.plugins.ratelimit.RateLimit
 import io.ktor.server.routing.routing
 import io.ktor.server.websocket.WebSockets
 import kotlinx.coroutines.CoroutineScope
@@ -72,9 +62,6 @@ internal class TestAppEnv {
   val notificationsRepo = FakeNotificationRepository()
   val deviceTokens = FakeDeviceTokenRepository()
   val pushSender = FakePushSender()
-  val conversations = FakeConversationRepository()
-  val chatMessages = FakeMessageRepository()
-  val chatHub = ChatHub()
 
   val jwtService = JwtService(testJwtConfig)
   val transactor = NoopTransactor()
@@ -90,9 +77,6 @@ internal class TestAppEnv {
     FilesystemFileStorage(
       java.nio.file.Files.createTempDirectory("framezero-test-uploads").toFile().absolutePath
     )
-  val taskCircleAccess = TaskCircleAccessService(tasks, access)
-  val chatService = ChatService(conversations, chatMessages, taskCircleAccess, transactor, chatHub)
-  val chatRevoker = ChatTaskCircleRevoker(conversations, chatHub)
   val taskService =
     TaskService(
       tasks,
@@ -101,8 +85,7 @@ internal class TestAppEnv {
       transactor,
       notificationsRepo,
       assignmentNotifier,
-      fileStorage,
-      chatRevoker
+      fileStorage
     )
   val scheduleService = ScheduleService(scheduleEvents, tasks, access, transactor)
   val notificationService = NotificationService(notificationsRepo, transactor)
@@ -121,18 +104,11 @@ internal class TestAppEnv {
           single { scheduleService }
           single { notificationService }
           single { deviceTokenService }
-          single { chatService }
-          single { chatHub }
         }
       )
     }
     app.install(ContentNegotiation) { json() }
     app.install(WebSockets)
-    app.install(RateLimit) {
-      register(CHAT_SEND_RATE_LIMIT_NAME) {
-        rateLimiter(limit = 1_000, refillPeriod = 1.minutes)
-      }
-    }
     app.install(Authentication) {
       jwt("auth-jwt") {
         realm = testJwtConfig.realm
@@ -150,8 +126,6 @@ internal class TestAppEnv {
       scheduleRoutes()
       notificationRoutes()
       deviceTokenRoutes()
-      chatRoutes()
-      chatWebSocket()
     }
   }
 }

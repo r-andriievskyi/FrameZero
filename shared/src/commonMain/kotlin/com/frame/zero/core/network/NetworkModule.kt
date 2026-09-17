@@ -53,7 +53,6 @@ internal fun connectivityGuard(connectivityObserver: ConnectivityObserver) =
 val networkModule: Module = module {
   single { NetworkConfig.fromBuildConfig() }
   single { provideHttpClient(get(), get(), get(), get(), get(), isDebug = BuildKonfig.DEBUG) }
-  single { ChatSocketClient(httpClient = get(), networkConfig = get(), logger = get()) }
 }
 
 private fun provideHttpClient(

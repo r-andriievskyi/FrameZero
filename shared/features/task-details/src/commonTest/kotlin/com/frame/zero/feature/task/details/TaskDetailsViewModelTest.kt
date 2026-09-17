@@ -4,15 +4,11 @@ import androidx.paging.PagingData
 import app.cash.turbine.test
 import com.frame.zero.domain.task.TaskAssignee
 import com.frame.zero.domain.task.TaskDetail
-import com.frame.zero.domain.chat.Conversation
 import com.frame.zero.domain.task.TaskSummary
 import com.frame.zero.feature.task.details.usecase.CompleteTaskUseCase
 import com.frame.zero.feature.task.details.usecase.GetAssignableMembersUseCase
 import com.frame.zero.feature.task.details.usecase.GetTaskDetailsUseCase
-import com.frame.zero.feature.task.details.usecase.ObserveTaskChatUnreadUseCase
 import com.frame.zero.feature.task.details.usecase.UpdateTaskParticipantsUseCase
-import com.frame.zero.repository.chat.ChatRepository
-import com.frame.zero.testing.FakeChatRepository
 import com.frame.zero.testing.FakeProductionsRepository
 import com.frame.zero.testing.FakeTasksRepository
 import com.frame.zero.testing.productionMember
@@ -146,7 +142,6 @@ class TaskDetailsViewModelTest {
           completeTaskUseCase = CompleteTaskUseCase(repo),
           getAssignableMembersUseCase = GetAssignableMembersUseCase(FakeProductionsRepository()),
           updateTaskParticipantsUseCase = UpdateTaskParticipantsUseCase(repo),
-          observeTaskChatUnreadUseCase = ObserveTaskChatUnreadUseCase(FakeChatRepository()),
           tasksRepository = repo,
           attachmentFileManager = FakeAttachmentFileManager(),
           dispatcher = StandardTestDispatcher(testScheduler)
@@ -398,34 +393,11 @@ class TaskDetailsViewModelTest {
       }
     }
 
-  @Test
-  fun `observes chat unread count for the badge`() =
-    runTest {
-      val chat = FakeChatRepository(
-        conversation = Conversation(
-          id = "c1",
-          taskId = "t1",
-          productionId = "p1",
-          createdAt = Instant.fromEpochMilliseconds(0L),
-          latestOrdinal = 7,
-          lastReadOrdinal = 4
-        )
-      )
-      val viewModel = makeViewModel(this, FakeTasksRepository(task = openTask), chatRepository = chat)
-
-      viewModel.state.test {
-        advanceUntilIdle()
-
-        assertEquals(3, expectMostRecentItem().unreadChatCount)
-      }
-    }
-
   private fun makeViewModel(
     scope: TestScope,
     repo: com.frame.zero.repository.tasks.TasksRepository,
     productions: FakeProductionsRepository = FakeProductionsRepository(),
-    attachmentFileManager: com.frame.zero.core.files.AttachmentFileManager = FakeAttachmentFileManager(),
-    chatRepository: ChatRepository = FakeChatRepository()
+    attachmentFileManager: com.frame.zero.core.files.AttachmentFileManager = FakeAttachmentFileManager()
   ): TaskDetailsViewModel =
     TaskDetailsViewModel(
       taskId = "t1",
@@ -433,7 +405,6 @@ class TaskDetailsViewModelTest {
       completeTaskUseCase = CompleteTaskUseCase(repo),
       getAssignableMembersUseCase = GetAssignableMembersUseCase(productions),
       updateTaskParticipantsUseCase = UpdateTaskParticipantsUseCase(repo),
-      observeTaskChatUnreadUseCase = ObserveTaskChatUnreadUseCase(chatRepository),
       tasksRepository = repo,
       attachmentFileManager = attachmentFileManager,
       dispatcher = StandardTestDispatcher(scope.testScheduler)
