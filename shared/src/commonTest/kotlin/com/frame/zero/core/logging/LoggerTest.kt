@@ -37,7 +37,7 @@ class LoggerTest {
   fun `dispatches each record to every registered sink`() {
     val first = RecordingSink()
     val second = RecordingSink()
-    val logger = LoggerImpl(listOf(first, second))
+    val logger = LoggerImpl(setOf(first, second))
 
     logger.i("Net", "hello")
 
@@ -49,7 +49,7 @@ class LoggerTest {
   @Test
   fun `maps each facade method to its level and forwards the throwable`() {
     val sink = RecordingSink()
-    val logger = LoggerImpl(listOf(sink))
+    val logger = LoggerImpl(setOf(sink))
     val cause = RuntimeException("cause")
 
     logger.v("T", "v")
@@ -68,7 +68,7 @@ class LoggerTest {
   @Test
   fun `a throwing sink does not prevent other sinks from receiving the record`() {
     val healthy = RecordingSink()
-    val logger = LoggerImpl(listOf(ThrowingSink(), healthy))
+    val logger = LoggerImpl(setOf(ThrowingSink(), healthy))
 
     logger.e("T", "still delivered")
 

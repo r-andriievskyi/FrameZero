@@ -4,7 +4,9 @@ import com.frame.zero.core.session.SessionManager
 import com.frame.zero.domain.UseCase
 import com.frame.zero.domain.User
 import com.frame.zero.repository.auth.AuthRepository
+import dev.zacsweers.metro.Inject
 
+@Inject
 class LoginUseCase(
   private val authRepository: AuthRepository,
   private val sessionManager: SessionManager

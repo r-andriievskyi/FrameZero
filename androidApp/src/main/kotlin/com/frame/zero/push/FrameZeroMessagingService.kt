@@ -4,10 +4,9 @@ import android.app.PendingIntent
 import android.content.Intent
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import com.frame.zero.FrameZeroApp
+import com.frame.zero.graph
 import com.frame.zero.R
 import com.frame.zero.MainActivity
-import com.frame.zero.repository.device_token.DeviceTokenSynchronizer
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import kotlinx.coroutines.CoroutineScope
@@ -21,7 +20,7 @@ class FrameZeroMessagingService : FirebaseMessagingService() {
 
   @Deprecated("Deprecated. Move to the onRegistered model")
   override fun onNewToken(token: String) {
-    val synchronizer = (application as FrameZeroApp).koin.get<DeviceTokenSynchronizer>()
+    val synchronizer = application.graph.deviceTokenSynchronizer
     scope.launch { synchronizer.onNewToken(token) }
   }
 

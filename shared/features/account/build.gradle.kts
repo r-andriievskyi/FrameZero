@@ -1,4 +1,7 @@
-plugins { id("crossplatform.library.compose") }
+plugins {
+  id("crossplatform.library.compose")
+  id("crossplatform.di")
+}
 
 base { archivesName = "feature-account" }
 
@@ -9,7 +12,7 @@ kotlin {
     commonMain.dependencies {
       api(projects.shared)
       api(libs.decompose)
-      implementation(libs.bundles.koinRuntime)
+      implementation(libs.kotlinx.coroutines.core)
       implementation(libs.compose.components.resources)
     }
     commonTest.dependencies {

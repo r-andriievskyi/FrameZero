@@ -12,7 +12,7 @@ import com.frame.zero.repository.auth.AuthRepository
  * always the seeded [DemoData.defaultUser] — typed email/name is ignored — so it stays consistent
  * with the curated crew/task data. Fake tokens are stored so a relaunch stays signed in.
  */
-internal class DemoAuthRepository(
+class DemoAuthRepository(
   private val tokenStorage: TokenStorage,
   private val userCache: UserCache
 ) : AuthRepository,

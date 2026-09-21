@@ -6,6 +6,10 @@ import com.frame.zero.domain.schedule.ScheduleView
 import com.frame.zero.domain.schedule.toDomain
 import com.frame.zero.dto.schedule.ScheduleResponse
 import com.frame.zero.repository.schedule.ScheduleRepository
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
@@ -13,6 +17,9 @@ import io.ktor.client.request.parameter
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.number
 
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class)
+@Inject
 class ScheduleRepositoryImpl(
   private val httpClient: HttpClient,
   private val networkConfig: NetworkConfig

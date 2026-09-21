@@ -1,6 +1,9 @@
 package com.frame.zero.core.security
 
 import com.russhwolf.settings.Settings
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,6 +25,8 @@ import kotlinx.coroutines.sync.Mutex
  * - [onBackgrounded] re-locks when the app leaves the foreground.
  * - [authenticate] unlocks on a successful prompt.
  */
+@SingleIn(AppScope::class)
+@Inject
 class AppLockController(
   private val authenticator: BiometricAuthenticator,
   private val settings: Settings

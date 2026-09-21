@@ -6,16 +6,23 @@ import android.provider.OpenableColumns
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.FragmentActivity
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
+import java.io.File
+import java.util.UUID
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.io.File
-import java.util.UUID
 
 /**
  * [FilePicker] backed by the Storage Access Framework (`ACTION_OPEN_DOCUMENT`), which
  * needs no runtime permission.
  */
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class)
+@Inject
 class AndroidFilePicker(
   private val context: Context
 ) : FilePicker {

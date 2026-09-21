@@ -1,5 +1,10 @@
 package com.frame.zero.core.performance
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
+
 /**
  * App-wide performance-monitoring facade. Inject this and call it; the registered
  * [PerformanceSink] plugins decide where traces actually go. The facade never throws — a
@@ -34,8 +39,11 @@ inline fun <T> Performance.trace(
  * `runCatching` so one failing sink can't suppress the rest. [startTrace] returns a composite
  * handle that forwards every metric/stop to each backend's own trace.
  */
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class)
+@Inject
 class PerformanceImpl(
-  private val sinks: List<PerformanceSink>
+  private val sinks: Set<PerformanceSink>
 ) : Performance {
   override fun startTrace(name: String): PerformanceTrace =
     CompositePerformanceTrace(sinks.mapNotNull { sink -> runCatching { sink.startTrace(name) }.getOrNull() })

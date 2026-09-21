@@ -1,5 +1,9 @@
 package com.frame.zero.core.network.connectivity
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,11 +19,14 @@ import platform.darwin.dispatch_queue_create
 
 /**
  * [ConnectivityObserver] backed by `NWPathMonitor`. A single monitor runs for the
- * app's lifetime (this is registered as a Koin `single`) and feeds a [MutableStateFlow]
+ * app's lifetime (this is `@SingleIn(AppScope::class)`) and feeds a [MutableStateFlow]
  * so both the reactive [isOnline] stream and the synchronous [isCurrentlyOnline]
  * snapshot read the same state.
  */
 @OptIn(ExperimentalForeignApi::class)
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class)
+@Inject
 class IosConnectivityObserver : ConnectivityObserver {
   private val state = MutableStateFlow(true)
 

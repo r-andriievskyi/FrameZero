@@ -11,6 +11,11 @@ import com.frame.zero.core.session.TokenStorage
 import com.frame.zero.domain.User
 import com.frame.zero.domain.toDomain
 import com.frame.zero.repository.auth.AuthRepository
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
+import dev.zacsweers.metro.binding
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
@@ -18,6 +23,10 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import kotlinx.coroutines.CancellationException
 
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class, binding = binding<AuthRepository>())
+@ContributesBinding(AppScope::class, binding = binding<SessionAuthOperations>())
+@Inject
 class AuthRepositoryImpl(
   private val httpClient: HttpClient,
   private val tokenStorage: TokenStorage,

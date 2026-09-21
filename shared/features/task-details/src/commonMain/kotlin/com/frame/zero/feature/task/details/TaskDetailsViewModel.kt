@@ -7,6 +7,8 @@ import com.frame.zero.domain.Outcome
 import com.frame.zero.domain.task.AssignableMember
 import com.frame.zero.domain.task.TaskDetail
 import com.frame.zero.domain.task.TaskParticipant
+import com.frame.zero.domain.task.TaskPriority as DomainTaskPriority
+import com.frame.zero.domain.task.TaskStatus as DomainTaskStatus
 import com.frame.zero.feature.task.details.usecase.CompleteTaskUseCase
 import com.frame.zero.feature.task.details.usecase.GetAssignableMembersUseCase
 import com.frame.zero.feature.task.details.usecase.GetTaskDetailsUseCase
@@ -16,6 +18,9 @@ import com.frame.zero.ui.DomainErrorCategory
 import com.frame.zero.ui.UiText
 import com.frame.zero.ui.asUiText
 import com.frame.zero.ui.toUiText
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import framezero.shared.features.task_details.generated.resources.Res
 import framezero.shared.features.task_details.generated.resources.error_attachment_generic
 import framezero.shared.features.task_details.generated.resources.error_attachment_offline
@@ -23,6 +28,9 @@ import framezero.shared.features.task_details.generated.resources.error_attachme
 import framezero.shared.features.task_details.generated.resources.error_conflict
 import framezero.shared.features.task_details.generated.resources.error_forbidden
 import framezero.shared.features.task_details.generated.resources.error_not_found
+import kotlin.coroutines.CoroutineContext
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -36,14 +44,10 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
-import kotlin.coroutines.CoroutineContext
-import kotlin.time.Clock
-import kotlin.time.ExperimentalTime
-import com.frame.zero.domain.task.TaskPriority as DomainTaskPriority
-import com.frame.zero.domain.task.TaskStatus as DomainTaskStatus
 
+@AssistedInject
 class TaskDetailsViewModel(
-  private val taskId: String,
+  @Assisted private val taskId: String,
   private val getTaskDetailsUseCase: GetTaskDetailsUseCase,
   private val completeTaskUseCase: CompleteTaskUseCase,
   private val getAssignableMembersUseCase: GetAssignableMembersUseCase,
@@ -290,5 +294,13 @@ class TaskDetailsViewModel(
       DomainErrorCategory.INSUFFICIENT_STORAGE to Res.string.error_attachment_storage.asUiText(),
       DomainErrorCategory.FALLBACK to Res.string.error_attachment_generic.asUiText()
     )
+  }
+
+  /**
+   * Navigation supplies the task id; everything else comes from the graph.
+   */
+  @AssistedFactory
+  fun interface Factory {
+    fun create(taskId: String): TaskDetailsViewModel
   }
 }

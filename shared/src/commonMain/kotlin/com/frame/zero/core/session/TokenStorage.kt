@@ -1,7 +1,12 @@
 package com.frame.zero.core.session
 
 import com.russhwolf.settings.Settings
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 
+@SingleIn(AppScope::class)
+@Inject
 class TokenStorage(
   private val settings: Settings
 ) {

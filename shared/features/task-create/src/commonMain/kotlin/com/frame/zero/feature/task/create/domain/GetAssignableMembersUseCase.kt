@@ -1,10 +1,12 @@
 package com.frame.zero.feature.task.create.domain
 
 import com.frame.zero.domain.UseCase
-import com.frame.zero.domain.task.AssignableMember
 import com.frame.zero.domain.production.ProductionMember
+import com.frame.zero.domain.task.AssignableMember
 import com.frame.zero.repository.productions.ProductionsRepository
+import dev.zacsweers.metro.Inject
 
+@Inject
 class GetAssignableMembersUseCase(
   private val productionsRepository: ProductionsRepository
 ) : UseCase<GetAssignableMembersUseCase.Params, List<AssignableMember>>() {

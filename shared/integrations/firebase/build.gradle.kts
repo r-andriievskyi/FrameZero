@@ -1,4 +1,7 @@
-plugins { id("crossplatform.library") }
+plugins {
+  id("crossplatform.library")
+  id("crossplatform.di")
+}
 
 base { archivesName = "integration-firebase" }
 
@@ -10,7 +13,6 @@ kotlin {
   sourceSets {
     commonMain.dependencies {
       api(projects.shared)
-      implementation(libs.koin.core)
       implementation(libs.gitlive.firebase.app)
       implementation(libs.gitlive.firebase.analytics)
       implementation(libs.gitlive.firebase.crashlytics)

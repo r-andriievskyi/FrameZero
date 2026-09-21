@@ -14,7 +14,7 @@ RootComponent.updateState  (overlay, mirrors biometric lock)
 ```
 
 - `AppUpdateRepository.fetchPolicy()` → `UpdatePolicy(minSupportedBuild, latestBuild, storeUrl, message, critical)`.
-  RC impl reads per-platform keys (`min_supported_build_android/ios`, …); backend swap = second impl + flip Koin binding.
+  RC impl reads per-platform keys (`min_supported_build_android/ios`, …); backend swap = second impl carrying the `@ContributesBinding`, with the old one excluded.
 - `AppVersionProvider` reads the **real shipped** build (Android `versionCode` / iOS `CFBundleVersion`) — not BuildKonfig.
 - `CheckAppUpdateUseCase`: `current < min → HARD`, `< latest → SOFT`, else `NONE`.
 - Gate compares **client-side** on integer build number, so RC/backend stays dumb (no conditions).

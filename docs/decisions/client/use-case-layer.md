@@ -13,5 +13,5 @@ are small, testable, and never throw across a layer boundary.
   re-wrapping is redundant.
 
 **Cost:** one small class per business action. Each lives in the feature's
-`domain/`/`usecase/` package and is registered `factory` in its Koin module.
+`domain/`/`usecase/` package and is `@Inject`-annotated and unscoped, so each request builds a fresh one.
 

@@ -77,7 +77,7 @@ class DeviceTokenSynchronizerTest {
       scope.cancel()
     }
 
-  private val noopLogger = LoggerImpl(emptyList())
+  private val noopLogger = LoggerImpl(emptySet())
 
   private fun kotlinx.coroutines.test.TestScope.registrarScope(): CoroutineScope =
     CoroutineScope(UnconfinedTestDispatcher(testScheduler))

@@ -1,4 +1,7 @@
-plugins { id("crossplatform.library") }
+plugins {
+  id("crossplatform.library")
+  id("crossplatform.di")
+}
 
 base { archivesName = "repository-tasks-impl" }
 
@@ -12,7 +15,7 @@ kotlin {
       api(projects.shared.repositories.tasks.api)
       implementation(projects.shared)
       implementation(projects.shared.database)
-      implementation(libs.bundles.koinRuntime)
+      implementation(libs.kotlinx.coroutines.core)
       implementation(libs.bundles.ktorClient)
     }
 

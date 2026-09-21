@@ -5,9 +5,9 @@ package com.frame.zero.core.analytics
  * reports through [Analytics] and forward it to a concrete backend (Firebase, Amplitude,
  * a logging sink, …).
  *
- * Register one with `single { MySink() } bind AnalyticsSink::class`; [Analytics] collects
- * all registered sinks via Koin `getAll()` and fans out to each. To add a new backend,
- * implement this interface and add a single `bind` line — nothing else changes.
+ * Annotate an implementation `@ContributesIntoSet(AppScope::class)`; [Analytics] takes the
+ * resulting `Set<AnalyticsSink>` and fans out to each. To add a new backend, implement this
+ * interface and add that one annotation — nothing else changes.
  */
 interface AnalyticsSink {
   fun track(event: AnalyticsEvent)

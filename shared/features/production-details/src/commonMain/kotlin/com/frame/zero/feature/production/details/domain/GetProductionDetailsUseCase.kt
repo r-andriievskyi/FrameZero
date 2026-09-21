@@ -3,7 +3,9 @@ package com.frame.zero.feature.production.details.domain
 import com.frame.zero.domain.UseCase
 import com.frame.zero.domain.production.ProductionDetail
 import com.frame.zero.repository.productions.ProductionsRepository
+import dev.zacsweers.metro.Inject
 
+@Inject
 class GetProductionDetailsUseCase(
   private val productionsRepository: ProductionsRepository
 ) : UseCase<GetProductionDetailsUseCase.Params, ProductionDetail>() {

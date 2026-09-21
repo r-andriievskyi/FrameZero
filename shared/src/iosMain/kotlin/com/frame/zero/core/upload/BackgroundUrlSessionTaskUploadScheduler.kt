@@ -4,6 +4,11 @@ import com.frame.zero.core.files.toNSData
 import com.frame.zero.core.logging.Logger
 import com.frame.zero.core.network.NetworkConfig
 import com.frame.zero.core.session.TokenStorage
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -28,7 +33,6 @@ import platform.Foundation.setHTTPMethod
 import platform.Foundation.setValue
 import platform.Foundation.writeData
 import platform.darwin.NSObject
-import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * [TaskUploadScheduler] backed by a background `NSURLSession`: the OS carries the upload even if
@@ -37,6 +41,9 @@ import kotlin.time.Duration.Companion.milliseconds
  * the attachment is never held whole in memory, and the session uploads from that file.
  */
 @OptIn(ExperimentalForeignApi::class)
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class)
+@Inject
 class BackgroundUrlSessionTaskUploadScheduler(
   private val store: PendingUploadStore,
   private val tokenStorage: TokenStorage,

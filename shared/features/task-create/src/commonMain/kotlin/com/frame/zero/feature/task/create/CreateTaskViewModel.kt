@@ -2,7 +2,6 @@ package com.frame.zero.feature.task.create
 
 import com.arkivanov.essenty.instancekeeper.InstanceKeeper
 import com.frame.zero.core.collections.mapImmutable
-import com.frame.zero.domain.task.AssignableMember
 import com.frame.zero.core.files.AttachmentFileManager
 import com.frame.zero.core.files.FilePicker
 import com.frame.zero.core.files.MAX_ATTACHMENT_BYTES
@@ -10,21 +9,29 @@ import com.frame.zero.core.files.PickedFile
 import com.frame.zero.core.upload.PendingTaskUpload
 import com.frame.zero.core.upload.TaskUploadScheduler
 import com.frame.zero.domain.Outcome
+import com.frame.zero.domain.task.AssignableMember
 import com.frame.zero.feature.task.create.domain.CreateTaskUseCase
 import com.frame.zero.feature.task.create.domain.GetAssignableMembersUseCase
 import com.frame.zero.ui.DomainErrorCategory
 import com.frame.zero.ui.UiText
 import com.frame.zero.ui.asUiText
 import com.frame.zero.ui.toUiText
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import framezero.shared.features.task_create.generated.resources.Res
 import framezero.shared.features.task_create.generated.resources.error_conflict
 import framezero.shared.features.task_create.generated.resources.error_file_too_large
 import framezero.shared.features.task_create.generated.resources.error_forbidden
 import framezero.shared.features.task_create.generated.resources.error_not_found
 import framezero.shared.features.task_create.generated.resources.error_title_required
+import kotlin.coroutines.CoroutineContext
+import kotlin.time.Clock
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.BufferOverflow
@@ -42,15 +49,12 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.isoDayNumber
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
-import kotlin.coroutines.CoroutineContext
-import kotlin.time.Clock
-import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
+@AssistedInject
 class CreateTaskViewModel(
-  private val productionId: String,
-  productionTitle: String,
+  @Assisted private val productionId: String,
+  @Assisted productionTitle: String,
   private val createTaskUseCase: CreateTaskUseCase,
   private val getAssignableMembersUseCase: GetAssignableMembersUseCase,
   private val filePicker: FilePicker,
@@ -249,5 +253,16 @@ class CreateTaskViewModel(
       DomainErrorCategory.CONFLICT to Res.string.error_conflict.asUiText(),
       DomainErrorCategory.PAYLOAD_TOO_LARGE to Res.string.error_file_too_large.asUiText()
     )
+  }
+
+  /**
+   * Navigation supplies the production the task is created under.
+   */
+  @AssistedFactory
+  fun interface Factory {
+    fun create(
+      productionId: String,
+      productionTitle: String
+    ): CreateTaskViewModel
   }
 }

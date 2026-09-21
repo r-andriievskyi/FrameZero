@@ -1,5 +1,8 @@
 package com.frame.zero.core.navigation
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -13,6 +16,8 @@ import kotlinx.coroutines.flow.asSharedFlow
  * cache and delivered once the session becomes logged in; [consume] clears it after
  * handling.
  */
+@SingleIn(AppScope::class)
+@Inject
 class NavigationSignal {
   // replay = 1 so a deep link emitted at cold start (before the root subscribes) is
   // still delivered once it does. [consume] clears it after handling so it isn't

@@ -18,11 +18,18 @@ import com.frame.zero.domain.production.toProductionMember
 import com.frame.zero.repository.productions.local.toDomain
 import com.frame.zero.repository.productions.local.toEntity
 import com.frame.zero.repository.productions.network.ProductionsApi
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 private const val PageSize = 5
 
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class)
+@Inject
 class ProductionsRepositoryImpl(
   private val remoteApi: ProductionsApi,
   private val database: FrameZeroDatabase

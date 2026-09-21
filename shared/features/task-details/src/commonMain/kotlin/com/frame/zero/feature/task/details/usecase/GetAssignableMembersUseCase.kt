@@ -1,15 +1,17 @@
 package com.frame.zero.feature.task.details.usecase
 
 import com.frame.zero.domain.UseCase
-import com.frame.zero.domain.task.AssignableMember
 import com.frame.zero.domain.production.ProductionMember
+import com.frame.zero.domain.task.AssignableMember
 import com.frame.zero.repository.productions.ProductionsRepository
+import dev.zacsweers.metro.Inject
 
 /**
  * Candidates for the participants picker: production members backed by a real user account,
  * same filtering rule as task-create's assignee picker (kept as a module-local copy — task-create
  * and task-details are separate feature modules with no dependency between them).
  */
+@Inject
 class GetAssignableMembersUseCase(
   private val productionsRepository: ProductionsRepository
 ) : UseCase<GetAssignableMembersUseCase.Params, List<AssignableMember>>() {

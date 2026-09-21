@@ -4,18 +4,25 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.callbackFlow
 
 /**
  * [ConnectivityObserver] backed by [ConnectivityManager]'s network callbacks.
  * Emits the current reachability immediately, then on every available/lost
  * transition. Requires the `ACCESS_NETWORK_STATE` permission.
  */
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class)
+@Inject
 class AndroidConnectivityObserver(
   context: Context
 ) : ConnectivityObserver {

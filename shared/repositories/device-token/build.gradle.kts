@@ -1,4 +1,7 @@
-plugins { id("crossplatform.library") }
+plugins {
+  id("crossplatform.library")
+  id("crossplatform.di")
+}
 
 base { archivesName = "repository-device-token" }
 
@@ -10,7 +13,7 @@ kotlin {
   sourceSets {
     commonMain.dependencies {
       api(projects.shared)
-      implementation(libs.bundles.koinRuntime)
+      implementation(libs.kotlinx.coroutines.core)
       implementation(libs.bundles.ktorClient)
     }
 

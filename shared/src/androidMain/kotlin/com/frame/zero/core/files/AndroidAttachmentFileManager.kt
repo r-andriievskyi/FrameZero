@@ -4,17 +4,24 @@ import android.content.Context
 import android.content.Intent
 import android.os.StatFs
 import androidx.core.content.FileProvider
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.readRemaining
+import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.io.readByteArray
-import java.io.File
 
 /**
  * Stores downloaded attachments under app-private `filesDir/attachments/<taskId>/` and
  * opens them with another app via a `FileProvider` content URI (no storage permission).
  */
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class)
+@Inject
 class AndroidAttachmentFileManager(
   private val context: Context
 ) : AttachmentFileManager {

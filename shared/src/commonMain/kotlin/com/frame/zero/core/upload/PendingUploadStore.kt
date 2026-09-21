@@ -2,6 +2,9 @@ package com.frame.zero.core.upload
 
 import com.frame.zero.database.PendingUploadDao
 import com.frame.zero.database.PendingUploadEntity
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.Json
@@ -15,6 +18,8 @@ import kotlinx.serialization.json.Json
  * retry) without either clobbering the other. [PendingUploadEntity.payload] holds everything
  * else and is written once at [add] time; it is never rewritten by a later mutation.
  */
+@SingleIn(AppScope::class)
+@Inject
 class PendingUploadStore(
   private val dao: PendingUploadDao,
   private val json: Json = Json { ignoreUnknownKeys = true }

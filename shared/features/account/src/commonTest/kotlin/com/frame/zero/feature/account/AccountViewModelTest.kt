@@ -188,6 +188,7 @@ class AccountViewModelTest {
       authOperations = FakeAuthOps,
       userCache = UserCache(MapSettings()),
       logoutSignal = LogoutSignal(),
+      cleaners = emptySet(),
       scope = scope.backgroundScope
     )
 

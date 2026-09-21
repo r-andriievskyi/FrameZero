@@ -5,12 +5,14 @@ import com.frame.zero.domain.NoParamsUseCase
 import com.frame.zero.repository.force_update.ForceUpdateRepository
 import com.frame.zero.repository.force_update.UpdatePolicy
 import com.frame.zero.repository.force_update.UpdateType
+import dev.zacsweers.metro.Inject
 
 /**
  * Fetches the release policy and compares it against the running build to produce an
  * [ForceUpdateState]. Throws from the repository propagate; the `NoParamsUseCase` base wraps this in
  * `Outcome`, and [ForceUpdateController] treats a failure as [ForceUpdateState.None] (fail-open).
  */
+@Inject
 class CheckForceUpdateUseCase(
   private val repository: ForceUpdateRepository,
   private val appVersionProvider: AppVersionProvider

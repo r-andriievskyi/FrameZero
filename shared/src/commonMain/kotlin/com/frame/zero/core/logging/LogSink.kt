@@ -5,9 +5,10 @@ package com.frame.zero.core.logging
  * emits through [Logger] and forward it to a concrete backend (console, Logcat/NSLog,
  * Crashlytics, …).
  *
- * Register one with `single { MySink() } bind LogSink::class`; [Logger] collects all
- * registered sinks via Koin `getAll()` and fans out to each. To add a new backend,
- * implement this interface and add a single `bind` line — nothing else changes.
+ * Annotate an implementation `@ContributesIntoSet(AppScope::class)`; [Logger] takes the
+ * resulting `Set<LogSink>` and fans out to each. To add a new backend, implement this
+ * interface and add that one annotation — nothing else changes, and a graph that cannot
+ * see the contribution fails to compile rather than silently dropping it.
  */
 interface LogSink {
   fun log(

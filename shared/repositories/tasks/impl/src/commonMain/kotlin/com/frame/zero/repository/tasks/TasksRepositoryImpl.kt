@@ -28,6 +28,10 @@ import com.frame.zero.dto.task.UpdateTaskRequest
 import com.frame.zero.repository.tasks.local.toDomain
 import com.frame.zero.repository.tasks.local.toEntity
 import com.frame.zero.repository.tasks.network.TasksApi
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
@@ -41,6 +45,9 @@ import io.ktor.client.statement.bodyAsChannel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class)
+@Inject
 class TasksRepositoryImpl(
   private val httpClient: HttpClient,
   private val networkConfig: NetworkConfig,

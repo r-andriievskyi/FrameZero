@@ -1,5 +1,10 @@
 package com.frame.zero.core.security
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
+import kotlin.coroutines.resume
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.suspendCancellableCoroutine
 import platform.Foundation.NSError
@@ -8,7 +13,6 @@ import platform.LocalAuthentication.LAErrorAppCancel
 import platform.LocalAuthentication.LAErrorSystemCancel
 import platform.LocalAuthentication.LAErrorUserCancel
 import platform.LocalAuthentication.LAPolicyDeviceOwnerAuthenticationWithBiometrics
-import kotlin.coroutines.resume
 
 /**
  * [BiometricAuthenticator] backed by `LAContext` (Face ID / Touch ID). A fresh context
@@ -18,6 +22,9 @@ import kotlin.coroutines.resume
  * kills the app when the Face ID prompt is requested.
  */
 @OptIn(ExperimentalForeignApi::class)
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class)
+@Inject
 class IosBiometricAuthenticator : BiometricAuthenticator {
   override fun availability(): BiometricAvailability {
     val context = LAContext()

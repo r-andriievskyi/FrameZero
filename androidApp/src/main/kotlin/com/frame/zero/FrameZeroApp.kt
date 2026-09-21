@@ -3,25 +3,31 @@ package com.frame.zero
 import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import com.frame.zero.core.security.ActivityHolder
-import com.frame.zero.core.security.AppLifecycleObserver
-import com.frame.zero.di.androidContextModule
-import com.frame.zero.di.debugToolsModule
-import com.frame.zero.di.initKoin
+import androidx.work.Configuration
+import com.frame.zero.di.AndroidAppGraph
+import com.frame.zero.di.createAndroidAppGraph
+import com.frame.zero.di.debugHttpInterceptors
 import com.frame.zero.push.PushNotifications
-import org.koin.core.Koin
 
-class FrameZeroApp : Application() {
-  lateinit var koin: Koin
+class FrameZeroApp :
+  Application(),
+  Configuration.Provider {
+  lateinit var graph: AndroidAppGraph
     private set
+
+  override val workManagerConfiguration: Configuration
+    get() = Configuration.Builder().setWorkerFactory(graph.taskUploadWorkerFactory).build()
 
   override fun onCreate() {
     super.onCreate()
-    koin = initKoin(extraModules = listOf(androidContextModule(applicationContext), debugToolsModule))
+    graph = createAndroidAppGraph(applicationContext, debugHttpInterceptors(applicationContext))
     // lets the biometric authenticator find the foreground activity to host its prompt.
-    koin.get<ActivityHolder>().attachTo(this)
+    graph.activityHolder.attachTo(this)
     // re-locks the session on real backgrounding (ignores config-change recreation).
-    koin.get<AppLifecycleObserver>().attachTo(this)
+    graph.appLifecycleObserver.attachTo(this)
+    // Metro has no eager bindings: resolve the synchronizer so it starts observing the session
+    // now rather than whenever something first asks for it (Koin: `createdAtStart = true`).
+    graph.deviceTokenSynchronizer
     createNotificationChannel()
   }
 
@@ -35,7 +41,5 @@ class FrameZeroApp : Application() {
   }
 }
 
-val Application.koin: Koin
-  get() = (this as FrameZeroApp).koin
-
-inline fun <reified T : Any> Application.get(): T = koin.get()
+val Application.graph: AndroidAppGraph
+  get() = (this as FrameZeroApp).graph

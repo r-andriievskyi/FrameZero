@@ -1,4 +1,7 @@
-plugins { id("crossplatform.library.compose") }
+plugins {
+  id("crossplatform.library.compose")
+  id("crossplatform.di")
+}
 
 base { archivesName = "feature-task-list" }
 
@@ -12,7 +15,7 @@ kotlin {
       api(libs.decompose)
       api(libs.androidx.paging.common)
       implementation(projects.shared.repositories.tasks.api)
-      implementation(libs.bundles.koinRuntime)
+      implementation(libs.kotlinx.coroutines.core)
       implementation(libs.compose.components.resources)
     }
     commonTest.dependencies {

@@ -243,6 +243,7 @@ class RootComponentTest {
       authOperations = NoopSessionAuthOperations,
       userCache = UserCache(MapSettings()),
       logoutSignal = LogoutSignal(),
+      cleaners = emptySet(),
       scope = backgroundScope
     )
 

@@ -1,4 +1,7 @@
-plugins { id("crossplatform.library.compose") }
+plugins {
+  id("crossplatform.library.compose")
+  id("crossplatform.di")
+}
 
 base { archivesName = "feature-production" }
 
@@ -11,7 +14,7 @@ kotlin {
       api(projects.shared.uiText)
       api(libs.decompose)
       implementation(projects.shared.repositories.productions.api)
-      implementation(libs.bundles.koinRuntime)
+      implementation(libs.kotlinx.coroutines.core)
       implementation(libs.compose.components.resources)
     }
     commonTest.dependencies {

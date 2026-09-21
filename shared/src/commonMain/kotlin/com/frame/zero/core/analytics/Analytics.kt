@@ -1,5 +1,10 @@
 package com.frame.zero.core.analytics
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
+
 /**
  * App-wide analytics facade. Inject this and call it; the registered [AnalyticsSink]
  * plugins decide where events actually go. The facade never throws — a misbehaving sink
@@ -21,8 +26,11 @@ interface Analytics {
  * `runCatching` so one failing sink can't suppress the rest. [screen] is sugar over
  * [track] using a conventional `screen_view` event.
  */
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class)
+@Inject
 class AnalyticsImpl(
-  private val sinks: List<AnalyticsSink>
+  private val sinks: Set<AnalyticsSink>
 ) : Analytics {
   override fun track(event: AnalyticsEvent) {
     sinks.forEach { sink -> runCatching { sink.track(event) } }

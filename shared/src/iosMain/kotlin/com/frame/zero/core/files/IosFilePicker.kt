@@ -1,5 +1,10 @@
 package com.frame.zero.core.files
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
+import kotlin.coroutines.resume
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -14,7 +19,6 @@ import platform.UIKit.UIDocumentPickerViewController
 import platform.UniformTypeIdentifiers.UTType
 import platform.UniformTypeIdentifiers.UTTypeItem
 import platform.darwin.NSObject
-import kotlin.coroutines.resume
 
 /**
  * [FilePicker] backed by `UIDocumentPickerViewController` in copy mode (`asCopy = true`),
@@ -23,6 +27,9 @@ import kotlin.coroutines.resume
  * path stays valid for a later background upload.
  */
 @OptIn(ExperimentalForeignApi::class)
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class)
+@Inject
 class IosFilePicker : FilePicker {
   // Held strongly while a pick is in flight; UIDocumentPickerViewController.delegate is weak.
   private var delegate: PickerDelegate? = null

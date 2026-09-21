@@ -4,6 +4,7 @@ import com.frame.zero.core.files.AttachmentFileManager
 import com.frame.zero.core.logging.Logger
 import com.frame.zero.core.network.NetworkConfig
 import com.frame.zero.domain.ServerErrorException
+import dev.zacsweers.metro.Inject
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.ResponseException
 import io.ktor.client.request.forms.ChannelProvider
@@ -15,8 +16,8 @@ import io.ktor.client.request.setBody
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
 import io.ktor.util.cio.readChannel
-import kotlinx.coroutines.CancellationException
 import java.io.File
+import kotlinx.coroutines.CancellationException
 
 private const val TAG = "Upload"
 
@@ -31,6 +32,7 @@ private const val TAG = "Upload"
  * The file part is streamed straight off disk via [ChannelProvider] so the attachment (up to the
  * 50 MB cap) is never held whole in the worker's heap.
  */
+@Inject
 class UploadTaskUseCase(
   private val store: PendingUploadStore,
   private val httpClient: HttpClient,

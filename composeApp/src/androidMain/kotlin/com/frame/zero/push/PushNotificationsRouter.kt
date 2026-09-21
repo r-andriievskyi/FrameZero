@@ -3,6 +3,9 @@ package com.frame.zero.push
 import android.content.Intent
 import com.frame.zero.core.navigation.DeepLink
 import com.frame.zero.core.navigation.NavigationSignal
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 
 /**
  * Routes a tapped task-assignment notification into a [DeepLink] on [signal].
@@ -12,6 +15,8 @@ import com.frame.zero.core.navigation.NavigationSignal
  * payload. The task id extra is consumed once read, so a re-delivery of the same
  * intent (config change, `onNewIntent` replays) doesn't navigate twice.
  */
+@SingleIn(AppScope::class)
+@Inject
 class PushNotificationsRouter(
   private val signal: NavigationSignal
 ) {
