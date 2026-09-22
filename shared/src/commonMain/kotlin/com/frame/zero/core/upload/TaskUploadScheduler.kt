@@ -3,7 +3,8 @@ package com.frame.zero.core.upload
 /**
  * Schedules a task-create-with-attachment to upload in the background, surviving navigation
  * and (best-effort) process death. Android is backed by WorkManager, iOS by a background
- * `NSURLSession`. Wired through `platformModule()`, mirroring other platform services.
+ * `NSURLSession`. Each platform impl contributes itself to the graph, mirroring other
+ * platform services; demo builds exclude both and bind their own.
  *
  * Implementations record the upload in [PendingUploadStore] and then hand it to the OS.
  */

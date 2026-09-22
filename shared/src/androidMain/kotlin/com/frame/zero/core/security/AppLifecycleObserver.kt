@@ -3,7 +3,12 @@ package com.frame.zero.core.security
 import android.app.Activity
 import android.app.Application
 import android.os.Bundle
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 
+@SingleIn(AppScope::class)
+@Inject
 class AppLifecycleObserver(
   private val appLockController: AppLockController
 ) : Application.ActivityLifecycleCallbacks {

@@ -5,8 +5,10 @@ import com.frame.zero.domain.task.NewTask
 import com.frame.zero.domain.task.TaskDetail
 import com.frame.zero.domain.task.TaskPriority
 import com.frame.zero.repository.tasks.TasksRepository
+import dev.zacsweers.metro.Inject
 import kotlinx.datetime.LocalDate
 
+@Inject
 class CreateTaskUseCase(
   private val tasksRepository: TasksRepository
 ) : UseCase<CreateTaskUseCase.Params, TaskDetail>() {

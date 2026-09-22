@@ -1,6 +1,9 @@
 package com.frame.zero.core.session
 
 import com.frame.zero.domain.User
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -10,12 +13,17 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+@SingleIn(AppScope::class)
+@Inject
 class SessionManager(
   private val tokenStorage: TokenStorage,
   private val authOperations: SessionAuthOperations,
   private val userCache: UserCache,
   logoutSignal: LogoutSignal,
-  private val cleaners: List<SessionCleaner> = emptyList(),
+  // No default: Metro treats a parameter with a default value as an *optional* binding, so
+  // `= emptySet()` would let a graph that contributes no cleaner compile and silently stop
+  // wiping local state on sign-out. Required means a missing multibinding fails the build.
+  private val cleaners: Set<SessionCleaner>,
   scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 ) {
   private val _state = MutableStateFlow<SessionState>(SessionState.Loading)

@@ -15,7 +15,7 @@ in `multiplatform-settings` — Room is for lists, not a few strings.
 - **Realm Kotlin** — heavier runtime, vendor coupling.
 
 **Cost:** Room's KMP builder is platform-specific — `shared/database/` declares
-`expect DatabaseBuilderFactory` with Android/iOS actuals wired through Koin.
+`DatabaseBuilderFactory` with an Android and an iOS implementation, each contributed to the graph from its own source set.
 Not in prod yet, so `exportSchema = false` and no migrations; flip both on
 before shipping. Any module owning user-scoped Room data must implement
 `SessionCleaner` so sign-out wipes it.

@@ -1,5 +1,10 @@
 package com.frame.zero.core.logging
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
+
 interface Logger {
   fun v(
     tag: String,
@@ -32,8 +37,11 @@ interface Logger {
   )
 }
 
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class)
+@Inject
 class LoggerImpl(
-  private val sinks: List<LogSink>
+  private val sinks: Set<LogSink>
 ) : Logger {
   override fun v(
     tag: String,

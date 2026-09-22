@@ -26,6 +26,7 @@ hikari = "7.1.0"
 micrometer = "1.17.0"
 testcontainers = "1.21.4"
 koin = "4.2.2"
+metro = "1.4.4"
 kover = "0.9.8"
 ktlint-gradle = "14.2.0"
 moduleGraph = "0.13.0"
@@ -122,6 +123,7 @@ gradle-plugin-detekt = { module = "io.gitlab.arturbosch.detekt:detekt-gradle-plu
 gradle-plugin-kover = { module = "org.jetbrains.kotlinx:kover-gradle-plugin", version.ref = "kover" }
 gradle-plugin-ktlint = { module = "org.jlleitschuh.gradle:ktlint-gradle", version.ref = "ktlint-gradle" }
 gradle-plugin-roborazzi = { module = "io.github.takahirom.roborazzi:roborazzi-gradle-plugin", version.ref = "roborazzi" }
+gradle-plugin-metro = { module = "dev.zacsweers.metro:gradle-plugin", version.ref = "metro" }
 
 detekt-api = { module = "io.gitlab.arturbosch.detekt:detekt-api", version.ref = "detekt" }
 detekt-test = { module = "io.gitlab.arturbosch.detekt:detekt-test", version.ref = "detekt" }
@@ -176,8 +178,6 @@ ktor-serverTestHost = { module = "io.ktor:ktor-server-test-host-jvm", version.re
 ktor-serializationKotlinxJson = { module = "io.ktor:ktor-serialization-kotlinx-json-jvm", version.ref = "ktor" }
 
 [bundles]
-# Koin DI wiring + suspend APIs — baseline for every shared logic module.
-koinRuntime = ["koin-core", "kotlinx-coroutines-core"]
 # Ktor client stack for modules talking to the API (engine comes from :shared).
 ktorClient = ["ktor-clientCore", "ktor-clientContentNegotiation", "ktor-clientSerializationJson"]
 # Test doubles for the Ktor client stack.
@@ -215,6 +215,7 @@ ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 androidxRoom = { id = "androidx.room", version.ref = "androidxRoom" }
 buildKonfig = { id = "com.codingfeline.buildkonfig", version.ref = "buildKonfig" }
 roborazzi = { id = "io.github.takahirom.roborazzi", version.ref = "roborazzi" }
+metro = { id = "dev.zacsweers.metro", version.ref = "metro" }
 googleServices = { id = "com.google.gms.google-services", version.ref = "googleServices" }
 firebaseCrashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebaseCrashlyticsPlugin" }
 firebasePerf = { id = "com.google.firebase.firebase-perf", version.ref = "firebasePerfPlugin" }

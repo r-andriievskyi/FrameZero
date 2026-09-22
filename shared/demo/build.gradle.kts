@@ -1,4 +1,7 @@
-plugins { id("crossplatform.library") }
+plugins {
+  id("crossplatform.library")
+  id("crossplatform.di")
+}
 
 base { archivesName = "shared-demo" }
 
@@ -22,7 +25,6 @@ kotlin {
       implementation(libs.kotlinx.coroutines.core)
       implementation(libs.kotlinx.datetime)
       implementation(libs.kotlinx.collections.immutable)
-      implementation(libs.koin.core)
     }
     commonTest.dependencies {
       implementation(libs.bundles.commonTest)

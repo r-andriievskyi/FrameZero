@@ -7,6 +7,8 @@ import com.frame.zero.feature.auth.domain.LoginUseCase
 import com.frame.zero.feature.auth.emptyCredentialsError
 import com.frame.zero.ui.isOfflineOrServerError
 import com.frame.zero.ui.toUiText
+import dev.zacsweers.metro.Inject
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -16,8 +18,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlin.coroutines.CoroutineContext
 
+@Inject
 class SignInViewModel(
   private val loginUseCase: LoginUseCase,
   dispatcher: CoroutineContext = Dispatchers.Main.immediate

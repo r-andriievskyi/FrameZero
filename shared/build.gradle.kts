@@ -6,6 +6,7 @@ plugins {
   alias(libs.plugins.androidKmpLibrary)
   alias(libs.plugins.kotlinSerialization)
   alias(libs.plugins.buildKonfig)
+  alias(libs.plugins.metro)
   id("crossplatform.code.quality")
 }
 
@@ -74,7 +75,6 @@ kotlin {
       api(libs.kotlinx.coroutines.core)
       api(libs.kotlinx.datetime)
       api(libs.kotlinx.collections.immutable)
-      api(libs.koin.core)
       implementation(libs.ktor.clientCore)
       implementation(libs.ktor.clientWebsockets)
       implementation(libs.multiplatformSettings)

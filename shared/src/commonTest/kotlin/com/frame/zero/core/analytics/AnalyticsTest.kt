@@ -27,7 +27,7 @@ class AnalyticsTest {
   fun `fans track and identify out to every registered sink`() {
     val first = RecordingSink()
     val second = RecordingSink()
-    val analytics = AnalyticsImpl(listOf(first, second))
+    val analytics = AnalyticsImpl(setOf(first, second))
     val event = AnalyticsEvent("auth_login", mapOf("method" to "password"))
 
     analytics.track(event)
@@ -42,7 +42,7 @@ class AnalyticsTest {
   @Test
   fun `screen produces a screen_view event carrying the screen name`() {
     val sink = RecordingSink()
-    val analytics = AnalyticsImpl(listOf(sink))
+    val analytics = AnalyticsImpl(setOf(sink))
 
     analytics.screen("Home", mapOf("source" to "tab"))
 
@@ -54,7 +54,7 @@ class AnalyticsTest {
   @Test
   fun `a throwing sink does not prevent other sinks from receiving the event`() {
     val healthy = RecordingSink()
-    val analytics = AnalyticsImpl(listOf(ThrowingSink(), healthy))
+    val analytics = AnalyticsImpl(setOf(ThrowingSink(), healthy))
 
     analytics.track(AnalyticsEvent("still_delivered"))
     analytics.identify("user-2")

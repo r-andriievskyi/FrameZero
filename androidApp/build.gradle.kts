@@ -137,7 +137,6 @@ dependencies {
   implementation(projects.shared.features.taskList)
   implementation(projects.shared.features.forceUpdate)
   implementation(libs.decompose)
-  implementation(libs.koin.core)
   implementation(libs.kotlinx.coroutines.core)
   implementation(libs.compose.runtime)
   implementation(libs.compose.ui)
@@ -149,6 +148,9 @@ dependencies {
   implementation(libs.androidx.profileinstaller)
   baselineProfile(projects.benchmarks)
   implementation(libs.androidx.fragment)
+  // FrameZeroApp implements Configuration.Provider so TaskUploadWorker gets its
+  // dependencies from the object graph.
+  implementation(libs.androidx.work.runtime)
   implementation(project.dependencies.platform(libs.firebase.bom))
   implementation(libs.firebase.messaging)
   debugImplementation(libs.compose.uiTooling)

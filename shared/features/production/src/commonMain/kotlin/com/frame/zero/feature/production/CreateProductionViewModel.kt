@@ -10,11 +10,13 @@ import com.frame.zero.ui.UiText
 import com.frame.zero.ui.asUiText
 import com.frame.zero.ui.isOfflineOrServerError
 import com.frame.zero.ui.toUiText
+import dev.zacsweers.metro.Inject
 import framezero.shared.features.production.generated.resources.Res
 import framezero.shared.features.production.generated.resources.error_conflict
 import framezero.shared.features.production.generated.resources.error_invalid_dates
 import framezero.shared.features.production.generated.resources.error_missing_dates
 import framezero.shared.features.production.generated.resources.error_title_required
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
@@ -27,10 +29,10 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlin.coroutines.CoroutineContext
 
 internal const val DEFAULT_CREW_ROLE = "Director"
 
+@Inject
 class CreateProductionViewModel(
   private val createProductionUseCase: CreateProductionUseCase,
   dispatcher: CoroutineContext = kotlinx.coroutines.Dispatchers.Main.immediate

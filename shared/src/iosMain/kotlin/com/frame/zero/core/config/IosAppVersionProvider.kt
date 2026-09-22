@@ -1,5 +1,9 @@
 package com.frame.zero.core.config
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import platform.Foundation.NSBundle
 
 /**
@@ -12,6 +16,9 @@ import platform.Foundation.NSBundle
  * as "newest", so a misconfigured build is never mistaken for an outdated one and hard-gated. This
  * matches [com.frame.zero.repository.force_update.ForceUpdateRepository]'s "never a false lockout" rule.
  */
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class)
+@Inject
 class IosAppVersionProvider : AppVersionProvider {
   override fun current(): AppVersion {
     val info = NSBundle.mainBundle.infoDictionary

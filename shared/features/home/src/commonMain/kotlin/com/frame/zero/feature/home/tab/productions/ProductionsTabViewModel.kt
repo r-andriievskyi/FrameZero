@@ -5,14 +5,16 @@ import androidx.paging.cachedIn
 import androidx.paging.map
 import com.arkivanov.essenty.instancekeeper.InstanceKeeper
 import com.frame.zero.repository.productions.ProductionsRepository
+import dev.zacsweers.metro.Inject
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlin.coroutines.CoroutineContext
 
+@Inject
 class ProductionsTabViewModel(
   productionsRepository: ProductionsRepository,
   dispatcher: CoroutineContext = Dispatchers.Main.immediate

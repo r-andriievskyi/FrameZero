@@ -6,7 +6,11 @@ import android.security.keystore.KeyProperties
 import android.util.Base64
 import com.russhwolf.settings.Settings
 import com.russhwolf.settings.SharedPreferencesSettings
-import org.koin.mp.KoinPlatformTools
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.Provides
+import dev.zacsweers.metro.SingleIn
 import java.security.KeyStore
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
@@ -19,8 +23,20 @@ private const val ANDROID_KEYSTORE = "AndroidKeyStore"
 private const val CIPHER_ALGORITHM = "AES/GCM/NoPadding"
 private const val GCM_TAG_BITS = 128
 
-internal actual fun createTokenSettings(): Settings {
-  val context = KoinPlatformTools.defaultContext().get().get<Context>()
+/**
+ * Token storage for Android: SharedPreferences with every string value encrypted under an
+ * AES-256-GCM key held in the Android Keystore. [Context] comes in as a graph input from
+ * `FrameZeroApp`, so nothing here reaches for a global container.
+ */
+@ContributesTo(AppScope::class)
+@BindingContainer
+object AndroidTokenSettingsBindings {
+  @Provides
+  @SingleIn(AppScope::class)
+  fun tokenSettings(context: Context): Settings = createTokenSettings(context)
+}
+
+private fun createTokenSettings(context: Context): Settings {
   val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
   val backing = SharedPreferencesSettings(prefs)
   return EncryptedStringSettings(backing)

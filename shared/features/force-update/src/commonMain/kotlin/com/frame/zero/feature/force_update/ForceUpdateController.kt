@@ -3,6 +3,9 @@ package com.frame.zero.feature.force_update
 import com.frame.zero.core.appupdate.StoreLauncher
 import com.frame.zero.core.network.connectivity.ConnectivityObserver
 import com.frame.zero.domain.Outcome
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -26,8 +29,10 @@ import kotlinx.coroutines.launch
  *   refresh. A `critical` soft prompt is never deferred.
  * - A dismissed soft prompt stays hidden for the process (resurfaces next cold start).
  *
- * [scope] defaults to an app-lifetime scope (this is a Koin `single`); tests inject their own.
+ * [scope] defaults to an app-lifetime scope (this is `@SingleIn(AppScope::class)`); tests inject their own.
  */
+@SingleIn(AppScope::class)
+@Inject
 class ForceUpdateController(
   private val checkForceUpdate: CheckForceUpdateUseCase,
   private val storeLauncher: StoreLauncher,

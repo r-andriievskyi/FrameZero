@@ -1,4 +1,7 @@
-plugins { id("crossplatform.library") }
+plugins {
+  id("crossplatform.library")
+  id("crossplatform.di")
+}
 
 base { archivesName = "repository-force-update-impl" }
 
@@ -12,7 +15,6 @@ kotlin {
       api(projects.shared.repositories.forceUpdate.api)
       implementation(projects.shared.dto)
       implementation(projects.shared.repositories.deviceToken)
-      implementation(libs.koin.core)
       implementation(libs.gitlive.firebase.config)
     }
     androidMain.dependencies {

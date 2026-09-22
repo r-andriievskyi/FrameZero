@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlin.time.Clock
 
-internal class DemoTasksRepository(
+class DemoTasksRepository(
   private val store: DemoDataStore
 ) : TasksRepository {
   override suspend fun getTask(id: String): TaskDetail = store.getTask(id) ?: error("Unknown demo task $id")

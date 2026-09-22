@@ -4,18 +4,24 @@ import com.frame.zero.auth.dto.RefreshRequest
 import com.frame.zero.auth.dto.RefreshResponse
 import com.frame.zero.core.logging.Logger as AppLogger
 import com.frame.zero.core.network.connectivity.ConnectivityObserver
-import com.frame.zero.domain.OfflineException
-import com.frame.zero.domain.ServerErrorException
 import com.frame.zero.core.session.LogoutSignal
 import com.frame.zero.core.session.TokenStorage
+import com.frame.zero.domain.OfflineException
+import com.frame.zero.domain.ServerErrorException
 import com.frame.zero.dto.common.ErrorResponseDto
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.Provides
+import dev.zacsweers.metro.SingleIn
 import io.ktor.client.HttpClient
 import io.ktor.client.HttpClientConfig
 import io.ktor.client.call.body
+import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.plugins.HttpRequestRetry
-import io.ktor.client.plugins.api.createClientPlugin
 import io.ktor.client.plugins.HttpResponseValidator
 import io.ktor.client.plugins.ResponseException
+import io.ktor.client.plugins.api.createClientPlugin
 import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.client.plugins.auth.providers.bearer
@@ -36,8 +42,6 @@ import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.json.json
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.serialization.json.Json
-import org.koin.core.module.Module
-import org.koin.dsl.module
 
 private val UNAUTHENTICATED_PATHS = setOf("/auth/login", "/auth/register", "/auth/refresh", "/auth/logout")
 
@@ -50,22 +54,35 @@ internal fun connectivityGuard(connectivityObserver: ConnectivityObserver) =
     }
   }
 
-val networkModule: Module = module {
-  single { NetworkConfig.fromBuildConfig() }
-  single { provideHttpClient(get(), get(), get(), get(), get(), isDebug = BuildKonfig.DEBUG) }
-}
+@ContributesTo(AppScope::class)
+@BindingContainer
+object NetworkBindings {
+  @Provides
+  @SingleIn(AppScope::class)
+  fun networkConfig(): NetworkConfig = NetworkConfig.fromBuildConfig()
 
-private fun provideHttpClient(
-  config: NetworkConfig,
-  tokenStorage: TokenStorage,
-  logoutSignal: LogoutSignal,
-  connectivityObserver: ConnectivityObserver,
-  appLogger: AppLogger,
-  isDebug: Boolean
-): HttpClient =
-  httpClient(
-    clientConfig(config, tokenStorage, logoutSignal, connectivityObserver, appLogger, isDebug)
-  )
+  @Provides
+  @SingleIn(AppScope::class)
+  fun httpClient(
+    engine: HttpClientEngine,
+    config: NetworkConfig,
+    tokenStorage: TokenStorage,
+    logoutSignal: LogoutSignal,
+    connectivityObserver: ConnectivityObserver,
+    appLogger: AppLogger
+  ): HttpClient =
+    httpClient(
+      engine,
+      clientConfig(
+        config,
+        tokenStorage,
+        logoutSignal,
+        connectivityObserver,
+        appLogger,
+        isDebug = BuildKonfig.DEBUG
+      )
+    )
+}
 
 /**
  * The full production HttpClient plugin stack, extracted so tests can apply the exact

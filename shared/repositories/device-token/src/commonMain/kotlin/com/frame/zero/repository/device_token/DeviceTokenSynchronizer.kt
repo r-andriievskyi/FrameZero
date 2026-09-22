@@ -3,6 +3,9 @@ package com.frame.zero.repository.device_token
 import com.frame.zero.core.logging.Logger
 import com.frame.zero.core.push.PushTokenProvider
 import com.frame.zero.core.session.SessionState
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -17,10 +20,13 @@ import kotlinx.coroutines.launch
  * whenever the session becomes logged-in and re-registers whenever the platform
  * rotates it. Sign-out cleanup is handled separately by [DeviceTokenSessionCleaner].
  *
- * Created eagerly (see the Koin module) so it starts observing at app start; all work
+ * Metro has no eager bindings, so each host resolves this accessor once at launch
+ * (`FrameZeroApp.onCreate`, and the `iosRoot` lazy) to start it observing; all work
  * is best-effort — failures are logged, never surfaced, since a missing push token
  * must not block using the app.
  */
+@SingleIn(AppScope::class)
+@Inject
 class DeviceTokenSynchronizer(
   private val sessionState: StateFlow<SessionState>,
   private val tokenProvider: PushTokenProvider,

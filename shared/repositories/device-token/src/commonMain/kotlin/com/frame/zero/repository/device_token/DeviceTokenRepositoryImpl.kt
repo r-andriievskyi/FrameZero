@@ -4,11 +4,18 @@ import com.frame.zero.core.network.NetworkConfig
 import com.frame.zero.dto.device.DevicePlatform
 import com.frame.zero.dto.device.RegisterDeviceTokenRequest
 import com.frame.zero.dto.device.UnregisterDeviceTokenRequest
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import io.ktor.client.HttpClient
 import io.ktor.client.request.delete
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class)
+@Inject
 class DeviceTokenRepositoryImpl(
   private val httpClient: HttpClient,
   private val networkConfig: NetworkConfig

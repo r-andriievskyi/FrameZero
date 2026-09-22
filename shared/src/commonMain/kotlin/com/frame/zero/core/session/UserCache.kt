@@ -2,12 +2,17 @@ package com.frame.zero.core.session
 
 import com.frame.zero.domain.User
 import com.russhwolf.settings.Settings
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 
 /**
  * Persists the last-known authenticated user so an offline app launch can
  * restore the session without a network round trip. Stored alongside the
  * tokens and cleared with them on logout.
  */
+@SingleIn(AppScope::class)
+@Inject
 class UserCache(
   private val settings: Settings
 ) {

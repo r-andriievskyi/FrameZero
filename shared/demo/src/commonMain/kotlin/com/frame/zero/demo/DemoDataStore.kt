@@ -18,7 +18,7 @@ import kotlin.time.Clock
  * this store, so a task created on one screen shows up everywhere the same way the real
  * offline-first repositories would. [reset] restores the pristine seed on sign-out.
  */
-internal class DemoDataStore {
+class DemoDataStore {
   private val _productions = MutableStateFlow<List<ProductionDetail>>(emptyList())
   val productions: StateFlow<List<ProductionDetail>> = _productions.asStateFlow()
 

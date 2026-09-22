@@ -4,8 +4,10 @@ import com.frame.zero.domain.UseCase
 import com.frame.zero.domain.schedule.Schedule
 import com.frame.zero.domain.schedule.ScheduleView
 import com.frame.zero.repository.schedule.ScheduleRepository
+import dev.zacsweers.metro.Inject
 import kotlinx.datetime.LocalDate
 
+@Inject
 class GetScheduleUseCase(
   private val scheduleRepository: ScheduleRepository
 ) : UseCase<GetScheduleUseCase.Params, Schedule>() {

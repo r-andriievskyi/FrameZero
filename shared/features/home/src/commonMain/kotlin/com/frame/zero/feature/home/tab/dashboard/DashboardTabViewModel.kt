@@ -13,6 +13,10 @@ import com.frame.zero.feature.home.homeErrorMessages
 import com.frame.zero.feature.home.usecase.GetDashboardUseCase
 import com.frame.zero.feature.home.usecase.GetMeUseCase
 import com.frame.zero.ui.toUiText
+import dev.zacsweers.metro.Inject
+import kotlin.coroutines.CoroutineContext
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -29,10 +33,8 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
-import kotlin.coroutines.CoroutineContext
-import kotlin.time.Clock
-import kotlin.time.ExperimentalTime
 
+@Inject
 class DashboardTabViewModel(
   private val getMeUseCase: GetMeUseCase,
   private val getDashboardUseCase: GetDashboardUseCase,

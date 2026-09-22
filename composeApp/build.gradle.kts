@@ -6,6 +6,7 @@ plugins {
   alias(libs.plugins.composeMultiplatform)
   alias(libs.plugins.composeCompiler)
   alias(libs.plugins.kotlinSerialization)
+  alias(libs.plugins.metro)
   id("crossplatform.code.quality")
 }
 
@@ -73,7 +74,6 @@ kotlin {
       implementation(projects.composeApp.features.taskDetails)
       implementation(projects.composeApp.features.taskCreate)
       implementation(projects.composeApp.features.taskList)
-      implementation(libs.koin.core)
       implementation(libs.kotlinx.serialization.json)
       implementation(libs.decompose)
       implementation(libs.decompose.extensionsCompose)

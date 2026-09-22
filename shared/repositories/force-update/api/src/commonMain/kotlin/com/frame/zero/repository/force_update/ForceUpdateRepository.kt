@@ -3,7 +3,8 @@ package com.frame.zero.repository.force_update
 /**
  * The swap seam for the force-update feature. The only contract everything above it (use case,
  * ViewModel, UI) depends on — so the config source can change from Firebase Remote Config to our
- * own backend by adding a second impl and flipping the Koin binding, with nothing above this
+ * own backend by adding a second impl carrying the `@ContributesBinding` and excluding the old
+ * one from the graph, with nothing above this
  * interface touched.
  *
  * Speaks domain types only; the impl resolves the running platform and maps its raw config

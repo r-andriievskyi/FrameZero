@@ -13,6 +13,7 @@ configurations.all {
 dependencies {
   compileOnly(libs.gradle.plugin.android)
   compileOnly(libs.gradle.plugin.kotlin)
+  compileOnly(libs.gradle.plugin.metro)
   compileOnly(libs.gradle.plugin.compose.compiler)
   compileOnly(libs.gradle.plugin.compose.multiplatform)
   compileOnly(libs.gradle.plugin.detekt)
@@ -34,6 +35,10 @@ gradlePlugin {
     register("codeQuality") {
       id = "crossplatform.code.quality"
       implementationClass = "CodeQualityConventionPlugin"
+    }
+    register("metro") {
+      id = "crossplatform.di"
+      implementationClass = "MetroConventionPlugin"
     }
     register("screenshotTest") {
       id = "crossplatform.screenshot"

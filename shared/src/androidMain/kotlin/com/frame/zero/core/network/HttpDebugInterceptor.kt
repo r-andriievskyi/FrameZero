@@ -10,8 +10,11 @@ import okhttp3.Interceptor
  * "assembleRelease" is not a reliable signal here — see the release gate this replaces), so it
  * can never itself know whether it is linked into a debug or release APK. Only `:androidApp`
  * has real AGP build types, so it alone decides via `debugImplementation`/`releaseImplementation`
- * which artifact (if any) binds this and registers it with Koin — `:shared` just collects
- * whatever was bound. Register one with `single { MyInterceptor() } bind
- * HttpDebugInterceptor::class` from a debug-only dependency.
+ * which artifact (if any) supplies this — `:shared` just consumes whatever it is handed.
+ *
+ * Unlike the other sinks this is *not* a multibinding: `:androidApp` sits downstream of
+ * `:composeApp`, where the graph is declared, so Metro could never aggregate a contribution from
+ * there. It arrives as a `Set<HttpDebugInterceptor>` input on the graph factory instead — see
+ * `debugHttpInterceptors` in `:androidApp`.
  */
 fun interface HttpDebugInterceptor : Interceptor

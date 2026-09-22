@@ -38,7 +38,15 @@ class SessionManagerTest {
     runTest {
       val storage = TokenStorage(MapSettings()).also { it.saveTokens("a", "r") }
       val ops = FakeAuthOps(currentUser = user)
-      val manager = SessionManager(storage, ops, UserCache(MapSettings()), LogoutSignal(), scope = backgroundScope)
+      val manager =
+        SessionManager(
+          storage,
+          ops,
+          UserCache(MapSettings()),
+          LogoutSignal(),
+          cleaners = emptySet(),
+          scope = backgroundScope
+        )
 
       manager.state.test {
         manager.initialize()
@@ -58,6 +66,7 @@ class SessionManagerTest {
         FakeAuthOps(currentUser = user),
         cache,
         LogoutSignal(),
+        cleaners = emptySet(),
         scope = backgroundScope
       )
 
@@ -77,7 +86,7 @@ class SessionManagerTest {
 
         override suspend fun signOutRemote() = Unit
       }
-      val manager = SessionManager(storage, ops, cache, LogoutSignal(), scope = backgroundScope)
+      val manager = SessionManager(storage, ops, cache, LogoutSignal(), cleaners = emptySet(), scope = backgroundScope)
 
       manager.state.test {
         val job = launch { manager.initialize() }
@@ -104,6 +113,7 @@ class SessionManagerTest {
         FakeAuthOps(fetchThrows = true),
         cache,
         LogoutSignal(),
+        cleaners = emptySet(),
         scope = backgroundScope
       )
 
@@ -130,7 +140,7 @@ class SessionManagerTest {
 
         override suspend fun signOutRemote() = Unit
       }
-      val manager = SessionManager(storage, ops, cache, LogoutSignal(), scope = backgroundScope)
+      val manager = SessionManager(storage, ops, cache, LogoutSignal(), cleaners = emptySet(), scope = backgroundScope)
 
       manager.state.test {
         manager.initialize()
@@ -145,7 +155,15 @@ class SessionManagerTest {
     runTest {
       val storage = TokenStorage(MapSettings()).also { it.saveTokens("a", "r") }
       val ops = FakeAuthOps(fetchThrows = true)
-      val manager = SessionManager(storage, ops, UserCache(MapSettings()), LogoutSignal(), scope = backgroundScope)
+      val manager =
+        SessionManager(
+          storage,
+          ops,
+          UserCache(MapSettings()),
+          LogoutSignal(),
+          cleaners = emptySet(),
+          scope = backgroundScope
+        )
 
       manager.state.test {
         manager.initialize()
@@ -164,6 +182,7 @@ class SessionManagerTest {
         authOperations = FakeAuthOps(),
         userCache = cache,
         logoutSignal = LogoutSignal(),
+        cleaners = emptySet(),
         scope = backgroundScope
       )
 
@@ -180,7 +199,15 @@ class SessionManagerTest {
     runTest {
       val storage = TokenStorage(MapSettings()).also { it.saveTokens("a", "r") }
       val ops = FakeAuthOps()
-      val manager = SessionManager(storage, ops, UserCache(MapSettings()), LogoutSignal(), scope = backgroundScope)
+      val manager =
+        SessionManager(
+          storage,
+          ops,
+          UserCache(MapSettings()),
+          LogoutSignal(),
+          cleaners = emptySet(),
+          scope = backgroundScope
+        )
       manager.onAuthenticated(user)
 
       manager.state.test {
@@ -197,7 +224,8 @@ class SessionManagerTest {
     runTest {
       val storage = TokenStorage(MapSettings()).also { it.saveTokens("a", "r") }
       val cache = UserCache(MapSettings())
-      val manager = SessionManager(storage, FakeAuthOps(), cache, LogoutSignal(), scope = backgroundScope)
+      val manager =
+        SessionManager(storage, FakeAuthOps(), cache, LogoutSignal(), cleaners = emptySet(), scope = backgroundScope)
       manager.onAuthenticated(user)
 
       manager.logout()
@@ -210,7 +238,15 @@ class SessionManagerTest {
     runTest {
       val storage = TokenStorage(MapSettings()).also { it.saveTokens("a", "r") }
       val ops = FakeAuthOps(signOutThrows = true)
-      val manager = SessionManager(storage, ops, UserCache(MapSettings()), LogoutSignal(), scope = backgroundScope)
+      val manager =
+        SessionManager(
+          storage,
+          ops,
+          UserCache(MapSettings()),
+          LogoutSignal(),
+          cleaners = emptySet(),
+          scope = backgroundScope
+        )
       manager.onAuthenticated(user)
 
       manager.state.test {
@@ -227,7 +263,8 @@ class SessionManagerTest {
       val storage = TokenStorage(MapSettings()).also { it.saveTokens("a", "r") }
       val ops = FakeAuthOps()
       val signal = LogoutSignal()
-      val manager = SessionManager(storage, ops, UserCache(MapSettings()), signal, scope = backgroundScope)
+      val manager =
+        SessionManager(storage, ops, UserCache(MapSettings()), signal, cleaners = emptySet(), scope = backgroundScope)
       manager.onAuthenticated(user)
 
       manager.state.test {
@@ -250,7 +287,7 @@ class SessionManagerTest {
         ops,
         UserCache(MapSettings()),
         LogoutSignal(),
-        cleaners = listOf(cleanerA, cleanerB),
+        cleaners = setOf(cleanerA, cleanerB),
         scope = backgroundScope
       )
       manager.onAuthenticated(user)
@@ -275,7 +312,7 @@ class SessionManagerTest {
         FakeAuthOps(),
         UserCache(MapSettings()),
         signal,
-        cleaners = listOf(cleaner),
+        cleaners = setOf(cleaner),
         scope = backgroundScope
       )
       manager.onAuthenticated(user)
@@ -298,7 +335,7 @@ class SessionManagerTest {
         FakeAuthOps(),
         UserCache(MapSettings()),
         LogoutSignal(),
-        cleaners = listOf(cleaner),
+        cleaners = setOf(cleaner),
         scope = backgroundScope
       )
       manager.onAuthenticated(user)
@@ -324,7 +361,7 @@ class SessionManagerTest {
         UserCache(MapSettings()),
         LogoutSignal(),
         // The first cleaner throwing must be isolated (runCatching fan-out) so a later one still runs.
-        cleaners = listOf(before, after),
+        cleaners = setOf(before, after),
         scope = backgroundScope
       )
       manager.onAuthenticated(user)
@@ -357,7 +394,7 @@ class SessionManagerTest {
         FakeAuthOps(),
         UserCache(MapSettings()),
         signal,
-        cleaners = listOf(cleaner),
+        cleaners = setOf(cleaner),
         scope = backgroundScope
       )
       manager.onAuthenticated(user)
@@ -377,6 +414,7 @@ class SessionManagerTest {
       authOperations = FakeAuthOps(),
       userCache = UserCache(MapSettings()),
       logoutSignal = LogoutSignal(),
+      cleaners = emptySet(),
       scope = backgroundScope
     )
 

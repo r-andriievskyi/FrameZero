@@ -24,36 +24,15 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.arkivanov.decompose.defaultComponentContext
-import com.frame.zero.core.navigation.NavigationSignal
-import com.frame.zero.core.security.AppLockController
-import com.frame.zero.feature.force_update.ForceUpdateController
-import com.frame.zero.core.session.SessionManager
 import com.frame.zero.core.session.SessionState
-import com.frame.zero.feature.RootComponent
-import com.frame.zero.core.files.AndroidFilePicker
-import com.frame.zero.push.PushNotificationsRouter
-import com.frame.zero.feature.account.AccountViewModel
-import com.frame.zero.feature.auth.AuthComponent
-import com.frame.zero.feature.auth.register.RegisterViewModel
-import com.frame.zero.feature.auth.signin.SignInViewModel
-import com.frame.zero.feature.home.HomeComponent
-import com.frame.zero.feature.home.tab.dashboard.DashboardTabViewModel
-import com.frame.zero.feature.home.tab.productions.ProductionsTabViewModel
-import com.frame.zero.feature.home.tab.schedule.ScheduleTabViewModel
-import com.frame.zero.feature.production.CreateProductionViewModel
-import com.frame.zero.feature.production.details.ProductionDetailsViewModel
-import com.frame.zero.feature.task.create.CreateTaskViewModel
-import com.frame.zero.feature.task.details.TaskDetailsViewModel
-import com.frame.zero.feature.task.list.TasksListViewModel
+import com.frame.zero.di.createRootComponent
 import kotlinx.coroutines.launch
-import org.koin.core.parameter.parametersOf
 
 class MainActivity : FragmentActivity() {
-  private val sessionManager: SessionManager by lazy { application.koin.get() }
-  private val appLockController: AppLockController by lazy { application.koin.get() }
-  private val forceUpdateController: ForceUpdateController by lazy { application.koin.get() }
-  private val navigationSignal: NavigationSignal by lazy { application.koin.get() }
-  private val pushNotificationsRouter: PushNotificationsRouter by lazy { application.koin.get() }
+  private val graph by lazy { application.graph }
+  private val sessionManager by lazy { graph.sessionManager }
+  private val appLockController by lazy { graph.appLockController }
+  private val pushNotificationsRouter by lazy { graph.pushNotificationsRouter }
 
   // false positive on ComponentActivity: the Fragment-version check doesn't apply —
   // registerForActivityResult is natively supported by androidx.activity here.
@@ -62,59 +41,7 @@ class MainActivity : FragmentActivity() {
     ActivityResultContracts.RequestPermission()
   ) { /* best-effort */ }
 
-  private val root by lazy {
-    val koin = application.koin
-    RootComponent(
-      componentContext = defaultComponentContext(),
-      sessionManager = sessionManager,
-      appLockController = appLockController,
-      forceUpdateController = forceUpdateController,
-      navigationSignal = navigationSignal,
-      authComponentFactory = { ctx ->
-        AuthComponent(
-          componentContext = ctx,
-          signInViewModelFactory = { koin.get<SignInViewModel>() },
-          registerViewModelFactory = { koin.get<RegisterViewModel>() }
-        )
-      },
-      homeComponentFactory = {
-        ctx,
-        onCreateProductionClick,
-        onProductionClick,
-        onAccountClick,
-        onTaskClick,
-        onTasksClick
-        ->
-        HomeComponent(
-          ctx,
-          onAccountClick = onAccountClick,
-          onCreateProductionClick = onCreateProductionClick,
-          onProductionClick = onProductionClick,
-          onTaskClick = onTaskClick,
-          onTasksClick = onTasksClick,
-          dashboardViewModelFactory = { koin.get<DashboardTabViewModel>() },
-          productionsViewModelFactory = { koin.get<ProductionsTabViewModel>() },
-          scheduleViewModelFactory = { koin.get<ScheduleTabViewModel>() }
-        )
-      },
-      createProductionViewModelFactory = { koin.get<CreateProductionViewModel>() },
-      productionDetailsViewModelFactory = { productionId ->
-        koin.get<ProductionDetailsViewModel> { parametersOf(productionId) }
-      },
-      taskDetailsViewModelFactory = { taskId ->
-        koin.get<TaskDetailsViewModel> { parametersOf(taskId) }
-      },
-      createTaskViewModelFactory = { productionId, productionTitle ->
-        koin.get<CreateTaskViewModel> {
-          parametersOf(productionId, productionTitle)
-        }
-      },
-      tasksListViewModelFactory = { productionId ->
-        koin.get<TasksListViewModel> { parametersOf(productionId) }
-      },
-      accountViewModelFactory = { koin.get<AccountViewModel>() }
-    )
-  }
+  private val root by lazy { graph.createRootComponent(defaultComponentContext()) }
 
   @OptIn(ExperimentalComposeUiApi::class)
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -126,7 +53,7 @@ class MainActivity : FragmentActivity() {
       navigationBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT)
     )
     super.onCreate(savedInstanceState)
-    (application.koin.get<AndroidFilePicker>()).attach(this)
+    graph.filePicker.attach(this)
     lifecycleScope.launch { sessionManager.initialize() }
     lifecycleScope.launch {
       appLockController.enabled.collect { enabled ->

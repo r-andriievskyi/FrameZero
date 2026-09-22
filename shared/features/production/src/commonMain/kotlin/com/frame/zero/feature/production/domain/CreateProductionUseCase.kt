@@ -7,8 +7,10 @@ import com.frame.zero.domain.production.NewProduction
 import com.frame.zero.domain.production.Production
 import com.frame.zero.domain.production.toProduction
 import com.frame.zero.repository.productions.ProductionsRepository
+import dev.zacsweers.metro.Inject
 import kotlinx.datetime.LocalDate
 
+@Inject
 class CreateProductionUseCase(
   private val productionsRepository: ProductionsRepository
 ) : UseCase<CreateProductionUseCase.Params, Production>() {

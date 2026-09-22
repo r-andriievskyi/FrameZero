@@ -20,10 +20,14 @@ import com.frame.zero.ui.DomainErrorCategory
 import com.frame.zero.ui.UiText
 import com.frame.zero.ui.asUiText
 import com.frame.zero.ui.toUiText
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import framezero.shared.features.production_details.generated.resources.Res
 import framezero.shared.features.production_details.generated.resources.error_conflict
 import framezero.shared.features.production_details.generated.resources.error_forbidden
 import framezero.shared.features.production_details.generated.resources.error_not_found
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -38,10 +42,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlin.coroutines.CoroutineContext
 
+@AssistedInject
 class ProductionDetailsViewModel(
-  private val productionId: String,
+  @Assisted private val productionId: String,
   private val getProductionDetailsUseCase: GetProductionDetailsUseCase,
   private val getProductionTasksUseCase: GetProductionTasksUseCase,
   private val deleteProductionUseCase: DeleteProductionUseCase,
@@ -229,5 +233,13 @@ class ProductionDetailsViewModel(
       DomainErrorCategory.FORBIDDEN to Res.string.error_forbidden.asUiText(),
       DomainErrorCategory.CONFLICT to Res.string.error_conflict.asUiText()
     )
+  }
+
+  /**
+   * Navigation supplies the production id; everything else comes from the graph.
+   */
+  @AssistedFactory
+  fun interface Factory {
+    fun create(productionId: String): ProductionDetailsViewModel
   }
 }

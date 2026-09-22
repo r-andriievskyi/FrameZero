@@ -2,7 +2,9 @@ package com.frame.zero.feature.production.details.domain
 
 import com.frame.zero.domain.UseCase
 import com.frame.zero.repository.tasks.TasksRepository
+import dev.zacsweers.metro.Inject
 
+@Inject
 class GetProductionTasksUseCase(
   private val tasksRepository: TasksRepository
 ) : UseCase<GetProductionTasksUseCase.Params, List<ProductionTask>>() {

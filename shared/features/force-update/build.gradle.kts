@@ -1,4 +1,7 @@
-plugins { id("crossplatform.library.compose") }
+plugins {
+  id("crossplatform.library.compose")
+  id("crossplatform.di")
+}
 
 base { archivesName = "feature-force-update" }
 
@@ -9,7 +12,7 @@ kotlin {
     commonMain.dependencies {
       api(projects.shared)
       implementation(projects.shared.repositories.forceUpdate.api)
-      implementation(libs.bundles.koinRuntime)
+      implementation(libs.kotlinx.coroutines.core)
     }
     commonTest.dependencies {
       implementation(projects.shared.testFixtures)

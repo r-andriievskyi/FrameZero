@@ -1,5 +1,6 @@
 plugins {
   id("crossplatform.library")
+  id("crossplatform.di")
   alias(libs.plugins.ksp)
   alias(libs.plugins.androidxRoom)
 }
@@ -19,7 +20,7 @@ kotlin {
       api(libs.androidx.room.runtime)
       implementation(libs.androidx.room.paging)
       implementation(libs.androidx.sqlite.bundled)
-      implementation(libs.bundles.koinRuntime)
+      implementation(libs.kotlinx.coroutines.core)
       implementation(libs.kotlinx.serialization.json)
     }
 

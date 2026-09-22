@@ -5,7 +5,14 @@ import com.frame.zero.repository.device_token.devicePlatform
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.remoteconfig.FirebaseRemoteConfig
 import dev.gitlive.firebase.remoteconfig.remoteConfig
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class)
+@Inject
 class RemoteConfigForceUpdateRepository(
   private val remoteConfig: FirebaseRemoteConfig = Firebase.remoteConfig,
   private val platform: DevicePlatform = devicePlatform()

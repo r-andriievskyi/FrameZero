@@ -49,7 +49,7 @@ class PerformanceTest {
   fun `startTrace fans metrics and stop out to every registered sink`() {
     val first = RecordingSink()
     val second = RecordingSink()
-    val performance = PerformanceImpl(listOf(first, second))
+    val performance = PerformanceImpl(setOf(first, second))
 
     val trace = performance.startTrace("checkout")
     trace.putMetric("items", 3)
@@ -67,7 +67,7 @@ class PerformanceTest {
   @Test
   fun `setCollectionEnabled fans out to every registered sink`() {
     val sink = RecordingSink()
-    val performance = PerformanceImpl(listOf(sink))
+    val performance = PerformanceImpl(setOf(sink))
 
     performance.setCollectionEnabled(false)
 
@@ -77,7 +77,7 @@ class PerformanceTest {
   @Test
   fun `trace helper stops the trace even when the block throws`() {
     val sink = RecordingSink()
-    val performance = PerformanceImpl(listOf(sink))
+    val performance = PerformanceImpl(setOf(sink))
 
     runCatching { performance.trace<Unit>("boom") { error("inside") } }
 
@@ -87,7 +87,7 @@ class PerformanceTest {
   @Test
   fun `a throwing sink does not prevent other sinks from receiving the trace`() {
     val healthy = RecordingSink()
-    val performance = PerformanceImpl(listOf(ThrowingSink(), healthy))
+    val performance = PerformanceImpl(setOf(ThrowingSink(), healthy))
 
     val trace = performance.startTrace("still_traced")
     trace.putMetric("value", 7)

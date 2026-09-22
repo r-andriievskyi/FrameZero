@@ -16,6 +16,12 @@ import com.frame.zero.feature.home.LoadError
 import com.frame.zero.feature.home.homeErrorMessages
 import com.frame.zero.feature.home.usecase.GetScheduleUseCase
 import com.frame.zero.ui.toUiText
+import dev.zacsweers.metro.Inject
+import kotlin.coroutines.CoroutineContext
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
+import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -27,17 +33,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.collections.immutable.ImmutableList
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
-import kotlin.coroutines.CoroutineContext
-import kotlin.time.Clock
-import kotlin.time.ExperimentalTime
-import kotlin.time.Instant
 
+@Inject
 class ScheduleTabViewModel(
   private val getScheduleUseCase: GetScheduleUseCase,
   connectivityObserver: ConnectivityObserver,

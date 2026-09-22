@@ -231,6 +231,7 @@ class SignInViewModelTest {
         authOperations = NoopSessionAuthOperations,
         userCache = UserCache(MapSettings()),
         logoutSignal = LogoutSignal(),
+        cleaners = emptySet(),
         scope = scope.backgroundScope
       )
     return SignInViewModel(

@@ -1,5 +1,9 @@
 package com.frame.zero.core.files
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.readRemaining
 import kotlinx.cinterop.ExperimentalForeignApi
@@ -21,6 +25,9 @@ import platform.UIKit.UIDocumentInteractionController
  * menu). The sandbox is private to the app and protected at rest — no permission needed.
  */
 @OptIn(ExperimentalForeignApi::class)
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class)
+@Inject
 class IosAttachmentFileManager : AttachmentFileManager {
   private val fileManager = NSFileManager.defaultManager
   private val attachmentsRoot: String = "${documentsDir()}/$ATTACHMENTS_DIR"
