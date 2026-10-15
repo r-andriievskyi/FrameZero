@@ -127,14 +127,18 @@ class RootComponent(
         coldStartResumeHandled = true
       }
     }
+    // Swap the whole stack only when the session needs a different *root*. Comparing the root
+    // (not the active child) keeps screens pushed on top of Home, and ignoring Loading keeps a
+    // stack restored after recreation or process death while the session re-resolves; a fresh
+    // start already sits on the initial Splash.
     scope.launch {
       sessionManager.state.collect { sessionState ->
         val target = when (sessionState) {
-          SessionState.Loading -> Config.Splash
+          SessionState.Loading -> return@collect
           SessionState.LoggedOut -> Config.Auth
           is SessionState.LoggedIn -> Config.Home
         }
-        if (stack.value.active.configuration != target) navigation.replaceAll(target)
+        if (stack.value.items.first().configuration != target) navigation.replaceAll(target)
       }
     }
     @OptIn(ExperimentalCoroutinesApi::class)

@@ -8,6 +8,8 @@ import com.frame.zero.di.AndroidAppGraph
 import com.frame.zero.di.createAndroidAppGraph
 import com.frame.zero.di.debugHttpInterceptors
 import com.frame.zero.push.PushNotifications
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 
 class FrameZeroApp :
   Application(),
@@ -28,6 +30,9 @@ class FrameZeroApp :
     // Metro has no eager bindings: resolve the synchronizer so it starts observing the session
     // now rather than whenever something first asks for it (Koin: `createdAtStart = true`).
     graph.deviceTokenSynchronizer
+    // Once per process, like iOS: re-running it per Activity reset the session to Loading on every
+    // rotation and made RootComponent drop the restored navigation stack.
+    MainScope().launch { graph.sessionManager.initialize() }
     createNotificationChannel()
   }
 
