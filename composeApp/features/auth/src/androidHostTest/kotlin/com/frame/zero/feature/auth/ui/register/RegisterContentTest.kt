@@ -4,6 +4,7 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import com.frame.zero.feature.auth.register.RegisterIntent
 import com.frame.zero.feature.auth.register.RegisterState
 import com.frame.zero.feature.auth.ui.register.RegisterTestTags.ERROR
@@ -48,7 +49,7 @@ class RegisterContentTest {
       onIntent = { intents += it }
     )
 
-    composeRule.onNodeWithTag(SUBMIT).performClick()
+    composeRule.onNodeWithTag(SUBMIT).performScrollTo().performClick()
 
     assert(intents == listOf(RegisterIntent.Submit)) { "Expected [Submit], got $intents" }
   }

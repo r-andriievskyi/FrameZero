@@ -3,11 +3,12 @@ package com.frame.zero.feature.auth.ui.register
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -67,49 +68,50 @@ internal fun RegisterContent(
       .padding(horizontal = spacingSystem.space16)
       .systemBarsPadding()
   ) {
-    VerticalSpacer(spacingSystem.space24)
-    AuthLogoHeader()
-    VerticalSpacer(spacingSystem.space24)
-    RegisterHeader()
-    VerticalSpacer(spacingSystem.space24)
-    RegisterFirstNameField(
-      value = state.firstName,
-      onValueChange = { onIntent(RegisterIntent.FirstNameChanged(it)) },
-      enabled = !state.isLoading
-    )
-    VerticalSpacer(spacingSystem.space16)
-    RegisterLastNameField(
-      value = state.lastName,
-      onValueChange = { onIntent(RegisterIntent.LastNameChanged(it)) },
-      enabled = !state.isLoading
-    )
-    VerticalSpacer(spacingSystem.space16)
-    RegisterEmailField(
-      value = state.email,
-      onValueChange = { onIntent(RegisterIntent.EmailChanged(it)) },
-      enabled = !state.isLoading
-    )
-    VerticalSpacer(spacingSystem.space16)
-    RegisterPasswordField(
-      value = state.password,
-      onValueChange = { onIntent(RegisterIntent.PasswordChanged(it)) },
-      enabled = !state.isLoading
-    )
-    VerticalSpacer(spacingSystem.space24)
-    CtaButton(
-      text = stringResource(Res.string.btn_create_account),
-      loading = state.isLoading,
-      onClick = { onIntent(RegisterIntent.Submit) },
-      modifier = Modifier.fillMaxWidth().testTag(RegisterTestTags.SUBMIT)
-    )
-    state.error?.let { error ->
-      VerticalSpacer(spacingSystem.space8)
-      ErrorText(
-        text = error.asString(),
-        modifier = Modifier.testTag(RegisterTestTags.ERROR)
+    Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())) {
+      VerticalSpacer(spacingSystem.space24)
+      AuthLogoHeader()
+      VerticalSpacer(spacingSystem.space24)
+      RegisterHeader()
+      VerticalSpacer(spacingSystem.space24)
+      RegisterFirstNameField(
+        value = state.firstName,
+        onValueChange = { onIntent(RegisterIntent.FirstNameChanged(it)) },
+        enabled = !state.isLoading
       )
+      VerticalSpacer(spacingSystem.space16)
+      RegisterLastNameField(
+        value = state.lastName,
+        onValueChange = { onIntent(RegisterIntent.LastNameChanged(it)) },
+        enabled = !state.isLoading
+      )
+      VerticalSpacer(spacingSystem.space16)
+      RegisterEmailField(
+        value = state.email,
+        onValueChange = { onIntent(RegisterIntent.EmailChanged(it)) },
+        enabled = !state.isLoading
+      )
+      VerticalSpacer(spacingSystem.space16)
+      RegisterPasswordField(
+        value = state.password,
+        onValueChange = { onIntent(RegisterIntent.PasswordChanged(it)) },
+        enabled = !state.isLoading
+      )
+      VerticalSpacer(spacingSystem.space24)
+      CtaButton(
+        text = stringResource(Res.string.btn_create_account),
+        loading = state.isLoading,
+        onClick = { onIntent(RegisterIntent.Submit) },
+        modifier = Modifier.fillMaxWidth().testTag(RegisterTestTags.SUBMIT)
+      )
+      state.error?.let { error ->
+        VerticalSpacer(spacingSystem.space8)
+        ErrorText(
+          text = error.asString(),
+          modifier = Modifier.testTag(RegisterTestTags.ERROR)
+        )
+      }
     }
-    Spacer(modifier = Modifier.weight(1f))
     RegisterFooter(
       isLoading = state.isLoading,
       onSignInClick = onSignInClick
