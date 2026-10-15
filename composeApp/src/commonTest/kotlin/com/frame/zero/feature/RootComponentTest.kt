@@ -5,6 +5,8 @@ import com.arkivanov.essenty.backhandler.BackDispatcher
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
 import com.arkivanov.essenty.lifecycle.destroy
 import com.arkivanov.essenty.lifecycle.resume
+import com.arkivanov.essenty.statekeeper.SerializableContainer
+import com.arkivanov.essenty.statekeeper.StateKeeperDispatcher
 import com.frame.zero.core.files.AttachmentFileManager
 import com.frame.zero.core.navigation.DeepLink
 import com.frame.zero.core.navigation.NavigationSignal
@@ -220,6 +222,72 @@ class RootComponentTest {
     }
 
   @Test
+  fun `a recreated root keeps the pushed screen while logged in`() =
+    runTest(mainDispatcher) {
+      val session = session()
+      val first = makeRoot(session = session)
+      session.onAuthenticated(user)
+      advanceUntilIdle()
+      first.homeCallbacks.onProductionClick("p1")
+      advanceUntilIdle()
+
+      // Configuration change: same process (session stays LoggedIn), new root from saved state.
+      val recreated = makeRoot(session = session, savedState = first.saveAndDestroy())
+      advanceUntilIdle()
+
+      assertEquals(RootComponent.Config.ProductionDetails("p1"), recreated.activeConfig)
+      assertEquals(
+        RootComponent.Config.Home,
+        recreated.component.stack.value.backStack.single().configuration
+      )
+      recreated.tearDown()
+    }
+
+  @Test
+  fun `a stack restored after process death survives the session re-resolving`() =
+    runTest(mainDispatcher) {
+      val oldSession = session()
+      val first = makeRoot(session = oldSession)
+      oldSession.onAuthenticated(user)
+      advanceUntilIdle()
+      first.homeCallbacks.onProductionClick("p1")
+      advanceUntilIdle()
+      val saved = first.saveAndDestroy()
+
+      // Process death: a fresh session starts in Loading, then resolves to the same user.
+      val session = session()
+      val restored = makeRoot(session = session, savedState = saved)
+      advanceUntilIdle()
+      assertEquals(RootComponent.Config.ProductionDetails("p1"), restored.activeConfig)
+
+      session.onAuthenticated(user)
+      advanceUntilIdle()
+      assertEquals(RootComponent.Config.ProductionDetails("p1"), restored.activeConfig)
+      restored.tearDown()
+    }
+
+  @Test
+  fun `a restored logged-in stack is replaced when the session resolves to logged out`() =
+    runTest(mainDispatcher) {
+      val oldSession = session()
+      val first = makeRoot(session = oldSession)
+      oldSession.onAuthenticated(user)
+      advanceUntilIdle()
+      first.homeCallbacks.onProductionClick("p1")
+      advanceUntilIdle()
+      val saved = first.saveAndDestroy()
+
+      val session = session()
+      val restored = makeRoot(session = session, savedState = saved)
+      session.initialize() // no tokens -> LoggedOut
+      advanceUntilIdle()
+
+      assertEquals(RootComponent.Config.Auth, restored.activeConfig)
+      assertTrue(restored.component.stack.value.backStack.isEmpty())
+      restored.tearDown()
+    }
+
+  @Test
   fun `the lock overlay is engaged only when logged in and locked`() =
     runTest(mainDispatcher) {
       val session = session()
@@ -273,11 +341,17 @@ class RootComponentTest {
     session: SessionManager = session(),
     navigationSignal: NavigationSignal = NavigationSignal(),
     appLockController: AppLockController = controller(enabled = false),
-    forceUpdateController: ForceUpdateController = noUpdateController()
+    forceUpdateController: ForceUpdateController = noUpdateController(),
+    savedState: SerializableContainer? = null
   ): RootHandle {
     val lifecycle = LifecycleRegistry()
     val backDispatcher = BackDispatcher()
-    val context = DefaultComponentContext(lifecycle = lifecycle, backHandler = backDispatcher)
+    val stateKeeper = StateKeeperDispatcher(savedState)
+    val context = DefaultComponentContext(
+      lifecycle = lifecycle,
+      stateKeeper = stateKeeper,
+      backHandler = backDispatcher
+    )
     val productions = FakeProductionsRepository()
     val tasks = FakeTasksRepository()
     val callbacks = HomeCallbacks()
@@ -347,7 +421,7 @@ class RootComponentTest {
       accountViewModelFactory = { AccountViewModel(session, appLockController) }
     )
     lifecycle.resume()
-    return RootHandle(component, callbacks, backDispatcher, lifecycle)
+    return RootHandle(component, callbacks, backDispatcher, lifecycle, stateKeeper)
   }
 
   private class HomeCallbacks {
@@ -362,12 +436,16 @@ class RootComponentTest {
     val component: RootComponent,
     val homeCallbacks: HomeCallbacks,
     val backDispatcher: BackDispatcher,
-    private val lifecycle: LifecycleRegistry
+    private val lifecycle: LifecycleRegistry,
+    private val stateKeeper: StateKeeperDispatcher
   ) {
     val activeConfig: RootComponent.Config
       get() = component.stack.value.active.configuration
 
     fun tearDown() = lifecycle.destroy()
+
+    /** Saves the stack as the platform would before recreation / process death, then destroys. */
+    fun saveAndDestroy(): SerializableContainer = stateKeeper.save().also { tearDown() }
   }
 
   private object AlwaysAvailableAuthenticator : BiometricAuthenticator {

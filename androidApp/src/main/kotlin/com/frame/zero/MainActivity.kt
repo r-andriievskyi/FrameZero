@@ -54,7 +54,6 @@ class MainActivity : FragmentActivity() {
     )
     super.onCreate(savedInstanceState)
     graph.filePicker.attach(this)
-    lifecycleScope.launch { sessionManager.initialize() }
     lifecycleScope.launch {
       appLockController.enabled.collect { enabled ->
         if (enabled) {
