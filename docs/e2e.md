@@ -39,13 +39,16 @@ CI (JUnit report):
 maestro test --format junit --output build/maestro-report.xml .maestro/flows
 ```
 
-## iOS (pending demo scheme)
+## iOS
 
-No demo Xcode scheme exists yet. Manual path that works today:
+Use the shared **`iosApp Demo`** Xcode scheme (Demo configuration, `iosApp/Configuration/Demo.xcconfig`).
+Its "Compile Kotlin Framework" phase passes `-Pbuildkonfig.flavor=demo`, so it runs on the demo graph
+with offline fake data. Pick it in Xcode, or build from the command line:
 
 ```bash
-./gradlew -q :composeApp:linkDebugFrameworkIosSimulatorArm64 -Pbuildkonfig.flavor=demo
-# then build & install the app to a booted simulator via Xcode (do not clean), then:
+xcodebuild -project iosApp/iosApp.xcodeproj -scheme "iosApp Demo" \
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' build
+# install to the booted simulator, then:
 maestro test .maestro/flows
 ```
 
