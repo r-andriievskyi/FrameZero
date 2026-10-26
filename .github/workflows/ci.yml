@@ -86,6 +86,10 @@ jobs:
     if: needs.changes.outputs.code == 'true'
     runs-on: macos-latest
     timeout-minutes: 20
+    env:
+      # macOS runners resolve Maven Central to IPv6 but can't route it ("No route to host").
+      # JAVA_TOOL_OPTIONS reaches every JVM, including the Gradle that Xcode's script phase spawns.
+      JAVA_TOOL_OPTIONS: -Djava.net.preferIPv4Stack=true
     steps:
       - uses: actions/checkout@v4
       - uses: maxim-lobanov/setup-xcode@v1
