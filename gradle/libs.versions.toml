@@ -27,6 +27,8 @@ micrometer = "1.17.1"
 testcontainers = "1.21.4"
 koin = "4.2.2"
 metro = "1.4.5"
+# Supported Kotlin range is checked at configuration time — keep in step with `kotlin`.
+skie = "0.10.15"
 kover = "0.9.11"
 ktlint-gradle = "14.2.0"
 moduleGraph = "0.15.0"
@@ -51,7 +53,8 @@ androidx-uiautomator = "2.4.0"
 composeMultiplatform = "1.12.1"
 androidxComposeUiTest = "1.12.1"
 junit = "4.13.2"
-kotlin = "2.4.21"
+# Pinned to the newest Kotlin SKIE supports (:iosFramework); bump only after SKIE does.
+kotlin = "2.4.20"
 kotlinx-collections-immutable = "0.5.2"
 kotlinx-coroutines = "1.11.0"
 kotlinx-serialization = "1.11.0"
@@ -216,6 +219,7 @@ androidxRoom = { id = "androidx.room", version.ref = "androidxRoom" }
 buildKonfig = { id = "com.codingfeline.buildkonfig", version.ref = "buildKonfig" }
 roborazzi = { id = "io.github.takahirom.roborazzi", version.ref = "roborazzi" }
 metro = { id = "dev.zacsweers.metro", version.ref = "metro" }
+skie = { id = "co.touchlab.skie", version.ref = "skie" }
 googleServices = { id = "com.google.gms.google-services", version.ref = "googleServices" }
 firebaseCrashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebaseCrashlyticsPlugin" }
 firebasePerf = { id = "com.google.firebase.firebase-perf", version.ref = "firebasePerfPlugin" }

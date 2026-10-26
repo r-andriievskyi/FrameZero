@@ -30,6 +30,7 @@ Owner Android engineer, little iOS/backend experience. **Max Kotlin sharing: `co
 | `composeApp/` | Compose MP host (`com.android.kotlin.multiplatform.library`): `App.kt`, `RootComponent`, iOS framework. |
 | `composeApp/features/<name>/` | Stateless Compose UI for matching shared component. |
 | `composeApp/shared/design_system/` | Design tokens + widgets. |
+| `iosFramework/` | iOS-only static `FrameZero` framework for the SwiftUI app (migration in progress, `docs/ios-swiftui-migration.md`): `api`+`export` of shared/features (only module allowed `api` beyond `shared` re-exports — Kotlin/Native requires it), SKIE for Swift interop. SKIE pins Kotlin — bump `kotlin` only to a version SKIE supports, else every Gradle build fails at configuration. |
 | `server/` | JVM Ktor (Netty + Exposed/Postgres + JWT). Depend on no client module. |
 
 **Features:** `account`, `auth`, `home`, `production`, `production-details`, `task-create`, `task-details`, `task-list` (each has `shared/features/` + `composeApp/features/` half). Odd one: `app-update` = `shared/features/` only (overlay rendered in `RootComponent`, no `composeApp/features/` half) + `shared/repositories/app-update` api/impl split.
