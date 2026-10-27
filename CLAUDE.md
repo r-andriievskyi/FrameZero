@@ -29,7 +29,8 @@ Owner Android engineer, little iOS/backend experience. **Max Kotlin sharing: `co
 | `androidApp/` | Android entry point (`com.android.application`): `MainActivity`, `FrameZeroApp`, FCM service, manifest/res, flavors + signing. |
 | `composeApp/` | Compose MP host (`com.android.kotlin.multiplatform.library`): `App.kt`, `RootComponent`, iOS framework. |
 | `composeApp/features/<name>/` | Stateless Compose UI for matching shared component. |
-| `composeApp/shared/design_system/` | Design tokens + widgets. |
+| `shared/design-tokens/` | Compose-free raw token values (`DesignTokens`: ARGB `Long`, dp `Float`, text styles, easings) + light/dark assembly — source of truth for Compose and SwiftUI. |
+| `composeApp/shared/design_system/` | Compose theme (`AppTheme`, `ThemeOptions` adapts `DesignTokens`) + widgets. |
 | `iosFramework/` | iOS-only static `FrameZero` framework for the SwiftUI app (migration in progress, `docs/ios-swiftui-migration.md`): `api`+`export` of shared/features (only module allowed `api` beyond `shared` re-exports — Kotlin/Native requires it), SKIE for Swift interop. SKIE pins Kotlin — bump `kotlin` only to a version SKIE supports, else every Gradle build fails at configuration. |
 | `server/` | JVM Ktor (Netty + Exposed/Postgres + JWT). Depend on no client module. |
 
@@ -66,7 +67,7 @@ Owner Android engineer, little iOS/backend experience. **Max Kotlin sharing: `co
 
 All `composeApp` UI go through `AppTheme`. Use `AppTheme.colorSystem/typographySystem/spacingSystem/radiusSystem.<token>`.
 
-- Never `MaterialTheme.*`, hardcoded `Color(0xFF…)`, or raw `dp`/`sp` for visual tokens. No token fit — add one.
+- Never `MaterialTheme.*`, hardcoded `Color(0xFF…)`, or raw `dp`/`sp` for visual tokens. No token fit — add one: value in `shared/design-tokens` (`DesignTokens`), field in the `*System` class, mapping in `ThemeOptions`.
 - `spacingSystem` for spacing only — hoist element/border sizes to top-of-file `Dp` vals. Extract local `val` when sub-system used more than once.
 - Gaps: `VerticalSpacer`/`HorizontalSpacer(…)`, not raw `Spacer`. Clickables: `Modifier.clickableWithRipple(…)`, not bare `clickable`.
 - Previews: `@LightDarkPreview`. Extracted composables = `internal`, one per file with own preview, in `components/` (screen-local) or `ui/components/` (feature-shared).

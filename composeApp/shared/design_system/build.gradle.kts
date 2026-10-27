@@ -16,6 +16,7 @@ kotlin {
     commonMain.dependencies {
       api(libs.androidx.paging.compose)
       api(libs.kotlinx.collections.immutable)
+      implementation(projects.shared.designTokens)
       implementation(libs.compose.components.resources)
     }
     androidMain.dependencies { implementation(libs.androidx.core.ktx) }

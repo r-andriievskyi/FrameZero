@@ -34,12 +34,13 @@ skie {
   }
 }
 
-/** Modules whose state, intent and event types Swift uses by name. */
+/** Modules whose types Swift uses by name (state/intent/event types, design tokens). */
 val exportedModules
   get() = listOf(
     projects.shared,
     projects.shared.domain,
     projects.shared.uiText,
+    projects.shared.designTokens,
     projects.shared.features.account,
     projects.shared.features.auth,
     projects.shared.features.home,
