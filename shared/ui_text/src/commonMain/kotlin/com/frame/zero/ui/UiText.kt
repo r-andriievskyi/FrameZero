@@ -1,14 +1,14 @@
 package com.frame.zero.ui
 
-import androidx.compose.runtime.Immutable
-import org.jetbrains.compose.resources.StringResource
-
-@Immutable
+/**
+ * Platform-neutral user-facing text. Shared ViewModels carry a key; each platform resolves it
+ * with an exhaustive `when`/`switch` (Android: `UiText.asString()` in `composeApp/shared/ui_text`),
+ * so a key missing from either catalog is a compile error.
+ */
 sealed interface UiText {
   data class Resource(
-    val res: StringResource,
-    val args: List<Any> = emptyList()
+    val key: ErrorStringKey
   ) : UiText
 }
 
-fun StringResource.asUiText(vararg args: Any): UiText = UiText.Resource(this, args.toList())
+fun ErrorStringKey.asUiText(): UiText = UiText.Resource(this)

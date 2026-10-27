@@ -1,5 +1,5 @@
 plugins {
-  id("crossplatform.library.compose")
+  id("crossplatform.library")
   id("crossplatform.di")
 }
 
@@ -16,7 +16,6 @@ kotlin {
       api(libs.androidx.paging.common)
       implementation(projects.shared.repositories.tasks.api)
       implementation(libs.kotlinx.coroutines.core)
-      implementation(libs.compose.components.resources)
     }
     commonTest.dependencies {
       implementation(projects.shared.testFixtures)

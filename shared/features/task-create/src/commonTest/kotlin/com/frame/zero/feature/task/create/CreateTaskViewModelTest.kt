@@ -3,6 +3,7 @@ package com.frame.zero.feature.task.create
 import app.cash.turbine.test
 import app.cash.turbine.turbineScope
 import com.frame.zero.core.files.AttachmentFileManager
+import com.frame.zero.ui.ErrorStringKey
 import io.ktor.utils.io.ByteReadChannel
 import com.frame.zero.core.files.FilePicker
 import com.frame.zero.core.files.MAX_ATTACHMENT_BYTES
@@ -16,10 +17,6 @@ import com.frame.zero.testing.FakeTasksRepository
 import com.frame.zero.testing.productionMember
 import com.frame.zero.testing.taskDetail
 import com.frame.zero.ui.asUiText
-import framezero.shared.features.task_create.generated.resources.Res
-import framezero.shared.features.task_create.generated.resources.error_title_required
-import framezero.shared.ui_text.generated.resources.Res as UiTextRes
-import framezero.shared.ui_text.generated.resources.error_network
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
@@ -55,7 +52,7 @@ class CreateTaskViewModelTest {
         advanceUntilIdle()
 
         val state = expectMostRecentItem()
-        assertEquals(Res.string.error_title_required.asUiText(), state.titleError)
+        assertEquals(ErrorStringKey.CREATE_TASK_TITLE_REQUIRED.asUiText(), state.titleError)
         assertEquals(false, state.isLoading)
       }
       assertTrue(tasks.createRequests.isEmpty())
@@ -97,7 +94,7 @@ class CreateTaskViewModelTest {
         advanceUntilIdle()
 
         val state = expectMostRecentItem()
-        assertEquals(UiTextRes.string.error_network.asUiText(), state.errorToast)
+        assertEquals(ErrorStringKey.NETWORK.asUiText(), state.errorToast)
         assertEquals(false, state.isLoading)
       }
     }

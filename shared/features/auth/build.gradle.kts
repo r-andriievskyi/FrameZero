@@ -1,5 +1,5 @@
 plugins {
-  id("crossplatform.library.compose")
+  id("crossplatform.library")
   id("crossplatform.di")
 }
 
@@ -18,7 +18,6 @@ kotlin {
       implementation(libs.kotlinx.coroutines.core)
       implementation(libs.kotlinx.serialization.json)
       implementation(libs.bundles.ktorClient)
-      implementation(libs.compose.components.resources)
     }
     commonTest.dependencies {
       implementation(projects.shared.testFixtures)

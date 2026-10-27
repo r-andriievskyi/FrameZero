@@ -14,3 +14,4 @@ each ~10 lines. Read top-to-bottom for a stack tour.
 - [use-case-layer](use-case-layer.md) — ViewModel → UseCase → repository
 - [self-registering-plugins](self-registering-plugins.md) — sink + facade + `bind`
 - [expect-actual](expect-actual.md) — platform abstractions
+- [ui-text-keys](ui-text-keys.md) — toolkit-neutral error text from shared ViewModels

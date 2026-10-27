@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-  <!-- CreateProductionViewModel error messages -->
-  <string name="error_title_required">Title is required</string>
-  <string name="error_invalid_dates">Valid start and wrap dates are required</string>
-  <string name="error_missing_dates">Start and wrap dates are required</string>
-  <string name="error_conflict">A production like this already exists.</string>
-</resources>

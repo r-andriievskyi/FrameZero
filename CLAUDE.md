@@ -24,7 +24,7 @@ Owner Android engineer, little iOS/backend experience. **Max Kotlin sharing: `co
 | `shared/database/` | Single shared Room DB (`FrameZeroDatabase`, all entities/DAOs, `DatabaseBindings`). Depend on no app module. |
 | `shared/test-fixtures/` | Cross-feature fakes/builders (`com.frame.zero.testing`). |
 | `shared/demo/` | Demo-flavor fakes + curated offline dataset (`com.frame.zero.demo`): `DemoDataStore` in-memory source of truth, `Demo*Repository`/scheduler impls, `DemoBindings` container. Compiled into all builds; only the demo graphs include it. |
-| `shared/ui_text/` | `UiText` — shared ViewModels carry strings without Compose. |
+| `shared/ui_text/` | `UiText` + `ErrorStringKey` — shared ViewModels carry error text without any UI toolkit. |
 | `shared/integrations/<name>/` | Self-registering plugins (e.g. `firebase` = Crashlytics/Analytics sinks). |
 | `androidApp/` | Android entry point (`com.android.application`): `MainActivity`, `FrameZeroApp`, FCM service, manifest/res, flavors + signing. |
 | `composeApp/` | Compose MP host (`com.android.kotlin.multiplatform.library`): `App.kt`, `RootComponent`, iOS framework. |
@@ -56,7 +56,7 @@ Owner Android engineer, little iOS/backend experience. **Max Kotlin sharing: `co
 - **Errors:** `Outcome<T>` across boundaries; never throw across modules. Server map to HTTP via `AppException`.
 - **StateFlow:** always `_state.update { it.copy(...) }`, never `_state.value = …`.
 - **Lifecycle:** shared ViewModels implement Essenty `InstanceKeeper.Instance` (manual scope); UI use `collectAsStateWithLifecycle()`.
-- **Strings from shared:** ViewModels emit `UiText`; UI resolve via `UiText.asString()`. Never resolve resources to `String` in `shared`.
+- **Strings from shared:** ViewModels emit `UiText` (an `ErrorStringKey`, `shared/ui_text`); Android resolve via `UiText.asString()` (`composeApp/shared/ui_text` holds the catalog — add new keys there, `values` + `values-es`). No Compose/resources in `shared`. ADR: `docs/decisions/client/ui-text-keys.md`.
 - **Dependencies:** add to `gradle/libs.versions.toml`, not module scripts. Recurring groups via `[bundles]`: `ktorClient` (core+negotiation+json), `ktorClientTest` (mock+negotiation+json), `commonTest` (kotlin-test+coroutines-test), `screenshotTest` — use bundle, no re-list members.
 - **Naming:** `<Interface>Impl` side-by-side; no tech/strategy suffixes (platform actuals keep prefix).
 - **Tests:** `kotlin.test` in `commonTest`; reuse `shared/test-fixtures` fakes. No mockk/mockito in shared code.

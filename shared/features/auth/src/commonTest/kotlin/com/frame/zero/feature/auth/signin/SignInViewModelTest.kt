@@ -12,14 +12,9 @@ import com.frame.zero.feature.auth.domain.LoginUseCase
 import com.frame.zero.testing.FakeAuthRepository
 import com.frame.zero.testing.NoopSessionAuthOperations
 import com.frame.zero.repository.auth.AuthRepository
+import com.frame.zero.ui.ErrorStringKey
 import com.frame.zero.ui.asUiText
 import com.russhwolf.settings.MapSettings
-import framezero.shared.features.auth.generated.resources.Res
-import framezero.shared.features.auth.generated.resources.error_empty_credentials
-import framezero.shared.features.auth.generated.resources.error_invalid_credentials
-import framezero.shared.ui_text.generated.resources.Res as UiTextRes
-import framezero.shared.ui_text.generated.resources.error_network
-import framezero.shared.ui_text.generated.resources.error_unknown_fallback
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -82,7 +77,7 @@ class SignInViewModelTest {
         vm.onIntent(SignInIntent.Submit)
         advanceUntilIdle()
 
-        assertEquals(Res.string.error_empty_credentials.asUiText(), expectMostRecentItem().error)
+        assertEquals(ErrorStringKey.AUTH_EMPTY_CREDENTIALS.asUiText(), expectMostRecentItem().error)
       }
       assertEquals(0, repo.loginCalls.size)
     }
@@ -98,7 +93,7 @@ class SignInViewModelTest {
         vm.onIntent(SignInIntent.Submit)
         advanceUntilIdle()
 
-        assertEquals(Res.string.error_empty_credentials.asUiText(), expectMostRecentItem().error)
+        assertEquals(ErrorStringKey.AUTH_EMPTY_CREDENTIALS.asUiText(), expectMostRecentItem().error)
       }
     }
 
@@ -133,7 +128,7 @@ class SignInViewModelTest {
         advanceUntilIdle()
 
         val state = expectMostRecentItem()
-        assertEquals(Res.string.error_invalid_credentials.asUiText(), state.error)
+        assertEquals(ErrorStringKey.AUTH_INVALID_CREDENTIALS.asUiText(), state.error)
         assertFalse(state.isLoading)
       }
     }
@@ -151,7 +146,7 @@ class SignInViewModelTest {
         advanceUntilIdle()
 
         val state = expectMostRecentItem()
-        assertEquals(UiTextRes.string.error_network.asUiText(), state.errorToast)
+        assertEquals(ErrorStringKey.NETWORK.asUiText(), state.errorToast)
         assertNull(state.error)
       }
     }
@@ -169,7 +164,7 @@ class SignInViewModelTest {
         advanceUntilIdle()
 
         val state = expectMostRecentItem()
-        assertEquals(UiTextRes.string.error_unknown_fallback.asUiText(), state.errorToast)
+        assertEquals(ErrorStringKey.UNKNOWN.asUiText(), state.errorToast)
         assertNull(state.error)
       }
     }
@@ -185,7 +180,7 @@ class SignInViewModelTest {
         vm.onIntent(SignInIntent.PasswordChanged("p"))
         vm.onIntent(SignInIntent.Submit)
         advanceUntilIdle()
-        assertEquals(UiTextRes.string.error_network.asUiText(), expectMostRecentItem().errorToast)
+        assertEquals(ErrorStringKey.NETWORK.asUiText(), expectMostRecentItem().errorToast)
 
         vm.onIntent(SignInIntent.ToastDismissed)
         advanceUntilIdle()

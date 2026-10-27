@@ -6,9 +6,8 @@ import com.frame.zero.core.security.BiometricPromptText
 import com.frame.zero.core.security.BiometricResult
 import com.frame.zero.core.session.SessionManager
 import com.frame.zero.core.session.SessionState
+import com.frame.zero.ui.ErrorStringKey
 import com.frame.zero.ui.asUiText
-import framezero.shared.features.account.generated.resources.Res
-import framezero.shared.features.account.generated.resources.error_biometric_failed
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -78,7 +77,7 @@ class AccountViewModel(
       _state.update {
         it.copy(
           appLockEnabled = appLockController.isEnabled,
-          appLockError = if (result is BiometricResult.Error) Res.string.error_biometric_failed.asUiText() else null
+          appLockError = ErrorStringKey.ACCOUNT_BIOMETRIC_FAILED.asUiText().takeIf { result is BiometricResult.Error }
         )
       }
     }

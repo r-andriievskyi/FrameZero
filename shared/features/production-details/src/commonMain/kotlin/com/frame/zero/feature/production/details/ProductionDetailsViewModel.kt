@@ -17,16 +17,13 @@ import com.frame.zero.feature.production.details.domain.GetProductionDetailsUseC
 import com.frame.zero.feature.production.details.domain.GetProductionTasksUseCase
 import com.frame.zero.feature.production.details.domain.ProductionTask
 import com.frame.zero.ui.DomainErrorCategory
+import com.frame.zero.ui.ErrorStringKey
 import com.frame.zero.ui.UiText
 import com.frame.zero.ui.asUiText
 import com.frame.zero.ui.toUiText
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
-import framezero.shared.features.production_details.generated.resources.Res
-import framezero.shared.features.production_details.generated.resources.error_conflict
-import framezero.shared.features.production_details.generated.resources.error_forbidden
-import framezero.shared.features.production_details.generated.resources.error_not_found
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -229,9 +226,9 @@ class ProductionDetailsViewModel(
 
   private companion object {
     val errorMessages: Map<DomainErrorCategory, UiText> = mapOf(
-      DomainErrorCategory.NOT_FOUND to Res.string.error_not_found.asUiText(),
-      DomainErrorCategory.FORBIDDEN to Res.string.error_forbidden.asUiText(),
-      DomainErrorCategory.CONFLICT to Res.string.error_conflict.asUiText()
+      DomainErrorCategory.NOT_FOUND to ErrorStringKey.PRODUCTION_DETAILS_NOT_FOUND.asUiText(),
+      DomainErrorCategory.FORBIDDEN to ErrorStringKey.PRODUCTION_DETAILS_FORBIDDEN.asUiText(),
+      DomainErrorCategory.CONFLICT to ErrorStringKey.PRODUCTION_DETAILS_CONFLICT.asUiText()
     )
   }
 

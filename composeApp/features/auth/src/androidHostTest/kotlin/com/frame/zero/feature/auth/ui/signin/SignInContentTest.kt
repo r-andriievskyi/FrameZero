@@ -10,8 +10,7 @@ import com.frame.zero.feature.auth.signin.SignInState
 import com.frame.zero.feature.auth.ui.signin.SignInTestTags.ERROR
 import com.frame.zero.feature.auth.ui.signin.SignInTestTags.SUBMIT
 import com.frame.zero.shared.design_system.AppTheme
-import com.frame.zero.shared.design_system.generated.resources.Res
-import com.frame.zero.shared.design_system.generated.resources.error_generic_message
+import com.frame.zero.ui.ErrorStringKey
 import com.frame.zero.ui.asUiText
 import org.junit.Rule
 import org.junit.Test
@@ -33,10 +32,10 @@ class SignInContentTest {
 
   @Test
   fun showsTheInlineErrorWhenPresent() {
-    setContent(SignInState(error = Res.string.error_generic_message.asUiText()))
+    setContent(SignInState(error = ErrorStringKey.UNKNOWN.asUiText()))
 
     composeRule.onNodeWithTag(ERROR).assertIsDisplayed()
-    composeRule.onNodeWithText("Something went wrong").assertIsDisplayed()
+    composeRule.onNodeWithText("Something went wrong. Please try again.").assertIsDisplayed()
   }
 
   @Test

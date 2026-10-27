@@ -10,8 +10,7 @@ import com.frame.zero.feature.home.tab.schedule.ScheduleTabState
 import com.frame.zero.feature.home.ui.tab.schedule.ScheduleTabTestTags.ERROR
 import com.frame.zero.feature.home.ui.tab.schedule.ScheduleTabTestTags.LOADING
 import com.frame.zero.shared.design_system.AppTheme
-import com.frame.zero.shared.design_system.generated.resources.Res
-import com.frame.zero.shared.design_system.generated.resources.error_generic_message
+import com.frame.zero.ui.ErrorStringKey
 import com.frame.zero.ui.asUiText
 import org.junit.Rule
 import org.junit.Test
@@ -40,7 +39,7 @@ class ScheduleTabContentTest {
   fun showsTheErrorWhenOfflineWithNothingCached() {
     setContent(
       ScheduleTabState(
-        error = LoadError(message = Res.string.error_generic_message.asUiText(), autoRetries = true),
+        error = LoadError(message = ErrorStringKey.UNKNOWN.asUiText(), autoRetries = true),
         schedule = null
       )
     )
@@ -54,7 +53,7 @@ class ScheduleTabContentTest {
     var retried = false
     setContent(
       ScheduleTabState(
-        error = LoadError(message = Res.string.error_generic_message.asUiText(), autoRetries = false),
+        error = LoadError(message = ErrorStringKey.UNKNOWN.asUiText(), autoRetries = false),
         schedule = null
       ),
       onRetry = { retried = true }

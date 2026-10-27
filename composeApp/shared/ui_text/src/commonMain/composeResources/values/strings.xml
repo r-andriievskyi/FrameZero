@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <!-- One entry per ErrorStringKey (shared/ui_text); resolved in UiTextExt.kt (Android);
+       iOS resolves the same keys in Swift. -->
+
+  <!-- Canonical DomainError copy, one per DomainErrorCategory (see DomainErrorText.kt). -->
+  <string name="error_network">No internet connection. Check your connection and try again.</string>
+  <string name="error_server">The server is unavailable. Please try again later.</string>
+  <string name="error_not_found">This item no longer exists.</string>
+  <string name="error_forbidden">You don\'t have permission to do this.</string>
+  <string name="error_conflict">That couldn\'t be saved. Please try again.</string>
+  <string name="error_invalid_credentials">Authentication failed. Please sign in again.</string>
+  <string name="error_email_exists">An account with this email already exists</string>
+  <string name="error_insufficient_storage">Not enough free space.</string>
+  <string name="error_unknown">Something went wrong. Please try again.</string>
+
+  <!-- Account -->
+  <string name="error_account_biometric_failed">Couldn\'t verify with biometrics. Try again or use your device passcode.</string>
+
+  <!-- Auth (SignInViewModel / RegisterViewModel) -->
+  <string name="error_auth_empty_credentials">Email and password must not be empty</string>
+  <string name="error_auth_invalid_credentials">Invalid email or password</string>
+
+  <!-- Home (DashboardTabViewModel / ScheduleTabViewModel): the auto-retry-on-reconnect case explains the automatic behavior. -->
+  <string name="error_home_offline">No internet connection.\nWe\'ll refresh automatically once you\'re back online.</string>
+
+  <!-- CreateProductionViewModel -->
+  <string name="error_create_production_title_required">Title is required</string>
+  <string name="error_create_production_invalid_dates">Valid start and wrap dates are required</string>
+  <string name="error_create_production_missing_dates">Start and wrap dates are required</string>
+  <string name="error_create_production_conflict">A production like this already exists.</string>
+
+  <!-- ProductionDetailsViewModel -->
+  <string name="error_production_details_not_found">This production no longer exists.</string>
+  <string name="error_production_details_forbidden">You don\'t have access to this production.</string>
+  <string name="error_production_details_conflict">This production was changed elsewhere. Please refresh and try again.</string>
+
+  <!-- CreateTaskViewModel -->
+  <string name="error_create_task_title_required">Give the task a title.</string>
+  <string name="error_create_task_file_too_large">That file is over the 50 MB limit. Pick a smaller file.</string>
+  <string name="error_create_task_forbidden">You don\'t have permission to add tasks here.</string>
+  <string name="error_create_task_not_found">This production no longer exists.</string>
+  <string name="error_create_task_conflict">This task could not be saved. Please try again.</string>
+
+  <!-- TaskDetailsViewModel (participants, load, mark-complete, attachment download) -->
+  <string name="error_task_details_forbidden">You don\'t have permission to change this task\'s participants.</string>
+  <string name="error_task_details_not_found">This task no longer exists.</string>
+  <string name="error_task_details_conflict">Couldn\'t update participants. Please try again.</string>
+  <string name="error_task_details_attachment_offline">You\'re offline. Connect and try again.</string>
+  <string name="error_task_details_attachment_storage">Not enough free space to download this file.</string>
+  <string name="error_task_details_attachment_generic">Couldn\'t download the attachment. Try again.</string>
+</resources>
