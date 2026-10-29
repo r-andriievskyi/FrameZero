@@ -11,6 +11,8 @@ struct InputField: View {
     let placeholder: LocalizedStringResource
     @Binding var text: String
     var systemImage: String?
+    /// Literal text before the input, e.g. a currency sign.
+    var prefix: String?
     var isSecure = false
     var showsRevealToggle = false
     /// Grows downward from a 96 pt box; mirrors task-create's `MultiLineInputField`.
@@ -31,6 +33,12 @@ struct InputField: View {
             if let systemImage {
                 Image(systemName: systemImage)
                     .foregroundStyle(Color(argb: colors.textPrimary))
+                    .accessibilityHidden(true)
+            }
+            if let prefix {
+                Text(verbatim: prefix)
+                    .textStyle(DesignTokens.shared.typography.bodyLarge)
+                    .foregroundStyle(Color(argb: colors.textMuted))
                     .accessibilityHidden(true)
             }
             Group {

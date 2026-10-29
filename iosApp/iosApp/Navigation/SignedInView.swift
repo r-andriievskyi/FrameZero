@@ -51,6 +51,8 @@ struct SignedInView: View {
             CreateTaskView(model: models.model(for: route) {
                 CreateTaskModel(graph: graph, productionId: productionId, productionTitle: productionTitle)
             })
+        case .createProduction:
+            CreateProductionView(model: models.model(for: route) { CreateProductionModel(graph: graph) })
         default:
             NotMigratedView(name: String(describing: route))
         }

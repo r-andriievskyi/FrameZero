@@ -7,7 +7,22 @@ import kotlinx.datetime.LocalDate
 data class CrewMemberEntry(
   val name: String,
   val role: String
-)
+) {
+  /** First and last initial ("Dara Okonkwo" → "DO"), one for a single name, "?" for a blank one. */
+  val initials: String
+    get() {
+      val parts = name.trim().split(WHITESPACE).filter { it.isNotEmpty() }
+      return when {
+        parts.size >= 2 -> "${parts.first().first().uppercaseChar()}${parts.last().first().uppercaseChar()}"
+        parts.size == 1 -> parts[0].first().uppercaseChar().toString()
+        else -> "?"
+      }
+    }
+
+  private companion object {
+    val WHITESPACE = Regex("\\s+")
+  }
+}
 
 data class CreateProductionState(
   val currentStep: Int = 1,

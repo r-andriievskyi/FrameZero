@@ -176,12 +176,11 @@ struct PrioritySelector: View {
     }
 }
 
-/// Quick-pick chips plus a dd.mm.yyyy field that opens a calendar sheet.
+/// Quick-pick chips plus the dd.mm.yyyy calendar field.
 struct DueDateSection: View {
     let dueDate: Kotlinx_datetimeLocalDate?
     let onQuickSelect: (DueDateQuickOption) -> Void
     let onDateChange: (Kotlinx_datetimeLocalDate?) -> Void
-    @State private var isPickerShown = false
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
@@ -204,65 +203,8 @@ struct DueDateSection: View {
                     .buttonStyle(.plain)
                 }
             }
-            Button { isPickerShown = true } label: {
-                Group {
-                    if let dueDate {
-                        Text(Self.format(dueDate)).foregroundStyle(Color(argb: colors.textPrimary))
-                    } else {
-                        Text("due_date_placeholder").foregroundStyle(Color(argb: colors.textMuted))
-                    }
-                }
-                .textStyle(DesignTokens.shared.typography.bodyLarge)
-                .padding(.horizontal, CGFloat(spacing.space16))
-                .frame(maxWidth: .infinity, minHeight: fieldHeight, alignment: .leading)
-                .fieldBackground(colors)
-            }
-            .buttonStyle(.plain)
-            .accessibilityValue(dueDate.map { Text($0.formatMedium()) } ?? Text(""))
+            DateField(date: dueDate, placeholder: "due_date_placeholder", label: "label_due_date") { onDateChange($0) }
         }
-        .gatedSheet(isPresented: isPickerShown, onDismiss: { isPickerShown = false }) {
-            DueDatePickerSheet(initial: dueDate?.date() ?? .now) { picked in
-                onDateChange(Kotlinx_datetimeLocalDate(picked))
-                isPickerShown = false
-            } onCancel: {
-                isPickerShown = false
-            }
-        }
-    }
-
-    /// dd.mm.yyyy, as Android's `formatDate`.
-    private static func format(_ date: Kotlinx_datetimeLocalDate) -> String {
-        String(format: "%02d.%02d.%d", date.day, Int32(date.month.ordinal) + 1, date.year)
-    }
-}
-
-private struct DueDatePickerSheet: View {
-    let onConfirm: (Date) -> Void
-    let onCancel: () -> Void
-    @State private var selection: Date
-    @Environment(\.colorScheme) private var colorScheme
-
-    init(initial: Date, onConfirm: @escaping (Date) -> Void, onCancel: @escaping () -> Void) {
-        _selection = State(initialValue: initial)
-        self.onConfirm = onConfirm
-        self.onCancel = onCancel
-    }
-
-    var body: some View {
-        let colors = ColorTokens.forScheme(colorScheme)
-        NavigationStack {
-            DatePicker("label_due_date", selection: $selection, displayedComponents: .date)
-                .datePickerStyle(.graphical)
-                .tint(Color(argb: colors.accent))
-                .padding(.horizontal, CGFloat(DesignTokens.shared.spacing.space16))
-                .frame(maxHeight: .infinity, alignment: .top)
-                .toolbar {
-                    ToolbarItem(placement: .cancellationAction) { Button("date_picker_cancel", action: onCancel) }
-                    ToolbarItem(placement: .confirmationAction) { Button("date_picker_ok") { onConfirm(selection) } }
-                }
-        }
-        .presentationDetents([.medium, .large])
-        .presentationBackground(Color(argb: colors.cardBackground))
     }
 }
 
