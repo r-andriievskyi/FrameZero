@@ -41,6 +41,8 @@ struct SignedInView: View {
                 model: models.model(for: route) { AccountModel(graph: graph) },
                 onDeveloperOptions: { path.append(.gallery) }
             )
+        case .taskDetails(let taskId):
+            TaskDetailsView(model: models.model(for: route) { TaskDetailsModel(graph: graph, taskId: taskId) })
         default:
             NotMigratedView(name: String(describing: route))
         }

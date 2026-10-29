@@ -21,6 +21,7 @@ struct RootView: View {
                 }
             }
             .accessibilityHidden(isGated)
+            .environment(\.isAppGated, isGated)
             if model.isLocked {
                 LockView(onUnlock: model.unlock, onSignOut: model.signOut)
                     .accessibilityHidden(model.updateGate != .none)
