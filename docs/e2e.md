@@ -52,8 +52,13 @@ xcodebuild -project iosApp/iosApp.xcodeproj -scheme "iosApp Demo" \
 maestro test .maestro/flows
 ```
 
-iOS is mid-migration to SwiftUI: flows pass only once their screens land (login C3, sign-out C5,
-the rest C13 — `docs/ios-swiftui-migration.md`); until then they stop at a `NotMigratedView`.
+Every screen is SwiftUI now (`docs/ios-swiftui-migration.md`), and each view carries the Compose
+`testTag` strings as `.accessibilityIdentifier(...)`, so the same `id:` selectors match on iOS. Reuse the
+existing identifiers verbatim when adding a view; don't invent iOS-only ones.
+
+**Not yet run on iOS.** The suite was written against Android. One known gap: Maestro's `back` command
+is Android-only, so `browse-production.yaml`'s final `back` needs an iOS form (a tap on the navigation
+bar's back button, or a left-edge swipe) before the flow can pass there.
 
 Requires the gitignored `iosApp/iosApp/GoogleService-Info.plist` (`FirebaseApp.configure()`
 runs at boot even in demo). On iOS, Maestro matches accessibility identifiers/labels — if a

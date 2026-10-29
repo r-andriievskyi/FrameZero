@@ -85,7 +85,7 @@ jobs:
     needs: [changes, lint]
     if: needs.changes.outputs.code == 'true'
     runs-on: macos-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     env:
       # macOS runners resolve Maven Central to IPv6 but can't route it ("No route to host").
       # JAVA_TOOL_OPTIONS reaches every JVM, including the Gradle that Xcode's script phase spawns.
@@ -103,16 +103,36 @@ jobs:
           key: konan-${{ runner.os }}-${{ hashFiles('gradle/libs.versions.toml') }}
           restore-keys: |
             konan-${{ runner.os }}-
-      - name: Build iOS app (Debug, simulator)
+      # The only shared scheme is "iosApp Demo"; -configuration Debug builds it on the prod graph.
+      - name: Build iOS app (Debug, prod graph, simulator)
         run: |
           xcodebuild build \
             -project iosApp/iosApp.xcodeproj \
-            -scheme iosApp \
+            -scheme "iosApp Demo" \
             -configuration Debug \
             -sdk iphonesimulator \
             -destination 'generic/platform=iOS Simulator' \
             EXCLUDED_ARCHS=x86_64 \
             CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO
+      # Snapshot tests run hosted in the Demo app, which must launch: an unsigned build crashes on the
+      # keychain, so sign ad hoc. The references were recorded on this simulator and runtime (iosAppTests);
+      # the OS is explicit because Xcode otherwise picks its newest runtime, which lacks this device.
+      - name: Snapshot tests (Demo, iPhone 17 Pro iOS 26.5 simulator)
+        env:
+          TEST_RUNNER_SNAPSHOT_ARTIFACTS: ${{ runner.temp }}/snapshot-diffs
+        run: |
+          xcodebuild test \
+            -project iosApp/iosApp.xcodeproj \
+            -scheme "iosApp Demo" \
+            -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.5' \
+            CODE_SIGN_IDENTITY=- CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM=
+      - name: Upload snapshot diffs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-snapshot-diffs
+          path: ${{ runner.temp }}/snapshot-diffs
+          if-no-files-found: ignore
 
   android-release-build:
     needs: [changes, lint]
