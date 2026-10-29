@@ -36,10 +36,32 @@ struct CtaButton: View {
     }
 }
 
+/// Transparent call-to-action outlined in its content color; mirrors Compose's `OutlinedCtaButton`
+/// (design_system).
+struct OutlinedCtaButton: View {
+    let title: LocalizedStringKey
+    let color: Color
+    let action: () -> Void
+
+    var body: some View {
+        let shape = RoundedRectangle(cornerRadius: CGFloat(DesignTokens.shared.radius.radius16))
+        Button(action: action) {
+            Text(title)
+                .textStyle(DesignTokens.shared.typography.labelLarge)
+                .foregroundStyle(color)
+                .frame(maxWidth: .infinity, minHeight: height)
+                .overlay(shape.stroke(color, lineWidth: CGFloat(DesignTokens.shared.border.hairline)))
+                .contentShape(shape)
+        }
+        .buttonStyle(.plain)
+    }
+}
+
 #Preview {
     VStack(spacing: 12) {
         CtaButton(title: "Continue") {}
         CtaButton(title: "Continue", isLoading: true) {}
+        OutlinedCtaButton(title: "Sign out", color: .red) {}
     }
     .padding()
 }
