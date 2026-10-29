@@ -52,6 +52,9 @@ xcodebuild -project iosApp/iosApp.xcodeproj -scheme "iosApp Demo" \
 maestro test .maestro/flows
 ```
 
+iOS is mid-migration to SwiftUI: flows pass only once their screens land (login C3, sign-out C5,
+the rest C13 — `docs/ios-swiftui-migration.md`); until then they stop at a `NotMigratedView`.
+
 Requires the gitignored `iosApp/iosApp/GoogleService-Info.plist` (`FirebaseApp.configure()`
 runs at boot even in demo). On iOS, Maestro matches accessibility identifiers/labels — if a
 `testTag` does not surface, fall back to the text anchors (seed titles "Midnight Harvest",

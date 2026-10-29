@@ -7,10 +7,11 @@ import org.gradle.kotlin.dsl.getByType
 import org.jetbrains.kotlin.compose.compiler.gradle.ComposeCompilerGradlePluginExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 
+/** Android-only Compose UI library (iOS renders SwiftUI over `:iosFramework`). */
 class KmpLibraryComposeConventionPlugin : Plugin<Project> {
   override fun apply(target: Project) {
     with(target) {
-      pluginManager.apply("crossplatform.library")
+      configureKmpAndroidLibrary()
       pluginManager.apply("org.jetbrains.compose")
       pluginManager.apply("org.jetbrains.kotlin.plugin.compose")
 

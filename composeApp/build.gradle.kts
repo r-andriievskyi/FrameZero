@@ -32,13 +32,6 @@ kotlin {
     withHostTest { isIncludeAndroidResources = true }
   }
 
-  listOf(iosArm64(), iosSimulatorArm64()).forEach { iosTarget ->
-    iosTarget.binaries.framework {
-      baseName = "ComposeApp"
-      isStatic = true
-    }
-  }
-
   sourceSets {
     commonMain.dependencies {
       implementation(libs.compose.runtime)
@@ -50,6 +43,7 @@ kotlin {
       implementation(libs.androidx.lifecycle.viewmodelCompose)
       implementation(libs.androidx.lifecycle.runtimeCompose)
       implementation(projects.shared)
+      implementation(projects.shared.appGraph)
       implementation(projects.shared.database)
       implementation(projects.shared.features.account)
       implementation(projects.shared.features.auth)
@@ -97,16 +91,3 @@ kotlin {
 dependencies {
   add("androidRuntimeClasspath", libs.compose.uiTooling)
 }
-
-// Same workaround as :shared:integrations:firebase — this module links the GitLive Firebase
-// klib, whose native frameworks (FirebaseCore, …) are supplied via Xcode/SPM only to the app
-// link, never to Gradle. Kotlin/Native *test* executables therefore fail at `ld` with
-// "framework 'FirebaseCore' not found". Tests in commonTest still run on the Android host.
-// Remove once the native frameworks are made available to the Gradle link.
-val skippedIosTestTasks = setOf(
-  "linkDebugTestIosArm64",
-  "linkDebugTestIosSimulatorArm64",
-  "iosArm64Test",
-  "iosSimulatorArm64Test"
-)
-tasks.matching { it.name in skippedIosTestTasks }.configureEach { enabled = false }

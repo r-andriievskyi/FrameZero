@@ -1,9 +1,9 @@
-// iOS-only Obj-C framework of the shared Kotlin layer for the SwiftUI app
-// (docs/ios-swiftui-migration.md, P1). SKIE turns its header into idiomatic Swift (sealed →
-// enum, Flow → AsyncSequence, suspend → async). Not wired into Xcode until C2 — the app still
-// links :composeApp's framework.
+// iOS-only Obj-C framework for the SwiftUI app (docs/ios-swiftui-migration.md). Owns the iOS
+// Metro graphs and the Swift entry points; SKIE turns its header into idiomatic Swift (sealed →
+// enum, Flow → AsyncSequence, suspend → async). Xcode links it via embedAndSignAppleFrameworkForXcode.
 plugins {
   alias(libs.plugins.kotlinMultiplatform)
+  alias(libs.plugins.metro)
   alias(libs.plugins.skie)
 }
 
@@ -23,6 +23,14 @@ kotlin {
   sourceSets {
     iosMain.dependencies {
       exportedModules.forEach { api(it) }
+      // Graph-only: implementations the iOS graphs aggregate, never named from Swift.
+      implementation(projects.shared.database)
+      implementation(projects.shared.demo)
+      implementation(projects.shared.repositories.productions.impl)
+      implementation(projects.shared.repositories.tasks.impl)
+      implementation(projects.shared.repositories.forceUpdate.impl)
+      implementation(projects.shared.repositories.deviceToken)
+      implementation(projects.shared.integrations.firebase)
     }
   }
 }
@@ -34,10 +42,11 @@ skie {
   }
 }
 
-/** Modules whose types Swift uses by name (state/intent/event types, design tokens). */
+/** Modules whose types Swift uses by name (graph, state/intent/event types, design tokens). */
 val exportedModules
   get() = listOf(
     projects.shared,
+    projects.shared.appGraph,
     projects.shared.domain,
     projects.shared.uiText,
     projects.shared.designTokens,
@@ -51,3 +60,15 @@ val exportedModules
     projects.shared.features.taskList,
     projects.shared.features.forceUpdate
   )
+
+// Same workaround as :shared:integrations:firebase — this module links the GitLive Firebase
+// klib, whose native frameworks (FirebaseCore, …) are supplied via Xcode/SPM only to the app
+// link, never to Gradle. Kotlin/Native *test* executables therefore fail at `ld` with
+// "framework 'FirebaseCore' not found". Remove once the native frameworks reach the Gradle link.
+val skippedIosTestTasks = setOf(
+  "linkDebugTestIosArm64",
+  "linkDebugTestIosSimulatorArm64",
+  "iosArm64Test",
+  "iosSimulatorArm64Test"
+)
+tasks.matching { it.name in skippedIosTestTasks }.configureEach { enabled = false }

@@ -126,6 +126,7 @@ baselineProfile {
 dependencies {
   implementation(projects.composeApp)
   implementation(projects.shared)
+  implementation(projects.shared.appGraph)
   implementation(projects.shared.repositories.deviceToken)
   implementation(projects.shared.features.account)
   implementation(projects.shared.features.auth)
