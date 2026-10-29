@@ -1,7 +1,7 @@
 import SwiftUI
 import FrameZero
 
-typealias TaskDetailsModel = ScreenModel<TaskDetailsState, any TaskDetailsIntent>
+typealias TaskDetailsModel = ScreenModel<TaskDetailsState, any TaskDetailsIntent, Never>
 
 extension TaskDetailsModel {
     convenience init(graph: IosAppGraph, taskId: String) {
@@ -48,7 +48,20 @@ struct TaskDetailsView: View {
             isPresented: state.isParticipantPickerVisible,
             onDismiss: { model.onIntent(TaskDetailsIntentParticipantPickerDismissed.shared) }
         ) {
-            ParticipantPickerSheet(model: model)
+            // Each tap saves straight away; rows are disabled while a save runs.
+            MemberPickerSheet(
+                searchPlaceholder: "task_details_participants_search_placeholder",
+                noResults: "task_details_participants_no_results",
+                query: Binding(
+                    get: { model.state.participantQuery },
+                    set: { model.onIntent(TaskDetailsIntentParticipantSearchChanged(query: $0)) }
+                ),
+                members: model.state.filteredAssignableMembers,
+                isSelected: { member in model.state.participants.contains { $0.userId == member.userId } },
+                isDisabled: model.state.isUpdatingParticipants
+            ) { userId in
+                if let userId { model.onIntent(TaskDetailsIntentParticipantToggled(userId: userId)) }
+            }
         }
         .task { await model.observe() }
     }

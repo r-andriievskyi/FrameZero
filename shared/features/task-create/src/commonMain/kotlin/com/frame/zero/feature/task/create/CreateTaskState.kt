@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalObjCName::class)
+
 package com.frame.zero.feature.task.create
 
 import com.frame.zero.core.files.PickedFile
@@ -7,10 +9,13 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.datetime.LocalDate
+import kotlin.experimental.ExperimentalObjCName
+import kotlin.native.ObjCName
 
 data class CreateTaskState(
   val productionTitle: String = "",
   val title: String = "",
+  @ObjCName("taskDescription")
   val description: String = "",
   val assignableMembers: ImmutableList<AssignableMemberUi> = persistentListOf(),
   val assigneeUserId: String? = null,

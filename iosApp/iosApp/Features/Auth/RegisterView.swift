@@ -1,7 +1,7 @@
 import SwiftUI
 import FrameZero
 
-typealias RegisterModel = ScreenModel<RegisterState, any RegisterIntent>
+typealias RegisterModel = ScreenModel<RegisterState, any RegisterIntent, Never>
 
 extension RegisterModel {
     convenience init(graph: IosAppGraph) {

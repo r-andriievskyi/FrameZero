@@ -2,7 +2,7 @@ import SwiftUI
 import FrameZero
 
 /// Initials on a circle in the member's color (`#RRGGBB`), falling back to `accentDim`; mirrors the
-/// avatars in composeApp/features/task-details `AssigneeDueRow` / `ParticipantsSection`.
+/// member avatars in composeApp/features/task-details and task-create.
 struct MemberAvatar: View {
     let initials: String
     let colorHex: String?

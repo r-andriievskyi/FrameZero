@@ -2,6 +2,7 @@ import SwiftUI
 import FrameZero
 
 private let minHeight: CGFloat = 48
+private let multilineMinHeight: CGFloat = 96
 
 /// Single-line text input; mirrors Compose's `SingleLineInputField` (design_system).
 /// `isSecure` masks the text; `showsRevealToggle` adds the eye button that unmasks it.
@@ -12,6 +13,8 @@ struct InputField: View {
     var systemImage: String?
     var isSecure = false
     var showsRevealToggle = false
+    /// Grows downward from a 96 pt box; mirrors task-create's `MultiLineInputField`.
+    var isMultiline = false
     var accessibilityID: String?
     @State private var isRevealed = false
     @Environment(\.colorScheme) private var colorScheme
@@ -34,7 +37,9 @@ struct InputField: View {
                 if isSecure && !isRevealed {
                     SecureField(text: $text, prompt: prompt) { Text(verbatim: placeholderText) }
                 } else {
-                    TextField(text: $text, prompt: prompt) { Text(verbatim: placeholderText) }
+                    TextField(text: $text, prompt: prompt, axis: isMultiline ? .vertical : .horizontal) {
+                        Text(verbatim: placeholderText)
+                    }
                 }
             }
             .textStyle(DesignTokens.shared.typography.bodyLarge)
@@ -54,8 +59,12 @@ struct InputField: View {
             }
         }
         .padding(.horizontal, CGFloat(spacing.space16))
-        .padding(.vertical, CGFloat(spacing.space8))
-        .frame(minHeight: minHeight)
+        .padding(.vertical, CGFloat(isMultiline ? spacing.space12 : spacing.space8))
+        .frame(
+            maxWidth: .infinity,
+            minHeight: isMultiline ? multilineMinHeight : minHeight,
+            alignment: isMultiline ? .topLeading : .leading
+        )
         .background(Color(argb: colors.inputBackground), in: shape)
         .overlay(shape.stroke(Color(argb: colors.border), lineWidth: CGFloat(DesignTokens.shared.border.hairline)))
     }

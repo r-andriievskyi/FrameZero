@@ -1,7 +1,7 @@
 import SwiftUI
 import FrameZero
 
-typealias DashboardTabModel = ScreenModel<DashboardTabState, any DashboardTabIntent>
+typealias DashboardTabModel = ScreenModel<DashboardTabState, any DashboardTabIntent, Never>
 
 extension DashboardTabModel {
     convenience init(graph: IosAppGraph) {

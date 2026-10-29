@@ -1,7 +1,7 @@
 import SwiftUI
 import FrameZero
 
-typealias AccountModel = ScreenModel<AccountState, any AccountIntent>
+typealias AccountModel = ScreenModel<AccountState, any AccountIntent, Never>
 
 extension AccountModel {
     convenience init(graph: IosAppGraph) {

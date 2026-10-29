@@ -1,7 +1,7 @@
 import SwiftUI
 import FrameZero
 
-typealias ScheduleTabModel = ScreenModel<ScheduleTabState, any ScheduleTabIntent>
+typealias ScheduleTabModel = ScreenModel<ScheduleTabState, any ScheduleTabIntent, Never>
 
 extension ScheduleTabModel {
     convenience init(graph: IosAppGraph) {

@@ -1,7 +1,7 @@
 import SwiftUI
 import FrameZero
 
-typealias SignInModel = ScreenModel<SignInState, any SignInIntent>
+typealias SignInModel = ScreenModel<SignInState, any SignInIntent, Never>
 
 extension SignInModel {
     convenience init(graph: IosAppGraph) {
