@@ -11,6 +11,7 @@ kotlin {
   sourceSets {
     commonMain.dependencies {
       implementation(projects.shared.features.home)
+      api(libs.decompose)
       implementation(libs.kotlinx.collections.immutable)
       implementation(libs.androidx.paging.compose)
       implementation(libs.compose.components.resources)

@@ -11,7 +11,7 @@ kotlin {
   sourceSets {
     commonMain.dependencies {
       api(projects.shared)
-      api(libs.decompose)
+      api(libs.essenty.instanceKeeper)
       api(libs.kotlinx.collections.immutable)
       implementation(projects.shared.repositories.user)
       implementation(projects.shared.repositories.dashboard)

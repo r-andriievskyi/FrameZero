@@ -12,6 +12,8 @@ bcrypt = "0.10.2"
 buildKonfig = "0.23.0"
 chucker = "4.3.1"
 decompose = "3.5.0"
+# Pinned to the version Decompose resolves, so shared ViewModels and the Android components agree.
+essenty = "2.5.0"
 detekt = "1.23.8"
 gitliveFirebase = "2.7.0"
 firebaseBom = "35.0.0"
@@ -81,6 +83,7 @@ chucker-library = { module = "com.github.chuckerteam.chucker:library", version.r
 chucker-libraryNoOp = { module = "com.github.chuckerteam.chucker:library-no-op", version.ref = "chucker" }
 decompose = { module = "com.arkivanov.decompose:decompose", version.ref = "decompose" }
 decompose-extensionsCompose = { module = "com.arkivanov.decompose:extensions-compose", version.ref = "decompose" }
+essenty-instanceKeeper = { module = "com.arkivanov.essenty:instance-keeper", version.ref = "essenty" }
 exposed-core = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposed" }
 exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "exposed" }
 exposed-kotlinDatetime = { module = "org.jetbrains.exposed:exposed-kotlin-datetime", version.ref = "exposed" }

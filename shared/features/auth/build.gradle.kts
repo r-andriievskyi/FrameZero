@@ -12,7 +12,7 @@ kotlin {
     commonMain.dependencies {
       api(projects.shared)
       api(projects.shared.uiText)
-      api(libs.decompose)
+      api(libs.essenty.instanceKeeper)
       implementation(projects.shared.repositories.auth)
       implementation(projects.shared.repositories.user)
       implementation(libs.kotlinx.coroutines.core)

@@ -11,7 +11,7 @@ kotlin {
   sourceSets {
     commonMain.dependencies {
       api(projects.shared)
-      api(libs.decompose)
+      api(libs.essenty.instanceKeeper)
       implementation(libs.kotlinx.coroutines.core)
     }
     commonTest.dependencies {

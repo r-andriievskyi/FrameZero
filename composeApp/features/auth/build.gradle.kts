@@ -11,6 +11,7 @@ kotlin {
   sourceSets {
     commonMain.dependencies {
       implementation(projects.shared.features.auth)
+      api(libs.decompose)
       implementation(libs.compose.components.resources)
       implementation(libs.decompose.extensionsCompose)
       implementation(projects.composeApp.shared.designSystem)

@@ -11,6 +11,7 @@ kotlin {
   sourceSets {
     commonMain.dependencies {
       implementation(projects.shared.features.taskList)
+      api(libs.decompose)
       implementation(libs.androidx.paging.compose)
       implementation(libs.compose.components.resources)
       implementation(projects.composeApp.shared.designSystem)

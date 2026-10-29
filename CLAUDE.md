@@ -19,7 +19,7 @@ Owner Android engineer, little iOS/backend experience. **Max Kotlin sharing: `co
 | `shared/` | Cross-cutting core, no UI: Ktor client (`core/network/`), session machine (`core/session/`), upload queue, security, logging/analytics — rest of `core/*`. Re-export `shared/domain` + `shared/dto` via `api`. |
 | `shared/domain/` | Domain models, `Outcome`/`UseCase` base, `DomainError` + `toDomainError()`, `OfflineException`. Depend on no app module. |
 | `shared/dto/` | Client wire DTOs (`com.frame.zero.dto.*`, `auth.dto.*`) + DTO→domain mappers. Depend only on `shared/domain`. |
-| `shared/features/<name>/` | Per-feature logic: Decompose `Component`, ViewModel, state/intent. Bindings are annotations on the classes, not a module file. |
+| `shared/features/<name>/` | Per-feature logic: ViewModel (Essenty `InstanceKeeper.Instance`, no Decompose — the iOS framework exports it), use cases, state/intent/event. Bindings are annotations on the classes, not a module file. |
 | `shared/repositories/<name>/` | Repository contract; most modules interface-only (impls live in owning feature `data/`). `productions`, `app-update` split `:api` (interface, features depend on this) / `:impl` (Ktor/Room/mappers — only `composeApp` see it). **Contracts speak domain types only** (incl. command types `NewTask`/`NewProduction`) — DTO↔domain mapping inside impl, never in use cases/ViewModels. `productions` = offline-first reference. |
 | `shared/database/` | Single shared Room DB (`FrameZeroDatabase`, all entities/DAOs, `DatabaseBindings`). Depend on no app module. |
 | `shared/test-fixtures/` | Cross-feature fakes/builders (`com.frame.zero.testing`). |
@@ -29,7 +29,7 @@ Owner Android engineer, little iOS/backend experience. **Max Kotlin sharing: `co
 | `shared/integrations/<name>/` | Self-registering plugins (e.g. `firebase` = Crashlytics/Analytics sinks). |
 | `androidApp/` | Android entry point (`com.android.application`): `MainActivity`, `FrameZeroApp`, FCM service, manifest/res, flavors + signing. |
 | `composeApp/` | Android Compose host (`com.android.kotlin.multiplatform.library`, Android target only): `App.kt`, `RootComponent`, Android Metro graphs. |
-| `composeApp/features/<name>/` | Stateless Compose UI for matching shared component. |
+| `composeApp/features/<name>/` | Android half: Decompose `Component` (nav glue over the shared ViewModel) + stateless Compose UI. |
 | `shared/design-tokens/` | Compose-free raw token values (`DesignTokens`: ARGB `Long`, dp `Float`, text styles, easings) + light/dark assembly — source of truth for Compose and SwiftUI. |
 | `composeApp/shared/design_system/` | Compose theme (`AppTheme`, `ThemeOptions` adapts `DesignTokens`) + widgets. |
 | `iosFramework/` | iOS-only static `FrameZero` framework for the SwiftUI app (migration in progress, `docs/ios-swiftui-migration.md`): owns `IosProdGraph`/`IosDemoGraph`, `IosBackgroundUploadBridge` and the Swift graph accessor `iosAppGraph()`; `api`+`export` of shared/features (only module allowed `api` beyond `shared` re-exports — Kotlin/Native requires it), SKIE for Swift interop. SKIE pins Kotlin — bump `kotlin` only to a version SKIE supports, else every Gradle build fails at configuration. |
