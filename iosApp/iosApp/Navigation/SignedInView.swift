@@ -16,6 +16,21 @@ struct SignedInView: View {
         .onChange(of: path) { _, path in
             models.retain(path)
         }
+        .task { await consumeDeepLinks() }
+    }
+
+    /// This view exists exactly while signed in, so this matches `RootComponent` collecting
+    /// `navigationSignal.events` only while logged in. A link emitted earlier waits in the signal's
+    /// replay cache; `consume()` clears it so it isn't delivered again.
+    private func consumeDeepLinks() async {
+        let signal = graph.navigationSignal
+        for await deepLink in signal.events {
+            switch onEnum(of: deepLink) {
+            case .taskDetails(let link):
+                path.append(.taskDetails(taskId: link.taskId))
+            }
+            signal.consume()
+        }
     }
 
     @ViewBuilder

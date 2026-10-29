@@ -13,7 +13,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 @main
 struct iOSApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-    @State private var session = SessionModel(graph: FrameZeroFrameworkKt.iosAppGraph())
+    @State private var root = RootModel(graph: FrameZeroFrameworkKt.iosAppGraph())
 
     init() {
         FirebaseApp.configure()
@@ -21,7 +21,7 @@ struct iOSApp: App {
 
     var body: some Scene {
         WindowGroup {
-            RootView(session: session)
+            RootView(model: root)
         }
     }
 }
