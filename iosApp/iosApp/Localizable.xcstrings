@@ -1,765 +1,1266 @@
 {
-  "sourceLanguage" : "en",
-  "strings" : {
-    "app_name" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "FrameZero"
-          }
-        }
-      }
-    },
-    "btn_create_account" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Create account"
-          }
-        }
-      }
-    },
-    "btn_sign_in" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sign in"
-          }
-        }
-      }
-    },
-    "cd_password_visibility" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Toggle password visibility"
-          }
-        }
-      }
-    },
-    "error_account_biometric_failed" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Couldn't verify with biometrics. Try again or use your device passcode."
+  "sourceLanguage": "en",
+  "strings": {
+    "action_retry": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retry"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No se pudo verificar con datos biométricos. Inténtalo de nuevo o usa el código de acceso del dispositivo."
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reintentar"
           }
         }
       }
     },
-    "error_auth_empty_credentials" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Email and password must not be empty"
+    "app_name": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FrameZero"
+          }
+        }
+      }
+    },
+    "btn_create_account": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create account"
+          }
+        }
+      }
+    },
+    "btn_sign_in": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign in"
+          }
+        }
+      }
+    },
+    "cd_back": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Back"
+          }
+        }
+      }
+    },
+    "cd_more_options": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More options"
+          }
+        }
+      }
+    },
+    "cd_next_month": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Next month"
+          }
+        }
+      }
+    },
+    "cd_password_visibility": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toggle password visibility"
+          }
+        }
+      }
+    },
+    "cd_previous_month": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Previous month"
+          }
+        }
+      }
+    },
+    "days_left": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lldd left"
+          }
+        }
+      }
+    },
+    "error_account_biometric_failed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't verify with biometrics. Try again or use your device passcode."
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "El correo electrónico y la contraseña no pueden estar vacíos"
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo verificar con datos biométricos. Inténtalo de nuevo o usa el código de acceso del dispositivo."
           }
         }
       }
     },
-    "error_auth_invalid_credentials" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Invalid email or password"
+    "error_auth_empty_credentials": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Email and password must not be empty"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Correo electrónico o contraseña incorrectos"
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El correo electrónico y la contraseña no pueden estar vacíos"
           }
         }
       }
     },
-    "error_conflict" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "That couldn't be saved. Please try again."
+    "error_auth_invalid_credentials": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invalid email or password"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No se ha podido guardar. Inténtalo de nuevo."
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Correo electrónico o contraseña incorrectos"
           }
         }
       }
     },
-    "error_create_production_conflict" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A production like this already exists."
+    "error_conflict": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "That couldn't be saved. Please try again."
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ya existe una producción como esta."
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se ha podido guardar. Inténtalo de nuevo."
           }
         }
       }
     },
-    "error_create_production_invalid_dates" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Valid start and wrap dates are required"
+    "error_create_production_conflict": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A production like this already exists."
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Se requieren fechas de inicio y fin válidas"
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ya existe una producción como esta."
           }
         }
       }
     },
-    "error_create_production_missing_dates" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Start and wrap dates are required"
+    "error_create_production_invalid_dates": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Valid start and wrap dates are required"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Se requieren las fechas de inicio y fin"
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se requieren fechas de inicio y fin válidas"
           }
         }
       }
     },
-    "error_create_production_title_required" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Title is required"
+    "error_create_production_missing_dates": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start and wrap dates are required"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "El título es obligatorio"
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se requieren las fechas de inicio y fin"
           }
         }
       }
     },
-    "error_create_task_conflict" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "This task could not be saved. Please try again."
+    "error_create_production_title_required": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Title is required"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No se ha podido guardar la tarea. Inténtalo de nuevo."
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El título es obligatorio"
           }
         }
       }
     },
-    "error_create_task_file_too_large" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "That file is over the 50 MB limit. Pick a smaller file."
+    "error_create_task_conflict": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This task could not be saved. Please try again."
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ese archivo supera el límite de 50 MB. Elige uno más pequeño."
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se ha podido guardar la tarea. Inténtalo de nuevo."
           }
         }
       }
     },
-    "error_create_task_forbidden" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "You don't have permission to add tasks here."
+    "error_create_task_file_too_large": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "That file is over the 50 MB limit. Pick a smaller file."
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No tienes permiso para añadir tareas aquí."
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ese archivo supera el límite de 50 MB. Elige uno más pequeño."
           }
         }
       }
     },
-    "error_create_task_not_found" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "This production no longer exists."
+    "error_create_task_forbidden": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You don't have permission to add tasks here."
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Esta producción ya no existe."
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No tienes permiso para añadir tareas aquí."
           }
         }
       }
     },
-    "error_create_task_title_required" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Give the task a title."
+    "error_create_task_not_found": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This production no longer exists."
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ponle un título a la tarea."
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esta producción ya no existe."
           }
         }
       }
     },
-    "error_email_exists" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "An account with this email already exists"
+    "error_create_task_title_required": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Give the task a title."
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ya existe una cuenta con este correo electrónico"
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ponle un título a la tarea."
           }
         }
       }
     },
-    "error_forbidden" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "You don't have permission to do this."
+    "error_email_exists": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "An account with this email already exists"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No tienes permiso para hacer esto."
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ya existe una cuenta con este correo electrónico"
           }
         }
       }
     },
-    "error_home_offline" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No internet connection.\nWe'll refresh automatically once you're back online."
+    "error_forbidden": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You don't have permission to do this."
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sin conexión a internet.\nSe actualizará automáticamente en cuanto vuelvas a estar en línea."
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No tienes permiso para hacer esto."
           }
         }
       }
     },
-    "error_insufficient_storage" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Not enough free space."
+    "error_generic_message": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Something went wrong"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No hay suficiente espacio libre."
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ha ocurrido un error"
           }
         }
       }
     },
-    "error_invalid_credentials" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Authentication failed. Please sign in again."
+    "error_home_offline": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No internet connection.\nWe'll refresh automatically once you're back online."
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Error de autenticación. Vuelve a iniciar sesión."
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sin conexión a internet.\nSe actualizará automáticamente en cuanto vuelvas a estar en línea."
           }
         }
       }
     },
-    "error_network" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No internet connection. Check your connection and try again."
+    "error_insufficient_storage": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not enough free space."
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sin conexión a internet. Comprueba tu conexión e inténtalo de nuevo."
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No hay suficiente espacio libre."
           }
         }
       }
     },
-    "error_not_found" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "This item no longer exists."
+    "error_invalid_credentials": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Authentication failed. Please sign in again."
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Este elemento ya no existe."
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Error de autenticación. Vuelve a iniciar sesión."
           }
         }
       }
     },
-    "error_production_details_conflict" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "This production was changed elsewhere. Please refresh and try again."
+    "error_network": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No internet connection. Check your connection and try again."
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Esta producción se modificó en otro lugar. Actualiza e inténtalo de nuevo."
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sin conexión a internet. Comprueba tu conexión e inténtalo de nuevo."
           }
         }
       }
     },
-    "error_production_details_forbidden" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "You don't have access to this production."
+    "error_network_message": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No internet connection. Check your connection and try again."
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No tienes acceso a esta producción."
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sin conexión a internet. Comprueba tu conexión e inténtalo de nuevo."
           }
         }
       }
     },
-    "error_production_details_not_found" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "This production no longer exists."
+    "error_not_found": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This item no longer exists."
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Esta producción ya no existe."
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este elemento ya no existe."
           }
         }
       }
     },
-    "error_server" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The server is unavailable. Please try again later."
+    "error_production_details_conflict": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This production was changed elsewhere. Please refresh and try again."
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "El servidor no está disponible. Inténtalo de nuevo más tarde."
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esta producción se modificó en otro lugar. Actualiza e inténtalo de nuevo."
           }
         }
       }
     },
-    "error_task_details_attachment_generic" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Couldn't download the attachment. Try again."
+    "error_production_details_forbidden": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You don't have access to this production."
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No se ha podido descargar el archivo adjunto. Inténtalo de nuevo."
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No tienes acceso a esta producción."
           }
         }
       }
     },
-    "error_task_details_attachment_offline" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "You're offline. Connect and try again."
+    "error_production_details_not_found": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This production no longer exists."
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Estás sin conexión. Conéctate e inténtalo de nuevo."
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esta producción ya no existe."
           }
         }
       }
     },
-    "error_task_details_attachment_storage" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Not enough free space to download this file."
+    "error_server": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The server is unavailable. Please try again later."
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No hay suficiente espacio libre para descargar este archivo."
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El servidor no está disponible. Inténtalo de nuevo más tarde."
           }
         }
       }
     },
-    "error_task_details_conflict" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Couldn't update participants. Please try again."
+    "error_task_details_attachment_generic": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't download the attachment. Try again."
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No se han podido actualizar los participantes. Inténtalo de nuevo."
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se ha podido descargar el archivo adjunto. Inténtalo de nuevo."
           }
         }
       }
     },
-    "error_task_details_forbidden" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "You don't have permission to change this task's participants."
+    "error_task_details_attachment_offline": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You're offline. Connect and try again."
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No tienes permiso para cambiar los participantes de esta tarea."
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Estás sin conexión. Conéctate e inténtalo de nuevo."
           }
         }
       }
     },
-    "error_task_details_not_found" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "This task no longer exists."
+    "error_task_details_attachment_storage": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not enough free space to download this file."
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Esta tarea ya no existe."
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No hay suficiente espacio libre para descargar este archivo."
           }
         }
       }
     },
-    "error_unknown" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Something went wrong. Please try again."
+    "error_task_details_conflict": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't update participants. Please try again."
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ha ocurrido un error. Inténtalo de nuevo."
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se han podido actualizar los participantes. Inténtalo de nuevo."
           }
         }
       }
     },
-    "field_email" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "EMAIL"
+    "error_task_details_forbidden": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You don't have permission to change this task's participants."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No tienes permiso para cambiar los participantes de esta tarea."
           }
         }
       }
     },
-    "field_password" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "PASSWORD"
+    "error_task_details_not_found": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This task no longer exists."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esta tarea ya no existe."
           }
         }
       }
     },
-    "Home" : {
-      "comment" : "A label for the home screen.",
-      "isCommentAutoGenerated" : true
-    },
-    "Not migrated yet" : {
-      "comment" : "A placeholder text for a view that is not yet implemented.",
-      "isCommentAutoGenerated" : true
-    },
-    "Not migrated yet: Home" : {
-      "comment" : "A section of the SignedInView that is not yet migrated to SwiftUI.",
-      "isCommentAutoGenerated" : true
-    },
-    "placeholder_email" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "you@studio.com"
+    "error_unknown": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Something went wrong. Please try again."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ha ocurrido un error. Inténtalo de nuevo."
           }
         }
       }
     },
-    "placeholder_password" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "******"
+    "event_kind_meeting": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meeting"
           }
         }
       }
     },
-    "register_field_first_name" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "FIRST NAME"
+    "event_kind_other": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Other"
           }
         }
       }
     },
-    "register_field_last_name" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "LAST NAME"
+    "event_kind_review": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Review"
           }
         }
       }
     },
-    "register_have_account" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Already have an account?"
+    "event_kind_shoot": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shoot"
           }
         }
       }
     },
-    "register_placeholder_first_name" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "John"
+    "field_email": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "EMAIL"
           }
         }
       }
     },
-    "register_placeholder_last_name" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Doe"
+    "field_password": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PASSWORD"
           }
         }
       }
     },
-    "register_subtitle" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Join your production team"
+    "greeting_hello": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hello, %1$@"
           }
         }
       }
     },
-    "register_title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Create account"
+    "my_tasks_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "My Tasks"
           }
         }
       }
     },
-    "signin_new_user" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "New to FrameZero?"
+    "placeholder_email": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "you@studio.com"
           }
         }
       }
     },
-    "signin_subtitle" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sign in to your production workspace"
+    "placeholder_password": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "******"
           }
         }
       }
     },
-    "signin_title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Welcome back"
+    "projects_count": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld productions"
           }
         }
       }
     },
-    "state_password_hidden" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Password hidden"
+    "projects_create_button": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create production"
           }
         }
       }
     },
-    "state_password_visible" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Password visible"
+    "projects_empty_description": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You haven't been added to any productions\nyet. Create one to start tracking scenes,\ncrew, and schedule."
+          }
+        }
+      }
+    },
+    "projects_empty_invite": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Or ask a producer to invite you to one"
+          }
+        }
+      }
+    },
+    "projects_empty_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start your first production"
+          }
+        }
+      }
+    },
+    "projects_pipeline_progress": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pipeline progress"
+          }
+        }
+      }
+    },
+    "projects_refreshing": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Refreshing productions…"
+          }
+        }
+      }
+    },
+    "projects_release_to_refresh": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Release to refresh"
+          }
+        }
+      }
+    },
+    "projects_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Productions"
+          }
+        }
+      }
+    },
+    "refresh_indicator_refreshing": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Refreshing…"
+          }
+        }
+      }
+    },
+    "refresh_indicator_release": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Release to refresh"
+          }
+        }
+      }
+    },
+    "register_field_first_name": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FIRST NAME"
+          }
+        }
+      }
+    },
+    "register_field_last_name": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LAST NAME"
+          }
+        }
+      }
+    },
+    "register_have_account": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Already have an account?"
+          }
+        }
+      }
+    },
+    "register_placeholder_first_name": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "John"
+          }
+        }
+      }
+    },
+    "register_placeholder_last_name": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Doe"
+          }
+        }
+      }
+    },
+    "register_subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Join your production team"
+          }
+        }
+      }
+    },
+    "register_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create account"
+          }
+        }
+      }
+    },
+    "schedule_due_today": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Due Today"
+          }
+        }
+      }
+    },
+    "schedule_events_header": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Events"
+          }
+        }
+      }
+    },
+    "schedule_priority_high": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "High"
+          }
+        }
+      }
+    },
+    "schedule_priority_low": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Low"
+          }
+        }
+      }
+    },
+    "schedule_priority_medium": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Medium"
+          }
+        }
+      }
+    },
+    "schedule_screen_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schedule"
+          }
+        }
+      }
+    },
+    "schedule_tasks_due_header": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tasks due"
+          }
+        }
+      }
+    },
+    "schedule_view_day": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Day"
+          }
+        }
+      }
+    },
+    "schedule_view_month": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Month"
+          }
+        }
+      }
+    },
+    "schedule_view_week": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Week"
+          }
+        }
+      }
+    },
+    "signin_new_user": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New to FrameZero?"
+          }
+        }
+      }
+    },
+    "signin_subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign in to your production workspace"
+          }
+        }
+      }
+    },
+    "signin_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Welcome back"
+          }
+        }
+      }
+    },
+    "state_password_hidden": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Password hidden"
+          }
+        }
+      }
+    },
+    "state_password_visible": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Password visible"
+          }
+        }
+      }
+    },
+    "stats_active_projects": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Active Productions"
+          }
+        }
+      }
+    },
+    "stats_open_tasks": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Tasks"
+          }
+        }
+      }
+    },
+    "tab_dashboard": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dashboard"
+          }
+        }
+      }
+    },
+    "tab_productions": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Productions"
+          }
+        }
+      }
+    },
+    "tab_schedule": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schedule"
+          }
+        }
+      }
+    },
+    "today": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today"
+          }
+        }
+      }
+    },
+    "tomorrow": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tomorrow"
+          }
+        }
+      }
+    },
+    "toolbar_logo_cd": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Logo"
+          }
+        }
+      }
+    },
+    "toolbar_notifications_cd": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notifications"
+          }
+        }
+      }
+    },
+    "toolbar_settings_cd": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings"
           }
         }
       }
     }
   },
-  "version" : "1.1"
+  "version": "1.0"
 }

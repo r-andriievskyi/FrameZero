@@ -11,7 +11,7 @@ struct RootView: View {
             case .auth:
                 AuthFlowView(graph: session.graph)
             case .home:
-                SignedInView()
+                SignedInView(graph: session.graph)
             }
         }
         .task { await session.run() }
