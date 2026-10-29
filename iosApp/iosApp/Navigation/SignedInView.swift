@@ -43,6 +43,10 @@ struct SignedInView: View {
             )
         case .taskDetails(let taskId):
             TaskDetailsView(model: models.model(for: route) { TaskDetailsModel(graph: graph, taskId: taskId) })
+        case .tasksList:
+            TasksListView(model: models.model(for: route) { TasksListModel(graph: graph) }) {
+                path.append(.taskDetails(taskId: $0))
+            }
         default:
             NotMigratedView(name: String(describing: route))
         }

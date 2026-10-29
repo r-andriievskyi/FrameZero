@@ -1,5 +1,7 @@
 package com.frame.zero.demo.data
 
+import androidx.paging.LoadState
+import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import com.frame.zero.demo.DemoDataStore
 import com.frame.zero.domain.DomainError
@@ -62,8 +64,16 @@ class DemoTasksRepository(
     store.tasksForProduction(productionId).map { it.toSummary() }
 
   override fun observeUserTasks(): Flow<PagingData<TaskSummary>> =
-    store.tasks.map { list -> PagingData.from(list.map { it.toSummary() }) }
+    store.tasks.map { list -> PagingData.from(list.map { it.toSummary() }, sourceLoadStates = FullyLoaded) }
 }
+
+// Without explicit load states a static PagingData never reports one, so presenters stay in
+// their initial Loading refresh forever.
+private val FullyLoaded = LoadStates(
+  refresh = LoadState.NotLoading(endOfPaginationReached = false),
+  prepend = LoadState.NotLoading(endOfPaginationReached = true),
+  append = LoadState.NotLoading(endOfPaginationReached = true)
+)
 
 private fun TaskDetail.toSummary(): TaskSummary =
   TaskSummary(

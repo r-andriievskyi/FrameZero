@@ -75,6 +75,7 @@ kotlin {
       api(libs.kotlinx.coroutines.core)
       api(libs.kotlinx.datetime)
       api(libs.kotlinx.collections.immutable)
+      api(libs.androidx.paging.common)
       implementation(libs.ktor.clientCore)
       implementation(libs.ktor.clientWebsockets)
       implementation(libs.multiplatformSettings)
