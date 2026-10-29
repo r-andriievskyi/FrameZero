@@ -7,9 +7,9 @@ struct RootView: View {
         Group {
             switch session.root {
             case .splash:
-                NotMigratedView(name: "Splash")
+                SplashView()
             case .auth:
-                NotMigratedView(name: "Auth")
+                AuthFlowView(graph: session.graph)
             case .home:
                 SignedInView()
             }
