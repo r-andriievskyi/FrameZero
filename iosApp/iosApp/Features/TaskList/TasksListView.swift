@@ -62,16 +62,7 @@ private struct TasksListContent: View {
                     TaskListRow(task: task) { onTaskTap(task.id) }
                         .onAppear { model.onItemAppear(at: index) }
                 }
-                switch onEnum(of: state.append) {
-                case .loading:
-                    ProgressView()
-                        .tint(Color(argb: ColorTokens.forScheme(colorScheme).accent))
-                        .padding(CGFloat(spacing.space16))
-                case .failed(let failure):
-                    AppendErrorRow(message: failure.message.localized) { model.retry() }
-                case .idle:
-                    EmptyView()
-                }
+                PagingAppendFooter(append: state.append) { model.retry() }
             }
             .padding(.horizontal, CGFloat(spacing.space16))
             .padding(.vertical, CGFloat(spacing.space8))
@@ -79,25 +70,6 @@ private struct TasksListContent: View {
         // Paging owns the reload; the inline spinner above shows it, so the gesture returns at once.
         .refreshable { model.refresh() }
         .accessibilityIdentifier("tasks_list:list")
-    }
-}
-
-/// Footer shown when loading the next page fails; mirrors `AppendErrorRetry` in design_system's
-/// `PagingLazyColumn`.
-private struct AppendErrorRow: View {
-    let message: String
-    let onRetry: () -> Void
-    @Environment(\.colorScheme) private var colorScheme
-
-    var body: some View {
-        VStack(spacing: CGFloat(DesignTokens.shared.spacing.space8)) {
-            Text(message)
-                .textStyle(DesignTokens.shared.typography.bodySmall)
-                .foregroundStyle(Color(argb: ColorTokens.forScheme(colorScheme).textSecondary))
-                .multilineTextAlignment(.center)
-            CtaButton(title: "action_retry", action: onRetry)
-        }
-        .padding(CGFloat(DesignTokens.shared.spacing.space16))
     }
 }
 

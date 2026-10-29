@@ -28,8 +28,13 @@ struct HomeView: View {
                 )
                 .safeAreaPadding(.bottom, floatingBottomNavClearance)
                 .tag(HomeTab.dashboard)
-                NotMigratedView(name: "Productions tab")
-                    .tag(HomeTab.productions)
+                ProductionsTabView(
+                    model: tabModels.model(for: .productions) { ProductionsTabModel(graph: graph) },
+                    onProductionTap: { navigate(.productionDetails(productionId: $0)) },
+                    onCreateProduction: { navigate(.createProduction) }
+                )
+                .safeAreaPadding(.bottom, floatingBottomNavClearance)
+                .tag(HomeTab.productions)
                 NotMigratedView(name: "Schedule tab")
                     .tag(HomeTab.schedule)
             }
