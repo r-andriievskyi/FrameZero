@@ -51,6 +51,11 @@ struct SignedInView: View {
             CreateTaskView(model: models.model(for: route) {
                 CreateTaskModel(graph: graph, productionId: productionId, productionTitle: productionTitle)
             })
+        case .productionDetails(let productionId):
+            ProductionDetailsView(
+                model: models.model(for: route) { ProductionDetailsModel(graph: graph, productionId: productionId) },
+                onAddTask: { path.append(.createTask(productionId: $0, productionTitle: $1)) }
+            )
         case .createProduction:
             CreateProductionView(model: models.model(for: route) { CreateProductionModel(graph: graph) })
         default:

@@ -7,12 +7,13 @@ struct MemberAvatar: View {
     let initials: String
     let colorHex: String?
     let size: CGFloat
+    var style: TextStyleToken = DesignTokens.shared.typography.labelSmall
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         let colors = ColorTokens.forScheme(colorScheme)
         Text(initials)
-            .textStyle(DesignTokens.shared.typography.labelSmall)
+            .textStyle(style)
             .foregroundStyle(Color(argb: colors.textOnAccent))
             .frame(width: size, height: size)
             .background(colorHex.flatMap(Color.init(rgbHex:)) ?? Color(argb: colors.accentDim), in: Circle())
