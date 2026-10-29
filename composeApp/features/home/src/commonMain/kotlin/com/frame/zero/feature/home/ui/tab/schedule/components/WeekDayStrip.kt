@@ -28,12 +28,12 @@ import androidx.compose.ui.unit.dp
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.widgets.VerticalSpacer
+import com.frame.zero.feature.home.tab.schedule.weekOf
+import com.frame.zero.feature.home.tab.schedule.weekStartFor
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentSetOf
-import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.plus
 
 private val EventDotSize = 6.dp
 
@@ -49,8 +49,7 @@ internal fun WeekDayStrip(
     modifier = modifier.fillMaxWidth(),
     horizontalArrangement = Arrangement.spacedBy(AppTheme.spacingSystem.space4)
   ) {
-    for (offset in 0 until 7) {
-      val date = weekStart.plus(offset, DateTimeUnit.DAY)
+    weekOf(weekStart).forEach { date ->
       WeekDayCell(
         date = date,
         isSelected = date == selectedDate,
@@ -154,11 +153,6 @@ private fun LocalDate.shortDayOfWeekLabel(): String =
     DayOfWeek.SATURDAY -> "SAT"
     DayOfWeek.SUNDAY -> "SUN"
   }
-
-internal fun weekStartFor(date: LocalDate): LocalDate {
-  val daysFromMonday = (date.dayOfWeek.ordinal - DayOfWeek.MONDAY.ordinal + 7) % 7
-  return date.plus(-daysFromMonday, DateTimeUnit.DAY)
-}
 
 @LightDarkPreview
 @Composable

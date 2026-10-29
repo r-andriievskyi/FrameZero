@@ -35,8 +35,12 @@ struct HomeView: View {
                 )
                 .safeAreaPadding(.bottom, floatingBottomNavClearance)
                 .tag(HomeTab.productions)
-                NotMigratedView(name: "Schedule tab")
-                    .tag(HomeTab.schedule)
+                ScheduleTabView(
+                    model: tabModels.model(for: .schedule) { ScheduleTabModel(graph: graph) },
+                    onTaskTap: { navigate(.taskDetails(taskId: $0)) }
+                )
+                .safeAreaPadding(.bottom, floatingBottomNavClearance)
+                .tag(HomeTab.schedule)
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
         }

@@ -19,8 +19,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.frame.zero.core.collections.mapImmutableSet
-import com.frame.zero.core.collections.orEmpty
 import com.frame.zero.domain.schedule.Schedule
 import com.frame.zero.domain.schedule.ScheduleDay
 import com.frame.zero.domain.schedule.ScheduleEvent
@@ -35,13 +33,14 @@ import com.frame.zero.feature.home.tab.schedule.ScheduleTabComponent
 import com.frame.zero.feature.home.tab.schedule.ScheduleTabIntent
 import com.frame.zero.feature.home.tab.schedule.ScheduleTabState
 import com.frame.zero.feature.home.tab.schedule.ScheduleTaskUiModel
+import com.frame.zero.feature.home.tab.schedule.daysWithItems
+import com.frame.zero.feature.home.tab.schedule.weekStartFor
 import com.frame.zero.feature.home.ui.FloatingBottomNavClearance
 import com.frame.zero.feature.home.ui.tab.schedule.components.MonthCalendar
 import com.frame.zero.feature.home.ui.tab.schedule.components.ScheduleDateHeader
 import com.frame.zero.feature.home.ui.tab.schedule.components.ScheduleTimeline
 import com.frame.zero.feature.home.ui.tab.schedule.components.ScheduleViewSelector
 import com.frame.zero.feature.home.ui.tab.schedule.components.WeekDayStrip
-import com.frame.zero.feature.home.ui.tab.schedule.components.weekStartFor
 import com.frame.zero.shared.design_system.AppTheme
 import com.frame.zero.shared.design_system.LightDarkPreview
 import com.frame.zero.shared.design_system.widgets.FullScreenError
@@ -52,6 +51,7 @@ import com.frame.zero.ui.asString
 import framezero.composeapp.features.home.generated.resources.Res
 import framezero.composeapp.features.home.generated.resources.schedule_screen_title
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.stringResource
 import kotlin.time.Instant
@@ -122,13 +122,7 @@ private fun ScheduleContent(
   val selectedDate = state.selectedDate ?: return
   val schedule = state.schedule
 
-  // Dates that have either events or tasks — drives the dot indicators.
-  val daysWithItems = remember(schedule) {
-    schedule?.days
-      ?.filter { it.events.isNotEmpty() || it.tasks.isNotEmpty() }
-      ?.mapImmutableSet { it.date }
-      .orEmpty()
-  }
+  val daysWithItems = remember(schedule) { schedule.daysWithItems().toImmutableSet() }
 
   val navigationBarsBottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
   val spacingSystem = AppTheme.spacingSystem
