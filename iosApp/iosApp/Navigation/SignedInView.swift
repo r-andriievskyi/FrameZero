@@ -1,8 +1,7 @@
 import SwiftUI
 import FrameZero
 
-/// The signed-in stack: Home at the root, every `Route` pushed on top. Routes stay placeholders
-/// until their chunk lands (docs/ios-swiftui-migration.md).
+/// The signed-in stack: Home at the root, every `Route` pushed on top.
 struct SignedInView: View {
     let graph: IosAppGraph
     @State private var path: [Route] = []
@@ -58,8 +57,8 @@ struct SignedInView: View {
             )
         case .createProduction:
             CreateProductionView(model: models.model(for: route) { CreateProductionModel(graph: graph) })
-        default:
-            NotMigratedView(name: String(describing: route))
+        case .gallery:
+            DesignSystemGalleryView()
         }
     }
 }
