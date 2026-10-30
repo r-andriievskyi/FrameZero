@@ -1,6 +1,8 @@
 TEAM_ID=
 
 PRODUCT_NAME=FrameZero
+// The Kotlin framework is the `FrameZero` module; the app's own Swift module needs another name.
+PRODUCT_MODULE_NAME=iosApp
 PRODUCT_BUNDLE_IDENTIFIER=com.frame.zero
 
 CURRENT_PROJECT_VERSION=1

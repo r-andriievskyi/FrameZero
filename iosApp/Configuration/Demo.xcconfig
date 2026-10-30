@@ -1,0 +1,8 @@
+// Demo configuration: offline fake data, no backend (mirrors Android's `demo` flavor).
+#include "Config.xcconfig"
+
+// Picked up by the "Compile Kotlin Framework" build phase → -Pbuildkonfig.flavor=demo.
+BUILDKONFIG_FLAVOR=demo
+
+// A configuration named "Demo" can't be mapped to debug/release by the Kotlin Gradle plugin.
+KOTLIN_FRAMEWORK_BUILD_TYPE=debug

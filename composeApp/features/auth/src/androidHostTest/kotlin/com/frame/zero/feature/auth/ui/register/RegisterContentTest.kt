@@ -10,8 +10,7 @@ import com.frame.zero.feature.auth.register.RegisterState
 import com.frame.zero.feature.auth.ui.register.RegisterTestTags.ERROR
 import com.frame.zero.feature.auth.ui.register.RegisterTestTags.SUBMIT
 import com.frame.zero.shared.design_system.AppTheme
-import com.frame.zero.shared.design_system.generated.resources.Res
-import com.frame.zero.shared.design_system.generated.resources.error_generic_message
+import com.frame.zero.ui.ErrorStringKey
 import com.frame.zero.ui.asUiText
 import org.junit.Rule
 import org.junit.Test
@@ -33,12 +32,12 @@ class RegisterContentTest {
 
   @Test
   fun showsTheInlineErrorWhenPresent() {
-    setContent(RegisterState(error = Res.string.error_generic_message.asUiText()))
+    setContent(RegisterState(error = ErrorStringKey.UNKNOWN.asUiText()))
 
     // The taller register form can push the inline error below the test window's fold, so assert
     // it is rendered (exists) rather than within the viewport.
     composeRule.onNodeWithTag(ERROR).assertExists()
-    composeRule.onNodeWithText("Something went wrong").assertExists()
+    composeRule.onNodeWithText("Something went wrong. Please try again.").assertExists()
   }
 
   @Test

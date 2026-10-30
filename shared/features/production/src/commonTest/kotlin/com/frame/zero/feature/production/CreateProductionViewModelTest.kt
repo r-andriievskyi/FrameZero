@@ -5,13 +5,8 @@ import app.cash.turbine.turbineScope
 import com.frame.zero.domain.OfflineException
 import com.frame.zero.feature.production.domain.CreateProductionUseCase
 import com.frame.zero.testing.FakeProductionsRepository
+import com.frame.zero.ui.ErrorStringKey
 import com.frame.zero.ui.asUiText
-import framezero.shared.features.production.generated.resources.Res
-import framezero.shared.features.production.generated.resources.error_invalid_dates
-import framezero.shared.features.production.generated.resources.error_missing_dates
-import framezero.shared.features.production.generated.resources.error_title_required
-import framezero.shared.ui_text.generated.resources.Res as UiTextRes
-import framezero.shared.ui_text.generated.resources.error_network
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
@@ -69,7 +64,7 @@ class CreateProductionViewModelTest {
         runCurrent()
 
         val state = expectMostRecentItem()
-        assertEquals(Res.string.error_title_required.asUiText(), state.error)
+        assertEquals(ErrorStringKey.CREATE_PRODUCTION_TITLE_REQUIRED.asUiText(), state.error)
         assertEquals(1, state.currentStep)
       }
     }
@@ -84,7 +79,7 @@ class CreateProductionViewModelTest {
         viewModel.onIntent(CreateProductionIntent.NextStep)
         runCurrent()
 
-        assertEquals(Res.string.error_invalid_dates.asUiText(), expectMostRecentItem().error)
+        assertEquals(ErrorStringKey.CREATE_PRODUCTION_INVALID_DATES.asUiText(), expectMostRecentItem().error)
       }
     }
 
@@ -236,7 +231,7 @@ class CreateProductionViewModelTest {
         advanceUntilIdle()
 
         val state = expectMostRecentItem()
-        assertEquals(Res.string.error_missing_dates.asUiText(), state.error)
+        assertEquals(ErrorStringKey.CREATE_PRODUCTION_MISSING_DATES.asUiText(), state.error)
         assertEquals(false, state.isLoading)
       }
     }
@@ -279,7 +274,7 @@ class CreateProductionViewModelTest {
         advanceUntilIdle()
 
         val state = expectMostRecentItem()
-        assertEquals(UiTextRes.string.error_network.asUiText(), state.errorToast)
+        assertEquals(ErrorStringKey.NETWORK.asUiText(), state.errorToast)
         assertNull(state.error)
         assertEquals(false, state.isLoading)
       }

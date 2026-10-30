@@ -43,13 +43,11 @@ import framezero.composeapp.features.home.generated.resources.Res
 import framezero.composeapp.features.home.generated.resources.cd_next_month
 import framezero.composeapp.features.home.generated.resources.cd_previous_month
 import org.jetbrains.compose.resources.stringResource
+import com.frame.zero.feature.home.tab.schedule.monthGrid
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentSetOf
-import kotlinx.datetime.DateTimeUnit
-import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.Month
-import kotlinx.datetime.plus
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import com.frame.zero.shared.design_system.generated.resources.Res as DesignSystemRes
@@ -120,24 +118,19 @@ internal fun MonthCalendar(
 
     VerticalSpacer(AppTheme.spacingSystem.space4)
 
-    val firstDay = LocalDate(year, month, 1)
-    val startOffset = (firstDay.dayOfWeek.ordinal - DayOfWeek.MONDAY.ordinal + 7) % 7
-    val daysInMonth = daysInMonth(year, month)
-    val totalCells = startOffset + daysInMonth
-    val rows = (totalCells + 6) / 7
+    val grid = monthGrid(year, month)
+    val cells: List<LocalDate?> = List(grid.leadingBlanks) { null } + grid.days
 
-    for (row in 0 until rows) {
+    cells.chunked(7).forEach { week ->
       Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceEvenly
       ) {
         for (col in 0 until 7) {
-          val cellIndex = row * 7 + col
-          val dayNumber = cellIndex - startOffset + 1
-          if (dayNumber in 1..daysInMonth) {
-            val date = LocalDate(year, month, dayNumber)
+          val date = week.getOrNull(col)
+          if (date != null) {
             MonthDayCell(
-              dayNumber = dayNumber,
+              dayNumber = date.day,
               isSelected = date == selectedDate,
               isToday = date == today,
               hasEvents = date in daysWithEvents,
@@ -243,15 +236,6 @@ private fun MonthDayCell(
       )
     }
   }
-}
-
-private fun daysInMonth(
-  year: Int,
-  month: Month
-): Int {
-  val first = LocalDate(year, month, 1)
-  val nextMonth = first.plus(1, DateTimeUnit.MONTH)
-  return (nextMonth.toEpochDays() - first.toEpochDays()).toInt()
 }
 
 @LightDarkPreview

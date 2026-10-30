@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <!-- One entry per ErrorStringKey (shared/ui_text); resolved in UiTextExt.kt (Android);
+       iOS resolves the same keys in Swift. -->
+
+  <!-- Canonical DomainError copy, one per DomainErrorCategory (see DomainErrorText.kt). -->
+  <string name="error_network">Sin conexión a internet. Comprueba tu conexión e inténtalo de nuevo.</string>
+  <string name="error_server">El servidor no está disponible. Inténtalo de nuevo más tarde.</string>
+  <string name="error_not_found">Este elemento ya no existe.</string>
+  <string name="error_forbidden">No tienes permiso para hacer esto.</string>
+  <string name="error_conflict">No se ha podido guardar. Inténtalo de nuevo.</string>
+  <string name="error_invalid_credentials">Error de autenticación. Vuelve a iniciar sesión.</string>
+  <string name="error_email_exists">Ya existe una cuenta con este correo electrónico</string>
+  <string name="error_insufficient_storage">No hay suficiente espacio libre.</string>
+  <string name="error_unknown">Ha ocurrido un error. Inténtalo de nuevo.</string>
+
+  <!-- Account -->
+  <string name="error_account_biometric_failed">No se pudo verificar con datos biométricos. Inténtalo de nuevo o usa el código de acceso del dispositivo.</string>
+
+  <!-- Auth (SignInViewModel / RegisterViewModel) -->
+  <string name="error_auth_empty_credentials">El correo electrónico y la contraseña no pueden estar vacíos</string>
+  <string name="error_auth_invalid_credentials">Correo electrónico o contraseña incorrectos</string>
+
+  <!-- Home (DashboardTabViewModel / ScheduleTabViewModel): the auto-retry-on-reconnect case explains the automatic behavior. -->
+  <string name="error_home_offline">Sin conexión a internet.\nSe actualizará automáticamente en cuanto vuelvas a estar en línea.</string>
+
+  <!-- CreateProductionViewModel -->
+  <string name="error_create_production_title_required">El título es obligatorio</string>
+  <string name="error_create_production_invalid_dates">Se requieren fechas de inicio y fin válidas</string>
+  <string name="error_create_production_missing_dates">Se requieren las fechas de inicio y fin</string>
+  <string name="error_create_production_conflict">Ya existe una producción como esta.</string>
+
+  <!-- ProductionDetailsViewModel -->
+  <string name="error_production_details_not_found">Esta producción ya no existe.</string>
+  <string name="error_production_details_forbidden">No tienes acceso a esta producción.</string>
+  <string name="error_production_details_conflict">Esta producción se modificó en otro lugar. Actualiza e inténtalo de nuevo.</string>
+
+  <!-- CreateTaskViewModel -->
+  <string name="error_create_task_title_required">Ponle un título a la tarea.</string>
+  <string name="error_create_task_file_too_large">Ese archivo supera el límite de 50 MB. Elige uno más pequeño.</string>
+  <string name="error_create_task_forbidden">No tienes permiso para añadir tareas aquí.</string>
+  <string name="error_create_task_not_found">Esta producción ya no existe.</string>
+  <string name="error_create_task_conflict">No se ha podido guardar la tarea. Inténtalo de nuevo.</string>
+
+  <!-- TaskDetailsViewModel (participants, load, mark-complete, attachment download) -->
+  <string name="error_task_details_forbidden">No tienes permiso para cambiar los participantes de esta tarea.</string>
+  <string name="error_task_details_not_found">Esta tarea ya no existe.</string>
+  <string name="error_task_details_conflict">No se han podido actualizar los participantes. Inténtalo de nuevo.</string>
+  <string name="error_task_details_attachment_offline">Estás sin conexión. Conéctate e inténtalo de nuevo.</string>
+  <string name="error_task_details_attachment_storage">No hay suficiente espacio libre para descargar este archivo.</string>
+  <string name="error_task_details_attachment_generic">No se ha podido descargar el archivo adjunto. Inténtalo de nuevo.</string>
+</resources>

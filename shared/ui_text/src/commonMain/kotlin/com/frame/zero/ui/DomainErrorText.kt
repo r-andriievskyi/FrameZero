@@ -1,16 +1,6 @@
 package com.frame.zero.ui
 
 import com.frame.zero.domain.DomainError
-import framezero.shared.ui_text.generated.resources.Res
-import framezero.shared.ui_text.generated.resources.error_conflict
-import framezero.shared.ui_text.generated.resources.error_email_exists
-import framezero.shared.ui_text.generated.resources.error_forbidden
-import framezero.shared.ui_text.generated.resources.error_insufficient_storage
-import framezero.shared.ui_text.generated.resources.error_invalid_credentials
-import framezero.shared.ui_text.generated.resources.error_network
-import framezero.shared.ui_text.generated.resources.error_not_found
-import framezero.shared.ui_text.generated.resources.error_server
-import framezero.shared.ui_text.generated.resources.error_unknown_fallback
 
 /**
  * The category a [DomainError] falls into for display purposes — coarser than the domain type
@@ -53,22 +43,22 @@ fun DomainError.category(): DomainErrorCategory =
 
 private fun DomainErrorCategory.canonicalUiText(): UiText =
   when (this) {
-    DomainErrorCategory.NETWORK -> Res.string.error_network
-    DomainErrorCategory.SERVER -> Res.string.error_server
-    DomainErrorCategory.NOT_FOUND -> Res.string.error_not_found
-    DomainErrorCategory.FORBIDDEN -> Res.string.error_forbidden
-    DomainErrorCategory.CONFLICT -> Res.string.error_conflict
-    DomainErrorCategory.INVALID_CREDENTIALS -> Res.string.error_invalid_credentials
-    DomainErrorCategory.EMAIL_EXISTS -> Res.string.error_email_exists
-    DomainErrorCategory.INSUFFICIENT_STORAGE -> Res.string.error_insufficient_storage
+    DomainErrorCategory.NETWORK -> ErrorStringKey.NETWORK
+    DomainErrorCategory.SERVER -> ErrorStringKey.SERVER
+    DomainErrorCategory.NOT_FOUND -> ErrorStringKey.NOT_FOUND
+    DomainErrorCategory.FORBIDDEN -> ErrorStringKey.FORBIDDEN
+    DomainErrorCategory.CONFLICT -> ErrorStringKey.CONFLICT
+    DomainErrorCategory.INVALID_CREDENTIALS -> ErrorStringKey.INVALID_CREDENTIALS
+    DomainErrorCategory.EMAIL_EXISTS -> ErrorStringKey.EMAIL_EXISTS
+    DomainErrorCategory.INSUFFICIENT_STORAGE -> ErrorStringKey.INSUFFICIENT_STORAGE
     DomainErrorCategory.PAYLOAD_TOO_LARGE,
     DomainErrorCategory.VALIDATION,
-    DomainErrorCategory.FALLBACK -> Res.string.error_unknown_fallback
+    DomainErrorCategory.FALLBACK -> ErrorStringKey.UNKNOWN
   }.asUiText()
 
 /**
  * Maps a [DomainError] to user-facing [UiText]. [overrides] lets a feature swap in its own
- * copy for specific categories (built from that feature's own string resources); anything not
+ * copy for specific categories (built from that feature's own [ErrorStringKey]s); anything not
  * overridden falls back to the shared canonical text for its [category].
  */
 fun DomainError.toUiText(overrides: Map<DomainErrorCategory, UiText> = emptyMap()): UiText {

@@ -12,8 +12,7 @@ import com.frame.zero.feature.task.details.ui.TaskDetailsTestTags.ERROR
 import com.frame.zero.feature.task.details.ui.TaskDetailsTestTags.LOADING
 import com.frame.zero.feature.task.details.ui.TaskDetailsTestTags.MARK_COMPLETE
 import com.frame.zero.shared.design_system.AppTheme
-import com.frame.zero.shared.design_system.generated.resources.Res
-import com.frame.zero.shared.design_system.generated.resources.error_generic_message
+import com.frame.zero.ui.ErrorStringKey
 import com.frame.zero.ui.asUiText
 import org.junit.Rule
 import org.junit.Test
@@ -40,7 +39,7 @@ class TaskDetailsContentTest {
 
   @Test
   fun showsOnlyTheErrorWhenLoadFails() {
-    setContent(TaskDetailsState(error = Res.string.error_generic_message.asUiText()))
+    setContent(TaskDetailsState(error = ErrorStringKey.UNKNOWN.asUiText()))
 
     composeRule.onNodeWithTag(ERROR).assertIsDisplayed()
     composeRule.onNodeWithTag(LOADING).assertDoesNotExist()

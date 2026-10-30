@@ -12,6 +12,8 @@ bcrypt = "0.10.2"
 buildKonfig = "0.23.0"
 chucker = "4.3.1"
 decompose = "3.5.0"
+# Pinned to the version Decompose resolves, so shared ViewModels and the Android components agree.
+essenty = "2.5.0"
 detekt = "1.23.8"
 gitliveFirebase = "2.7.0"
 firebaseBom = "35.0.0"
@@ -27,6 +29,8 @@ micrometer = "1.17.1"
 testcontainers = "1.21.4"
 koin = "4.2.2"
 metro = "1.4.5"
+# Supported Kotlin range is checked at configuration time — keep in step with `kotlin`.
+skie = "0.10.15"
 kover = "0.9.11"
 ktlint-gradle = "14.2.0"
 moduleGraph = "0.15.0"
@@ -51,7 +55,8 @@ androidx-uiautomator = "2.4.0"
 composeMultiplatform = "1.12.1"
 androidxComposeUiTest = "1.12.1"
 junit = "4.13.2"
-kotlin = "2.4.21"
+# Pinned to the newest Kotlin SKIE supports (:iosFramework); bump only after SKIE does.
+kotlin = "2.4.20"
 kotlinx-collections-immutable = "0.5.2"
 kotlinx-coroutines = "1.11.0"
 kotlinx-serialization = "1.11.0"
@@ -78,6 +83,7 @@ chucker-library = { module = "com.github.chuckerteam.chucker:library", version.r
 chucker-libraryNoOp = { module = "com.github.chuckerteam.chucker:library-no-op", version.ref = "chucker" }
 decompose = { module = "com.arkivanov.decompose:decompose", version.ref = "decompose" }
 decompose-extensionsCompose = { module = "com.arkivanov.decompose:extensions-compose", version.ref = "decompose" }
+essenty-instanceKeeper = { module = "com.arkivanov.essenty:instance-keeper", version.ref = "essenty" }
 exposed-core = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposed" }
 exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "exposed" }
 exposed-kotlinDatetime = { module = "org.jetbrains.exposed:exposed-kotlin-datetime", version.ref = "exposed" }
@@ -216,6 +222,7 @@ androidxRoom = { id = "androidx.room", version.ref = "androidxRoom" }
 buildKonfig = { id = "com.codingfeline.buildkonfig", version.ref = "buildKonfig" }
 roborazzi = { id = "io.github.takahirom.roborazzi", version.ref = "roborazzi" }
 metro = { id = "dev.zacsweers.metro", version.ref = "metro" }
+skie = { id = "co.touchlab.skie", version.ref = "skie" }
 googleServices = { id = "com.google.gms.google-services", version.ref = "googleServices" }
 firebaseCrashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebaseCrashlyticsPlugin" }
 firebasePerf = { id = "com.google.firebase.firebase-perf", version.ref = "firebasePerfPlugin" }

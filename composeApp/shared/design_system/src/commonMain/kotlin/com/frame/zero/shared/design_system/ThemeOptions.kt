@@ -1,99 +1,24 @@
 package com.frame.zero.shared.design_system
 
+import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.Easing
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.runtime.Immutable
-import com.frame.zero.shared.design_system.tokens.BodyLarge
-import com.frame.zero.shared.design_system.tokens.BodyMedium
-import com.frame.zero.shared.design_system.tokens.BodySmall
-import com.frame.zero.shared.design_system.tokens.Caption
-import com.frame.zero.shared.design_system.tokens.DisplayLarge
-import com.frame.zero.shared.design_system.tokens.DisplayMedium
-import com.frame.zero.shared.design_system.tokens.LabelLarge
-import com.frame.zero.shared.design_system.tokens.LabelMedium
-import com.frame.zero.shared.design_system.tokens.LabelSmall
-import com.frame.zero.shared.design_system.tokens.MonoMedium
-import com.frame.zero.shared.design_system.tokens.MonoSmall
-import com.frame.zero.shared.design_system.tokens.TokenDurationFast
-import com.frame.zero.shared.design_system.tokens.TokenDurationLoop
-import com.frame.zero.shared.design_system.tokens.TokenDurationMedium
-import com.frame.zero.shared.design_system.tokens.TokenDurationSlow
-import com.frame.zero.shared.design_system.tokens.TokenEasingAccelerate
-import com.frame.zero.shared.design_system.tokens.TokenEasingDecelerate
-import com.frame.zero.shared.design_system.tokens.TokenEasingEmphasized
-import com.frame.zero.shared.design_system.tokens.TokenEasingLinear
-import com.frame.zero.shared.design_system.tokens.TokenEasingStandard
-import com.frame.zero.shared.design_system.tokens.TitleExtraLarge
-import com.frame.zero.shared.design_system.tokens.TitleLarge
-import com.frame.zero.shared.design_system.tokens.TitleMedium
-import com.frame.zero.shared.design_system.tokens.TitleSmall
-import com.frame.zero.shared.design_system.tokens.TokenBorderHairline
-import com.frame.zero.shared.design_system.tokens.TokenColorAmberSoftD
-import com.frame.zero.shared.design_system.tokens.TokenColorAmberSoftL
-import com.frame.zero.shared.design_system.tokens.TokenColorAmberTextD
-import com.frame.zero.shared.design_system.tokens.TokenColorAmberTextL
-import com.frame.zero.shared.design_system.tokens.TokenColorBeacon500
-import com.frame.zero.shared.design_system.tokens.TokenColorBeacon600
-import com.frame.zero.shared.design_system.tokens.TokenColorBeaconSoftD
-import com.frame.zero.shared.design_system.tokens.TokenColorBeaconSoftL
-import com.frame.zero.shared.design_system.tokens.TokenColorBeaconTextD
-import com.frame.zero.shared.design_system.tokens.TokenColorBeaconTextL
-import com.frame.zero.shared.design_system.tokens.TokenColorNeutral050
-import com.frame.zero.shared.design_system.tokens.TokenColorNeutral100
-import com.frame.zero.shared.design_system.tokens.TokenColorNeutral100L
-import com.frame.zero.shared.design_system.tokens.TokenColorNeutral200L
-import com.frame.zero.shared.design_system.tokens.TokenColorNeutral300
-import com.frame.zero.shared.design_system.tokens.TokenColorNeutral400
-import com.frame.zero.shared.design_system.tokens.TokenColorNeutral500L
-import com.frame.zero.shared.design_system.tokens.TokenColorNeutral600
-import com.frame.zero.shared.design_system.tokens.TokenColorNeutral600L
-import com.frame.zero.shared.design_system.tokens.TokenColorNeutral700
-import com.frame.zero.shared.design_system.tokens.TokenColorNeutral750
-import com.frame.zero.shared.design_system.tokens.TokenColorNeutral780
-import com.frame.zero.shared.design_system.tokens.TokenColorNeutral800
-import com.frame.zero.shared.design_system.tokens.TokenColorNeutral850
-import com.frame.zero.shared.design_system.tokens.TokenColorNeutral900
-import com.frame.zero.shared.design_system.tokens.TokenColorNeutral900L
-import com.frame.zero.shared.design_system.tokens.TokenColorRoseSoftD
-import com.frame.zero.shared.design_system.tokens.TokenColorRoseSoftL
-import com.frame.zero.shared.design_system.tokens.TokenColorRoseTextD
-import com.frame.zero.shared.design_system.tokens.TokenColorRoseTextL
-import com.frame.zero.shared.design_system.tokens.TokenColorTealSoftD
-import com.frame.zero.shared.design_system.tokens.TokenColorTealSoftL
-import com.frame.zero.shared.design_system.tokens.TokenColorTealTextD
-import com.frame.zero.shared.design_system.tokens.TokenColorTealTextL
-import com.frame.zero.shared.design_system.tokens.TokenColorWhite
-import com.frame.zero.shared.design_system.tokens.TokenRadius14
-import com.frame.zero.shared.design_system.tokens.TokenRadius16
-import com.frame.zero.shared.design_system.tokens.TokenRadius4
-import com.frame.zero.shared.design_system.tokens.TokenRadius8
-import com.frame.zero.shared.design_system.tokens.TokenRadiusMax
-import com.frame.zero.shared.design_system.tokens.TokenSpace12
-import com.frame.zero.shared.design_system.tokens.TokenSpace16
-import com.frame.zero.shared.design_system.tokens.TokenSpace2
-import com.frame.zero.shared.design_system.tokens.TokenSpace24
-import com.frame.zero.shared.design_system.tokens.TokenSpace32
-import com.frame.zero.shared.design_system.tokens.TokenSpace4
-import com.frame.zero.shared.design_system.tokens.TokenSpace8
-import com.frame.zero.shared.design_system.tokens.amberSoftD
-import com.frame.zero.shared.design_system.tokens.amberSoftL
-import com.frame.zero.shared.design_system.tokens.amberTextD
-import com.frame.zero.shared.design_system.tokens.amberTextL
-import com.frame.zero.shared.design_system.tokens.beaconSoftD
-import com.frame.zero.shared.design_system.tokens.beaconSoftL
-import com.frame.zero.shared.design_system.tokens.beaconTextD
-import com.frame.zero.shared.design_system.tokens.beaconTextL
-import com.frame.zero.shared.design_system.tokens.roseSoftD
-import com.frame.zero.shared.design_system.tokens.roseSoftL
-import com.frame.zero.shared.design_system.tokens.roseTextD
-import com.frame.zero.shared.design_system.tokens.roseTextL
-import com.frame.zero.shared.design_system.tokens.skySoftD
-import com.frame.zero.shared.design_system.tokens.skySoftL
-import com.frame.zero.shared.design_system.tokens.skyTextD
-import com.frame.zero.shared.design_system.tokens.skyTextL
-import com.frame.zero.shared.design_system.tokens.tealSoftD
-import com.frame.zero.shared.design_system.tokens.tealSoftL
-import com.frame.zero.shared.design_system.tokens.tealTextD
-import com.frame.zero.shared.design_system.tokens.tealTextL
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.frame.zero.design.tokens.ColorTokens
+import com.frame.zero.design.tokens.CubicBezier
+import com.frame.zero.design.tokens.DesignTokens
+import com.frame.zero.design.tokens.FontFamilyToken
+import com.frame.zero.design.tokens.TextStyleToken
+import com.frame.zero.design.tokens.TypographyTokens
 
+/** Compose view of [DesignTokens] (`shared/design-tokens`), the values SwiftUI reads too. */
 @Immutable
 data class ThemeOptions(
   val colorSystem: ColorSystem,
@@ -104,157 +29,123 @@ data class ThemeOptions(
   val motionSystem: MotionSystem
 ) {
   companion object {
-    fun light() =
+    fun light() = themeOptions(DesignTokens.light)
+
+    fun dark() = themeOptions(DesignTokens.dark)
+
+    private fun themeOptions(colors: ColorTokens) =
       ThemeOptions(
-        colorSystem = ColorSystem(
-          background = TokenColorNeutral050,
-          surfaceElevated = TokenColorNeutral100L,
-          navBackground = TokenColorNeutral050,
-          inputBackground = TokenColorNeutral100L,
-          cardBackground = TokenColorNeutral100L,
-          border = TokenColorNeutral200L,
-          cardBorder = TokenColorNeutral200L,
-          textPrimary = TokenColorNeutral900L,
-          textSecondary = TokenColorNeutral600L,
-          textMuted = TokenColorNeutral500L,
-          textOnAccent = TokenColorWhite,
-          accent = TokenColorBeacon500,
-          accentDim = TokenColorBeacon600,
-          accentSurface = TokenColorBeaconSoftL,
-          accentText = TokenColorBeaconTextL,
-          successSurface = TokenColorTealSoftL,
-          successText = TokenColorTealTextL,
-          warningSurface = TokenColorAmberSoftL,
-          warningText = TokenColorAmberTextL,
-          errorSurface = TokenColorRoseSoftL,
-          errorText = TokenColorRoseTextL,
-          priorityHighSurface = TokenColorRoseSoftL,
-          priorityHighText = TokenColorRoseTextL,
-          priorityMedSurface = TokenColorAmberSoftL,
-          priorityMedText = TokenColorAmberTextL,
-          priorityLowSurface = TokenColorTealSoftL,
-          priorityLowText = TokenColorTealTextL,
-          developmentSurface = skySoftL,
-          developmentText = skyTextL,
-          preProductionSurface = amberSoftL,
-          preProductionText = amberTextL,
-          productionSurface = tealSoftL,
-          productionText = tealTextL,
-          postProductionSurface = beaconSoftL,
-          postProductionText = beaconTextL,
-          distributionSurface = roseSoftL,
-          distributionText = roseTextL
-        ),
-        typographySystem = sharedTypography(),
-        spacingSystem = sharedSpacing(),
-        radiusSystem = sharedRadius(),
-        borderSystem = sharedBorder(),
-        motionSystem = sharedMotion()
-      )
-
-    fun dark() =
-      ThemeOptions(
-        colorSystem = ColorSystem(
-          background = TokenColorNeutral900,
-          surfaceElevated = TokenColorNeutral750,
-          navBackground = TokenColorNeutral850,
-          inputBackground = TokenColorNeutral800,
-          cardBackground = TokenColorNeutral780,
-          border = TokenColorNeutral600,
-          cardBorder = TokenColorNeutral700,
-          textPrimary = TokenColorNeutral100,
-          textSecondary = TokenColorNeutral300,
-          textMuted = TokenColorNeutral400,
-          textOnAccent = TokenColorWhite,
-          accent = TokenColorBeacon500,
-          accentDim = TokenColorBeacon600,
-          accentSurface = TokenColorBeaconSoftD,
-          accentText = TokenColorBeaconTextD,
-          successSurface = TokenColorTealSoftD,
-          successText = TokenColorTealTextD,
-          warningSurface = TokenColorAmberSoftD,
-          warningText = TokenColorAmberTextD,
-          errorSurface = TokenColorRoseSoftD,
-          errorText = TokenColorRoseTextD,
-          priorityHighSurface = TokenColorRoseSoftD,
-          priorityHighText = TokenColorRoseTextD,
-          priorityMedSurface = TokenColorAmberSoftD,
-          priorityMedText = TokenColorAmberTextD,
-          priorityLowSurface = TokenColorTealSoftD,
-          priorityLowText = TokenColorTealTextD,
-          developmentSurface = skySoftD,
-          developmentText = skyTextD,
-          preProductionSurface = amberSoftD,
-          preProductionText = amberTextD,
-          productionSurface = tealSoftD,
-          productionText = tealTextD,
-          postProductionSurface = beaconSoftD,
-          postProductionText = beaconTextD,
-          distributionSurface = roseSoftD,
-          distributionText = roseTextD
-        ),
-        typographySystem = sharedTypography(),
-        spacingSystem = sharedSpacing(),
-        radiusSystem = sharedRadius(),
-        borderSystem = sharedBorder(),
-        motionSystem = sharedMotion()
-      )
-
-    private fun sharedTypography() =
-      TypographySystem(
-        displayLarge = DisplayLarge,
-        displayMedium = DisplayMedium,
-        titleLarge = TitleLarge,
-        titleExtraLarge = TitleExtraLarge,
-        titleMedium = TitleMedium,
-        titleSmall = TitleSmall,
-        bodyLarge = BodyLarge,
-        bodyMedium = BodyMedium,
-        bodySmall = BodySmall,
-        labelLarge = LabelLarge,
-        labelMedium = LabelMedium,
-        labelSmall = LabelSmall,
-        caption = Caption,
-        monoMedium = MonoMedium,
-        monoSmall = MonoSmall
-      )
-
-    private fun sharedSpacing() =
-      SpacingSystem(
-        space2 = TokenSpace2,
-        space4 = TokenSpace4,
-        space8 = TokenSpace8,
-        space12 = TokenSpace12,
-        space16 = TokenSpace16,
-        space24 = TokenSpace24,
-        space32 = TokenSpace32
-      )
-
-    private fun sharedRadius() =
-      RadiusSystem(
-        radius4 = TokenRadius4,
-        radius8 = TokenRadius8,
-        radius14 = TokenRadius14,
-        radius16 = TokenRadius16,
-        radiusMax = TokenRadiusMax
-      )
-
-    private fun sharedBorder() =
-      BorderSystem(
-        hairline = TokenBorderHairline
-      )
-
-    private fun sharedMotion() =
-      MotionSystem(
-        durationFast = TokenDurationFast,
-        durationMedium = TokenDurationMedium,
-        durationSlow = TokenDurationSlow,
-        durationLoop = TokenDurationLoop,
-        easingStandard = TokenEasingStandard,
-        easingEmphasized = TokenEasingEmphasized,
-        easingDecelerate = TokenEasingDecelerate,
-        easingAccelerate = TokenEasingAccelerate,
-        easingLinear = TokenEasingLinear
+        colorSystem = colors.toColorSystem(),
+        typographySystem = DesignTokens.typography.toTypographySystem(),
+        spacingSystem = with(DesignTokens.spacing) {
+          SpacingSystem(
+            space2 = space2.dp,
+            space4 = space4.dp,
+            space8 = space8.dp,
+            space12 = space12.dp,
+            space16 = space16.dp,
+            space24 = space24.dp,
+            space32 = space32.dp
+          )
+        },
+        radiusSystem = with(DesignTokens.radius) {
+          RadiusSystem(
+            radius4 = radius4.dp,
+            radius8 = radius8.dp,
+            radius14 = radius14.dp,
+            radius16 = radius16.dp,
+            radiusMax = radiusMax.dp
+          )
+        },
+        borderSystem = BorderSystem(hairline = DesignTokens.border.hairline.dp),
+        motionSystem = with(DesignTokens.motion) {
+          MotionSystem(
+            durationFast = durationFast,
+            durationMedium = durationMedium,
+            durationSlow = durationSlow,
+            durationLoop = durationLoop,
+            easingStandard = easingStandard.toEasing(),
+            easingEmphasized = easingEmphasized.toEasing(),
+            easingDecelerate = easingDecelerate.toEasing(),
+            easingAccelerate = easingAccelerate.toEasing(),
+            easingLinear = easingLinear.toEasing()
+          )
+        }
       )
   }
 }
+
+private fun ColorTokens.toColorSystem() =
+  ColorSystem(
+    background = Color(background),
+    surfaceElevated = Color(surfaceElevated),
+    navBackground = Color(navBackground),
+    inputBackground = Color(inputBackground),
+    cardBackground = Color(cardBackground),
+    border = Color(border),
+    cardBorder = Color(cardBorder),
+    textPrimary = Color(textPrimary),
+    textSecondary = Color(textSecondary),
+    textMuted = Color(textMuted),
+    textOnAccent = Color(textOnAccent),
+    accent = Color(accent),
+    accentDim = Color(accentDim),
+    accentSurface = Color(accentSurface),
+    accentText = Color(accentText),
+    successSurface = Color(successSurface),
+    successText = Color(successText),
+    warningSurface = Color(warningSurface),
+    warningText = Color(warningText),
+    errorSurface = Color(errorSurface),
+    errorText = Color(errorText),
+    priorityHighSurface = Color(priorityHighSurface),
+    priorityHighText = Color(priorityHighText),
+    priorityMedSurface = Color(priorityMedSurface),
+    priorityMedText = Color(priorityMedText),
+    priorityLowSurface = Color(priorityLowSurface),
+    priorityLowText = Color(priorityLowText),
+    developmentSurface = Color(developmentSurface),
+    developmentText = Color(developmentText),
+    preProductionSurface = Color(preProductionSurface),
+    preProductionText = Color(preProductionText),
+    productionSurface = Color(productionSurface),
+    productionText = Color(productionText),
+    postProductionSurface = Color(postProductionSurface),
+    postProductionText = Color(postProductionText),
+    distributionSurface = Color(distributionSurface),
+    distributionText = Color(distributionText)
+  )
+
+private fun TypographyTokens.toTypographySystem() =
+  TypographySystem(
+    displayLarge = displayLarge.toTextStyle(),
+    displayMedium = displayMedium.toTextStyle(),
+    titleLarge = titleLarge.toTextStyle(),
+    titleExtraLarge = titleExtraLarge.toTextStyle(),
+    titleMedium = titleMedium.toTextStyle(),
+    titleSmall = titleSmall.toTextStyle(),
+    bodyLarge = bodyLarge.toTextStyle(),
+    bodyMedium = bodyMedium.toTextStyle(),
+    bodySmall = bodySmall.toTextStyle(),
+    labelLarge = labelLarge.toTextStyle(),
+    labelMedium = labelMedium.toTextStyle(),
+    labelSmall = labelSmall.toTextStyle(),
+    caption = caption.toTextStyle(),
+    monoMedium = monoMedium.toTextStyle(),
+    monoSmall = monoSmall.toTextStyle()
+  )
+
+private fun TextStyleToken.toTextStyle() =
+  TextStyle(
+    fontFamily = when (fontFamily) {
+      FontFamilyToken.SANS -> FontFamily.SansSerif
+      FontFamilyToken.MONO -> FontFamily.Monospace
+    },
+    fontWeight = FontWeight(weight),
+    fontSize = size.sp,
+    letterSpacing = letterSpacing?.sp ?: TextUnit.Unspecified,
+    lineHeight = lineHeight?.sp ?: TextUnit.Unspecified
+  )
+
+private fun CubicBezier.toEasing(): Easing =
+  if (this == CubicBezier.Linear) LinearEasing else CubicBezierEasing(x1, y1, x2, y2)

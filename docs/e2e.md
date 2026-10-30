@@ -39,15 +39,26 @@ CI (JUnit report):
 maestro test --format junit --output build/maestro-report.xml .maestro/flows
 ```
 
-## iOS (pending demo scheme)
+## iOS
 
-No demo Xcode scheme exists yet. Manual path that works today:
+Use the shared **`iosApp Demo`** Xcode scheme (Demo configuration, `iosApp/Configuration/Demo.xcconfig`).
+Its "Compile Kotlin Framework" phase passes `-Pbuildkonfig.flavor=demo`, so it runs on the demo graph
+with offline fake data. Pick it in Xcode, or build from the command line:
 
 ```bash
-./gradlew -q :composeApp:linkDebugFrameworkIosSimulatorArm64 -Pbuildkonfig.flavor=demo
-# then build & install the app to a booted simulator via Xcode (do not clean), then:
+xcodebuild -project iosApp/iosApp.xcodeproj -scheme "iosApp Demo" \
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' build
+# install to the booted simulator, then:
 maestro test .maestro/flows
 ```
+
+Every screen is SwiftUI now (`docs/ios-swiftui-migration.md`), and each view carries the Compose
+`testTag` strings as `.accessibilityIdentifier(...)`, so the same `id:` selectors match on iOS. Reuse the
+existing identifiers verbatim when adding a view; don't invent iOS-only ones.
+
+**Not yet run on iOS.** The suite was written against Android. One known gap: Maestro's `back` command
+is Android-only, so `browse-production.yaml`'s final `back` needs an iOS form (a tap on the navigation
+bar's back button, or a left-edge swipe) before the flow can pass there.
 
 Requires the gitignored `iosApp/iosApp/GoogleService-Info.plist` (`FirebaseApp.configure()`
 runs at boot even in demo). On iOS, Maestro matches accessibility identifiers/labels — if a

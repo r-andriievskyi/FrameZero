@@ -3,6 +3,9 @@
 Everything runs against the **demo flavor** (offline seed data, any credentials) — same anchors as the Maestro E2E
 flows (`testTagsAsResourceId` resource-ids like `sign-in:email`, `productions:list`).
 
+Android only: baseline profiles and Macrobenchmark are ART/Android tooling with no iOS counterpart here. The
+SwiftUI app (`iosApp/`) has no startup benchmark; Instruments (App Launch template) is the manual tool there.
+
 ## What ships
 
 - `androidApp/src/demoRelease/generated/baselineProfiles/baseline-prof.txt` — committed,

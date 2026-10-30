@@ -13,5 +13,8 @@ consistent.
 - **Pull a third-party design system** — over-prescriptive for a solo
   product.
 
-**Cost:** new tokens land in `ColorSystem` + `ThemeOptions` first, used
-second. Documented as a rule in `CLAUDE.md`.
+**Cost:** new tokens land in `shared/design-tokens` (`DesignTokens`, raw values +
+light/dark assembly, no Compose) and the matching `ColorSystem`/… field + `ThemeOptions`
+mapping first, used second. The raw values live outside Compose so SwiftUI reads the
+same ones through the iOS framework — one source of truth instead of a drifting Swift copy.
+Documented as a rule in `CLAUDE.md`.

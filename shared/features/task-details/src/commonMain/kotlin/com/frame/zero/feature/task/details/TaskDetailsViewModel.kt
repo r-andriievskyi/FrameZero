@@ -15,19 +15,13 @@ import com.frame.zero.feature.task.details.usecase.GetTaskDetailsUseCase
 import com.frame.zero.feature.task.details.usecase.UpdateTaskParticipantsUseCase
 import com.frame.zero.repository.tasks.TasksRepository
 import com.frame.zero.ui.DomainErrorCategory
+import com.frame.zero.ui.ErrorStringKey
 import com.frame.zero.ui.UiText
 import com.frame.zero.ui.asUiText
 import com.frame.zero.ui.toUiText
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
-import framezero.shared.features.task_details.generated.resources.Res
-import framezero.shared.features.task_details.generated.resources.error_attachment_generic
-import framezero.shared.features.task_details.generated.resources.error_attachment_offline
-import framezero.shared.features.task_details.generated.resources.error_attachment_storage
-import framezero.shared.features.task_details.generated.resources.error_conflict
-import framezero.shared.features.task_details.generated.resources.error_forbidden
-import framezero.shared.features.task_details.generated.resources.error_not_found
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
@@ -284,15 +278,15 @@ class TaskDetailsViewModel(
     const val MAX_EXTENSION_LENGTH = 5
 
     val errorMessages: Map<DomainErrorCategory, UiText> = mapOf(
-      DomainErrorCategory.NOT_FOUND to Res.string.error_not_found.asUiText(),
-      DomainErrorCategory.FORBIDDEN to Res.string.error_forbidden.asUiText(),
-      DomainErrorCategory.CONFLICT to Res.string.error_conflict.asUiText()
+      DomainErrorCategory.NOT_FOUND to ErrorStringKey.TASK_DETAILS_NOT_FOUND.asUiText(),
+      DomainErrorCategory.FORBIDDEN to ErrorStringKey.TASK_DETAILS_FORBIDDEN.asUiText(),
+      DomainErrorCategory.CONFLICT to ErrorStringKey.TASK_DETAILS_CONFLICT.asUiText()
     )
 
     val attachmentErrorMessages: Map<DomainErrorCategory, UiText> = mapOf(
-      DomainErrorCategory.NETWORK to Res.string.error_attachment_offline.asUiText(),
-      DomainErrorCategory.INSUFFICIENT_STORAGE to Res.string.error_attachment_storage.asUiText(),
-      DomainErrorCategory.FALLBACK to Res.string.error_attachment_generic.asUiText()
+      DomainErrorCategory.NETWORK to ErrorStringKey.TASK_DETAILS_ATTACHMENT_OFFLINE.asUiText(),
+      DomainErrorCategory.INSUFFICIENT_STORAGE to ErrorStringKey.TASK_DETAILS_ATTACHMENT_STORAGE.asUiText(),
+      DomainErrorCategory.FALLBACK to ErrorStringKey.TASK_DETAILS_ATTACHMENT_GENERIC.asUiText()
     )
   }
 

@@ -19,7 +19,7 @@ start. It is a Kotlin compiler plugin, so there is no KSP fan-out across
   graph, where runtime resolution costs little, and `koin-ktor` integrates with Ktor's
   plugin model in a way Metro does not.
 - Demo/prod can no longer be a load-order override. Each platform declares two graphs
-  that exclude the other flavor's bindings — see `AndroidAppGraphs.kt` / `IosAppGraphs.kt`.
+  that exclude the other flavor's bindings — see `AndroidAppGraphs.kt` (`composeApp`) / `IosAppGraphs.kt` (`iosFramework`).
   Deliberately **without** `replaces`, so a missing exclusion is a duplicate-binding
   compile error instead of a production build quietly serving demo data.
 - Metro cannot see another module's `internal` declarations when it merges the graph,

@@ -13,18 +13,13 @@ import com.frame.zero.domain.task.AssignableMember
 import com.frame.zero.feature.task.create.domain.CreateTaskUseCase
 import com.frame.zero.feature.task.create.domain.GetAssignableMembersUseCase
 import com.frame.zero.ui.DomainErrorCategory
+import com.frame.zero.ui.ErrorStringKey
 import com.frame.zero.ui.UiText
 import com.frame.zero.ui.asUiText
 import com.frame.zero.ui.toUiText
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
-import framezero.shared.features.task_create.generated.resources.Res
-import framezero.shared.features.task_create.generated.resources.error_conflict
-import framezero.shared.features.task_create.generated.resources.error_file_too_large
-import framezero.shared.features.task_create.generated.resources.error_forbidden
-import framezero.shared.features.task_create.generated.resources.error_not_found
-import framezero.shared.features.task_create.generated.resources.error_title_required
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Clock
 import kotlin.uuid.ExperimentalUuidApi
@@ -134,7 +129,7 @@ class CreateTaskViewModel(
       if (picked.sizeBytes > MAX_ATTACHMENT_BYTES) {
         // Too big to upload — discard the copy the picker made and surface the limit.
         attachmentFileManager.delete(picked.localPath)
-        _state.update { it.copy(attachmentError = Res.string.error_file_too_large.asUiText()) }
+        _state.update { it.copy(attachmentError = ErrorStringKey.CREATE_TASK_FILE_TOO_LARGE.asUiText()) }
         return@launch
       }
       _state.update { it.copy(attachment = picked, attachmentError = null) }
@@ -170,7 +165,7 @@ class CreateTaskViewModel(
     val current = _state.value
     if (current.isLoading) return
     if (current.title.isBlank()) {
-      _state.update { it.copy(titleError = Res.string.error_title_required.asUiText()) }
+      _state.update { it.copy(titleError = ErrorStringKey.CREATE_TASK_TITLE_REQUIRED.asUiText()) }
       return
     }
     _state.update { it.copy(isLoading = true, titleError = null, errorToast = null) }
@@ -248,10 +243,10 @@ class CreateTaskViewModel(
     const val DAYS_IN_WEEK = 7
 
     val errorMessages: Map<DomainErrorCategory, UiText> = mapOf(
-      DomainErrorCategory.NOT_FOUND to Res.string.error_not_found.asUiText(),
-      DomainErrorCategory.FORBIDDEN to Res.string.error_forbidden.asUiText(),
-      DomainErrorCategory.CONFLICT to Res.string.error_conflict.asUiText(),
-      DomainErrorCategory.PAYLOAD_TOO_LARGE to Res.string.error_file_too_large.asUiText()
+      DomainErrorCategory.NOT_FOUND to ErrorStringKey.CREATE_TASK_NOT_FOUND.asUiText(),
+      DomainErrorCategory.FORBIDDEN to ErrorStringKey.CREATE_TASK_FORBIDDEN.asUiText(),
+      DomainErrorCategory.CONFLICT to ErrorStringKey.CREATE_TASK_CONFLICT.asUiText(),
+      DomainErrorCategory.PAYLOAD_TOO_LARGE to ErrorStringKey.CREATE_TASK_FILE_TOO_LARGE.asUiText()
     )
   }
 

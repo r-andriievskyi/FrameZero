@@ -21,15 +21,6 @@ internal fun CrewAvatar(
   member: CrewMemberEntry,
   modifier: Modifier = Modifier
 ) {
-  val initials = member.name.trim().split("\\s+".toRegex()).let { parts ->
-    when {
-      parts.size >= 2 ->
-        "${parts.first().first().uppercaseChar()}${parts.last().first().uppercaseChar()}"
-      parts.isNotEmpty() && parts[0].isNotEmpty() ->
-        parts[0].first().uppercaseChar().toString()
-      else -> "?"
-    }
-  }
   Box(
     modifier = modifier
       .size(CrewAvatarSize)
@@ -38,7 +29,7 @@ internal fun CrewAvatar(
     contentAlignment = Alignment.Center
   ) {
     Text(
-      text = initials,
+      text = member.initials,
       style = AppTheme.typographySystem.labelSmall,
       color = AppTheme.colorSystem.textOnAccent
     )

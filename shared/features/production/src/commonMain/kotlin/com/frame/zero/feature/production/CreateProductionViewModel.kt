@@ -6,16 +6,12 @@ import com.frame.zero.domain.Outcome
 import com.frame.zero.domain.production.NewCrewMember
 import com.frame.zero.feature.production.domain.CreateProductionUseCase
 import com.frame.zero.ui.DomainErrorCategory
+import com.frame.zero.ui.ErrorStringKey
 import com.frame.zero.ui.UiText
 import com.frame.zero.ui.asUiText
 import com.frame.zero.ui.isOfflineOrServerError
 import com.frame.zero.ui.toUiText
 import dev.zacsweers.metro.Inject
-import framezero.shared.features.production.generated.resources.Res
-import framezero.shared.features.production.generated.resources.error_conflict
-import framezero.shared.features.production.generated.resources.error_invalid_dates
-import framezero.shared.features.production.generated.resources.error_missing_dates
-import framezero.shared.features.production.generated.resources.error_title_required
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
@@ -126,9 +122,9 @@ class CreateProductionViewModel(
       1 -> {
         if (!current.canAdvanceStep1) {
           val error = if (current.title.isBlank()) {
-            Res.string.error_title_required.asUiText()
+            ErrorStringKey.CREATE_PRODUCTION_TITLE_REQUIRED.asUiText()
           } else {
-            Res.string.error_invalid_dates.asUiText()
+            ErrorStringKey.CREATE_PRODUCTION_INVALID_DATES.asUiText()
           }
           _state.update { it.copy(error = error) }
           return
@@ -150,7 +146,7 @@ class CreateProductionViewModel(
     val wrap = current.wrapDate
     if (start == null || wrap == null) {
       _state.update {
-        it.copy(isLoading = false, error = Res.string.error_missing_dates.asUiText())
+        it.copy(isLoading = false, error = ErrorStringKey.CREATE_PRODUCTION_MISSING_DATES.asUiText())
       }
       return
     }
@@ -199,7 +195,7 @@ class CreateProductionViewModel(
     const val TOTAL_STEPS = 3
 
     val errorMessages: Map<DomainErrorCategory, UiText> = mapOf(
-      DomainErrorCategory.CONFLICT to Res.string.error_conflict.asUiText()
+      DomainErrorCategory.CONFLICT to ErrorStringKey.CREATE_PRODUCTION_CONFLICT.asUiText()
     )
   }
 }

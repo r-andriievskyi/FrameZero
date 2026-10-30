@@ -4,8 +4,8 @@
 <dict>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
-	<key>firebase_performance_collection_enabled</key>
-	<string>$(FIREBASE_PERF_COLLECTION_ENABLED)</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>FrameZero uses Face ID to unlock the app.</string>
 	<key>UILaunchScreen</key>
 	<dict>
 		<key>UIColorName</key>
@@ -13,5 +13,7 @@
 		<key>UIImageRespectsSafeAreaInsets</key>
 		<true/>
 	</dict>
+	<key>firebase_performance_collection_enabled</key>
+	<string>$(FIREBASE_PERF_COLLECTION_ENABLED)</string>
 </dict>
 </plist>

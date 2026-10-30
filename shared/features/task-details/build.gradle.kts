@@ -1,5 +1,5 @@
 plugins {
-  id("crossplatform.library.compose")
+  id("crossplatform.library")
   id("crossplatform.di")
 }
 
@@ -12,12 +12,11 @@ kotlin {
     commonMain.dependencies {
       api(projects.shared)
       api(projects.shared.uiText)
-      api(libs.decompose)
+      api(libs.essenty.instanceKeeper)
       implementation(projects.shared.repositories.tasks.api)
       implementation(projects.shared.repositories.productions.api)
       implementation(libs.kotlinx.coroutines.core)
       implementation(libs.bundles.ktorClient)
-      implementation(libs.compose.components.resources)
     }
     commonTest.dependencies {
       implementation(projects.shared.testFixtures)

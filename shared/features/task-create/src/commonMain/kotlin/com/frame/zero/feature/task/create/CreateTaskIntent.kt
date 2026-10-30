@@ -1,7 +1,11 @@
+@file:OptIn(ExperimentalObjCName::class)
+
 package com.frame.zero.feature.task.create
 
 import com.frame.zero.domain.task.TaskPriority
 import kotlinx.datetime.LocalDate
+import kotlin.experimental.ExperimentalObjCName
+import kotlin.native.ObjCName
 
 sealed interface CreateTaskIntent {
   data class TitleChanged(
@@ -9,6 +13,7 @@ sealed interface CreateTaskIntent {
   ) : CreateTaskIntent
 
   data class DescriptionChanged(
+    @ObjCName("taskDescription")
     val description: String
   ) : CreateTaskIntent
 
