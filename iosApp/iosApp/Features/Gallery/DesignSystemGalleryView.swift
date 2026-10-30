@@ -24,6 +24,7 @@ struct DesignSystemGalleryView: View {
                 ButtonsSection()
                 InputSection()
                 ToastSection()
+                GlassSection()
             }
             .padding(.horizontal, CGFloat(spacing.space16))
             .padding(.top, CGFloat(spacing.space16))
@@ -234,6 +235,49 @@ private struct ToastSection: View {
                 AppToast(title: "Something went wrong", severity: .error, actionLabel: verbatimKey("Retry")) {}
             }
         }
+    }
+}
+
+private struct GlassSection: View {
+    var body: some View {
+        GallerySection(title: "Glass") {
+            GlassShowcase()
+        }
+    }
+}
+
+/// The `Glass.swift` helpers over a striped backdrop, since glass only shows against busy content.
+/// Below iOS 26 it shows their opaque fallbacks. The snapshot tests render it too.
+struct GlassShowcase: View {
+    @Environment(\.colorScheme) private var colorScheme
+
+    var body: some View {
+        let colors = ColorTokens.forScheme(colorScheme)
+        let spacing = DesignTokens.shared.spacing
+        ZStack {
+            HStack(spacing: 0) {
+                ForEach([colors.accent, colors.successText, colors.warningText, colors.errorText], id: \.self) {
+                    Color(argb: $0)
+                }
+            }
+            VStack(spacing: CGFloat(spacing.space12)) {
+                Text(verbatim: "glassSurface")
+                    .textStyle(DesignTokens.shared.typography.labelMedium)
+                    .foregroundStyle(Color(argb: colors.textPrimary))
+                    .padding(.horizontal, CGFloat(spacing.space24))
+                    .padding(.vertical, CGFloat(spacing.space12))
+                    .glassSurface(in: Capsule())
+                HStack(spacing: CGFloat(spacing.space12)) {
+                    Button(verbatimKey("Glass")) {}
+                        .glassButtonStyle()
+                    Button(verbatimKey("Prominent")) {}
+                        .glassButtonStyle(prominent: true)
+                        .tint(Color(argb: colors.accent))
+                }
+            }
+            .padding(.vertical, CGFloat(spacing.space24))
+        }
+        .clipShape(RoundedRectangle(cornerRadius: CGFloat(DesignTokens.shared.radius.radius14)))
     }
 }
 

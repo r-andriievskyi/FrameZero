@@ -25,4 +25,9 @@ final class DesignComponentSnapshotTests: XCTestCase {
             AppToast(title: "Upload failed — check connection", severity: .error, actionLabel: "Retry") {}
         })
     }
+
+    @available(iOS 26, *)
+    func testGlass() {
+        assertLightDarkSnapshots(of: GlassShowcase(), drawHierarchy: true)
+    }
 }

@@ -117,14 +117,13 @@ private struct TaskDetailsContent: View {
             .padding(.vertical, CGFloat(spacing.space8))
         }
         .accessibilityIdentifier("task-details:content")
-        .safeAreaInset(edge: .bottom) {
+        .glassBottomBar {
             if state.showMarkCompleteButton {
                 CtaButton(title: "task_details_mark_complete") {
                     model.onIntent(TaskDetailsIntentMarkComplete.shared)
                 }
                 .accessibilityIdentifier("task-details:mark-complete")
                 .padding(CGFloat(spacing.space16))
-                .background(Color(argb: colors.background))
             }
         }
     }

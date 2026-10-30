@@ -84,7 +84,7 @@ struct MemberPickerSheet<Member: PickableMember>: View {
         .padding(.top, CGFloat(spacing.space24))
         .presentationDetents([.medium, .large])
         .presentationDragIndicator(.visible)
-        .presentationBackground(Color(argb: colors.cardBackground))
+        .glassSheetBackground()
     }
 }
 

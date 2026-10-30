@@ -91,6 +91,6 @@ private struct DatePickerSheet: View {
                 }
         }
         .presentationDetents([.medium, .large])
-        .presentationBackground(Color(argb: colors.cardBackground))
+        .glassSheetBackground()
     }
 }
