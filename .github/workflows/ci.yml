@@ -120,6 +120,8 @@ jobs:
       - name: Snapshot tests (Demo, iPhone 17 Pro iOS 26.5 simulator)
         env:
           TEST_RUNNER_SNAPSHOT_ARTIFACTS: ${{ runner.temp }}/snapshot-diffs
+          # Reaches the test process as CI (xcodebuild strips TEST_RUNNER_); skips the GPU-dependent glass golden.
+          TEST_RUNNER_CI: "true"
         run: |
           xcodebuild test \
             -project iosApp/iosApp.xcodeproj \
