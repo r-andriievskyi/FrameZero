@@ -25,4 +25,12 @@ final class DesignComponentSnapshotTests: XCTestCase {
             AppToast(title: "Upload failed — check connection", severity: .error, actionLabel: "Retry") {}
         })
     }
+
+    /// Glass is composited on the host GPU, so its pixels differ between a Mac and CI's virtualized GPU
+    /// beyond any tolerance that would still catch a glass regression: the reference is checked locally only.
+    @available(iOS 26, *)
+    func testGlass() throws {
+        try XCTSkipIf(ProcessInfo.processInfo.environment["CI"] != nil, "Liquid Glass rendering is host-GPU dependent")
+        assertLightDarkSnapshots(of: GlassShowcase(), drawHierarchy: true)
+    }
 }

@@ -90,16 +90,12 @@ struct CreateTaskView: View {
             .padding(CGFloat(spacing.space16))
         }
         .scrollDismissesKeyboard(.interactively)
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            VStack(spacing: 0) {
-                Divider().overlay(Color(argb: colors.border))
-                CtaButton(title: "create_task", isLoading: state.isLoading) {
-                    model.onIntent(CreateTaskIntentSubmit.shared)
-                }
-                .accessibilityIdentifier("create-task:submit")
-                .padding(CGFloat(spacing.space16))
+        .glassBottomBar(spacing: 0, divider: true) {
+            CtaButton(title: "create_task", isLoading: state.isLoading) {
+                model.onIntent(CreateTaskIntentSubmit.shared)
             }
-            .background(Color(argb: colors.background))
+            .accessibilityIdentifier("create-task:submit")
+            .padding(CGFloat(spacing.space16))
         }
         .background(Color(argb: colors.background))
         .navigationTitle("new_task_title")

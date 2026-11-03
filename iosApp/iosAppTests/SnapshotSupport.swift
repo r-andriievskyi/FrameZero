@@ -14,9 +14,13 @@ extension XCTestCase {
     /// The iOS counterpart of a Roborazzi `@LightDarkPreview` golden; references live in
     /// `__Snapshots__/<test file>/` beside the test. Recorded on the iPhone 17 Pro simulator (iOS 26.5), the
     /// device CI runs; a missing reference is recorded and fails the test once.
+    ///
+    /// Pass `drawHierarchy` for Liquid Glass: the default layer render drops glass entirely, while
+    /// drawing the window hierarchy captures it (docs/ios-liquid-glass-plan.md, step 0).
     @MainActor
     func assertLightDarkSnapshots<V: View>(
         of view: V,
+        drawHierarchy: Bool = false,
         file: StaticString = #filePath,
         testName: String = #function,
         line: UInt = #line
@@ -25,6 +29,7 @@ extension XCTestCase {
             assertSnapshot(
                 of: SnapshotSurface { view }.environment(\.colorScheme, scheme),
                 as: .image(
+                    drawHierarchyInKeyWindow: drawHierarchy,
                     perceptualPrecision: perceptualPrecision,
                     layout: .sizeThatFits,
                     traits: UITraitCollection(userInterfaceStyle: style)

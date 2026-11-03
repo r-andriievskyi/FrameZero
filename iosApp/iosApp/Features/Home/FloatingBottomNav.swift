@@ -16,10 +16,11 @@ extension HomeTab {
     }
 }
 
-/// Pill-shaped tab switcher floating above the content; mirrors composeApp/features/home
-/// `FloatingBottomNav`. Labels double as Maestro text anchors ("Productions").
+/// Pill-shaped tab switcher floating above the content, on Liquid Glass from iOS 26; mirrors
+/// composeApp/features/home `FloatingBottomNav`. Labels double as Maestro text anchors ("Productions").
 struct FloatingBottomNav: View {
     @Binding var selection: HomeTab
+    @Namespace private var pill
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
@@ -37,7 +38,14 @@ struct FloatingBottomNav: View {
                         .padding(.horizontal, CGFloat(spacing.space16))
                         .padding(.vertical, CGFloat(spacing.space8))
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .background(isSelected ? Color(argb: colors.accent) : .clear, in: Capsule())
+                        .background {
+                            // One pill that slides between tabs rather than one per tab cross-fading.
+                            if isSelected {
+                                Capsule()
+                                    .fill(Color(argb: colors.accent))
+                                    .matchedGeometryEffect(id: "pill", in: pill)
+                            }
+                        }
                         .contentShape(Capsule())
                 }
                 .buttonStyle(.plain)
@@ -46,8 +54,9 @@ struct FloatingBottomNav: View {
         }
         .padding(CGFloat(spacing.space4))
         .frame(height: height)
-        .background(Color(argb: colors.surfaceElevated), in: Capsule())
-        .overlay(Capsule().stroke(Color(argb: colors.border), lineWidth: CGFloat(DesignTokens.shared.border.hairline)))
+        .glassSurface(in: Capsule())
+        // A swipe between pages changes `selection` outside `withAnimation`; this slides the pill then too.
+        .animation(.snappy, value: selection)
     }
 }
 
